@@ -60,3 +60,26 @@ supabase/migrations/  SQL numerado
    cuando le dicen que pare. Es lo que mantiene el acceso abierto.
 3. **Ningún dato inventado.** Si falta un código o una URL, se pide. En el
    repositorio no hay ni un valor de relleno.
+
+## Despliegue
+
+La web está en Vercel, plan gratis (Hobby): <https://fcylf.vercel.app>
+
+El proyecto de Vercel se llama `fcylf`. Para que cada `git push` despliegue solo:
+
+1. Vercel → proyecto `fcylf` → Settings → Git → conecta este repositorio.
+2. En Settings → General, pon **Root Directory** = `apps/web`.
+3. Listo: `main` va a producción y cada rama crea su propia preview.
+
+El plan gratis de Vercel es para uso **no comercial**. Sin anuncios ni cuota,
+cumple; si algún día monetizas, hay que pasar a Pro.
+
+Alternativas gratis equivalentes, por si acaso: Netlify, Cloudflare Pages y
+Render sirven Next.js igual de bien.
+
+### Lo que hace GitHub Actions ahora mismo
+
+- `.github/workflows/test.yml` — corre `pnpm test` en cada push y cada PR. **Activo.**
+- `.github/workflows/ingesta.yml` — el worker de datos. **Desactivado a propósito**:
+  sin las URLs de la federación termina en error, y con el cron puesto te llenaría
+  el correo de fallos. Se activa descomentando el bloque `schedule`.
