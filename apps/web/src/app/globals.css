@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Rojiblanco a rayas verticales, pantalón negro, medias rojas: los colores del
+   C.D. Munibar Pizarrales según su ficha federativa. El rojo exacto está pendiente
+   de confirmar con el escudo vectorial del club (PROYECTO.md §11.4). */
+@theme {
+  --color-club: #CE2028;
+  --color-club-oscuro: #9E141B;
+  --color-club-claro: #FBE7E8;
+  --color-pizarra: #16181C;
+  --color-pizarra-claro: #272C33;
+  --color-cal: #F0F0EF;
+  /* Los titulares piden una condensada tipo Oswald. Para no depender de Google Fonts
+     al construir, se usa la del sistema; si quieres la de verdad, añade
+     `next/font/google` en layout.tsx y apunta esta variable a ella. */
+  --font-display: 'Oswald', 'Haettenschweiler', 'Arial Narrow', Impact, sans-serif;
+}
+
+body { background: var(--color-cal); }
+
+/* el rayado de la camiseta, para la cabecera */
+.rayas {
+  background: repeating-linear-gradient(90deg, var(--color-club) 0 14px, #F7F7F6 14px 28px);
+}

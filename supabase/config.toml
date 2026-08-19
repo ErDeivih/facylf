@@ -1,0 +1,7 @@
+project_id = "futbol-salamanca"
+
+[db]
+major_version = 15
+
+[realtime]
+enabled = true

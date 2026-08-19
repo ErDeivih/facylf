@@ -1,0 +1,31 @@
+name: ingesta
+
+# Frecuencia adaptativa: el cron dispara a menudo y el worker decide si toca mirar
+# algo (packages/ingesta/src/frecuencia.ts). Las horas del cron son UTC; España va
+# una o dos por delante según la época del año.
+on:
+  schedule:
+    - cron: '*/5 7,8,9,10,11,12,13,14,15,16,17,18,19,20 * * 6,0'  # findes, horario de partidos
+    - cron: '0 8-22 * * 1'                                        # lunes, actas que se cierran
+    - cron: '0 8,14,20 * * 2-5'                                   # entre semana
+  workflow_dispatch:
+
+concurrency:
+  group: ingesta
+  cancel-in-progress: false
+
+jobs:
+  ciclo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm ingesta:todas
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BOT_URL: ${{ vars.BOT_URL }}
+          BOT_CONTACTO: ${{ vars.BOT_CONTACTO }}

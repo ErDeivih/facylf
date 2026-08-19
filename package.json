@@ -1,0 +1,22 @@
+{
+  "name": "futbol-salamanca",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm --filter @fcylf/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:dominio": "pnpm --filter @fcylf/dominio test",
+    "ingesta:una": "pnpm --filter @fcylf/ingesta ingesta:una",
+    "ingesta:todas": "pnpm --filter @fcylf/ingesta ingesta:todas",
+    "descubrir-competiciones": "pnpm --filter @fcylf/ingesta descubrir",
+    "db:migrar": "supabase db push",
+    "db:tipos": "supabase gen types typescript --linked > packages/ingesta/src/tipos-db.ts",
+    "lint": "tsc -b --noEmit packages/dominio packages/ingesta"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
