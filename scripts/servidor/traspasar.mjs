@@ -102,6 +102,36 @@ function erroresDeRed(federacion) {
   return Number(salida.split('\n').pop()) || 0;
 }
 
+/**
+ * Las líneas NUEVAS del registro de esa federación desde que se arrancó (sólo las de después de `desdeLineas`).
+ *
+ * El registro se lee POR LÍNEAS y se compara con lo que había antes: así se juzga lo que ha pasado DESDE el
+ * arranque y no lo que quedó escrito de la vez anterior.
+ */
+function lineasNuevas(federacion, desdeLineas) {
+  const salida = enServidor(`wc -l < ${REMOTO}/descargas-${federacion}/recolector-local/worker-programado.log 2>/dev/null || echo 0`);
+  const total = Number(salida.split('\n').pop()) || 0;
+  if (total <= desdeLineas) return { total, nuevas: [] };
+  const nuevas = enServidor(`tail -n +${desdeLineas + 1} ${REMOTO}/descargas-${federacion}/recolector-local/worker-programado.log 2>/dev/null | tail -60`);
+  return { total, nuevas: nuevas.split('\n').filter(Boolean) };
+}
+
+/**
+ * ¿El recolector está trabajando de verdad? Con las líneas nuevas del registro, no con una corazonada.
+ *
+ * ── POR QUÉ ESTO ES ASÍ (21/09/2026) ────────────────────────────────────────────────────────────────────
+ *
+ * La primera versión sólo miraba que no hubiera errores de DNS y dio por buenas CUATRO federaciones que en
+ * realidad se estaban cayendo al arrancar (un `SyntaxError` en el recolector). «No hay errores de DNS» no es
+ * «está funcionando»: hay que ver una señal de progreso y descartar un fallo explícito.
+ */
+function pareceQueTrabaja(nuevas) {
+  const texto = nuevas.join('\n');
+  const fallo = /^Error|SyntaxError|missing \)|termino con codigo [1-9]|no se pudo|FALLO/i.test(texto);
+  const progreso = /→ |✓ acta|✓ |Sin trabajo disponible|sesión limitada|esperando para abrir Chrome/i.test(texto);
+  return { trabaja: progreso && !fallo, fallo, progreso, detalle: nuevas.slice(-6).join('\n') };
+}
+
 async function traspasa(federacion) {
   console.log(`\n════════ traspaso de ${federacion} ════════`);
 
@@ -149,19 +179,19 @@ async function traspasa(federacion) {
   }
 
   paso(4, 'arrancar su contenedor en el servidor');
-  enServidor(`cd ${REMOTO} && docker compose --project-name facylf --env-file docker/.env -f docker/compose.yml up -d --force-recreate ${federacion} 2>&1 | tail -2`);
+  const antesDeArrancar = Number(enServidor(`wc -l < ${REMOTO}/descargas-${federacion}/recolector-local/worker-programado.log 2>/dev/null || echo 0`).split('\n').pop()) || 0;
+  enServidor(`cd ${REMOTO} && docker compose --project-name facylf --env-file docker/.env -f docker/compose.yml up -d --force-recreate ${federacion} 2>&1 | tail -1`);
 
   paso(5, `verificar ${MINUTOS_VERIFICACION} min que pide de verdad`);
-  const antes = erroresDeRed(federacion);
   await new Promise((listo) => setTimeout(listo, MINUTOS_VERIFICACION * 60_000));
-  const despues = erroresDeRed(federacion);
-  const nuevos = despues - antes;
-  const registro = enServidor(`tail -6 ${REMOTO}/descargas-${federacion}/recolector-local/worker-programado.log`);
-  console.log(`   errores de DNS nuevos: ${nuevos}`);
-  console.log(`   últimas líneas:\n${registro.split('\n').map((l) => `     ${l}`).join('\n')}`);
+  const { nuevas } = lineasNuevas(federacion, antesDeArrancar);
+  const veredicto = pareceQueTrabaja(nuevas);
+  const erroresDns = erroresDeRed(federacion);
+  console.log(`   errores de DNS acumulados: ${erroresDns} · líneas nuevas: ${nuevas.length}`);
+  console.log(`   últimas líneas nuevas:\n${veredicto.detalle.split('\n').map((l) => `     ${l}`).join('\n')}`);
 
-  if (nuevos > 0) {
-    console.log('   ✗ sigue sin poder resolver: se deshace');
+  if (!veredicto.trabaja) {
+    console.log(`   ✗ no parece que esté trabajando (¿fallo al arrancar?: ${veredicto.fallo}) — se deshace`);
     return deshace(federacion, yaExcluidas);
   }
 

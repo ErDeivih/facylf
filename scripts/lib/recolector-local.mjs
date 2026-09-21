@@ -165,11 +165,15 @@ export function abreBase(ruta) {
     -- Estaba en 5 s, y en el servidor no alcanzaba: el importador masivo mantiene la cola abierta mientras
     -- importa un grupo —hasta tres minutos por unidad, medido— y la preparación del esquema de un recolector
     -- que arranca en ese momento (crear tablas e índices, que necesita bloqueo exclusivo) moría con
-    -- `ERR_SQLITE_ERROR: database is locked`. Pasó con Baleares: el contenedor arrancaba y el worker salía con
+    -- ERR_SQLITE_ERROR: database is locked. Pasó con Baleares: el contenedor arrancaba y el worker salía con
     -- código 1 cada 20 segundos.
     --
     -- Con dos minutos, el recolector aguanta a que el importador acabe su lectura y sigue. Conviven a propósito
     -- en el mismo servidor, así que la espera es parte del contrato, no un parche.
+    --
+    -- OJO al editar esto: va dentro de una plantilla de JavaScript. Un acento grave aquí cierra la plantilla y
+    -- rompe el fichero entero con «SyntaxError: missing ) after argument list» — pasó el 21/09/2026 y se llevó
+    -- por delante cuatro federaciones hasta que se vio el registro. Por eso el texto no lleva acentos graves.
     pragma busy_timeout = 120000;
 
     create table if not exists metadatos (
