@@ -231,7 +231,26 @@ Propuesta:
 - **El HTML archivado** hace falta para la clasificación **oficial**; por eso el `rsync` de los 21 GB va en segundo
   plano desde el primer día, aunque la importación empiece con la reconstruida.
 
-### ⚠ Lo que se encontró al probar la importación de verdad (21/09/2026)
+### ⚠ Dos cosas que se aprendieron al juntar recolectores e importador (21/09/2026)
+
+**1. `database is locked`: dos programas sobre la misma cola, y SQLite no espera.** El importador mantiene la
+cola abierta mientras importa un grupo (medido: hasta **376 s** en un grupo grande de Baleares) y la preparación
+del esquema de un recolector que arranca en ese momento necesita bloqueo exclusivo. Con `busy_timeout = 5000`
+(lo que había) el recolector moría con `ERR_SQLITE_ERROR: database is locked` y el contenedor se quedaba en bucle
+(«el worker terminó con código 1» cada 20 s: 24 veces medidas en Baleares). Subido a **120 s** en `abreBase`:
+el recolector espera a que el importador acabe su lectura y sigue. Es parte del contrato, no un parche: en el
+servidor conviven a propósito.
+
+*Mientras se despliega la imagen con el arreglo*, el desbloqueo es parar el importador un momento (guarda su
+estado y sigue donde iba) y volver a arrancarlo: `bash scripts/servidor/arranca-en-servidor.sh <federación>`
+con el importador parado.
+
+**2. El mismo `--project-name` para todos los compose tiene una trampa.** Es lo que hace que la web vea a
+PostgreSQL por su nombre y que Portainer los enseñe como un solo proyecto, pero Docker avisa de «contenedores
+huérfanos» cada vez que se levanta un compose suelto… y **`--remove-orphans` los borraría**. No se usa nunca:
+para parar algo, se nombra el servicio (`docker compose … stop <servicio>`).
+
+
 
 Antes de dar la carga masiva por lanzable se probaron unidades reales con `scripts/importar-masivo.mjs`. Resultado:
 **todas las probadas fallan la validación del lote**, y el motivo es de datos, no del despliegue:

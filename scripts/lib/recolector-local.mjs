@@ -160,7 +160,17 @@ export function abreBase(ruta) {
   db.exec(`
     pragma journal_mode = WAL;
     pragma foreign_keys = ON;
-    pragma busy_timeout = 5000;
+    -- ── ESPERAR A QUE EL OTRO TERMINE (medido el 21/09/2026) ────────────────────────────────────────────
+    --
+    -- Estaba en 5 s, y en el servidor no alcanzaba: el importador masivo mantiene la cola abierta mientras
+    -- importa un grupo —hasta tres minutos por unidad, medido— y la preparación del esquema de un recolector
+    -- que arranca en ese momento (crear tablas e índices, que necesita bloqueo exclusivo) moría con
+    -- `ERR_SQLITE_ERROR: database is locked`. Pasó con Baleares: el contenedor arrancaba y el worker salía con
+    -- código 1 cada 20 segundos.
+    --
+    -- Con dos minutos, el recolector aguanta a que el importador acabe su lectura y sigue. Conviven a propósito
+    -- en el mismo servidor, así que la espera es parte del contrato, no un parche.
+    pragma busy_timeout = 120000;
 
     create table if not exists metadatos (
       clave text primary key,
