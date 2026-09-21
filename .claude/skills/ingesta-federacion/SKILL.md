@@ -111,8 +111,10 @@ concurrency:
   cancel-in-progress: false      # nunca dos ciclos a la vez
 ```
 
-Los secretos (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`) van en Secrets del repo, jamás en
-el código. GitHub Actions puede retrasar los crons en horas punta: no asumas puntualidad,
+Los secretos van en Secrets del repo o en `.env.local`, jamás en el código. Desde
+[ADR-0008](../../../docs/plataforma-web/decisiones/0008-postgres-local-docker.md) el destino no es
+Supabase: la ingesta escribe en su SQLite y el publicador es quien lleva los datos al PostgreSQL
+canónico (`DATABASE_URL_PUBLICADOR`). GitHub Actions puede retrasar los crons en horas punta: no asumas puntualidad,
 usa la hora real al decidir la ventana.
 
 ## Cuando el resultado oficial llega

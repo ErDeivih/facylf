@@ -1,0 +1,21 @@
+{
+  "consulta": "clasificación-del-grupo",
+  "presupuestoMs": 500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Hash",
+      "Hash Join",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "federation"
+    ],
+    "filas": 38
+  }
+}

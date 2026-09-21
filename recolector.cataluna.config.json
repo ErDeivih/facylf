@@ -1,0 +1,26 @@
+{
+  "permiso": {
+    "concedido": false,
+    "fecha": "",
+    "referencia": ""
+  },
+  "identidad": {
+    "urlProyecto": "",
+    "contacto": "nanotech@gmail.com"
+  },
+  "alcance": {
+    "desdeAnio": 2015,
+    "actas": true,
+    "actasSoloJornadasJugadas": true
+  },
+  "ritmo": {
+    "intervaloMinSeg": 6,
+    "intervaloMaxSeg": 8,
+    "maxActasSesion": 60
+  },
+  "notas": [
+    "El portal de la FCF no tiene API permitida: los datos se leen dejando que la propia web cargue sus recursos en un navegador real.",
+    "Desplegar las jornadas del calendario no genera peticiones; sólo la carga del grupo y el cambio de pestaña cuentan como petición.",
+    "Las actas de jornadas futuras NO se encolan aunque el portal enlace «VEURE ACTA»: serían fichas vacías."
+  ]
+}

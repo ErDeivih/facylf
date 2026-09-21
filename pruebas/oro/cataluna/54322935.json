@@ -1,0 +1,20 @@
+{
+  "federacion": "cataluna",
+  "temporadaCodigo": "21",
+  "grupo": "54322935",
+  "nota": "Federación SIN códigos de jugador: todo identidad nominal",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2025-26",
+    "competicion": "54322932",
+    "jornadas": 30,
+    "partidos": 240,
+    "partidosConResultado": 240,
+    "actas": 240,
+    "actasHechas": 240,
+    "participaciones": 9403,
+    "eventos": 653,
+    "tecnicos": 2552
+  },
+  "temporada": "2025-26"
+}

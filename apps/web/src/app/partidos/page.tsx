@@ -1,39 +1,32 @@
 import Link from 'next/link';
-import { competicion, aSlug, MI_EQUIPO } from '@/lib/datos';
-import { esDe } from '@fcylf/dominio';
+import { datosFederacion, federacionDesde, listarPartidosLocal, slugActa, slugEquipo } from '@/lib/repositorio-local';
 import { Bloque } from '@/componentes/Bloque';
-import { fechaCorta } from '@/componentes/Proximo';
+import { SelectorFederacion } from '@/componentes/SelectorFederacion';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
-export default function Partidos() {
-  const c = competicion();
-  const jornadas = [...new Set(c.partidos.map((p) => p.jornada))].sort((a, b) => a - b);
-
+export default async function Partidos({ searchParams }: { searchParams: Promise<{ federacion?: string }> }) {
+  const federacion = federacionDesde((await searchParams).federacion);
+  const partidos = listarPartidosLocal(150, federacion);
   return (
     <>
-      <p className="mb-6 text-sm text-[#5C646C]">
-        Las {c.jornadas} jornadas de la temporada, con los {c.partidos.length} partidos del
-        grupo. Las fechas son las de la jornada, tal cual las publica la federación: los
-        horarios reales de cada partido aún no están.
-      </p>
-      {jornadas.map((j) => {
-        const ps = c.partidos.filter((p) => p.jornada === j);
-        return (
-          <Bloque key={j} titulo={`Jornada ${j}`} pie={ps[0]?.fecha ? fechaCorta(ps[0].fecha) : undefined}>
-            <ul>
-              {ps.map((p, i) => (
-                <li key={i}
-                    className={`grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-t border-[#EDF0ED] px-4 py-2 text-sm first:border-t-0 ${esDe(p, MI_EQUIPO) ? 'bg-club-claro' : ''}`}>
-                  <Link className="text-right hover:underline" href={`/equipo/${aSlug(p.local)}`}>{p.local}</Link>
-                  <span className="font-display text-[#5C646C]">–</span>
-                  <Link className="hover:underline" href={`/equipo/${aSlug(p.visitante)}`}>{p.visitante}</Link>
-                </li>
-              ))}
-            </ul>
-          </Bloque>
-        );
-      })}
+      <h2 className="font-display text-2xl uppercase">Partidos</h2>
+      <p className="mb-4 mt-2 text-sm text-[#5C646C]">Últimos {partidos.length} partidos estructurados de {datosFederacion(federacion).nombre}.</p>
+      <SelectorFederacion federacion={federacion} action="/partidos" />
+      <Bloque titulo="Resultados y calendario">
+        <ul>{partidos.map((p) => <li key={`${p.grupoSlug}-${p.jornada}-${p.orden}`} className="border-t border-[#EDF0ED] px-4 py-3 first:border-t-0">
+          <div className="mb-1 flex justify-between text-[11px] uppercase tracking-wider text-[#5C646C]">
+            <Link className="hover:text-club" href={`/competicion/${p.grupoSlug}`}>{p.competicion} · {p.grupo}</Link><span>{p.temporada} · J{p.jornada}</span>
+          </div>
+          <div className="grid grid-cols-[1fr_auto_1fr] gap-3 text-sm">
+            <Link className="text-right hover:underline" href={p.codLocal ? `/equipo/${slugEquipo(p.temporadaCodigo, p.codLocal, p.competicionCodigo, p.grupoCodigo, p.federacion)}` : '#'}>{p.local}</Link>
+            <strong className="font-display">{p.golesLocal == null ? '–' : `${p.golesLocal} – ${p.golesVisitante}`}</strong>
+            <Link className="hover:underline" href={p.codVisitante ? `/equipo/${slugEquipo(p.temporadaCodigo, p.codVisitante, p.competicionCodigo, p.grupoCodigo, p.federacion)}` : '#'}>{p.visitante}</Link>
+          </div>
+          {(p.fecha || p.campo || p.arbitro) && <p className="mt-1 text-center text-xs text-[#5C646C]">{[p.fecha, p.hora, p.campo, p.arbitro].filter(Boolean).join(' · ')}</p>}
+          {p.codActa && p.actaLista && <p className="mt-1 text-center text-xs"><Link className="text-club hover:underline" href={`/acta/${slugActa(p.temporadaCodigo, p.competicionCodigo, p.grupoCodigo, p.jornada, p.codActa, p.federacion)}`}>Ver acta</Link></p>}
+        </li>)}</ul>
+      </Bloque>
     </>
   );
 }

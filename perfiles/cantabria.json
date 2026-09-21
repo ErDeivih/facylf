@@ -1,0 +1,9 @@
+{
+  "nombre": "cantabria",
+  "base": "https://www.rfcf.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-cantabria",
+  "config": "recolector.cantabria.config.json",
+  "catalogo": "descargas-cantabria/competiciones-por-temporada.json",
+  "grupos": "descargas-cantabria/grupos-por-temporada.json"
+}

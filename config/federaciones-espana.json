@@ -1,0 +1,26 @@
+{
+  "actualizado": "2026-09-10",
+  "referencia": "https://rfef.es/es/federacion/ligas-y-comisiones/comision-de-presidentes-de-federaciones-de-ambito-autonomico",
+  "total": 19,
+  "fuentes": [
+    { "codigo": "andalucia", "nombre": "Real Federación Andaluza de Fútbol", "portal": "https://www.rfaf.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "aragon", "nombre": "Real Federación Aragonesa de Fútbol", "portal": "https://www.futbolaragon.com/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "asturias", "nombre": "Real Federación de Fútbol del Principado de Asturias", "portal": "https://www.asturfutbol.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "baleares", "nombre": "Federación Balear de Fútbol", "portal": "https://www.ffib.es/Fed/", "adaptador": "pnfg-ffib", "estado": "activo-descubrimiento" },
+    { "codigo": "canarias", "nombre": "Federación Canaria de Fútbol", "portal": "https://www.federacioncanariafutbol.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "cantabria", "nombre": "Federación Cántabra de Fútbol", "portal": "https://www.rfcf.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "castilla-la-mancha", "nombre": "Federación de Fútbol de Castilla-La Mancha", "portal": "https://www.ffcm.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "castilla-leon", "nombre": "Real Federación de Castilla y León de Fútbol", "portal": "https://www.rfcylf.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "cataluna", "nombre": "Federación Catalana de Fútbol", "portal": "https://www.fcf.cat/ca/competicio", "adaptador": "personalizado-fcf", "estado": "adaptador-en-desarrollo" },
+    { "codigo": "ceuta", "nombre": "Real Federación de Fútbol de Ceuta", "portal": "https://www.rffce.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "extremadura", "nombre": "Federación Extremeña de Fútbol", "portal": "https://www.fexfutbol.com/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "galicia", "nombre": "Real Federación Gallega de Fútbol", "portal": "https://www.futgal.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "madrid", "nombre": "Real Federación de Fútbol de Madrid", "portal": "https://www.rffm.es/", "adaptador": "personalizado-isquad", "estado": "activo-resultados-sin-actas" },
+    { "codigo": "murcia", "nombre": "Federación de Fútbol de la Región de Murcia", "portal": "https://www.ffrm.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "melilla", "nombre": "Federación Melillense de Fútbol", "portal": "https://www.rfmf.es/pagina/index.php", "adaptador": "personalizado-rfmf", "estado": "descubrimiento-reintentable" },
+    { "codigo": "navarra", "nombre": "Federación Navarra de Fútbol", "portal": "https://www.futnavarra.es/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "rioja", "nombre": "Federación Riojana de Fútbol", "portal": "https://www.frfutbol.com/pnfg/", "adaptador": "pnfg", "estado": "activo" },
+    { "codigo": "valencia", "nombre": "Federación de Fútbol de la Comunidad Valenciana", "portal": "https://ffcv.es/competiciones/", "adaptador": "personalizado-isquad", "estado": "activo-con-actas" },
+    { "codigo": "euskadi", "nombre": "Federación Vasca de Fútbol", "portal": "https://www.euskadifutbol.eus/pnfg/", "adaptador": "pnfg", "estado": "activo" }
+  ]
+}

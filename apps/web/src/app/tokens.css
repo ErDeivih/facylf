@@ -1,0 +1,150 @@
+/* Tokens del sistema de diseño. Fuente única de verdad.
+   Ver docs/plataforma-web/SISTEMA-DISENO.md. ADR-0009.
+   Ningún componente contiene un color literal: si un valor no tiene token, se crea el token. */
+
+/* --- Escala cruda. No se usa directamente en componentes. --------------------- */
+@theme {
+  --color-tinta-950: oklch(0.18 0.012 250);
+  --color-tinta-900: oklch(0.24 0.012 250);
+  --color-tinta-800: oklch(0.32 0.011 250);
+  --color-tinta-700: oklch(0.41 0.010 250);
+  --color-tinta-600: oklch(0.50 0.010 250);
+  --color-tinta-500: oklch(0.60 0.009 250);
+  --color-tinta-400: oklch(0.70 0.008 250);
+  --color-tinta-300: oklch(0.82 0.006 250);
+  --color-tinta-200: oklch(0.90 0.005 250);
+  --color-tinta-100: oklch(0.95 0.004 250);
+  --color-tinta-50:  oklch(0.98 0.003 250);
+
+  --color-acento-700: oklch(0.45 0.105 215);
+  --color-acento-600: oklch(0.55 0.115 215);
+  --color-acento-500: oklch(0.65 0.110 215);
+  --color-acento-100: oklch(0.94 0.030 215);
+
+  --color-verde-600:   oklch(0.56 0.115 155);
+  --color-verde-500:   oklch(0.70 0.120 155);
+  --color-ambar-600:   oklch(0.66 0.130 75);
+  --color-ambar-500:   oklch(0.76 0.130 75);
+  --color-rojo-600:    oklch(0.55 0.170 27);
+  --color-rojo-500:    oklch(0.68 0.150 27);
+  --color-violeta-600: oklch(0.55 0.130 300);
+
+  --font-sans:   'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-numero: 'Inter Variable', ui-monospace, 'SF Mono', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+/* --- Roles semánticos. Esto es lo que usan los componentes. ------------------- */
+:root {
+  color-scheme: light;
+
+  --fondo:         var(--color-tinta-50);
+  --fondo-elevado: #ffffff;
+  --fondo-sutil:   var(--color-tinta-100);
+  --borde:         var(--color-tinta-200);
+  --borde-fuerte:  var(--color-tinta-300);
+  --texto:         var(--color-tinta-900);
+  --texto-suave:   var(--color-tinta-600);
+  --texto-tenue:   var(--color-tinta-500);
+  --accion:        var(--color-acento-700);
+  --accion-suave:  var(--color-acento-100);
+  --foco:          var(--color-acento-600);
+
+  --victoria: var(--color-verde-600);
+  --empate:   var(--color-tinta-500);
+  --derrota:  var(--color-rojo-600);
+  --amarilla: var(--color-ambar-600);
+  --roja:     var(--color-rojo-600);
+
+  --cobertura-completa: var(--color-verde-600);
+  --cobertura-parcial:  var(--color-ambar-600);
+  --cobertura-nula:     var(--color-tinta-400);
+  --revision:           var(--color-violeta-600);
+
+  /* Texto sobre una superficie FUERTE (el panel oscuro del próximo partido, la caja de búsqueda).
+     Sin este rol, esos sitios llevaban su propio gris claro a mano y en modo claro se quedaban
+     ilegibles cuando el panel no era oscuro. */
+  --texto-inverso: var(--color-tinta-50);
+
+  /* Escala del mapa de calor de puntos (0, 5, 15 y 30 puntos). Se DERIVA del rojo semántico: no es una
+     paleta aparte, es el mismo rojo en cuatro intensidades. */
+  --calor-0: var(--color-tinta-100);
+  --calor-1: color-mix(in oklab, var(--color-rojo-600) 34%, white);
+  --calor-2: color-mix(in oklab, var(--color-rojo-600) 62%, white);
+  --calor-3: var(--color-rojo-600);
+
+  /* Densidad cómoda (por defecto). */
+  --fila:    2.25rem;
+  --celda-x: 0.75rem;
+  --celda-y: 0.5rem;
+}
+
+:root[data-densidad="compacta"] {
+  --fila:    1.75rem;
+  --celda-x: 0.5rem;
+  --celda-y: 0.25rem;
+}
+
+/* El tema se resuelve en el servidor desde una cookie y se escribe en <html data-tema>.
+   Nunca desde un useEffect: produce parpadeo. */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+
+  --fondo:         var(--color-tinta-950);
+  --fondo-elevado: var(--color-tinta-900);
+  --fondo-sutil:   var(--color-tinta-800);
+  --borde:         var(--color-tinta-800);
+  --borde-fuerte:  var(--color-tinta-600);
+  --texto:         var(--color-tinta-100);
+  --texto-suave:   var(--color-tinta-300);
+  --texto-tenue:   var(--color-tinta-400);
+  --accion:        var(--color-acento-500);
+  --accion-suave:  oklch(0.30 0.055 215);
+  --foco:          var(--color-acento-500);
+
+  --victoria: var(--color-verde-500);
+  --derrota:  var(--color-rojo-500);
+  --amarilla: var(--color-ambar-500);
+  --roja:     var(--color-rojo-500);
+
+  --cobertura-completa: var(--color-verde-500);
+  --cobertura-parcial:  var(--color-ambar-500);
+  --cobertura-nula:     var(--color-tinta-600);
+  --revision:           var(--color-violeta-600);
+
+  /* En oscuro, el texto sobre superficie fuerte es oscuro: la superficie fuerte ya es clara. */
+  --texto-inverso: var(--color-tinta-950);
+  --calor-0: var(--color-tinta-800);
+  --calor-1: color-mix(in oklab, var(--color-rojo-500) 38%, black);
+  --calor-2: color-mix(in oklab, var(--color-rojo-500) 66%, black);
+  --calor-3: var(--color-rojo-500);
+}
+
+/* --- Base -------------------------------------------------------------------- */
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+/* Todo número que se compara en vertical. Sin esto, una columna de goles no se lee. */
+.cifra, table td, table th { font-variant-numeric: tabular-nums; }
+
+:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

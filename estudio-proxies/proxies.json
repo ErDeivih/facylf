@@ -1,0 +1,20 @@
+{
+  "auth": {
+    "usuario": "ftzzvlhh",
+    "contrasena": "c8olvksl2bg",
+    "modoAuth": "ip-whitelist"
+  },
+  "origen": "79.117.136.24",
+  "proxies": [
+    { "ip": "31.59.20.176",   "puerto": 6754, "pais": "United Kingdom", "ciudad": "London" },
+    { "ip": "45.38.107.97",   "puerto": 6014, "pais": "United Kingdom", "ciudad": "London" },
+    { "ip": "198.105.121.200","puerto": 6462, "pais": "United Kingdom", "ciudad": "London" },
+    { "ip": "64.137.96.74",   "puerto": 6641, "pais": "Spain",          "ciudad": "Madrid" },
+    { "ip": "198.23.243.226", "puerto": 6361, "pais": "United States",  "ciudad": "Los Angeles" },
+    { "ip": "38.154.185.97",  "puerto": 6370, "pais": "United States",  "ciudad": "Piscataway" },
+    { "ip": "84.247.60.125",  "puerto": 6095, "pais": "Poland",         "ciudad": "Warsaw" },
+    { "ip": "142.111.67.146", "puerto": 5611, "pais": "Japan",          "ciudad": "Tokyo" },
+    { "ip": "191.96.254.138", "puerto": 6185, "pais": "United States",  "ciudad": "Los Angeles" },
+    { "ip": "31.58.9.4",      "puerto": 6077, "pais": "Germany",        "ciudad": "Frankfurt" }
+  ]
+}

@@ -1,11 +1,58 @@
 node_modules/
+.pnpm-store/
+.corepack/
+.estado-vigilante.json
+.estado-ingesta.json
 dist/
 .next/
+.next-*/
 out/
 *.tsbuildinfo
 .env
 .env.local
 .vercel
+descargas-federacion/recolector-local/
+# Los HTML, bases de datos y estados de ingesta son artefactos locales voluminosos.
+# Nunca deben entrar en Git; las muestras pequenas y anonimizadas viven en datos-ejemplo/.
+descargas-*/
+.estado-workers/
+# Supervisor único de la flota (`scripts/supervisor-flota.mjs`): su registro propio y su candado de instancia
+# única. El registro es local y crece; el candado guarda el identificador del proceso vivo.
+registros/
+.supervisor-flota.lock
+# Binarios de Chromium descargados para las pruebas de memoria (por ejemplo `chrome-headless-shell` en el A/B
+# de `scripts/prueba-banderas-chrome.mjs`): cientos de MB, se vuelven a descargar cuando hacen falta.
+.navegadores/
+visor*.log
+apps/web/dev*.log
+recolector.config.json
 .DS_Store
 Thumbs.db
 coverage/
+
+# Ciclo integral sobre una copia (`scripts/copiar-cola.mjs`, `scripts/ciclo-euskadi-copia.mjs`): contiene
+# una copia completa de la cola y sus copias previas, cientos de MB. Es material de trabajo local, nunca
+# fuente. Lo que sí se versiona es `pruebas/reconstruccion/informes/`, con los resultados.
+pruebas/reconstruccion/ciclo/
+# Copias previas y diarios de la reconstrucción: mismo motivo. De cada simulación lo que se conserva es
+# el manifiesto, que es el contrato entre `--simular` y `--aplicar`.
+pruebas/reconstruccion/*.previa.sqlite
+pruebas/reconstruccion/*.diario.jsonl
+
+# ── Artefactos pesados de pruebas locales (medido el 21/09/2026: 1,9 GB en total) ────────────────────────────
+# Copias pristinas de la cola, ciclos de recuperación de varios cientos de MB, manifiestos de simulación de
+# hasta 256 MB y una compilación vieja de la web. Son evidencia del trabajo de ESTE PC: no son código, no son
+# datos de la ingesta y el servidor no los necesita. **No se borran del disco** (siguen ahí como respaldo);
+# simplemente no viajan en el repositorio, que es para código, infraestructura y documentación.
+_borrar/
+pruebas/reconstruccion/pristina/
+pruebas/reconstruccion/ciclo-recuperacion/
+pruebas/reconstruccion/**/*.manifiesto.json
+# Simulaciones descartadas (`invalidados/`): su manifiesto y su copia invalidada pesan ~150 MB cada una y ya
+# están cerradas. Se quedan en el disco del PC como evidencia; el repositorio no las necesita.
+pruebas/reconstruccion/invalidados/
+# Salidas de Playwright (capturas de fallos, trazas): se regeneran ejecutando las pruebas de interfaz.
+apps/web/test-results/
+# Volcado de la prueba de recuperación de un worker muerto: **149,6 MB**, por encima del límite de 100 MB por
+# fichero de GitHub. Se queda en el disco del PC como evidencia; el repositorio no lo necesita.
+pruebas/reconstruccion/prueba-3-worker-muerto.json

@@ -1,0 +1,49 @@
+# PostgreSQL canónico de la plataforma (ADR-0008).
+# Escucha sólo en 127.0.0.1 y en el puerto 5433 para no chocar con otra instalación.
+# Arranque:  docker compose --env-file .env -f infra/docker-compose.yml up -d
+services:
+  postgres:
+    image: postgres:18
+    container_name: facylf-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: facylf
+      POSTGRES_USER: facylf_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=es-ES --encoding=UTF8"
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - max_connections=50
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - work_mem=32MB
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - track_io_timing=on
+      - -c
+      - log_min_duration_statement=500
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      # En PostgreSQL 18 la imagen espera el volumen en /var/lib/postgresql y coloca los datos en un
+      # subdirectorio por versión mayor (así `pg_upgrade --link` funciona sin cruzar montajes).
+      # Montarlo en /var/lib/postgresql/data, como se hacía hasta la 17, hace que el contenedor
+      # arranque en bucle con «there appears to be PostgreSQL data in /var/lib/postgresql/data».
+      - facylf-pg:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U facylf_admin -d facylf"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  facylf-pg:

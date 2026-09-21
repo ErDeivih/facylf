@@ -1,0 +1,9 @@
+{
+  "nombre": "baleares",
+  "base": "https://www.ffib.es/Fed/NPcd",
+  "codPrimaria": "1000110",
+  "carpeta": "descargas-baleares",
+  "config": "recolector.baleares.config.json",
+  "catalogo": "descargas-baleares/competiciones-por-temporada.json",
+  "grupos": "descargas-baleares/grupos-por-temporada.json"
+}

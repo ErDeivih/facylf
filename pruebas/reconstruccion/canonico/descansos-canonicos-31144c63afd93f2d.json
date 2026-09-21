@@ -1,0 +1,142 @@
+{
+  "generado_en": "2026-09-17T11:41:25.207Z",
+  "lee_con": "DATABASE_URL_LECTOR (sólo lectura)",
+  "escribe_en_postgres": false,
+  "vocabulario": [
+    "descansa",
+    "descans",
+    "descanso",
+    "atsedena"
+  ],
+  "claves_foraneas_revisadas": {
+    "core.team_entry": [
+      "analytics.player_team_season_summary.team_entry_id",
+      "analytics.team_edition_summary.team_entry_id",
+      "core.appearance.team_entry_id",
+      "core.match.home_team_entry_id",
+      "core.match.home_team_entry_id",
+      "core.match.away_team_entry_id",
+      "core.match.away_team_entry_id",
+      "core.match_event.team_entry_id",
+      "core.match_staff.team_entry_id",
+      "core.standing_snapshot.team_entry_id",
+      "core.standing_snapshot.team_entry_id"
+    ],
+    "core.match": [
+      "core.appearance.match_id",
+      "core.match_event.match_id",
+      "core.match_official.match_id",
+      "core.match_report.match_id",
+      "core.match_source.match_id",
+      "core.match_staff.match_id"
+    ]
+  },
+  "inscripciones_fantasma": 1,
+  "lotes": [
+    {
+      "federacion": "euskadi",
+      "temporada": "2025-26",
+      "competicion": "23233882",
+      "grupo": "23233962",
+      "nombre_del_hueco": "Atsedena",
+      "visibility_state": "parcial_privada",
+      "inscripcion_id": 5344,
+      "partidos": [
+        30746,
+        30747
+      ],
+      "cierre": [
+        {
+          "tabla": "core.match",
+          "filas": [
+            {
+              "id": 30746,
+              "venue_id": null,
+              "played_at": null,
+              "goles_local": null,
+              "matchday_id": 6264,
+              "data_version": 1,
+              "source_order": 2,
+              "fecha_prevista": "2025-09-21",
+              "phase_group_id": 1492,
+              "goles_visitante": null,
+              "hora_confirmada": false,
+              "official_status": "unknown",
+              "away_team_entry_id": 5344,
+              "home_team_entry_id": 5339
+            },
+            {
+              "id": 30747,
+              "venue_id": null,
+              "played_at": null,
+              "goles_local": null,
+              "matchday_id": 6264,
+              "data_version": 1,
+              "source_order": 3,
+              "fecha_prevista": "2025-09-21",
+              "phase_group_id": 1492,
+              "goles_visitante": null,
+              "hora_confirmada": false,
+              "official_status": "unknown",
+              "away_team_entry_id": 5344,
+              "home_team_entry_id": 5334
+            }
+          ]
+        },
+        {
+          "tabla": "core.team_entry",
+          "filas": [
+            {
+              "id": 5344,
+              "retirado": false,
+              "procedencias": [
+                "calendario"
+              ],
+              "codigo_externo": null,
+              "phase_group_id": 1492,
+              "team_season_id": 5344,
+              "nombre_en_fuente": "Atsedena",
+              "metodo_resolucion": "referencia-contextual",
+              "codigo_vinculado_en": null,
+              "nombre_en_fuente_norm": "atsedena",
+              "referencia_contextual": "atsedena"
+            }
+          ]
+        }
+      ],
+      "filas_en_el_cierre": 3,
+      "dependientes_en_cero": [
+        "analytics.player_team_season_summary",
+        "analytics.team_edition_summary",
+        "core.appearance",
+        "core.match_event",
+        "core.match_official",
+        "core.match_report",
+        "core.match_source",
+        "core.match_staff",
+        "core.standing_snapshot"
+      ],
+      "origen": {
+        "ruta_cola": "F:\\EspacioCodigo\\facylf\\descargas-euskadi\\recolector-local\\cola-v2.sqlite",
+        "filas_del_grupo": 23,
+        "filas_de_descanso": [],
+        "aplicable": true,
+        "motivo": "la cola del grupo no tiene ninguna fila de descanso: el canónico es lo único que queda por reparar"
+      },
+      "cuadre": {
+        "grupo_canonico_id": 1492,
+        "partidos_canonicos": 25,
+        "jornadas_canonicas": 6,
+        "inscripciones_canonicas": 25,
+        "filas_en_la_cola": 23,
+        "partidos_que_retira_el_lote": 2,
+        "diferencia": 2,
+        "cuadra": true
+      },
+      "aplicable": true,
+      "impedimentos": []
+    }
+  ],
+  "id": "31144c63afd93f2d",
+  "aplicable": true
+}

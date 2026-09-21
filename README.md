@@ -1,85 +1,148 @@
-# Fútbol Salamanca
+# Observatorio local de fútbol
 
-Resultados y clasificaciones del fútbol base de la provincia de Salamanca.
+Plataforma privada para consultar calendarios, clasificaciones, actas, equipos y jugadores de
+varias federaciones territoriales. El objetivo principal es preparar rivales y estudiar posibles
+incorporaciones, con prioridad para Salamanca y para las competiciones regionales o nacionales
+relevantes.
 
-El plan completo está en [`PROYECTO.md`](PROYECTO.md). Las reglas de trabajo, en
-[`CLAUDE.md`](CLAUDE.md). Lee las dos antes de empezar una fase nueva.
+La arquitectura y las reglas de identidad están explicadas en
+[`PLATAFORMA.md`](PLATAFORMA.md); el funcionamiento del recolector, en
+[`RECOLECCION-LOCAL.md`](RECOLECCION-LOCAL.md), y el estado de las nuevas fuentes, en
+[`HALLAZGOS-FEDERACIONES.md`](HALLAZGOS-FEDERACIONES.md).
 
-## Qué hay hecho (Fase 0)
+La especificación vigente para construir la web profesional —modelo canónico, UX, búsqueda,
+rendimiento, seguridad y plan por fases— comienza en
+[`docs/plataforma-web/ARQUITECTURA.md`](docs/plataforma-web/ARQUITECTURA.md). La skill
+`.claude/skills/plataforma-web-futbol` obliga a los agentes a consultar esas decisiones antes de
+trabajar en la plataforma.
 
-- `packages/dominio` — clasificación, desempates, calendario, festivos y confianza.
-  Sin dependencias, se prueba en milisegundos.
-- `packages/ingesta` — cliente HTTP educado y el parser del `Calendario.xls`,
-  probado contra el fichero real y contrastado con la cuadrícula del PDF.
-- `supabase/migrations` — el esquema entero, RLS incluida.
-- `apps/web` — la web pública, leyendo por ahora el calendario de `datos-ejemplo/`.
+## Estado actual
 
-## Qué falta para la Fase 1
+- Dieciocho fuentes con cola de datos: catorce PNFG y los adaptadores de Madrid, Comunidad
+  Valenciana, Baleares y Cataluña. El inventario de las 19 territoriales está en
+  `config/federaciones-espana.json`. Melilla conserva un sondeo programado mientras su portal de
+  calendarios, clasificaciones y actas no devuelve contenido utilizable.
+- Una cola y una base SQLite separadas por federación. Sus códigos nunca se mezclan.
+- Reanudación automática: los trabajos terminados no vuelven a pedirse y los pendientes continúan
+  después de apagar o reiniciar el equipo.
+- Descubrimiento progresivo de temporadas, competiciones, grupos, jornadas y actas.
+- Actas originales conservadas y parser versionado: se pueden corregir y reprocesar localmente sin
+  descargar otra vez la fuente.
+- Web local con filtros por federación, temporada, categoría, ámbito, provincia/zona, modalidad y
+  género. Sólo publica una competición cuando todos sus grupos, calendarios, clasificaciones,
+  jornadas y actas descubiertas están procesados; entonces aparece automáticamente y sin caché.
+- Fichas de competición, jornada, partido, acta, equipo, club, jugador, técnicos, árbitros y campos.
+- Clasificación oficial cuando está disponible y reconstrucción por resultados como contraste.
+- Gráficas de evolución y métricas iniciales de equipo y jugador, mostrando siempre la cobertura
+  real de los datos.
 
-**Las URLs de los botones "Calendario Excel" y "Clasificación Excel"** de la
-federación. Se sacan en dos minutos: abrir la página de la competición, F12 →
-pestaña Red, pulsar el botón, copiar la URL. Van en
-`packages/ingesta/src/urls.ts`, donde ahora hay una excepción a propósito.
+El proyecto no utiliza Supabase en esta etapa. La web lee directamente las bases locales en modo
+de sólo lectura mientras los recolectores siguen trabajando.
 
-También hacen falta el `Sch_Codigo_Delegacion` de Salamanca y los códigos de las
-demás competiciones (PROYECTO.md §11).
+## Uso habitual
 
-## Arrancar
+Instalar las dependencias una sola vez:
 
-```bash
+```powershell
 pnpm install
-pnpm test          # 53 pruebas
-pnpm dev           # http://localhost:3000
-pnpm ingesta:una   # parsea el fichero de ejemplo y lo valida, sin escribir nada
 ```
 
-Base de datos, cuando haya proyecto de Supabase:
+Abrir la web:
 
-```bash
-pnpm db:migrar
-pnpm db:tipos
+```powershell
+pnpm dev
 ```
+
+Después visita [http://localhost:3000](http://localhost:3000). El acceso conjunto a las fuentes
+está en [http://localhost:3000/federaciones](http://localhost:3000/federaciones).
+
+Consultar el avance de todos los recolectores:
+
+```powershell
+pnpm workers:estado
+```
+
+Auditar integridad y coherencia de las actas guardadas, sin realizar peticiones:
+
+```powershell
+pnpm workers:auditar
+```
+
+Comprobar el código y los parsers:
+
+```powershell
+pnpm test
+pnpm build
+```
+
+## Tareas automáticas
+
+Cada federación tiene su propia tarea programada de Windows. Al iniciar sesión, sólo recupera los
+trabajos pendientes de su base; no repite los que ya constan como terminados.
+
+Ver las tareas:
+
+```powershell
+Get-ScheduledTask -TaskName "FACyLF recolector*"
+```
+
+Registrar o actualizar de una vez las catorce tareas federativas, incluida Castilla y León:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "F:\EspacioCodigo\facylf\scripts\registrar-tarea-federaciones.ps1"
+```
+
+Los perfiles y destinos están en `perfiles/` y `recolector.*.config.json`. Cada worker conserva su
+propio perfil de Chrome, registro, exclusión mutua y carpeta `descargas-*`.
+
+Madrid y Comunidad Valenciana ya tienen verificada la primera capa de su adaptador propio. Sus
+descubridores reanudables obtienen temporadas, modalidades, competiciones y grupos y actualizan la
+temporada vigente:
+
+```powershell
+pnpm sondeo:madrid
+pnpm sondeo:valencia
+```
+
+Los resultados se guardan en `descargas-federacion-sondeo/*-isquad-sondeo.json`. Estos comandos
+inventarían la estructura; todavía no publican esas federaciones en la web hasta que el adaptador
+de jornadas y actas complete una competición de extremo a extremo.
+
+Para que ambos catálogos continúen al iniciar Windows y revisen a diario la temporada vigente:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "F:\EspacioCodigo\facylf\scripts\registrar-tareas-catalogos-personalizados.ps1"
+```
+
+## Modelo de datos
+
+La identidad completa sigue esta jerarquía:
+
+`federación → temporada → competición → grupo → jornada → partido/acta`
+
+Un equipo pertenece al contexto exacto de temporada, competición y grupo; las plantillas de dos
+categorías de un mismo club no se unen. El jugador se identifica primero por
+`federación + código federativo`. Las coincidencias por nombre entre temporadas sólo generan
+candidatos para revisión, reforzados por territorio, club y equipo, nunca fusiones automáticas.
+
+Las participaciones distinguen convocatoria de partido jugado. Goles, tarjetas, cambios y minutos
+sin marca temporal se guardan sin inventar datos. Las actas se clasifican como `correcta`,
+`administrativa` o `revisar`, y conservan la incidencia que motivó esa valoración.
 
 ## Estructura
 
+```text
+apps/web/             interfaz Next.js local
+packages/dominio/     reglas, estadísticas e identidad
+packages/ingesta/     recolector, parsers y validación
+scripts/              worker, supervisión y tareas programadas
+perfiles/             configuración propia de cada federación
+descargas-*/          HTML, cola SQLite, registros y datos derivados
 ```
-apps/web/             Next.js 15, App Router
-packages/dominio/     reglas del fútbol. No importa Supabase ni Next.
-packages/ingesta/     cliente HTTP, parsers, validación
-datos-ejemplo/        ficheros reales de la federación: son los casos de prueba
-supabase/migrations/  SQL numerado
-.claude/skills/       lo que ya sabemos del formato de la federación y del dominio
-```
 
-## Tres cosas que conviene no olvidar
+## Privacidad
 
-1. **Menores.** Casi todas las competiciones son de menores de edad. En la base de
-   datos se guarda dorsal, nunca nombre, y hay un *trigger* que lo impide salvo que
-   haya un consentimiento registrado. No lo quites.
-2. **Nada de evadir bloqueos.** El cliente se identifica, respeta el ritmo y para
-   cuando le dicen que pare. Es lo que mantiene el acceso abierto.
-3. **Ningún dato inventado.** Si falta un código o una URL, se pide. En el
-   repositorio no hay ni un valor de relleno.
-
-## Despliegue
-
-La web está en Vercel, plan gratis (Hobby): <https://fcylf.vercel.app>
-
-El proyecto de Vercel se llama `fcylf`. Para que cada `git push` despliegue solo:
-
-1. Vercel → proyecto `fcylf` → Settings → Git → conecta este repositorio.
-2. En Settings → General, pon **Root Directory** = `apps/web`.
-3. Listo: `main` va a producción y cada rama crea su propia preview.
-
-El plan gratis de Vercel es para uso **no comercial**. Sin anuncios ni cuota,
-cumple; si algún día monetizas, hay que pasar a Pro.
-
-Alternativas gratis equivalentes, por si acaso: Netlify, Cloudflare Pages y
-Render sirven Next.js igual de bien.
-
-### Lo que hace GitHub Actions ahora mismo
-
-- `.github/workflows/test.yml` — corre `pnpm test` en cada push y cada PR. **Activo.**
-- `.github/workflows/ingesta.yml` — el worker de datos. **Desactivado a propósito**:
-  sin las URLs de la federación termina en error, y con el cron puesto te llenaría
-  el correo de fallos. Se activa descomentando el bloque `schedule`.
+La aplicación se mantiene en local. Algunas actas contienen datos personales y datos de menores;
+por ello, la base completa y esas vistas no deben publicarse sin una revisión específica de
+privacidad, legitimación y minimización. Ninguna estadística rellena información que la fuente no
+publique.

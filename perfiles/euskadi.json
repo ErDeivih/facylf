@@ -1,0 +1,9 @@
+{
+  "nombre": "euskadi",
+  "base": "https://www.euskadifutbol.eus/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-euskadi",
+  "config": "recolector.euskadi.config.json",
+  "catalogo": "descargas-euskadi/competiciones-por-temporada.json",
+  "grupos": "descargas-euskadi/grupos-por-temporada.json"
+}

@@ -1,0 +1,67 @@
+
+ESTUDIO DE CALIDAD DE PROXIES
+Pool: 10 proxies  |  auth: ftzzvlhh@c8olvksl2bg  |  IP origin: 79.117.136.24
+
+31.59.20.176    :6754  London        79.117.136.24    conn=58ms hs=117ms tls=189ms ttfb=365ms vel=n/d  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+        avisos: speed: fallo
+45.38.107.97    :6014  London        79.117.136.24    conn=41ms hs=90ms tls=143ms ttfb=294ms vel=27KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+198.105.121.200 :6462  London        79.117.136.24    conn=43ms hs=87ms tls=136ms ttfb=298ms vel=30KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+64.137.96.74    :6641  Madrid        79.117.136.24    conn=13ms hs=24ms tls=42ms ttfb=190ms vel=35KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+198.23.243.226  :6361  Los Angeles   79.117.136.24    conn=158ms hs=315ms tls=477ms ttfb=644ms vel=19KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+38.154.185.97   :6370  Piscataway    79.117.136.24    conn=111ms hs=222ms tls=339ms ttfb=484ms vel=28KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+84.247.60.125   :6095  Warsaw        79.117.136.24    conn=19ms hs=37ms tls=62ms ttfb=211ms vel=30KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+142.111.67.146  :5611  Tokyo         79.117.136.24    conn=274ms hs=539ms tls=813ms ttfb=959ms vel=13KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+191.96.254.138  :6185  Los Angeles   79.117.136.24    conn=174ms hs=346ms tls=526ms ttfb=695ms vel=20KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+31.58.9.4       :6077  Frankfurt     79.117.136.24    conn=42ms hs=83ms tls=134ms ttfb=290ms vel=29KB/s  TRANSPARENTE (no oculta tu IP)
+        geo: Spain / Salamanca | ASN=57269 | org=DIGI SPAIN TELECOM S.A | tipo=-
+        anonimato: TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)
+
+==============================================================================
+RESUMEN
+  Proxies analizados: 10
+  Conectan y autentican (IP whitelist): 10
+  No conectan: 0
+  TRANSPARENTES (el destino ve TU IP): 10
+  Calidad EXCELENTE/BUENO (medicion pura): 0
+  Latencia media conexion al gateway: 93 ms
+  Latencia media TLS via gateway: 286 ms
+  TTFB medio: 443 ms
+  Velocidad media descarga: 26 KB/s
+==============================================================================
+CONCLUSIONES DEL ESTUDIO
+  Protocolo: HTTP/HTTPS (CONNECT). Saludo SOCKS5 sin respuesta.
+  Autenticacion: por IP de ORIGEN (whitelist). Con la IP autorizada conecta SIN credenciales
+  (200 OK); enviar usuario/clave provoca 407. Las credenciales del panel NO se usan.
+
+  Hallazgo principal: 10/10 proxies son TRANSPARENTES.
+  A traves del proxy el destino ve TU IP real (IPv4 79.117.136.24 e IPv6 de tu ISP),
+  no la IP del pais anunciado (UK/US/Japon/Alemania/Polonia). Se comprobo con varios
+  servicios de eco (api.ipify, ipwho.is, httpbin, api64.ipify, ifconfig.me):
+  sin proxy y con proxy se ve exactamente la misma IP.
+
+  CONSECUENCIA: estos proxies NO sirven para lo que suele buscarse de un proxy:
+    - Anonimato: NO. El destino identifica tu IP y tu ISP (DIGI Spain, Salamanca).
+    - Geolocalizacion/otro pais: NO. La salida siempre es tu localizacion real.
+    - Evadir un bloqueo por IP: NO (el servidor sigue viendo tu IP).
+  Si el objetivo es OCULTAR la IP real delante de un anti-bot, este pool no vale.
+  Si solo se busca apuntar peticiones a un gateway sin necesidad de ocultar nada,
+  si conectan (latencias bajas: TCP ~96ms, TLS ~429ms, TTFB ~700ms).
+==============================================================================

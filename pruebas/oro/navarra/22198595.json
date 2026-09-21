@@ -1,0 +1,20 @@
+{
+  "federacion": "navarra",
+  "temporadaCodigo": "21",
+  "grupo": "22198595",
+  "nota": "Roles de cuerpo técnico en castellano con variantes",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2025-26",
+    "competicion": "22198594",
+    "jornadas": 34,
+    "partidos": 306,
+    "partidosConResultado": 306,
+    "actas": 306,
+    "actasHechas": 306,
+    "participaciones": 11275,
+    "eventos": 8130,
+    "tecnicos": 2635
+  },
+  "temporada": "2025-26"
+}

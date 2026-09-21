@@ -1,0 +1,9 @@
+{
+  "nombre": "canarias",
+  "base": "https://www.federacioncanariafutbol.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-canarias",
+  "config": "recolector.canarias.config.json",
+  "catalogo": "descargas-canarias/competiciones-por-temporada.json",
+  "grupos": "descargas-canarias/grupos-por-temporada.json"
+}

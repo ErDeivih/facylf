@@ -1,0 +1,9 @@
+{
+  "nombre": "navarra",
+  "base": "https://www.futnavarra.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-navarra",
+  "config": "recolector.navarra.config.json",
+  "catalogo": "descargas-navarra/competiciones-por-temporada.json",
+  "grupos": "descargas-navarra/grupos-por-temporada.json"
+}

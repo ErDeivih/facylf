@@ -161,10 +161,21 @@ CodCompeticion=…   CodGrupo=…   CodTemporada=22   CodJornada=…
 Sch_Codigo_Delegacion=…
 ```
 
-**Pendiente de confirmar**: las URLs exactas de los botones "Calendario Excel" y
-"Clasificación Excel" de esa página. Se sacan con F12 → Red → pulsar el botón. Si el
-usuario aún no te las ha dado, **pídeselas antes de escribir este parser**; sin ellas
-estarías adivinando.
+**Descarga de Excel — patrón confirmado (con F12 → Red).** La descarga de los botones
+"Calendario Excel" y "Clasificación Excel" **no es un endpoint distinto**: es la propia
+página con `&excel=1&NPcd_File=1`.
+
+```
+Calendario Excel      → /pnfg/NPcd/NFG_VisCalendario_Vis?cod_primaria=1000120
+                         &codtemporada=22&codcompeticion=…&codgrupo=…&excel=1&NPcd_File=1
+Clasificación Excel   → /pnfg/NPcd/NFG_VisClasificacion?cod_primaria=1000120
+                         &codtemporada=22&codcompeticion=…&codgrupo=…&excel=1&NPcd_File=1
+Tabla cruzada         → /pnfg/NPcd/NFG_VisTablaCruzado?cod_primaria=1000120&CodGrupo=…
+```
+
+Están en `packages/ingesta/src/urls.ts` (`urlCalendarioExcel`, `urlClasificacionExcel`,
+`urlTablaCruzada`). El fichero que devuelve es HTML en latin-1 (ver arriba), igual que el
+de `datos-ejemplo/`.
 
 `CodTemporada=22` corresponde a 2026/27, así que la numeración parece arrancar en
 2004/05. Confírmalo con otra temporada antes de fiarte de la fórmula.

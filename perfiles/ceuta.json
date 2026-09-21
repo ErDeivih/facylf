@@ -1,0 +1,9 @@
+{
+  "nombre": "ceuta",
+  "base": "https://www.rffce.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-ceuta",
+  "config": "recolector.ceuta.config.json",
+  "catalogo": "descargas-ceuta/competiciones-por-temporada.json",
+  "grupos": "descargas-ceuta/grupos-por-temporada.json"
+}

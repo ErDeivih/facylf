@@ -1,0 +1,9 @@
+{
+  "nombre": "prueba-c",
+  "base": "https://www.euskadifutbol.eus/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-prueba-c",
+  "config": "recolector.prueba-c.config.json",
+  "catalogo": "descargas-prueba-c/competiciones-por-temporada.json",
+  "grupos": "descargas-prueba-c/grupos-por-temporada.json"
+}

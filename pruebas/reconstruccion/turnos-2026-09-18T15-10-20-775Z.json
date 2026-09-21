@@ -1,0 +1,66 @@
+{
+  "cuando": "2026-09-18T15:10:20.777Z",
+  "federaciones": [
+    "prueba-a",
+    "prueba-b",
+    "prueba-c"
+  ],
+  "memoriaGb": 2,
+  "plazasDelPresupuesto": 1,
+  "turnoMin": 1,
+  "minutos": 6,
+  "maxPlazasVistas": 1,
+  "vivos": [
+    {
+      "federacion": "prueba-a",
+      "estado": "running",
+      "turnos": 0,
+      "peticiones": 0,
+      "trabajo": 0
+    },
+    {
+      "federacion": "prueba-b",
+      "estado": "running",
+      "turnos": 0,
+      "peticiones": 0,
+      "trabajo": 0
+    },
+    {
+      "federacion": "prueba-c",
+      "estado": "running",
+      "turnos": 0,
+      "peticiones": 0,
+      "trabajo": 0
+    }
+  ],
+  "plazasDespues": 0,
+  "esperasDespues": 1,
+  "esperasTrasArrancar": null,
+  "resultados": [
+    {
+      "nombre": "nunca se ocupan más plazas que las del presupuesto (1)",
+      "bien": true,
+      "detalle": "máximo visto: 1"
+    },
+    {
+      "nombre": "los contenedores siguen vivos",
+      "bien": true,
+      "detalle": "prueba-a:running · prueba-b:running · prueba-c:running"
+    },
+    {
+      "nombre": "todas las federaciones consiguen su turno",
+      "bien": false,
+      "detalle": "prueba-a:0 · prueba-b:0 · prueba-c:0"
+    },
+    {
+      "nombre": "al parar no quedan plazas sin dueño",
+      "bien": true,
+      "detalle": "0 plaza(s)"
+    },
+    {
+      "nombre": "las esperas de contenedores muertos se recogen",
+      "bien": true,
+      "detalle": "1 → 0 ficha(s) de espera"
+    }
+  ]
+}

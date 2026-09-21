@@ -1,0 +1,22 @@
+{
+  "consulta": "cobertura-por-federación",
+  "presupuestoMs": 800,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Hash",
+      "Hash Join",
+      "Limit",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "coverage_checkpoint",
+      "federation",
+      "phase_group"
+    ],
+    "filas": 22
+  }
+}

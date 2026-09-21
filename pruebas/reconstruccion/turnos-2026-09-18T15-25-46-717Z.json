@@ -1,0 +1,71 @@
+{
+  "cuando": "2026-09-18T15:25:46.719Z",
+  "federaciones": [
+    "prueba-a",
+    "prueba-b",
+    "prueba-c"
+  ],
+  "memoriaGb": 2,
+  "plazasDelPresupuesto": 1,
+  "turnoMin": 1,
+  "minutos": 6,
+  "maxPlazasVistas": 1,
+  "vivos": [
+    {
+      "federacion": "prueba-a",
+      "estado": "running",
+      "turnos": 10,
+      "esperas": 4,
+      "sinTrabajo": false
+    },
+    {
+      "federacion": "prueba-b",
+      "estado": "running",
+      "turnos": 7,
+      "esperas": 4,
+      "sinTrabajo": false
+    },
+    {
+      "federacion": "prueba-c",
+      "estado": "running",
+      "turnos": 11,
+      "esperas": 3,
+      "sinTrabajo": false
+    }
+  ],
+  "plazasDespues": 0,
+  "esperasDespues": 2,
+  "esperasTrasArrancar": null,
+  "resultados": [
+    {
+      "nombre": "nunca se ocupan más plazas que las del presupuesto (1)",
+      "bien": true,
+      "detalle": "máximo visto: 1"
+    },
+    {
+      "nombre": "los contenedores siguen vivos",
+      "bien": true,
+      "detalle": "prueba-a:running · prueba-b:running · prueba-c:running"
+    },
+    {
+      "nombre": "el reparto se ejercita de verdad (alguien espera)",
+      "bien": true,
+      "detalle": "prueba-a: 4 espera(s) · prueba-b: 4 espera(s) · prueba-c: 3 espera(s)"
+    },
+    {
+      "nombre": "todas las federaciones consiguen su turno",
+      "bien": true,
+      "detalle": "prueba-a:10 turno(s) · prueba-b:7 turno(s) · prueba-c:11 turno(s)"
+    },
+    {
+      "nombre": "al parar no quedan plazas sin dueño",
+      "bien": true,
+      "detalle": "0 plaza(s)"
+    },
+    {
+      "nombre": "las esperas de contenedores muertos se recogen",
+      "bien": true,
+      "detalle": "2 → 0 ficha(s) de espera"
+    }
+  ]
+}

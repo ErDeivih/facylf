@@ -5,3 +5,6 @@ export * from './clasificacion.js';
 export * from './calendario.js';
 export * from './festivos.js';
 export * from './confianza.js';
+export * from './evolucion.js';
+export * from './historial.js';
+export * from './jugador.js';

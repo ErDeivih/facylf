@@ -1,0 +1,9 @@
+{
+  "nombre": "galicia",
+  "base": "https://www.futgal.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-galicia",
+  "config": "recolector.galicia.config.json",
+  "catalogo": "descargas-galicia/competiciones-por-temporada.json",
+  "grupos": "descargas-galicia/grupos-por-temporada.json"
+}

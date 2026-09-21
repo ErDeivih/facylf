@@ -1,0 +1,348 @@
+{
+  "ventana": {
+    "desde": "2026-09-12",
+    "hasta": "2026-09-13"
+  },
+  "cuando": "2026-09-18T10:11:30.592Z",
+  "soloInforme": true,
+  "totales": {
+    "federaciones": 17,
+    "jornadas": 250,
+    "comprobadas": 245,
+    "planificadas": 27,
+    "reabiertas": 0,
+    "partidos": 770,
+    "actas": 1563,
+    "actasHechas": 1422,
+    "actasPendientes": 141
+  },
+  "federaciones": [
+    {
+      "federacion": "andalucia",
+      "jornadasDelFinde": 23,
+      "jornadasComprobadas": 23,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 175,
+      "actas": 166,
+      "actasPorEstado": {
+        "hecha": 166
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "aragon",
+      "jornadasDelFinde": 34,
+      "jornadasComprobadas": 34,
+      "planificadas": 11,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 8,
+      "actas": 226,
+      "actasPorEstado": {
+        "pendiente": 71,
+        "hecha": 155
+      },
+      "faltan": [
+        "22/23183321/23183322/J2 (sin actas encoladas)",
+        "22/23183321/23183323/J2 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "asturias",
+      "jornadasDelFinde": 10,
+      "jornadasComprobadas": 10,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 18,
+      "actasPorEstado": {
+        "hecha": 18
+      },
+      "faltan": [
+        "22/22880345/22932421/J1 (sin actas encoladas)",
+        "22/22880346/22943553/J1 (sin actas encoladas)",
+        "22/22880346/22943554/J1 (sin actas encoladas)",
+        "22/22880347/23033269/J1 (sin actas encoladas)",
+        "22/22880347/23036381/J1 (sin actas encoladas)",
+        "22/22880349/22950188/J1 (sin actas encoladas)",
+        "22/22880349/22950226/J1 (sin actas encoladas)",
+        "22/22985926/22985927/J1 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "baleares",
+      "jornadasDelFinde": 8,
+      "jornadasComprobadas": 8,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 49,
+      "actasPorEstado": {
+        "hecha": 49
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "canarias",
+      "jornadasDelFinde": 4,
+      "jornadasComprobadas": 4,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 24,
+      "actasPorEstado": {
+        "hecha": 24
+      },
+      "faltan": [
+        "22/903611915/903611916/J2 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "cantabria",
+      "jornadasDelFinde": 27,
+      "jornadasComprobadas": 27,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 124,
+      "actas": 115,
+      "actasPorEstado": {
+        "hecha": 115
+      },
+      "faltan": [
+        "22/22595792/22595793/J2 (sin actas encoladas)",
+        "22/22595794/22595795/J2 (sin actas encoladas)",
+        "22/22595796/22595797/J1 (sin actas encoladas)",
+        "22/22595798/22595799/J1 (sin actas encoladas)",
+        "22/22595817/22595818/J1 (sin actas encoladas)",
+        "22/22595846/22595847/J2 (sin actas encoladas)",
+        "22/22598815/22740321/J5 (sin actas encoladas)",
+        "22/22656459/22656460/J1 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "castilla-la-mancha",
+      "jornadasDelFinde": 15,
+      "jornadasComprobadas": 15,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 54,
+      "actasPorEstado": {
+        "hecha": 54
+      },
+      "faltan": [
+        "22/22916204/22916205/J1 (sin actas encoladas)",
+        "22/22916204/22916206/J1 (sin actas encoladas)",
+        "22/22916204/22916207/J1 (sin actas encoladas)",
+        "22/22916204/22916208/J1 (sin actas encoladas)",
+        "22/22916211/22975144/J3 (sin actas encoladas)",
+        "22/22916217/23016166/J1 (sin actas encoladas)",
+        "22/22916217/23016688/J1 (sin actas encoladas)",
+        "22/22975178/22975180/J2 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "cataluna",
+      "jornadasDelFinde": 3,
+      "jornadasComprobadas": 3,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 27,
+      "actas": 27,
+      "actasPorEstado": {
+        "hecha": 27
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "ceuta",
+      "jornadasDelFinde": 0,
+      "jornadasComprobadas": 0,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "euskadi",
+      "jornadasDelFinde": 11,
+      "jornadasComprobadas": 11,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 48,
+      "actasPorEstado": {
+        "hecha": 48
+      },
+      "faltan": [
+        "22/24057855/24057856/J2 (sin actas encoladas)",
+        "22/24057859/24386814/J2 (sin actas encoladas)",
+        "22/24057870/24721092/J2 (sin actas encoladas)",
+        "22/24675380/24675438/J3 (sin actas encoladas)",
+        "22/24830936/24831037/J1 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "extremadura",
+      "jornadasDelFinde": 24,
+      "jornadasComprobadas": 21,
+      "planificadas": 10,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 8,
+      "actas": 65,
+      "actasPorEstado": {
+        "pendiente": 42,
+        "hecha": 23
+      },
+      "faltan": [
+        "22/22923448/23035919/J1 (sin actas encoladas)",
+        "22/22923449/22923450/J1 (sin actas encoladas)",
+        "22/22923449/22923451/J1 (sin actas encoladas)",
+        "22/22923449/22923452/J1 (sin actas encoladas)",
+        "22/22923449/22923453/J1 (sin actas encoladas)",
+        "22/22923459/22923460/J1 (sin actas encoladas)",
+        "22/22923466/22952452/J2 (sin actas encoladas)",
+        "22/22923469/22951648/J1 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "federacion",
+      "jornadasDelFinde": 20,
+      "jornadasComprobadas": 18,
+      "planificadas": 2,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 160,
+      "actas": 143,
+      "actasPorEstado": {
+        "hecha": 143
+      },
+      "faltan": [
+        "22/24218951/24218953/J1 (sin actas encoladas)",
+        "22/24218951/24218954/J1 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "galicia",
+      "jornadasDelFinde": 28,
+      "jornadasComprobadas": 28,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 215,
+      "actasPorEstado": {
+        "hecha": 215
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "madrid",
+      "jornadasDelFinde": 8,
+      "jornadasComprobadas": 8,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 70,
+      "actas": 71,
+      "actasPorEstado": {
+        "hecha": 71
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "murcia",
+      "jornadasDelFinde": 3,
+      "jornadasComprobadas": 3,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 27,
+      "actasPorEstado": {
+        "hecha": 27
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "navarra",
+      "jornadasDelFinde": 12,
+      "jornadasComprobadas": 12,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 90,
+      "actasPorEstado": {
+        "hecha": 90
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "rioja",
+      "jornadasDelFinde": 8,
+      "jornadasComprobadas": 8,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 25,
+      "actasPorEstado": {
+        "hecha": 25
+      },
+      "faltan": [
+        "22/21959326/21959327/J2 (sin actas encoladas)",
+        "22/21959336/21959337/J2 (sin actas encoladas)",
+        "22/21959401/21959402/J3 (sin actas encoladas)",
+        "22/21973144/21973145/J3 (sin actas encoladas)",
+        "22/22036095/22036096/J2 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "valencia",
+      "jornadasDelFinde": 12,
+      "jornadasComprobadas": 12,
+      "planificadas": 4,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 198,
+      "actas": 200,
+      "actasPorEstado": {
+        "pendiente": 28,
+        "hecha": 172
+      },
+      "faltan": [],
+      "fallo": null
+    }
+  ]
+}

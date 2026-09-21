@@ -1,0 +1,79 @@
+{
+  "cuando": "2026-09-17T21:51:48.075Z",
+  "simular": false,
+  "reiniciados": [
+    {
+      "pid": 24524,
+      "federacion": "cantabria",
+      "inicio": "2026-09-17T22:13:07",
+      "disponibles": 11200
+    },
+    {
+      "pid": 47308,
+      "federacion": "baleares",
+      "inicio": "2026-09-17T22:14:47",
+      "disponibles": 2344
+    },
+    {
+      "pid": 54860,
+      "federacion": "extremadura",
+      "inicio": "2026-09-17T22:18:52",
+      "disponibles": 15948
+    },
+    {
+      "pid": 45644,
+      "federacion": "asturias",
+      "inicio": "2026-09-17T22:20:45",
+      "disponibles": 16349
+    },
+    {
+      "pid": 53796,
+      "federacion": "castilla-la-mancha",
+      "inicio": "2026-09-17T22:39:08",
+      "disponibles": 11330
+    },
+    {
+      "pid": 4364,
+      "federacion": "rioja",
+      "inicio": "2026-09-17T22:56:00",
+      "disponibles": 770
+    },
+    {
+      "pid": 24692,
+      "federacion": "galicia",
+      "inicio": "2026-09-17T23:28:39",
+      "disponibles": 21365
+    },
+    {
+      "pid": 31500,
+      "federacion": "murcia",
+      "inicio": "2026-09-17T23:28:50",
+      "disponibles": 12774
+    },
+    {
+      "pid": 35992,
+      "federacion": "federacion",
+      "inicio": "2026-09-17T23:31:14",
+      "disponibles": 19023
+    },
+    {
+      "pid": 49480,
+      "federacion": "aragon",
+      "inicio": "2026-09-17T23:31:53",
+      "disponibles": 14719
+    },
+    {
+      "pid": 40784,
+      "federacion": "navarra",
+      "inicio": "2026-09-17T23:32:03",
+      "disponibles": 9434
+    },
+    {
+      "pid": 44028,
+      "federacion": "andalucia",
+      "inicio": "2026-09-17T23:34:03",
+      "disponibles": 30478
+    }
+  ],
+  "matados": 12
+}

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { normaliza } from '@fcylf/dominio';
+import { normaliza } from '@facylf/dominio';
 import { parseaCalendario } from '../src/parsers/calendario.js';
 import { validaCalendario } from '../src/validacion.js';
 
@@ -60,7 +60,7 @@ describe('parser del calendario (fichero real de la federación)', () => {
 
   it('un fichero vacío es un fallo, no un caso vacío', () => {
     expect(validaCalendario(parseaCalendario('<html></html>').partidos))
-      .toEqual([{ regla: 'no-vacio', detalle: 'el parser no ha devuelto ni un partido' }]);
+      .toEqual([{ regla: 'no-vacio', detalle: 'el parser no ha devuelto ni un partido', nivel: 'critico' }]);
   });
 });
 

@@ -1,24 +1,101 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-/* Rojiblanco a rayas verticales, pantalón negro, medias rojas: los colores del
-   C.D. Munibar Pizarrales según su ficha federativa. El rojo exacto está pendiente
-   de confirmar con el escudo vectorial del club (PROYECTO.md §11.4). */
+/* Alias temporales para los componentes existentes. Conservan sus nombres hasta migrarlos al
+   vocabulario semántico, pero ya no convierten el color de un club en identidad del producto. */
 @theme {
-  --color-club: #CE2028;
-  --color-club-oscuro: #9E141B;
-  --color-club-claro: #FBE7E8;
-  --color-pizarra: #16181C;
-  --color-pizarra-claro: #272C33;
-  --color-cal: #F0F0EF;
-  /* Los titulares piden una condensada tipo Oswald. Para no depender de Google Fonts
-     al construir, se usa la del sistema; si quieres la de verdad, añade
-     `next/font/google` en layout.tsx y apunta esta variable a ella. */
-  --font-display: 'Oswald', 'Haettenschweiler', 'Arial Narrow', Impact, sans-serif;
+  --color-club: var(--color-acento-700);
+  --color-club-oscuro: var(--color-acento-700);
+  --color-club-claro: var(--color-acento-100);
+  --color-pizarra: var(--color-tinta-950);
+  --color-pizarra-claro: var(--color-tinta-900);
+  --color-cal: var(--color-tinta-50);
+  --font-display: var(--font-sans);
 }
 
-body { background: var(--color-cal); }
+a, button, input, select { transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease; }
 
-/* el rayado de la camiseta, para la cabecera */
+.etiqueta-filtro {
+  display: block;
+  margin-bottom: .35rem;
+  font-family: var(--font-display);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.control-filtro {
+  width: 100%;
+  min-height: 2.55rem;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--fondo-elevado);
+  color: var(--texto);
+  padding: .55rem .7rem;
+  font-size: .875rem;
+  outline: none;
+}
+
+.control-filtro:focus { border-color: var(--accion); box-shadow: 0 0 0 2px var(--accion-suave); }
+
+.boton-primario, .boton-secundario {
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  padding: .55rem .9rem;
+  font-family: var(--font-display);
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.boton-primario { border: 1px solid var(--color-pizarra); background: var(--color-pizarra); color: var(--color-tinta-50); }
+.boton-primario:hover { border-color: var(--color-club); background: var(--color-club); }
+.boton-secundario { border: 1px solid var(--borde-fuerte); background: var(--fondo-elevado); color: var(--texto); }
+.boton-secundario:hover { border-color: var(--color-club); color: var(--color-club); }
+
+.insignia {
+  display: inline-flex;
+  border: 1px solid var(--borde);
+  background: var(--fondo-sutil);
+  padding: .15rem .4rem;
+  font-size: .62rem;
+  line-height: 1rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.insignia-roja { border-color: var(--derrota); background: var(--color-club-claro); color: var(--color-club-oscuro); }
+.insignia-verde { border-color: var(--victoria); background: var(--fondo-sutil); color: var(--victoria); }
+
+table th { white-space: nowrap; }
+table td { vertical-align: middle; }
+
+.subnav {
+  display: flex;
+  gap: .25rem;
+  overflow-x: auto;
+  border: 1px solid var(--borde);
+  background: var(--fondo-elevado);
+  padding: .35rem;
+  scrollbar-width: thin;
+}
+
+.subnav a {
+  flex: 0 0 auto;
+  padding: .6rem .75rem;
+  font-family: var(--font-display);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.subnav a:hover { background: var(--color-club-claro); color: var(--color-club-oscuro); }
+
+/* Acento neutro de plataforma, no la equipación de un club concreto. */
 .rayas {
-  background: repeating-linear-gradient(90deg, var(--color-club) 0 14px, #F7F7F6 14px 28px);
+  background: linear-gradient(90deg, var(--accion), var(--color-acento-500));
 }

@@ -1,0 +1,38 @@
+{
+  "cuando": "2026-09-18T14:10:14.768Z",
+  "aplicado": true,
+  "demonioDocker": {
+    "vivo": true,
+    "version": "27.4.0"
+  },
+  "horizonteHoras": 2,
+  "memoriaDeclaradaGb": 10,
+  "memoriaEnMarchaGb": 0,
+  "contenedoresEnMarcha": 0,
+  "federaciones": 1,
+  "decisiones": {
+    "arriba": 1,
+    "abajo": 0,
+    "no-tocar": 0
+  },
+  "terminadas": [],
+  "sinContenedor": [],
+  "sinDatos": [],
+  "acciones": [
+    "levantados 1: prueba-10gb"
+  ],
+  "plan": [
+    {
+      "federacion": "prueba-10gb",
+      "servicio": "prueba-10gb",
+      "decision": "arriba",
+      "motivo": "96 trabajo(s) disponibles ahora",
+      "disponibleAhora": 96,
+      "pendientes": 227,
+      "reanudarEn": null,
+      "contenedor": "docker-prueba-10gb-1",
+      "enMarcha": false,
+      "memoria": null
+    }
+  ]
+}

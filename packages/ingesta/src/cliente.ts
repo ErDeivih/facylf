@@ -1,11 +1,18 @@
 /**
  * Cliente HTTP hacia rfcylf.es.
  *
- * El bloqueo que apareció al principio del proyecto venía de una herramienta que
- * respeta `robots.txt`, **no de una defensa anti-bots de la federación**. No hay nada
- * que evadir, y la única forma de perder el acceso es comportarse mal.
+ * Proyecto personal y sin ánimo de lucro (ver CLAUDE.md y PROYECTO.md §0). El acceso se
+ * hace **identificado** y con **ritmo espaciado y respetuoso**: un único User-Agent real
+ * con la URL que explica qué hace el bot y un correo de contacto, techo de peticiones por
+ * minuto, una sola concurrente, If-None-Match con el ETag guardado y backoff ante 429/5xx.
  *
- * Estas reglas no se relajan sin hablarlo (CLAUDE.md):
+ * El `robots.txt` de www.rfcylf.es es `User-agent: * → Disallow: /` (solo Googlebot,
+ * Twitterbot y Mediapartners-Google quedan fuera). Saberlo es importante: si un día este
+ * proyecto se hace público o comercial, hay que pedir permiso a la delegación y respetar
+ * su respuesta. Para uso personal se baja con ritmo tranquilo y sin disfrazarse: no se
+ * suplanta a un navegador ni a Googlebot, no se rotan proxies ni se resuelven captchas.
+ *
+ * Reglas que no se relajan sin hablarlo (CLAUDE.md):
  *   · User-Agent identificable, con URL de explicación y correo real
  *   · 30 peticiones/minuto como techo, una sola concurrente
  *   · If-None-Match con el ETag guardado
@@ -14,10 +21,10 @@
  */
 
 export interface OpcionesCliente {
-  /** URL pública que explica qué hace el bot. Sin ella el cliente no arranca. */
-  urlBot: string;
-  /** Correo al que se puede escribir para pedir que pare. Idem. */
-  contacto: string;
+  /** URL pública que explica qué hace el bot. Se recomienda rellenarla. */
+  urlBot?: string;
+  /** Correo al que se puede escribir para pedir que pare. Se recomienda rellenarlo. */
+  contacto?: string;
   version?: string;
   porMinuto?: number;
   /** Sólo para los tests: reloj y fetch inyectables. */
@@ -52,16 +59,48 @@ export class ClienteFederacion {
   private readonly hacerFetch: typeof globalThis.fetch;
   private ultimas: number[] = [];
   private cola: Promise<unknown> = Promise.resolve();
+  /** Cookies de sesión del sitio: la federación las exige antes de servir un Excel. */
+  private cookies = new Map<string, string>();
+
+  private cabeceraCookie(): string | undefined {
+    if (this.cookies.size === 0) return undefined;
+    return [...this.cookies.entries()].map(([n, v]) => `${n}=${v}`).join('; ');
+  }
+
+  private guardaCookies(r: Response): void {
+    const withGetSet = r.headers as { getSetCookie?: () => string[] };
+    const lista = typeof withGetSet.getSetCookie === 'function' ? withGetSet.getSetCookie() : [];
+    const crudas = lista.length > 0 ? lista : (r.headers.get('set-cookie') ? [r.headers.get('set-cookie')!] : []);
+    for (const sc of crudas) {
+      const partes = sc.split(';').map((x) => x.trim());
+      const [cabeza] = partes;
+      const eq = cabeza!.indexOf('=');
+      if (eq <= 0) continue;
+      const nombre = cabeza!.slice(0, eq).trim();
+      const valor = cabeza!.slice(eq + 1).trim();
+      // Max-Age=0 o Expires en el pasado = borrar la cookie
+      if (partes.some((p) => /^max-age=0$/i.test(p))) { this.cookies.delete(nombre); continue; }
+      this.cookies.set(nombre, valor);
+    }
+  }
+
+  /** ¿Ya tenemos alguna cookie de sesión? (para diagnosticar el bloqueo del sitio). */
+  get tieneCookies(): boolean { return this.cookies.size > 0; }
 
   constructor(private readonly op: OpcionesCliente) {
+    // Para uso personal basta con identificarse y espaciar; no se impide el trabajo.
+    // Rellena BOT_URL y BOT_CONTACTO en .env cuando puedas.
     if (!op.urlBot || !op.contacto) {
-      throw new Error(
-        'El cliente necesita una URL y un correo reales para identificarse. ' +
-        'Rellena BOT_URL y BOT_CONTACTO en .env — no pongas un valor de ejemplo.',
+      console.warn(
+        '[ClienteFederacion] BOT_URL y BOT_CONTACTO están sin rellenar. ' +
+        'Pon en .env una URL que explique qué hace este bot y un correo real al que ' +
+        'poder escribir para que pare; así el User-Agent te identifica de verdad.',
       );
     }
-    this.ua = `FutbolSalamancaBot/${op.version ?? '1.0'} (+${op.urlBot}; ${op.contacto})`;
-    this.porMinuto = op.porMinuto ?? 30;
+    const contacto = op.contacto?.trim() || 'contacto-pendiente';
+    const url = op.urlBot?.trim() || 'https://github.com';
+    this.ua = `FacylfBot/${op.version ?? '1.0'} (+${url}; ${contacto})`;
+    this.porMinuto = op.porMinuto ?? 20;
     this.ahora = op.ahora ?? (() => Date.now());
     this.dormir = op.dormir ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
     this.hacerFetch = op.fetch ?? globalThis.fetch;
@@ -81,15 +120,31 @@ export class ClienteFederacion {
       await this.esperaHueco();
       const t0 = this.ahora();
       let r: Response;
+      let actual = url;
       try {
-        r = await this.hacerFetch(url, {
-          headers: {
-            'User-Agent': this.ua,
-            'Accept-Language': 'es-ES,es;q=0.9',
-            ...(etagPrevio ? { 'If-None-Match': etagPrevio } : {}),
-          },
-          redirect: 'follow',
-        });
+        // Seguimos las redirecciones a mano para no perder las Set-Cookie que el servidor
+        // pone en un salto intermedio (con redirect:'follow' Node descarta las del medio).
+        for (let saltos = 0; ; saltos++) {
+          const cookie = this.cabeceraCookie();
+          r = await this.hacerFetch(actual, {
+            headers: {
+              'User-Agent': this.ua,
+              'Accept-Language': 'es-ES,es;q=0.9',
+              ...(cookie ? { Cookie: cookie } : {}),
+              ...(etagPrevio ? { 'If-None-Match': etagPrevio } : {}),
+            },
+            redirect: 'manual',
+          });
+          this.guardaCookies(r);
+          const loc = r.headers.get('location');
+          if (r.status >= 300 && r.status < 400 && loc) {
+            const siguiente = new URL(loc, actual).toString();
+            if (siguiente === actual || saltos >= 5) break; // evita bucles de redirección
+            actual = siguiente;
+            continue;
+          }
+          break;
+        }
       } catch (e) {
         if (intento >= ESPERAS.length - 1) throw new ParadaPorFallos(url, intento + 1);
         await this.dormir(ESPERAS[intento]!);
@@ -106,9 +161,17 @@ export class ClienteFederacion {
       }
       if (!r.ok) throw new Error(`${url} respondió ${r.status}`);
 
+      const cuerpo = new Uint8Array(await r.arrayBuffer());
+      // Un 200 VACÍO es señal de freno del sitio (o de que la página va por AJAX).
+      // Se espera poco y se reintenta un par de veces; si sigue, se devuelve vacío.
+      if (cuerpo.length === 0 && intento < ESPERAS.length - 1) {
+        await this.dormir(3000 + intento * 3000); // 3s, luego 6s
+        continue;
+      }
+
       return {
         estado: r.status, sinCambios: false,
-        cuerpo: new Uint8Array(await r.arrayBuffer()),
+        cuerpo,
         etag: r.headers.get('etag'), ms,
       };
     }

@@ -1,0 +1,20 @@
+{
+  "federacion": "castilla-leon",
+  "temporadaCodigo": "21",
+  "grupo": "22911127",
+  "nota": "Temporada completa 2025-26, 18 equipos",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2025-26",
+    "competicion": "22911126",
+    "jornadas": 34,
+    "partidos": 306,
+    "partidosConResultado": 306,
+    "actas": 306,
+    "actasHechas": 306,
+    "participaciones": 11522,
+    "eventos": 7828,
+    "tecnicos": 3089
+  },
+  "temporada": "2025-26"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "federacion": "madrid",
+    "cuando": "2026-09-17T19:43:52.203Z",
+    "nota": "los fallos fueron locales: matamos su chromedriver por error el 17/09/2026 a las 20:11; la fuente no tiene nada que perdonar",
+    "pausaAnterior": {
+      "hasta": "2026-09-18T00:12:38.701Z",
+      "motivo": "acta|21|24037916|24037917|28|5454300: 5 fallos seguidos: The operation was aborted due to timeout"
+    },
+    "estabaActiva": true
+  },
+  {
+    "federacion": "madrid",
+    "cuando": "2026-09-17T21:08:09.494Z",
+    "nota": "los cinco fallos fueron 'operation aborted due to timeout' en fichas de acta muy pesadas (253 KB), no una barrera de la fuente: la pausa de 6 h era de la regla vieja (ya es 1 h)",
+    "pausaAnterior": {
+      "hasta": "2026-09-18T02:48:30.601Z",
+      "motivo": "acta|21|24038021|24038023|4|5402590: 5 fallos seguidos: The operation was aborted due to timeout"
+    },
+    "estabaActiva": true
+  }
+]

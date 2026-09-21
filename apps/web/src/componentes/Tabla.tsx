@@ -1,12 +1,13 @@
 import Link from 'next/link';
-import type { FilaClasificacion } from '@fcylf/dominio';
-import { mismoEquipo } from '@fcylf/dominio';
-import { aSlug, MI_EQUIPO } from '@/lib/datos';
+import type { Route } from 'next';
+import type { FilaClasificacion } from '@facylf/dominio';
 
-export function Tabla({ filas, ascienden = 2 }: { filas: FilaClasificacion[]; ascienden?: number }) {
+export function Tabla({ filas, ascienden = 2, enlacesEquipo = {} }: {
+  filas: FilaClasificacion[]; ascienden?: number; enlacesEquipo?: Record<string, string>;
+}) {
   if (filas.every((f) => f.jugados === 0)) {
     return (
-      <p className="p-6 text-sm text-[#5C646C]">
+      <p className="p-6 text-sm text-[var(--texto-suave)]">
         Todavía no se ha jugado ninguna jornada. La clasificación aparecerá sola en cuanto
         haya resultados.
       </p>
@@ -15,28 +16,37 @@ export function Tabla({ filas, ascienden = 2 }: { filas: FilaClasificacion[]; as
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm tabular-nums">
+        {/*
+          * `caption` SIEMPRE, aunque sea visualmente invisible: es lo que anuncia un lector de pantalla al
+          * entrar en la tabla, y sin él una tabla de clasificación es una rejilla de números sin nombre.
+        */}
+        <caption className="sr-only">
+          Clasificación: posición, equipo, partidos jugados, ganados, empatados, perdidos, goles a favor,
+          goles en contra, diferencia de goles y puntos.
+        </caption>
         <thead>
-          <tr className="border-b border-[#D6D6D4] text-xs uppercase tracking-[0.1em] text-[#5C646C]">
-            <th className="p-2 text-left">#</th>
-            <th className="p-2 text-left">Equipo</th>
+          <tr className="border-b border-[var(--borde)] text-xs uppercase tracking-[0.1em] text-[var(--texto-suave)]">
+            <th scope="col" className="p-2 text-left">#</th>
+            <th scope="col" className="p-2 text-left">Equipo</th>
             {['PJ', 'G', 'E', 'P', 'GF', 'GC', 'DG', 'Pts'].map((h) => (
-              <th key={h} className="p-2 text-right">{h}</th>
+              <th key={h} scope="col" className="p-2 text-right">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {filas.map((f) => {
-            const mio = mismoEquipo(f.equipo, MI_EQUIPO);
             return (
               <tr key={f.equipo}
-                  className={`border-b border-[#EDF0ED] ${mio ? 'bg-club-claro font-semibold' : ''}`}>
-                <td className={`p-2 font-display text-[#5C646C] ${f.posicion <= ascienden ? 'border-l-[3px] border-[#1F7A46]' : ''}`}>
+                  className="border-b border-[var(--borde)]">
+                <td className={`p-2 font-display text-[var(--texto-suave)] ${f.posicion <= ascienden ? 'border-l-[3px] border-[var(--victoria)]' : ''}`}>
                   {f.posicion}
                 </td>
                 <td className="p-2">
-                  <Link className="hover:underline" href={`/equipo/${aSlug(f.equipo)}`}>{f.equipo}</Link>
+                  {enlacesEquipo[f.equipo]
+                    ? <Link className="hover:underline" href={enlacesEquipo[f.equipo] as Route}>{f.equipo}</Link>
+                    : f.equipo}
                   {f.sorteoPendiente && (
-                    <span className="ml-2 text-xs font-normal text-[#A87A12]" title="empate que sólo rompe un sorteo">
+                    <span className="ml-2 text-xs font-normal text-[var(--amarilla)]" title="empate que sólo rompe un sorteo">
                       empate sin resolver
                     </span>
                   )}

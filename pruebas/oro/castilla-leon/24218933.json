@@ -1,0 +1,20 @@
+{
+  "federacion": "castilla-leon",
+  "temporadaCodigo": "22",
+  "grupo": "24218933",
+  "nota": "Temporada EN CURSO: sólo dos jornadas jugadas",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2026-27",
+    "competicion": "24218932",
+    "jornadas": 34,
+    "partidos": 18,
+    "partidosConResultado": 18,
+    "actas": 18,
+    "actasHechas": 18,
+    "participaciones": 696,
+    "eventos": 455,
+    "tecnicos": 173
+  },
+  "temporada": "2026-27"
+}

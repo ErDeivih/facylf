@@ -1,0 +1,55 @@
+# Lo que NO entra en la imagen de los recolectores.
+#
+# Las colas y los perfiles de Chrome NO se copian: en el servidor viven en volúmenes (`descargas-<federación>`),
+# porque son datos, no programa. Tampoco entran el `node_modules` del PC (es de Windows: pnpm lo reconstruye
+# dentro), la web, ni los artefactos de desarrollo.
+node_modules
+**/node_modules
+
+# Datos de ingesta: colas, perfiles de Chrome, HTML archivado y los informes de pruebas.
+descargas-federacion
+descargas-andalucia
+descargas-aragon
+descargas-asturias
+descargas-baleares
+descargas-canarias
+descargas-cantabria
+descargas-castilla-la-mancha
+descargas-cataluna
+descargas-ceuta
+descargas-euskadi
+descargas-extremadura
+descargas-galicia
+descargas-madrid
+descargas-murcia
+descargas-navarra
+# Las federaciones de PRUEBA (`prueba-10gb` y las `prueba-a`…`prueba-f` de las pruebas de fondo) son datos del
+# PC: se montan en el contenedor cuando hacen falta, pero no viajan dentro de la imagen.
+descargas-prueba-*
+descargas-prueba10gb
+descargas-rioja
+descargas-valencia
+.estado-workers
+pruebas
+
+# Los perfiles de Chrome del sondeo (1,5 GB entre las 17 federaciones) no se usan en la ingesta: al servidor
+# sólo van los catálogos `*-sondeo.json` que sí leen Madrid y Valencia.
+descargas-federacion-sondeo/perfil-*
+
+# Artefactos y basura de desarrollo.
+**/dist
+**/.next
+**/.next-*
+_borrar
+_nuevo
+.git
+.gitignore
+*.log
+visor*.log
+.env
+.env.*
+
+# La web no se construye aquí (los recolectores no la usan), pero su `package.json` sí entra para que el
+# fichero de bloqueo de pnpm siga cuadrando.
+apps/web/.next
+apps/web/node_modules

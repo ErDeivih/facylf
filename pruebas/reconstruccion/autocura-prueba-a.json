@@ -1,0 +1,113 @@
+{
+  "cuando": "2026-09-18T12:32:45.898Z",
+  "federacion": "prueba-a",
+  "antes": {
+    "trabajos": {
+      "en_curso": 1,
+      "hecho": 400,
+      "pendiente": 198
+    },
+    "actas": {
+      "pendiente_ambito": 808
+    },
+    "peticiones": 71,
+    "temporales": 0,
+    "enCurso": {
+      "n": 1,
+      "viejo": 0,
+      "claves": [
+        "jornada|20|22606872|22606873|2|"
+      ]
+    }
+  },
+  "trabajando": {
+    "trabajos": {
+      "en_curso": 1,
+      "hecho": 410,
+      "pendiente": 232
+    },
+    "actas": {
+      "pendiente_ambito": 821
+    },
+    "peticiones": 82,
+    "temporales": 0,
+    "enCurso": {
+      "n": 1,
+      "viejo": 0,
+      "claves": [
+        "indice_jornadas|22|24057862|24057863|1|"
+      ]
+    }
+  },
+  "despues": {
+    "trabajos": {
+      "en_curso": 1,
+      "hecho": 427,
+      "pendiente": 294
+    },
+    "actas": {
+      "pendiente_ambito": 850
+    },
+    "peticiones": 99,
+    "temporales": 0,
+    "enCurso": {
+      "n": 1,
+      "viejo": 0,
+      "claves": [
+        "grupos|21|22619984|||"
+      ]
+    }
+  },
+  "resultados": [
+    {
+      "nombre": "la cola se puede leer antes de empezar",
+      "bien": true,
+      "detalle": "trabajos: {\"en_curso\":1,\"hecho\":400,\"pendiente\":198}"
+    },
+    {
+      "nombre": "el contenedor trabaja antes del corte",
+      "bien": true,
+      "detalle": "71 → 82 peticiones"
+    },
+    {
+      "nombre": "el supervisor relanza al worker",
+      "bien": true,
+      "detalle": "82 → 88 peticiones"
+    },
+    {
+      "nombre": "Docker lo levanta solo (política de reinicio)",
+      "bien": true,
+      "detalle": "estado tras la caída: running · 1 · 0 (status · reinicios · código)"
+    },
+    {
+      "nombre": "sigue recolectando donde lo dejó",
+      "bien": true,
+      "detalle": "82 → 99 peticiones"
+    },
+    {
+      "nombre": "ningún trabajo se queda a medias (en_curso abandonado)",
+      "bien": true,
+      "detalle": "en_curso = 1 · abandonados = 0"
+    },
+    {
+      "nombre": "lo que quedó a medias vuelve a la cola (si quedó algo)",
+      "bien": true,
+      "detalle": "1 trabajo(s) devueltos a pendiente por la sesión nueva"
+    },
+    {
+      "nombre": "no se pierde trabajo",
+      "bien": true,
+      "detalle": "599 → 722 trabajos"
+    },
+    {
+      "nombre": "no hay escrituras a medias (ficheros .tmp)",
+      "bien": true,
+      "detalle": "0 temporales"
+    },
+    {
+      "nombre": "las actas no se duplican",
+      "bien": true,
+      "detalle": "808 → 850 actas"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "consulta": "resumen-canónico",
+  "presupuestoMs": 2000,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Gather",
+      "Index Only Scan",
+      "Limit",
+      "Result",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "coverage_checkpoint",
+      "match",
+      "phase_group"
+    ],
+    "filas": 106037
+  }
+}

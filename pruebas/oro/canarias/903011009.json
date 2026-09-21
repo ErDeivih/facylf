@@ -1,0 +1,20 @@
+{
+  "federacion": "canarias",
+  "temporadaCodigo": "21",
+  "grupo": "903011009",
+  "nota": "Federación pequeña, 12 equipos, 22 jornadas",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2025-26",
+    "competicion": "903011008",
+    "jornadas": 22,
+    "partidos": 132,
+    "partidosConResultado": 132,
+    "actas": 132,
+    "actasHechas": 132,
+    "participaciones": 4291,
+    "eventos": 2651,
+    "tecnicos": 726
+  },
+  "temporada": "2025-26"
+}

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.3" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Reanuda la ingesta local de la federaciÃ³n castilla-la-mancha al iniciar sesiÃ³n y conserva su cola SQLite.</Description>
+    <URI>\FACyLF recolector castilla-la-mancha</URI>
+  </RegistrationInfo>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-21-1472502407-2645756260-1284113134-1001</UserId>
+      <LogonType>InteractiveToken</LogonType>
+    </Principal>
+  </Principals>
+  <Settings>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <RestartOnFailure>
+      <Count>3</Count>
+      <Interval>PT5M</Interval>
+    </RestartOnFailure>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <IdleSettings>
+      <Duration>PT10M</Duration>
+      <WaitTimeout>PT1H</WaitTimeout>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <UseUnifiedSchedulingEngine>true</UseUnifiedSchedulingEngine>
+  </Settings>
+  <Triggers>
+    <LogonTrigger>
+      <Delay>PT11M</Delay>
+      <UserId>DESKTOP-7J6LBK4\David</UserId>
+    </LogonTrigger>
+    <CalendarTrigger>
+      <StartBoundary>2026-09-12T06:05:00+02:00</StartBoundary>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\Windows\System32\wscript.exe</Command>
+      <Arguments>"F:\EspacioCodigo\facylf\scripts\ejecutar-oculto.vbs" "F:\EspacioCodigo\facylf\scripts\ejecutar-recolector-programado.ps1" "-Federacion" "castilla-la-mancha"</Arguments>
+      <WorkingDirectory>F:\EspacioCodigo\facylf</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

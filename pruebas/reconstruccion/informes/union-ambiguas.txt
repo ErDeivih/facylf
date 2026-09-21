@@ -1,0 +1,232 @@
+npm warn Unknown project config "link-workspace-packages". This will stop working in the next major version of npm.
+=== contadores, sobre la MISMA instantánea ===
+  A  incompatibles calendario/acta ....................: 199
+     A4 reparado por los 4 marcadores .................: 170
+     AP sólo con (P) ..................................: 16
+     AO ni con (P) ....................................: 13
+  H  Clase B: la cola no dice lo que dice su HTML .....: 0
+  M  ambiguas del manifiesto .........................: 23
+  C  correcciones deterministas del manifiesto ........: 170
+
+=== ¿es una unión? ===
+  |AP| + |AO|                = 29   (A entero)
+  |A| + |H|                  = 199
+  |A| + |H| - |A ∩ H|        = 199   ← unión real
+  A ∩ H  (en las dos clases) = 0
+  A \ H                      = 199
+  H \ A                      = 0
+
+=== M (manifiesto) frente a A y H ===
+  M ∩ A = 16 · M ∩ H = 0 · M ∩ A ∩ H = 0
+  M \ (A ∪ H) = 7
+  (A ∪ H) \ M = 183
+  desglose de M por categoría de A: {"depende_de_p":16,"fuera-de-A":7}
+  desglose de H por categoría de A: {}
+
+=== filas de M que NO están en A (las que explican la diferencia) ===
+  19|1804532|1804537|J2|0
+      {"orden":0,"actual":"(Sailkatua) DEPORTIVO ALAVES \"B\" vs HERNANI, C.D.","html":"(Sailkatua) DEPORTIVO ALAVES \"B\" vs HERNANI, C.D.","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":[]}
+      HTML: null
+  19|1804532|1804537|J2|1
+      {"orden":1,"actual":"(Sailkatua) EIBAR, S.D. \"C\" vs REAL SOCIEDAD DE FUTBOL \"C\"","html":"(Sailkatua) EIBAR, S.D. \"C\" vs REAL SOCIEDAD DE FUTBOL \"C\"","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":[]}
+      HTML: null
+  19|1804532|1804537|J3|0
+      {"orden":0,"actual":"(Sailkatua) DEPORTIVO ALAVES \"B\" vs EIBAR, S.D. \"C\"","html":"(Sailkatua) DEPORTIVO ALAVES \"B\" vs EIBAR, S.D. \"C\"","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":[]}
+      HTML: null
+  19|1807122|1807123|J2|0
+      {"orden":0,"actual":"IPAR ARRIAGA GASTEIZ, C.D. vs SESTAO RIVER (P) (Sailkatua)","html":"IPAR ARRIAGA GASTEIZ, C.D. vs SESTAO RIVER (P) (Sailkatua)","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":["(P)"]}
+      HTML: null
+  19|1807122|1807123|J3|0
+      {"orden":0,"actual":"ANTIGUOKO K.E. vs SESTAO RIVER (P) (Irabazlea)","html":"ANTIGUOKO K.E. vs SESTAO RIVER (P) (Irabazlea)","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":["(P)"]}
+      HTML: null
+  19|1807325|1807326|J2|0
+      {"orden":0,"actual":"HERRIKIDE vs CORAZONISTAS DE VITORIA C.D. (P) (Sailkatua)","html":"HERRIKIDE vs CORAZONISTAS DE VITORIA C.D. (P) (Sailkatua)","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":["(P)"]}
+      HTML: null
+  21|23824447|23824448|J2|0
+      {"orden":0,"actual":"(Sailkatua) REAL SOCIEDAD S.A.D. vs ATHLETIC CLUB","html":"(Sailkatua) REAL SOCIEDAD S.A.D. vs ATHLETIC CLUB","motivo":"el acta no permite comprobar la pareja (falta o no resuelve)","vias":{"local":"nombre-limpio-único","visitante":"nombre-limpio-único"},"marcadores_fuera_de_posicion":[],"marcadores_desconocidos":[]}
+      HTML: null
+
+=== filas de A que NO están en M ===
+  19|1802154|1802165|J2|0  [reparado_4]
+  19|1802154|1802165|J2|1  [reparado_4]
+  19|1802154|1802165|J4|0  [reparado_4]
+  19|1803823|1803824|J1|0  [reparado_4]
+  19|1804398|1804400|J1|0  [reparado_4]
+  19|1804398|1804400|J1|1  [reparado_4]
+  19|1804398|1804400|J1|2  [reparado_4]
+  19|1804398|1804400|J1|3  [reparado_4]
+  19|1804398|1804400|J1|4  [reparado_4]
+  19|1804398|1804400|J1|6  [otro]
+  19|1804398|1804400|J1|7  [reparado_4]
+  19|1804398|1804400|J2|0  [reparado_4]
+  19|1804398|1804400|J2|1  [reparado_4]
+  19|1804398|1804400|J2|2  [reparado_4]
+  19|1804398|1804400|J2|3  [reparado_4]
+  19|1804398|1804400|J3|0  [reparado_4]
+  19|1804398|1804400|J3|1  [reparado_4]
+  19|1804398|1804400|J4|0  [reparado_4]
+  19|1804532|1804537|J1|0  [reparado_4]
+  19|1804532|1804537|J1|1  [reparado_4]
+  19|1804532|1804537|J1|2  [reparado_4]
+  19|1804532|1804537|J1|3  [reparado_4]
+  19|1806415|1807114|J1|0  [reparado_4]
+  19|1806415|1807114|J2|0  [reparado_4]
+  19|1806856|1807102|J2|0  [otro]
+  19|1806856|1807102|J3|0  [reparado_4]
+  19|1807325|1807326|J1|0  [otro]
+  19|1807896|1807897|J1|1  [reparado_4]
+  19|1807896|1807897|J1|2  [reparado_4]
+  19|1807896|1807897|J1|3  [reparado_4]
+  19|1807896|1807897|J2|0  [reparado_4]
+  19|1807896|1807897|J2|1  [reparado_4]
+  19|1807896|1807897|J3|0  [reparado_4]
+  20|1988159|1989014|J1|0  [reparado_4]
+  20|1988159|1989014|J2|0  [reparado_4]
+  20|1988159|1989014|J2|1  [reparado_4]
+  20|1988159|1989014|J3|0  [reparado_4]
+  20|21955861|21955957|J1|0  [reparado_4]
+  20|21955861|21955957|J1|1  [reparado_4]
+  20|22606319|22606325|J2|0  [reparado_4]
+  20|22606319|22606325|J2|1  [reparado_4]
+  20|22606319|22606325|J4|0  [reparado_4]
+  20|22606872|22606873|J1|0  [reparado_4]
+  20|22606872|22606873|J1|1  [reparado_4]
+  20|22606872|22606873|J2|0  [reparado_4]
+  20|22608518|22608519|J1|0  [reparado_4]
+  20|22608518|22608519|J1|1  [reparado_4]
+  20|22608518|22608519|J1|2  [reparado_4]
+  20|22608518|22608519|J1|3  [reparado_4]
+  20|22610191|22610202|J1|0  [reparado_4]
+  20|22610191|22610202|J1|1  [reparado_4]
+  20|22610191|22610202|J1|2  [reparado_4]
+  20|22610191|22610202|J1|3  [reparado_4]
+  20|22610191|22610202|J1|4  [reparado_4]
+  20|22610191|22610202|J1|5  [reparado_4]
+  20|22610191|22610202|J1|6  [reparado_4]
+  20|22610191|22610202|J1|7  [reparado_4]
+  20|22610191|22610202|J2|0  [reparado_4]
+  20|22610191|22610202|J2|1  [reparado_4]
+  20|22610191|22610202|J2|2  [reparado_4]
+  20|22610191|22610202|J2|3  [reparado_4]
+  20|22610191|22610202|J3|0  [reparado_4]
+  20|22610191|22610202|J3|1  [reparado_4]
+  20|22610191|22610202|J4|0  [reparado_4]
+  20|22611309|22611354|J2|0  [reparado_4]
+  20|22611309|22611354|J3|0  [reparado_4]
+  20|22614209|22614210|J1|0  [reparado_4]
+  20|22614209|22614210|J1|1  [reparado_4]
+  20|22614209|22614210|J1|2  [otro]
+  20|22614209|22614210|J1|3  [reparado_4]
+  20|22614209|22614210|J2|0  [otro]
+  20|22614209|22614210|J2|1  [reparado_4]
+  20|22614209|22614210|J3|0  [reparado_4]
+  21|22984063|22984287|J1|1  [reparado_4]
+  21|22984063|22984287|J1|2  [reparado_4]
+  21|22984063|22984287|J1|3  [otro]
+  21|22984063|22984287|J2|1  [reparado_4]
+  21|22984063|22984287|J3|0  [reparado_4]
+  21|23233882|23233962|J1|0  [otro]
+  21|23233882|23233962|J1|1  [otro]
+  21|23233882|23233962|J1|2  [reparado_4]
+  21|23233882|23233962|J1|4  [reparado_4]
+  21|23233882|23233962|J1|5  [reparado_4]
+  21|23958812|23958813|J1|0  [reparado_4]
+  21|23958812|23958813|J1|1  [reparado_4]
+  21|23991145|23991147|J1|0  [reparado_4]
+  21|23991145|23991147|J1|2  [reparado_4]
+  21|23991145|23991147|J1|3  [reparado_4]
+  21|23991145|23991147|J1|4  [reparado_4]
+  21|23991145|23991147|J1|5  [reparado_4]
+  21|23991145|23991147|J1|7  [reparado_4]
+  21|24008793|24008794|J2|0  [reparado_4]
+  21|24008793|24008794|J2|1  [reparado_4]
+  21|24008793|24008794|J4|0  [reparado_4]
+  21|24023179|24023186|J1|0  [reparado_4]
+  21|24023179|24023186|J1|1  [reparado_4]
+  21|24023179|24023186|J1|2  [reparado_4]
+  21|24023179|24023186|J1|4  [reparado_4]
+  21|24023179|24023186|J1|5  [reparado_4]
+  21|24023179|24023186|J1|6  [reparado_4]
+  21|24023179|24023186|J1|7  [reparado_4]
+  21|24023179|24023186|J2|0  [reparado_4]
+  21|24023179|24023186|J2|1  [reparado_4]
+  21|24023179|24023186|J2|2  [reparado_4]
+  21|24023179|24023186|J2|3  [reparado_4]
+  21|24023179|24023186|J3|0  [reparado_4]
+  21|24023179|24023186|J3|1  [reparado_4]
+  21|24025536|24025538|J1|0  [reparado_4]
+  21|24038320|24038325|J1|0  [reparado_4]
+  21|24038320|24038325|J1|1  [reparado_4]
+  21|24042720|24042741|J1|0  [otro]
+  21|24042720|24042741|J3|0  [reparado_4]
+  21|24042797|24042798|J1|1  [reparado_4]
+  21|24042797|24042798|J1|2  [reparado_4]
+  21|24042797|24042798|J1|3  [otro]
+  21|24042797|24042798|J2|0  [reparado_4]
+  21|24042797|24042798|J2|1  [reparado_4]
+  21|24042797|24042798|J3|0  [reparado_4]
+  22|24622157|24622363|J1|0  [reparado_4]
+  22|24622157|24622363|J1|1  [reparado_4]
+  22|24622157|24622363|J1|2  [reparado_4]
+  22|24622157|24622363|J1|3  [reparado_4]
+  22|24622157|24622363|J1|4  [reparado_4]
+  21|23991145|23991147|J2|0  [reparado_4]
+  21|23991145|23991147|J2|1  [reparado_4]
+  21|23991145|23991147|J2|2  [reparado_4]
+  21|23991145|23991147|J2|3  [reparado_4]
+  21|23991145|23991147|J3|0  [reparado_4]
+  21|23991145|23991147|J3|1  [reparado_4]
+  21|24038320|24038325|J2|0  [reparado_4]
+  21|23958812|23958813|J2|0  [reparado_4]
+  21|23958812|23958813|J2|1  [reparado_4]
+  21|23958812|23958813|J2|2  [reparado_4]
+  21|23958812|23958813|J2|3  [reparado_4]
+  21|23958812|23958813|J2|4  [reparado_4]
+  21|23958812|23958813|J2|5  [reparado_4]
+  21|23958812|23958813|J2|6  [reparado_4]
+  21|23958812|23958813|J2|7  [reparado_4]
+  21|23958812|23958813|J3|0  [reparado_4]
+  21|23958812|23958813|J3|1  [reparado_4]
+  21|23958812|23958813|J3|2  [reparado_4]
+  21|23958812|23958813|J3|3  [reparado_4]
+  21|23958812|23958813|J4|0  [otro]
+  21|23958812|23958813|J4|1  [reparado_4]
+  21|23958812|23958813|J5|0  [reparado_4]
+  21|23233882|23233962|J2|0  [reparado_4]
+  21|23233882|23233962|J2|1  [reparado_4]
+  21|23233882|23233962|J3|0  [reparado_4]
+  21|23233882|23233962|J3|1  [reparado_4]
+  21|23233882|23233962|J3|2  [reparado_4]
+  21|23233882|23233962|J3|3  [reparado_4]
+  21|23233882|23233962|J3|4  [reparado_4]
+  21|23233882|23233962|J3|5  [reparado_4]
+  21|23233882|23233962|J3|6  [reparado_4]
+  21|23233882|23233962|J3|7  [reparado_4]
+  21|23233882|23233962|J4|0  [reparado_4]
+  21|23233882|23233962|J4|1  [reparado_4]
+  21|23233882|23233962|J4|2  [reparado_4]
+  21|23233882|23233962|J4|3  [reparado_4]
+  21|23233882|23233962|J5|0  [reparado_4]
+  21|23233882|23233962|J5|1  [reparado_4]
+  21|23233882|23233962|J6|0  [reparado_4]
+  21|24025536|24025538|J2|0  [otro]
+  21|24025536|24025538|J3|0  [reparado_4]
+  20|22608518|22608519|J2|0  [reparado_4]
+  20|22608518|22608519|J2|1  [reparado_4]
+  20|22608518|22608519|J3|0  [reparado_4]
+  20|21955861|21955957|J2|0  [reparado_4]
+  20|21955861|21955957|J2|2  [reparado_4]
+  20|21955861|21955957|J3|0  [reparado_4]
+  20|21955861|21955957|J3|1  [reparado_4]
+  20|21955861|21955957|J3|2  [reparado_4]
+  20|21955861|21955957|J3|3  [reparado_4]
+  20|21955861|21955957|J3|4  [reparado_4]
+  20|21955861|21955957|J3|5  [reparado_4]
+  20|21955861|21955957|J3|6  [reparado_4]
+  20|21955861|21955957|J3|7  [reparado_4]
+  20|21955861|21955957|J4|0  [reparado_4]
+  20|21955861|21955957|J4|1  [otro]
+  20|21955861|21955957|J4|2  [reparado_4]
+  20|21955861|21955957|J4|3  [reparado_4]
+  20|21955861|21955957|J5|0  [reparado_4]
+  20|21955861|21955957|J6|0  [reparado_4]

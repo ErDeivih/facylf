@@ -1,0 +1,21 @@
+{
+  "consulta": "grupos-del-canónico",
+  "presupuestoMs": 300,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Hash",
+      "Hash Join",
+      "Limit",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "coverage_checkpoint",
+      "federation",
+      "phase_group"
+    ],
+    "filas": 22
+  }
+}

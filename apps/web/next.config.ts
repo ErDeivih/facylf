@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const config: NextConfig = {
   // `packages/dominio` e `ingesta` son TypeScript sin compilar: los transpila Next
-  transpilePackages: ['@fcylf/dominio', '@fcylf/ingesta'],
+  transpilePackages: ['@facylf/dominio', '@facylf/ingesta'],
   typedRoutes: true,
   // esos paquetes importan con extensión `.js` (lo correcto en ESM) pero los ficheros
   // son `.ts`. Sin esto, el empaquetador no los encuentra.

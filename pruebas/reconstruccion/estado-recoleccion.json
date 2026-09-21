@@ -1,0 +1,623 @@
+{
+  "generadoEn": "2026-09-20T21:51:13.566Z",
+  "ventana": {
+    "minutos": 5,
+    "desde": "2026-09-20T21:46:13.564Z"
+  },
+  "memoria": {
+    "libreGb": 6.19,
+    "totalEquipoGb": 31.9,
+    "gastadaPorElProyectoGb": 3,
+    "navegadoresHuerfanos": 0
+  },
+  "gobernador": {
+    "presupuestoTotalGb": 6,
+    "reservaGb": 1.5,
+    "paraNavegadoresGb": 4.5,
+    "costePorRecolectorGb": 0.75,
+    "plazas": 6,
+    "motivo": "presupuesto declarado de 6 GB para todo",
+    "ocupadas": 6,
+    "veredicto": {
+      "cabe": false,
+      "motivo": "no cabe por reparto: 6 plazas ocupadas de 6"
+    },
+    "configuracion": "entorno-flota.ps1"
+  },
+  "resumen": {
+    "federaciones": 19,
+    "colasDePruebaOmitidas": [
+      "prueba-10gb"
+    ],
+    "porEstado": {
+      "esperando memoria (reserva de la máquina)": 12,
+      "trabajando": 6,
+      "entre sesiones": 1
+    },
+    "peticionesEnLaVentana": 327,
+    "trabajosPendientes": 659404,
+    "aplazadosPorCausa": {
+      "reintentos": 4163,
+      "deCalendario": 25708,
+      "aparcados": 290727
+    },
+    "particionAplazadosCoherente": true,
+    "filas": [
+      {
+        "federacion": "andalucia",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 72581,
+        "jornadas": 18221,
+        "actasHechas": 11406,
+        "actas": 67410,
+        "coberturaActas": 17,
+        "trabajos": {
+          "pendientes": 75345,
+          "disponibles": 58380,
+          "aplazados": 16965,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 103,
+            "deCalendario": 4632,
+            "aparcados": 12230,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 15,
+        "correctas": 15,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:48:46.352Z",
+        "ultimaJornada": "2026-09-20T21:07:14.614Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "aragon",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 35882,
+        "jornadas": 34455,
+        "actasHechas": 23106,
+        "actas": 35104,
+        "coberturaActas": 66,
+        "trabajos": {
+          "pendientes": 46601,
+          "disponibles": 15720,
+          "aplazados": 30881,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 214,
+            "deCalendario": 2513,
+            "aparcados": 28154,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 14,
+        "correctas": 14,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:48:43.633Z",
+        "ultimaJornada": "2026-09-20T21:36:11.414Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: cabe por reparto (4/6) pero al SISTEMA le quedan 5.76 GB y su reserva es 6 GB: se deja si"
+      },
+      {
+        "federacion": "asturias",
+        "estado": "trabajando",
+        "partidos": 46703,
+        "jornadas": 37750,
+        "actasHechas": 24410,
+        "actas": 44240,
+        "coberturaActas": 55,
+        "trabajos": {
+          "pendientes": 53113,
+          "disponibles": 18180,
+          "aplazados": 34933,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 56,
+            "deCalendario": 2692,
+            "aparcados": 32185,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 33,
+        "correctas": 33,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:15.051Z",
+        "ultimaJornada": "2026-09-20T21:51:16.006Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 7 s"
+      },
+      {
+        "federacion": "baleares",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 38688,
+        "jornadas": 6765,
+        "actasHechas": 21332,
+        "actas": 37311,
+        "coberturaActas": 57,
+        "trabajos": {
+          "pendientes": 21522,
+          "disponibles": 16846,
+          "aplazados": 4676,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 31,
+            "deCalendario": 760,
+            "aparcados": 3885,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 17,
+        "correctas": 17,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:17.180Z",
+        "ultimaJornada": "2026-09-20T13:29:23.757Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 7 s"
+      },
+      {
+        "federacion": "canarias",
+        "estado": "trabajando",
+        "partidos": 2697,
+        "jornadas": 565,
+        "actasHechas": 1813,
+        "actas": 1859,
+        "coberturaActas": 98,
+        "trabajos": {
+          "pendientes": 190,
+          "disponibles": 0,
+          "aplazados": 190,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 8,
+            "deCalendario": 182,
+            "aparcados": 0,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 4,
+        "correctas": 4,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:49:52.752Z",
+        "ultimaJornada": "2026-09-18T08:39:19.153Z",
+        "edadRegistroMinutos": 1,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "2026-09-20 23:49:56  El worker termino con codigo 0; siguiente intento en 3600 s."
+      },
+      {
+        "federacion": "cantabria",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 38569,
+        "jornadas": 25948,
+        "actasHechas": 27169,
+        "actas": 35857,
+        "coberturaActas": 76,
+        "trabajos": {
+          "pendientes": 31035,
+          "disponibles": 8724,
+          "aplazados": 22311,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 42,
+            "deCalendario": 1568,
+            "aparcados": 20701,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 0,
+        "correctas": 0,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T20:24:44.311Z",
+        "ultimaJornada": "2026-09-19T21:09:10.692Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "castilla-la-mancha",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 43392,
+        "jornadas": 26689,
+        "actasHechas": 23174,
+        "actas": 35441,
+        "coberturaActas": 65,
+        "trabajos": {
+          "pendientes": 34797,
+          "disponibles": 12904,
+          "aplazados": 21893,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 26,
+            "deCalendario": 1212,
+            "aparcados": 20655,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 13,
+        "correctas": 13,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:12.749Z",
+        "ultimaJornada": "2026-09-20T17:21:18.920Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 5 s"
+      },
+      {
+        "federacion": "cataluna",
+        "estado": "trabajando",
+        "partidos": 165377,
+        "jornadas": 23459,
+        "actasHechas": 7114,
+        "actas": 96879,
+        "coberturaActas": 7,
+        "trabajos": {
+          "pendientes": 93373,
+          "disponibles": 92462,
+          "aplazados": 911,
+          "proximo": "2026-09-21T07:41:12.999Z",
+          "aplazamiento": {
+            "reintentos": 911,
+            "deCalendario": 0,
+            "aparcados": 0,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 19,
+        "correctas": 12,
+        "incidencias": [
+          {
+            "resultado": "sin_publicar",
+            "n": 7
+          }
+        ],
+        "ultimaPeticion": "2026-09-20T21:50:56.221Z",
+        "ultimaJornada": "2026-09-20T21:43:42.710Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "→ clasificacion|22|58163169|58163175||"
+      },
+      {
+        "federacion": "ceuta",
+        "estado": "entre sesiones",
+        "partidos": 21288,
+        "jornadas": 4683,
+        "actasHechas": 17607,
+        "actas": 17867,
+        "coberturaActas": 99,
+        "trabajos": {
+          "pendientes": 360,
+          "disponibles": 0,
+          "aplazados": 360,
+          "proximo": "2026-09-27T21:46:39.699Z",
+          "aplazamiento": {
+            "reintentos": 1,
+            "deCalendario": 1,
+            "aparcados": 358,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 0,
+        "correctas": 0,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:41:46.002Z",
+        "ultimaJornada": "2026-09-14T16:09:03.394Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "2026-09-20 23:49:20  El worker termino con codigo 0; siguiente intento en 3600 s."
+      },
+      {
+        "federacion": "euskadi",
+        "estado": "trabajando",
+        "partidos": 33721,
+        "jornadas": 6722,
+        "actasHechas": 17652,
+        "actas": 19762,
+        "coberturaActas": 89,
+        "trabajos": {
+          "pendientes": 2343,
+          "disponibles": 0,
+          "aplazados": 2343,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 66,
+            "deCalendario": 459,
+            "aparcados": 1818,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 11,
+        "correctas": 11,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:50:47.138Z",
+        "ultimaJornada": "2026-09-20T14:07:23.279Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "2026-09-20 23:51:02  El worker termino con codigo 0; siguiente intento en 3600 s."
+      },
+      {
+        "federacion": "extremadura",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 41993,
+        "jornadas": 32571,
+        "actasHechas": 27021,
+        "actas": 37030,
+        "coberturaActas": 73,
+        "trabajos": {
+          "pendientes": 38461,
+          "disponibles": 13592,
+          "aplazados": 24869,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 44,
+            "deCalendario": 1178,
+            "aparcados": 23647,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 0,
+        "correctas": 0,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T20:46:55.055Z",
+        "ultimaJornada": "2026-09-20T13:29:13.183Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "federacion",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 45109,
+        "jornadas": 49130,
+        "actasHechas": 30878,
+        "actas": 43516,
+        "coberturaActas": 71,
+        "trabajos": {
+          "pendientes": 58831,
+          "disponibles": 14488,
+          "aplazados": 44343,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 214,
+            "deCalendario": 3568,
+            "aparcados": 40561,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 17,
+        "correctas": 17,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:48:43.757Z",
+        "ultimaJornada": "2026-09-20T13:46:06.572Z",
+        "edadRegistroMinutos": 1,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "galicia",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 43560,
+        "jornadas": 22104,
+        "actasHechas": 22323,
+        "actas": 43066,
+        "coberturaActas": 52,
+        "trabajos": {
+          "pendientes": 47335,
+          "disponibles": 27678,
+          "aplazados": 19657,
+          "proximo": "2026-09-20T21:54:07.896Z",
+          "aplazamiento": {
+            "reintentos": 60,
+            "deCalendario": 1244,
+            "aparcados": 18353,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 13,
+        "correctas": 13,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:13.087Z",
+        "ultimaJornada": "2026-09-20T21:04:52.327Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 7 s"
+      },
+      {
+        "federacion": "madrid",
+        "estado": "trabajando",
+        "partidos": 53118,
+        "jornadas": 10049,
+        "actasHechas": 19081,
+        "actas": 52682,
+        "coberturaActas": 36,
+        "trabajos": {
+          "pendientes": 42802,
+          "disponibles": 17294,
+          "aplazados": 25508,
+          "proximo": "2026-09-20T21:59:41.270Z",
+          "aplazamiento": {
+            "reintentos": 1254,
+            "deCalendario": 1123,
+            "aparcados": 23131,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 49,
+        "correctas": 49,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:05.305Z",
+        "ultimaJornada": "2026-09-18T07:53:55.446Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 3 s"
+      },
+      {
+        "federacion": "melilla",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 1112,
+        "jornadas": 296,
+        "actasHechas": 722,
+        "actas": 1112,
+        "coberturaActas": 65,
+        "trabajos": {
+          "pendientes": 1002,
+          "disponibles": 1002,
+          "aplazados": 0,
+          "proximo": null,
+          "aplazamiento": {
+            "reintentos": 0,
+            "deCalendario": 0,
+            "aparcados": 0,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 15,
+        "correctas": 15,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:18.660Z",
+        "ultimaJornada": "2026-09-20T19:14:28.145Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 6 s"
+      },
+      {
+        "federacion": "murcia",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 34133,
+        "jornadas": 18638,
+        "actasHechas": 26043,
+        "actas": 32272,
+        "coberturaActas": 81,
+        "trabajos": {
+          "pendientes": 22231,
+          "disponibles": 7000,
+          "aplazados": 15231,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 5,
+            "deCalendario": 634,
+            "aparcados": 14592,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 25,
+        "correctas": 25,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:49:14.363Z",
+        "ultimaJornada": "2026-09-20T21:49:15.838Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "navarra",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 38260,
+        "jornadas": 26350,
+        "actasHechas": 19593,
+        "actas": 27657,
+        "coberturaActas": 71,
+        "trabajos": {
+          "pendientes": 27027,
+          "disponibles": 5042,
+          "aplazados": 21985,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 72,
+            "deCalendario": 1620,
+            "aparcados": 20293,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 25,
+        "correctas": 25,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:13.549Z",
+        "ultimaJornada": "2026-09-20T21:51:14.718Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 6 s"
+      },
+      {
+        "federacion": "rioja",
+        "estado": "esperando memoria (reserva de la máquina)",
+        "partidos": 43541,
+        "jornadas": 23564,
+        "actasHechas": 21631,
+        "actas": 23209,
+        "coberturaActas": 93,
+        "trabajos": {
+          "pendientes": 18464,
+          "disponibles": 5,
+          "aplazados": 18459,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 10,
+            "deCalendario": 455,
+            "aparcados": 17994,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 2,
+        "correctas": 2,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:49:16.625Z",
+        "ultimaJornada": "2026-09-20T13:46:45.058Z",
+        "edadRegistroMinutos": 2,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "· esperando para abrir Chrome: no cabe por reparto: 6 plazas ocupadas de 6"
+      },
+      {
+        "federacion": "valencia",
+        "estado": "trabajando",
+        "partidos": 60857,
+        "jornadas": 15168,
+        "actasHechas": 26455,
+        "actas": 60859,
+        "coberturaActas": 43,
+        "trabajos": {
+          "pendientes": 44572,
+          "disponibles": 29489,
+          "aplazados": 15083,
+          "proximo": "2026-09-21T06:00:00.000Z",
+          "aplazamiento": {
+            "reintentos": 1046,
+            "deCalendario": 1867,
+            "aparcados": 12170,
+            "temporadaMinima": "2023-24",
+            "coherente": true
+          }
+        },
+        "peticionesUltimosMinutos": 55,
+        "correctas": 55,
+        "incidencias": [],
+        "ultimaPeticion": "2026-09-20T21:51:16.364Z",
+        "ultimaJornada": "2026-09-20T18:29:17.861Z",
+        "edadRegistroMinutos": 0,
+        "navegadoresVivos": null,
+        "ultimaLineaDelRegistro": "… pausa respetuosa de 5 s"
+      }
+    ]
+  }
+}

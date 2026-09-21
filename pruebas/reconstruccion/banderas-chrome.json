@@ -1,0 +1,80 @@
+{
+  "cuando": "2026-09-21T10:56:58.480Z",
+  "federacion": "navarra",
+  "pausaSeg": 6,
+  "urls": [
+    "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+    "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097"
+  ],
+  "filas": [
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+      "juego": "antiguo",
+      "ms": 2714,
+      "celdas": 133,
+      "filas": 74,
+      "resumen": 648346944,
+      "tablas": 20,
+      "texto": 4098,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 479,
+      "privadaMb": 193
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+      "juego": "nuevo",
+      "ms": 2448,
+      "celdas": 133,
+      "filas": 74,
+      "resumen": 648346944,
+      "tablas": 20,
+      "texto": 4098,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 475,
+      "privadaMb": 192
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097",
+      "juego": "nuevo",
+      "ms": 4258,
+      "celdas": 119,
+      "filas": 67,
+      "resumen": 1508706582,
+      "tablas": 18,
+      "texto": 3949,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 477,
+      "privadaMb": 194
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097",
+      "juego": "antiguo",
+      "ms": 1660,
+      "celdas": 119,
+      "filas": 67,
+      "resumen": 1508706582,
+      "tablas": 18,
+      "texto": 3949,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 480,
+      "privadaMb": 196
+    }
+  ],
+  "mediaAntiguo": {
+    "residenteMb": 480,
+    "privadaMb": 195,
+    "procesos": 7,
+    "ms": 2187
+  },
+  "mediaNuevo": {
+    "residenteMb": 476,
+    "privadaMb": 193,
+    "procesos": 7,
+    "ms": 3353
+  },
+  "contenidoIdentico": true
+}

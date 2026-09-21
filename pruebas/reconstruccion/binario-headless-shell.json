@@ -1,0 +1,81 @@
+{
+  "cuando": "2026-09-21T11:02:25.222Z",
+  "federacion": "navarra",
+  "pausaSeg": 6,
+  "binario": "F:\\EspacioCodigo\\facylf\\.navegadores\\chrome-headless-shell\\win64-153.0.8010.52\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+  "urls": [
+    "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+    "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097"
+  ],
+  "filas": [
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+      "juego": "chrome",
+      "ms": 3225,
+      "celdas": 133,
+      "filas": 74,
+      "resumen": 648346944,
+      "tablas": 20,
+      "texto": 4098,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 483,
+      "privadaMb": 197
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455096&cod_acta=25455096",
+      "juego": "shell",
+      "ms": 2247,
+      "celdas": 133,
+      "filas": 74,
+      "resumen": 648346944,
+      "tablas": 20,
+      "texto": 4098,
+      "procesos": 9,
+      "renderers": 3,
+      "residenteMb": 682,
+      "privadaMb": 329
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097",
+      "juego": "shell",
+      "ms": 3381,
+      "celdas": 119,
+      "filas": 67,
+      "resumen": 1508706582,
+      "tablas": 18,
+      "texto": 3949,
+      "procesos": 9,
+      "renderers": 3,
+      "residenteMb": 673,
+      "privadaMb": 317
+    },
+    {
+      "url": "https://www.futnavarra.es/pnfg/NPcd/NFG_CmpPartido?cod_primaria=1000120&CodActa=25455097&cod_acta=25455097",
+      "juego": "chrome",
+      "ms": 2770,
+      "celdas": 119,
+      "filas": 67,
+      "resumen": 1508706582,
+      "tablas": 18,
+      "texto": 3949,
+      "procesos": 7,
+      "renderers": 2,
+      "residenteMb": 478,
+      "privadaMb": 190
+    }
+  ],
+  "mediaA": {
+    "residenteMb": 481,
+    "privadaMb": 194,
+    "procesos": 7,
+    "ms": 2998
+  },
+  "mediaB": {
+    "residenteMb": 678,
+    "privadaMb": 323,
+    "procesos": 9,
+    "ms": 2814
+  },
+  "contenidoIdentico": true
+}

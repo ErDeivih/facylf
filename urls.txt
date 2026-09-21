@@ -1,0 +1,16 @@
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24219266&CodGrupo=24220954&CodTemporada=22&CodJornada=2
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218963&CodGrupo=24218965&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218990&CodGrupo=24218994&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=12027&CodGrupo=47923&CodTemporada=18&cod_agrupacion=&CodJornada=26&Sch_Codigo_Delegacion=1006&Sch_Tipo_Juego=
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=12079&CodGrupo=48143&CodTemporada=18&cod_agrupacion=&CodJornada=26&Sch_Codigo_Delegacion=1009&Sch_Tipo_Juego=
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=12012&CodGrupo=47795&CodTemporada=18&cod_agrupacion=&CodJornada=22&Sch_Codigo_Delegacion=&Sch_Tipo_Juego=
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218938&CodGrupo=24218939&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218938&CodGrupo=24218940&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218945&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218947&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218949&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218942&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218948&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=24218941&CodGrupo=24218950&CodTemporada=22&CodJornada=1
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=22911135&CodGrupo=22911139&CodTemporada=21&cod_agrupacion=&CodJornada=26&Sch_Codigo_Delegacion=&Sch_Tipo_Juego=
+https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=22911135&CodGrupo=22911138&CodTemporada=21&cod_agrupacion=&CodJornada=34&Sch_Codigo_Delegacion=&Sch_Tipo_Juego=

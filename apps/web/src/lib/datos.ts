@@ -1,13 +1,12 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseaCalendario } from '@fcylf/ingesta';
-import { exigeCalendarioValido } from '@fcylf/ingesta';
-import type { Partido } from '@fcylf/dominio';
+import { reconstruyeTemporada, parseaCalendario, exigeCalendarioValido } from '@facylf/ingesta';
+import type { Partido } from '@facylf/dominio';
 
 /**
- * Fase 0: los datos salen del fichero real de la federación que hay en
- * `datos-ejemplo/`. Cuando el worker esté conectado, esta función lee de Supabase y
- * el resto de la web no se entera.
+ * Lee de `descargas-federacion/` la primera temporada completa (calendario + resultados
+ * por jornada) y la reconstruye con goles. Eso alimenta la clasificación, la evolución y
+ * las gráficas de la web. Si aún no hay datos bajados, cae al fichero real de ejemplo.
  */
 export interface Competicion {
   nombre: string;
@@ -19,11 +18,37 @@ export interface Competicion {
 
 let cache: Competicion | null = null;
 
+function primeraTemporada(carpeta: string): string | null {
+  try {
+    const n = readdirSync(carpeta).find((f) => /-calendario\.xlsx?$/i.test(f));
+    if (!n) return null;
+    return n.replace(/-calendario\.xlsx?$/i, '');
+  } catch {
+    return null;
+  }
+}
+
 export function competicion(): Competicion {
   if (cache) return cache;
+
+  const carpeta = join(process.cwd(), '..', '..', 'descargas-federacion');
+  const slug = primeraTemporada(carpeta);
+
+  if (slug) {
+    const t = reconstruyeTemporada(slug, carpeta);
+    cache = {
+      nombre: slug,
+      temporada: '—',
+      partidos: t.partidos,
+      equipos: [...new Set(t.partidos.flatMap((p) => [p.local, p.visitante]))].sort((a, b) => a.localeCompare(b, 'es')),
+      jornadas: t.jornadas,
+    };
+    return cache;
+  }
+
+  // respaldo: el fichero real de ejemplo (fixtures, sin resultados todavía)
   const ruta = join(process.cwd(), '..', '..', 'datos-ejemplo', 'Calendario.xls');
   const c = parseaCalendario(readFileSync(ruta));
-  // si el parser devuelve algo raro, la web no arranca: mejor eso que enseñar mentiras
   exigeCalendarioValido(c.partidos);
   cache = {
     nombre: '1ª División Provincial de Juveniles, Primera · Salamanca',
@@ -35,7 +60,8 @@ export function competicion(): Competicion {
   return cache;
 }
 
-export const MI_EQUIPO = 'C.D. Munibar Pizarrales "B"';
+/** El equipo "mío" se puede elegir por slug cuando sea un equipo real de la competición. */
+export const MI_EQUIPO = '';
 
 export const aSlug = (n: string): string =>
   n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')

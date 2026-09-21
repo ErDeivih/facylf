@@ -1,0 +1,20 @@
+{
+  "consulta": "partidos-de-grupo",
+  "presupuestoMs": 800,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "federation",
+      "phase_group"
+    ],
+    "filas": 342
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "nombre": "rioja",
+  "base": "https://www.frfutbol.com/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-rioja",
+  "config": "recolector.rioja.config.json",
+  "catalogo": "descargas-rioja/competiciones-por-temporada.json",
+  "grupos": "descargas-rioja/grupos-por-temporada.json"
+}

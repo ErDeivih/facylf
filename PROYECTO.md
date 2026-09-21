@@ -1,5 +1,10 @@
 # Fútbol Salamanca — plan de proyecto
 
+> **Documento histórico.** Conserva decisiones e investigación iniciales, pero ya no describe el
+> estado multifederación ni la arquitectura web vigente. Para desarrollar la plataforma consulta
+> [`docs/plataforma-web/ARQUITECTURA.md`](docs/plataforma-web/ARQUITECTURA.md) y la skill
+> `.claude/skills/plataforma-web-futbol`. En caso de conflicto, prevalece esa especificación.
+
 Documento de trabajo para continuar en local con Claude Code.
 Estado actual: prototipo de una sola liga en un HTML (`temporada-pizarrales.html`).
 Objetivo: web pública con todas las competiciones de la delegación de Salamanca,
@@ -7,33 +12,87 @@ resultados en vivo aportados por la gente y estadísticas.
 
 ---
 
-## 0. Lo primero: el "bloqueo" no es lo que parece
+## 0. Lo primero: sí hay bloqueo, y es explícito
 
-Me pediste un script que evite el bloqueo. Conviene aclarar qué pasó, porque cambia
-bastante el trabajo.
+**Decisión (actualizada).** Este proyecto es **personal, sin ánimo de lucro y de
+aprendizaje**; no se publica ni se vende la base de datos. Con ese marco, el acceso a la
+federación se hace con un cliente HTTP **identificado** (User-Agent real con URL de
+explicación y correo) y **ritmo espaciado y respetuoso**, nunca con una ráfaga. No se
+falsifica el navegador ni se suplanta a Googlebot, no se rotan proxies, no se resuelven
+captchas. Si un día el proyecto se hace público o comercial, **hay que pedir permiso** a
+la delegación y respetar su respuesta (ver `CORREO-DELEGACION.md`).
 
-El error `ROBOTS_DISALLOWED` **no vino de la federación**: vino de mi propia herramienta,
-que lee `robots.txt` y se para si el sitio pide que no lo rastreen. No es un muro
-anti-bots, no hay captcha, no hay bloqueo por IP. Un cliente HTTP normal desde tu
-ordenador probablemente entra sin problema.
+Aun así, conviene conocer los hechos, porque definen la arquitectura del cliente:
 
-Eso significa dos cosas:
+**Corrección importante.** La primera versión de este documento decía que el error
+`ROBOTS_DISALLOWED` venía de una herramienta mía y no de la federación, y que un
+cliente normal entraría sin problema. Eso era una suposición, y era falsa. Este es el
+`robots.txt` real de `www.rfcylf.es`, leído el 19/08/2026:
 
-1. **No hace falta ninguna técnica de evasión** (proxies rotatorios, spoofing de
-   navegador, resolver captchas). No te la voy a escribir de todas formas: si esto va a
-   ser un servicio público con usuarios reales, saltarse una restricción declarada es
-   justo lo que hace que te corten el acceso o te llegue un requerimiento, y te quedas
-   sin producto. El camino largo aquí es el corto.
+```
+User-agent: Twitterbot
+Disallow:
 
-2. **Lo que sí hay que hacer** es un cliente educado: identificado, con límite de
-   frecuencia, con caché, y a ser posible con el visto bueno de la delegación. Se
-   detalla en §3.
+User-agent: Googlebot
+Allow: /
 
-Y hay un atajo mucho mejor que scrapear páginas: los botones **"Calendario Excel"** y
-**"Clasificación Excel"** de la federación. Los dos ficheros que me pasaste son en
-realidad **tablas HTML** con extensión `.xls`, limpias y estables. Son endpoints
-pensados para que te los descargues. Parsear eso es diez veces más fiable que raspar
-el HTML de la página, que cambia con cualquier retoque de diseño.
+User-agent: Mediapartners-Google
+Disallow:
+
+User-agent: *
+Disallow: /
+```
+
+Léelo despacio, porque decide la arquitectura del proyecto entero:
+
+- **`User-agent: * → Disallow: /`**. Todo el sitio, cerrado a cualquier automatismo.
+- Las tres únicas excepciones son **Googlebot**, **Twitterbot** y **Mediapartners-Google**
+  (el bot de AdSense). Es decir: la federación quiere salir en Google y que sus enlaces
+  se vean bonitos en redes. Nada más.
+- No hay una regla más permisiva para los `.xls` ni para ninguna otra ruta.
+
+### Qué significa para nosotros
+
+1. **No hay ningún scraper conforme.** Ni siquiera el "cliente educado" del §3. Da igual
+   que se identifique honestamente, que vaya a 30 peticiones por minuto y que respete
+   los ETag: `Disallow: /` aplica a `FacylfBot` exactamente igual que a cualquier otro.
+   Un cliente educado que ignora `robots.txt` no es educado, es sólo lento.
+
+2. **Un servicio externo tampoco lo arregla.** Octoparse, Apify, Browserless o quien sea
+   hacen la misma petición prohibida desde otra IP. Cambia quién la hace, no qué es.
+
+3. **Ponerse el `User-Agent` de Googlebot está descartado**, y no por remilgos: es
+   suplantar a un tercero identificable para saltarse una regla escrita. Es lo peor de
+   las dos opciones anteriores a la vez.
+
+4. **Lo que sí es legítimo: que una persona se descargue el fichero.** `robots.txt`
+   regula rastreadores, no personas. Tú entrando en la web y pulsando "Calendario Excel"
+   no infringe nada. Y nuestro parser ya lee ese fichero perfectamente.
+
+### La consecuencia de verdad
+
+El proyecto deja de ser un "scraper masivo" y pasa a ser **"ingesta espaciada y respetuosa
++ aportaciones de la gente"**. El dato de cada competición entra por dos vías que se
+complementan:
+
+| Dato | Cómo entra |
+|---|---|
+| Calendario del grupo | `.xls` bajado con el cliente identificado y espaciado, o a mano como respaldo. |
+| Resultados en vivo | De la gente en el campo. Es la parte diferencial del producto y no necesita scraping. |
+| Resultado oficial | Se contrasta con el calendario/clasificación publicados; la confirmación le da el **delegado del club**. |
+
+La clave para que esto escale a las 40–80 competiciones de la provincia (o de Castilla y
+León entera) sin cargar su servidor es la **cadencia por competición** de `frecuencia.ts`:
+nunca una ráfaga, ETag para no repetir contenido, y parada ante `429` o fallos.
+
+### Si el proyecto se hace público o comercial
+
+El acceso espaciado y honesto es defendible para un uso **personal**, pero la reputación
+del §6 y la cobertura completa dependen de contrastar con el dato oficial, y una base de
+datos completa puede estar protegida por el derecho *sui generis*. Si algún día se publica
+o se monetiza, **hay que pedir permiso** a la delegación: que no hagan nada, sólo que
+autoricen leer sus `.xls` a un ritmo pactado, o que faciliten un volcado. Está redactado
+en `CORREO-DELEGACION.md` y es la mejor inversión del proyecto.
 
 ---
 
@@ -130,7 +189,7 @@ catálogo.
 
 ```ts
 // packages/ingesta/src/cliente.ts
-const UA = 'FutbolSalamancaBot/1.0 (+https://tudominio.es/bot; contacto@tudominio.es)';
+const UA = 'FacylfBot/1.0 (+https://tudominio.es/bot; contacto@tudominio.es)';
 
 // una petición cada 2 s como mucho, y nunca dos a la vez
 const cola = new Semaforo(1);
@@ -525,11 +584,12 @@ sirve de nada si los datos no son fiables.
 Sin esto no puedo avanzar en local:
 
 **Imprescindible**
-1. **Las URLs de los dos botones de Excel.** Abre la página de la federación, F12 →
-   pestaña Red, pulsa "Calendario Excel" y "Clasificación Excel", copia las dos URLs
-   completas. Es la pieza que desbloquea todo.
+1. **Las URLs de los dos botones de Excel.** **Ya confirmadas**: la descarga de Excel es
+   la propia página (`NFG_VisCalendario_Vis`, `NFG_VisClasificacion`) con
+   `&excel=1&NPcd_File=1`. Ver `packages/ingesta/src/urls.ts`.
 2. **El `Sch_Codigo_Delegacion` de Salamanca** y, si puedes, el de un par de provincias
-   más para confirmar el patrón.
+   más para confirmar el patrón. En la práctica parece no filtrar por provincia; lo que
+   cambia por competición son `CodCompeticion` y `CodGrupo`.
 3. **Lista de los equipos del Pizarrales** y el enlace de la federación de cada uno
    (prebenjamín, benjamín, alevín, infantil, cadete, juvenil, y los sénior).
 
@@ -559,7 +619,7 @@ Sin esto no puedo avanzar en local:
 ## 12. Cómo arrancamos en local
 
 ```bash
-mkdir futbol-salamanca && cd futbol-salamanca
+mkdir facylf && cd facylf
 git init
 claude
 ```

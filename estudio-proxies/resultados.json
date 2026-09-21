@@ -1,0 +1,294 @@
+[
+  {
+    "proxy": {
+      "ip": "31.59.20.176",
+      "puerto": 6754,
+      "pais": "United Kingdom",
+      "ciudad": "London"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 57.810900000000004,
+      "handshake": 116.9857,
+      "tls": 188.596
+    },
+    "ttfb": 365.2874,
+    "total": 366.2263,
+    "throughput": null,
+    "errors": [
+      "speed: fallo"
+    ],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "45.38.107.97",
+      "puerto": 6014,
+      "pais": "United Kingdom",
+      "ciudad": "London"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 41.34089999999924,
+      "handshake": 89.72489999999925,
+      "tls": 143.30589999999938
+    },
+    "ttfb": 293.9416999999994,
+    "total": 294.0661999999993,
+    "throughput": 27378.61613439357,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "198.105.121.200",
+      "puerto": 6462,
+      "pais": "United Kingdom",
+      "ciudad": "London"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 43.18509999999969,
+      "handshake": 87.34270000000015,
+      "tls": 136.4973
+    },
+    "ttfb": 297.5491999999995,
+    "total": 297.66629999999986,
+    "throughput": 31013.412527296132,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "64.137.96.74",
+      "puerto": 6641,
+      "pais": "Spain",
+      "ciudad": "Madrid"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 13.193499999999403,
+      "handshake": 24.308399999999892,
+      "tls": 41.89559999999983
+    },
+    "ttfb": 189.54299999999967,
+    "total": 189.69740000000093,
+    "throughput": 35506.848257615835,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "198.23.243.226",
+      "puerto": 6361,
+      "pais": "United States",
+      "ciudad": "Los Angeles"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 158.14019999999982,
+      "handshake": 315.0680000000011,
+      "tls": 477.39100000000144
+    },
+    "ttfb": 643.6280999999999,
+    "total": 643.7213000000011,
+    "throughput": 19467.15733345117,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "38.154.185.97",
+      "puerto": 6370,
+      "pais": "United States",
+      "ciudad": "Piscataway"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 110.96009999999842,
+      "handshake": 222.09180000000015,
+      "tls": 339.46739999999954
+    },
+    "ttfb": 483.8035999999993,
+    "total": 483.89300000000003,
+    "throughput": 28849.96348720499,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "84.247.60.125",
+      "puerto": 6095,
+      "pais": "Poland",
+      "ciudad": "Warsaw"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 18.825200000001132,
+      "handshake": 36.9987000000001,
+      "tls": 61.608000000000175
+    },
+    "ttfb": 211.29299999999967,
+    "total": 211.4328999999998,
+    "throughput": 30608.705052587036,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "142.111.67.146",
+      "puerto": 5611,
+      "pais": "Japan",
+      "ciudad": "Tokyo"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 274.03600000000006,
+      "handshake": 538.9236999999994,
+      "tls": 813.1169999999984
+    },
+    "ttfb": 959.3919999999998,
+    "total": 959.5227999999988,
+    "throughput": 13820.836520329878,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "191.96.254.138",
+      "puerto": 6185,
+      "pais": "United States",
+      "ciudad": "Los Angeles"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 173.56500000000233,
+      "handshake": 346.1406999999999,
+      "tls": 525.9756000000016
+    },
+    "ttfb": 695.1618999999992,
+    "total": 695.2907999999989,
+    "throughput": 20297.18129431708,
+    "errors": [],
+    "transparent": true
+  },
+  {
+    "proxy": {
+      "ip": "31.58.9.4",
+      "puerto": 6077,
+      "pais": "Germany",
+      "ciudad": "Frankfurt"
+    },
+    "reachable": true,
+    "exitIp": "79.117.136.24",
+    "geo": {
+      "ip": "2a0c:5a85:c80e:8200:18f8:7654:340b:c493",
+      "country": "Spain",
+      "city": "Salamanca",
+      "region": "Castilla y Leon",
+      "asn": 57269,
+      "org": "DIGI SPAIN TELECOM S.A"
+    },
+    "anonymity": "TRANSPARENTE (el destino ve TU IP 79.117.136.24; no hay anonimato)",
+    "lat": {
+      "connect": 42.1150000000016,
+      "handshake": 82.57150000000183,
+      "tls": 133.99920000000202
+    },
+    "ttfb": 290.36849999999686,
+    "total": 290.4989999999998,
+    "throughput": 30036.20782260055,
+    "errors": [],
+    "transparent": true
+  }
+]

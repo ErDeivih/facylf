@@ -1,0 +1,9 @@
+{
+  "nombre": "andalucia",
+  "base": "https://www.rfaf.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-andalucia",
+  "config": "recolector.andalucia.config.json",
+  "catalogo": "descargas-andalucia/competiciones-por-temporada.json",
+  "grupos": "descargas-andalucia/grupos-por-temporada.json"
+}

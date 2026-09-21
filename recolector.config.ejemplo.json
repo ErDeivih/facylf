@@ -1,0 +1,28 @@
+{
+  "permiso": {
+    "concedido": false,
+    "fecha": "",
+    "referencia": ""
+  },
+  "identidad": {
+    "urlProyecto": "",
+    "contacto": ""
+  },
+  "alcance": {
+    "desdeAnio": 2015,
+    "actasAdultas": false,
+    "actasMenores": false
+  },
+  "ritmo": {
+    "intervaloMinSeg": 8,
+    "intervaloMaxSeg": 12,
+    "maxPeticionesDia": 20,
+    "maxTrabajosSesion": 20,
+    "desdeHora": 8,
+    "hastaHora": 22
+  },
+  "vigilancia": {
+    "catalogoActualCadaDias": 7,
+    "gruposActualesCadaDias": 14
+  }
+}

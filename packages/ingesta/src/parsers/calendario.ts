@@ -1,4 +1,4 @@
-import type { Partido } from '@fcylf/dominio';
+import type { Partido } from '@facylf/dominio';
 import { decodifica, lineas } from '../texto.js';
 
 export interface Calendario {
@@ -46,6 +46,8 @@ export function parseaCalendario(entrada: string | Buffer | Uint8Array): Calenda
     if (jornada === null || !local || !visitante) continue;
     // un guión suelto sin equipos alrededor no es un partido
     if (RE_JORNADA.test(local) || RE_JORNADA.test(visitante) || RE_FECHA.test(visitante)) continue;
+    // en ligas de número impar, la fila "Descansa" no es un partido
+    if (/^descansa$/i.test(local) || /^descansa$/i.test(visitante)) continue;
 
     partidos.push({ jornada, fecha, local, visitante, golesLocal: null, golesVisitante: null });
     i++;

@@ -1,0 +1,19 @@
+{
+ "manifiesto": "51547371258d4fdd",
+ "federacion": "euskadi",
+ "sello": "2026-09-17T10-19-35-278Z",
+ "ruta_backup": "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\euskadi-2026-09-17T10-19-35-278Z.previa.sqlite",
+ "bytes_backup": 277733376,
+ "ruta_diario": "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\euskadi-2026-09-17T10-19-35-278Z.diario.jsonl",
+ "filas": 5,
+ "jornadas": 1,
+ "filas_nuevas": 5,
+ "jornadas_nuevas": 1,
+ "retirada_fantasma": false,
+ "jornadas_hechas": [
+  "22|24622157|24622363|J1"
+ ],
+ "ambiguos_excluidos": 1,
+ "completo": true,
+ "terminado_en": "2026-09-17T10:19:39.898Z"
+}

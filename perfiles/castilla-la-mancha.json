@@ -1,0 +1,9 @@
+{
+  "nombre": "castilla-la-mancha",
+  "base": "https://www.ffcm.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-castilla-la-mancha",
+  "config": "recolector.castilla-la-mancha.config.json",
+  "catalogo": "descargas-castilla-la-mancha/competiciones-por-temporada.json",
+  "grupos": "descargas-castilla-la-mancha/grupos-por-temporada.json"
+}

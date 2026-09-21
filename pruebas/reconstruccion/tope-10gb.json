@@ -1,0 +1,99 @@
+{
+  "cuando": "2026-09-19T11:01:14.374Z",
+  "motor": "Docker Desktop (kernel Linux, cgroup v2)",
+  "rebanada": "facylf.slice",
+  "topeBytes": 10737418240,
+  "picoBytes": 10737422336,
+  "picoGb": 10,
+  "oomKills": 3,
+  "muestras": [
+    {
+      "segundo": 10,
+      "actualGb": 7.43
+    },
+    {
+      "segundo": 40,
+      "actualGb": 8.17
+    },
+    {
+      "segundo": 70,
+      "actualGb": 1.36
+    },
+    {
+      "segundo": 100,
+      "actualGb": 0.89
+    },
+    {
+      "segundo": 130,
+      "actualGb": 0.89
+    },
+    {
+      "segundo": 160,
+      "actualGb": 0.64
+    },
+    {
+      "segundo": 190,
+      "actualGb": 1.74
+    },
+    {
+      "segundo": 220,
+      "actualGb": 1.65
+    }
+  ],
+  "vivos": [
+    {
+      "federacion": "prueba-a",
+      "estado": "running"
+    },
+    {
+      "federacion": "prueba-b",
+      "estado": "running"
+    },
+    {
+      "federacion": "prueba-c",
+      "estado": "running"
+    }
+  ],
+  "lastresVivos": [
+    "exited",
+    "exited",
+    "exited"
+  ],
+  "peticiones": {
+    "prueba-a": 191,
+    "prueba-b": 154,
+    "prueba-c": 166
+  },
+  "esperasPorMemoria": [
+    0,
+    0,
+    0
+  ],
+  "resultados": [
+    {
+      "nombre": "la rebanada existe con tope de 10 GiB y sin swap",
+      "bien": true,
+      "detalle": "memory.max=10737418240 · memory.swap.max=0"
+    },
+    {
+      "nombre": "el pico de la rebanada no pasa del tope de 10 GiB",
+      "bien": true,
+      "detalle": "pico 10.00 GB de 10 GB"
+    },
+    {
+      "nombre": "los recolectores siguen en marcha bajo la rebanada llena",
+      "bien": true,
+      "detalle": "prueba-a:running · prueba-b:running · prueba-c:running"
+    },
+    {
+      "nombre": "el kernel se llevó por delante el lastre, no la recolección",
+      "bien": true,
+      "detalle": "oom_kill=3 · lastre: exited, exited, exited"
+    },
+    {
+      "nombre": "la flota sigue recolectando con la rebanada llena",
+      "bien": true,
+      "detalle": "prueba-a: 155→191 · prueba-b: 118→154 · prueba-c: 129→166"
+    }
+  ]
+}

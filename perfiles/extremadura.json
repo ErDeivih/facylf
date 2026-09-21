@@ -1,0 +1,9 @@
+{
+  "nombre": "extremadura",
+  "base": "https://www.fexfutbol.com/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-extremadura",
+  "config": "recolector.extremadura.config.json",
+  "catalogo": "descargas-extremadura/competiciones-por-temporada.json",
+  "grupos": "descargas-extremadura/grupos-por-temporada.json"
+}

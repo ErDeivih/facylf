@@ -1,0 +1,20 @@
+{
+  "federacion": "castilla-leon",
+  "temporadaCodigo": "20",
+  "grupo": "11379752",
+  "nota": "Temporada completa, 19 equipos, tabla oficial archivada",
+  "congelada_en": "2026-09-14",
+  "recuentos": {
+    "temporada": "2024-25",
+    "competicion": "11379751",
+    "jornadas": 38,
+    "partidos": 342,
+    "partidosConResultado": 342,
+    "actas": 342,
+    "actasHechas": 342,
+    "participaciones": 12177,
+    "eventos": 8657,
+    "tecnicos": 3180
+  },
+  "temporada": "2024-25"
+}

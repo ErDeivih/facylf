@@ -1,0 +1,9 @@
+{
+  "nombre": "aragon",
+  "base": "https://www.futbolaragon.com/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-aragon",
+  "config": "recolector.aragon.config.json",
+  "catalogo": "descargas-aragon/competiciones-por-temporada.json",
+  "grupos": "descargas-aragon/grupos-por-temporada.json"
+}

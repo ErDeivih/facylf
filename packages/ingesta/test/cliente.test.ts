@@ -11,15 +11,19 @@ function nuevo(fetch: typeof globalThis.fetch, extra = {}) {
   });
 }
 
-describe('cliente educado', () => {
-  it('se niega a arrancar sin identificarse', () => {
-    expect(() => new ClienteFederacion({ urlBot: '', contacto: '' })).toThrow(/URL y un correo reales/);
+describe('cliente identificado y espaciado', () => {
+  it('avisa si no hay identidad, pero arranca para uso personal', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const c = new ClienteFederacion({ urlBot: '', contacto: '', dormir: async () => {}, fetch: ok as never });
+    expect(c.userAgent).toContain('contacto-pendiente');
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('manda un User-Agent con URL y correo', async () => {
     const fetch = vi.fn(async () => ok());
     const c = nuevo(fetch as never);
-    expect(c.userAgent).toBe('FutbolSalamancaBot/1.0 (+https://ejemplo.es/bot; contacto@ejemplo.es)');
+    expect(c.userAgent).toBe('FacylfBot/1.0 (+https://ejemplo.es/bot; contacto@ejemplo.es)');
     await c.pide('https://www.rfcylf.es/x');
     const cab = (fetch.mock.calls[0] as never as [string, RequestInit])[1].headers as Record<string, string>;
     expect(cab['User-Agent']).toContain('contacto@ejemplo.es');
@@ -31,6 +35,20 @@ describe('cliente educado', () => {
     const cab = (fetch.mock.calls[0] as never as [string, RequestInit])[1].headers as Record<string, string>;
     expect(cab['If-None-Match']).toBe('W/"abc"');
     expect(r).toMatchObject({ estado: 304, sinCambios: true, cuerpo: null });
+  });
+
+  it('guarda la cookie de sesión y la reenvía en la siguiente petición', async () => {
+    let llamadas = 0;
+    const fetch = vi.fn(async () => {
+      llamadas++;
+      if (llamadas === 1) return new Response('página', { status: 200, headers: { 'set-cookie': 'PHPSESSID=abc123; path=/; httponly' } });
+      return new Response('excel', { status: 200 });
+    });
+    const c = nuevo(fetch as never);
+    await c.pide('https://www.rfcylf.es/pa');
+    await c.pide('https://www.rfcylf.es/excel');
+    const cab = (fetch.mock.calls[1] as never as [string, RequestInit])[1].headers as Record<string, string>;
+    expect(cab['Cookie']).toContain('PHPSESSID=abc123');
   });
 
   it('reintenta con backoff ante un 429 y acaba saliendo', async () => {

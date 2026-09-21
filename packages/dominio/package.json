@@ -1,10 +1,11 @@
 {
-  "name": "@fcylf/dominio",
+  "name": "@facylf/dominio",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "exports": { ".": "./src/index.ts" },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": { ".": { "types": "./dist/src/index.d.ts", "default": "./dist/src/index.js" } },
   "scripts": {
     "test": "vitest run",
     "test:mira": "vitest",

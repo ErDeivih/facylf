@@ -1,5 +1,5 @@
 {
-  "name": "@fcylf/web",
+  "name": "@facylf/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,15 +9,20 @@
     "test": "echo 'la web no tiene tests todavía'"
   },
   "dependencies": {
-    "@fcylf/dominio": "workspace:*",
-    "@fcylf/ingesta": "workspace:*",
+    "@facylf/dominio": "workspace:*",
+    "@facylf/ingesta": "workspace:*",
     "next": "^15.1.3",
+    "pg": "^8.23.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^2.13.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "tailwindcss": "^4.0.0",

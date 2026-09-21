@@ -1,5 +1,5 @@
 {
-  "name": "@fcylf/ingesta",
+  "name": "@facylf/ingesta",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,11 +11,15 @@
     "test": "vitest run",
     "ingesta:una": "tsx bin/ingesta.ts --una",
     "ingesta:todas": "tsx bin/ingesta.ts --todas",
+    "ingesta:vigilar": "tsx bin/vigilante.ts",
     "descubrir": "tsx bin/descubrir.ts",
+    "catalogo-historico": "tsx bin/catalogo-historico.ts",
+    "descubrir-grupos": "tsx bin/descubrir-grupos.ts",
+    "reconstruir": "tsx bin/reconstruir.ts",
     "build": "tsc -b"
   },
   "dependencies": {
-    "@fcylf/dominio": "workspace:*",
+    "@facylf/dominio": "workspace:*",
     "iconv-lite": "^0.6.3",
     "node-html-parser": "^6.1.13"
   },

@@ -1,0 +1,254 @@
+# Recolectores de FACyLF en Docker, para un servidor Debian de 10 GB.
+#
+# CÓMO SE REPARTE LA MEMORIA (esto es lo que hay que entender antes de tocar nada):
+#
+#   1. **Dentro**: el gobernador de plazas (`scripts/lib/presupuesto-memoria.mjs`) reparte el presupuesto
+#      declarado en `FACYLF_MEMORIA_GB` (10 por defecto). Las fichas de plaza viven en el volumen `plazas`, que
+#      ven TODOS los contenedores, así que el reparto es compartido: aunque cada federación esté en su
+#      contenedor, no pueden decidir por su cuenta que hay sitio. Con 10 GB salen **11 plazas** de 0,75 GB.
+#   2. **Fuera**: cada contenedor lleva su propio `mem_limit` (1,2 GB: un navegador con holgura) y **todos**
+#      cuelgan de la misma rebanada de cgroup (`facylf.slice`), que es donde se pone el tope duro de 10 GB:
+#
+#          sudo systemctl set-property --runtime facylf.slice MemoryMax=10G
+#
+#      (o un fichero `/etc/systemd/system/facylf.slice.d/limite.conf` para que sobreviva a un reinicio; está
+#      explicado en `docker/README.md`).
+#
+# Añadir una federación es copiar un bloque de servicio y crear su carpeta de datos.
+#
+# Uso:  docker compose -f docker/compose.yml up -d
+#       docker compose -f docker/compose.yml logs -f galicia
+x-comun: &recolector
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  image: facylf-recolectores:local
+  restart: unless-stopped
+  cgroup_parent: facylf.slice
+  # Un navegador sin cabeza con sus procesos auxiliares medido dentro del contenedor: ~1,0 GB de RSS (que
+  # sobreestima, porque Chrome comparte memoria entre sus procesos). El límite por contenedor es una red de
+  # seguridad para un navegador desbocado, no el reparto: el reparto lo lleva el gobernador (11 plazas) y el
+  # tope del conjunto lo pone la rebanada de cgroup de 10 GB.
+  mem_limit: 1600m
+  # Chrome necesita memoria compartida; los 64 MB por defecto de Docker se quedan cortos a la tercera página
+  # (además el arranque añade --disable-dev-shm-usage cuando va sin cabeza).
+  shm_size: 512m
+  # ── TOPE DE PROCESADOR POR RECOLECTOR (20/09/2026) ───────────────────────────────────────────────────────
+  #
+  # El procesador del servidor es PEOR que el del PC donde se ha probado, y el PC ya se ponía al 100 % con la
+  # flota: medido, los navegadores se llevaban 859 % de 1.114 % sobre 12 núcleos. Sin un tope, un puñado de
+  # recolectores puede dejar sin CPU al resto del servidor (la web pública, el importador, la base de datos).
+  #
+  # Con esto, cada recolector no pasa de la mitad de un núcleo: la recolección va más despacio y **el servidor
+  # sigue siendo utilizable**, que es la prioridad. Se ajusta con `FACYLF_CPUS_POR_RECOLECTOR` en el `.env`
+  # (por ejemplo `1` si el servidor tiene núcleos de sobra).
+  cpus: "${FACYLF_CPUS_POR_RECOLECTOR:-0.5}"
+  environment:
+    TZ: Europe/Madrid
+    FACYLF_MEMORIA_GB: "${FACYLF_MEMORIA_GB:-10}"
+    FACYLF_CHROME_HEADLESS: "1"
+    # Turno máximo con una plaza cuando hay federaciones esperando: es lo que hace que todas entren a lo largo
+    # del día en un servidor donde no caben las 19 a la vez.
+    FACYLF_TURNO_PLAZA_MIN: "${FACYLF_TURNO_PLAZA_MIN:-150}"
+  volumes:
+    - plazas:/app/.estado-workers
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  andalucia:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "andalucia"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-andalucia:/app/descargas-andalucia
+
+  aragon:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "aragon"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-aragon:/app/descargas-aragon
+
+  asturias:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "asturias"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-asturias:/app/descargas-asturias
+
+  baleares:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "baleares"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-baleares:/app/descargas-baleares
+
+  canarias:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "canarias"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-canarias:/app/descargas-canarias
+
+  cantabria:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "cantabria"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-cantabria:/app/descargas-cantabria
+
+  castilla-la-mancha:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "castilla-la-mancha"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-castilla-la-mancha:/app/descargas-castilla-la-mancha
+
+  cataluna:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "cataluna"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-cataluna:/app/descargas-cataluna
+
+  ceuta:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "ceuta"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-ceuta:/app/descargas-ceuta
+
+  euskadi:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "euskadi"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-euskadi:/app/descargas-euskadi
+
+  extremadura:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "extremadura"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-extremadura:/app/descargas-extremadura
+
+  federacion:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "federacion"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-federacion:/app/descargas-federacion
+
+  galicia:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "galicia"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-galicia:/app/descargas-galicia
+
+  madrid:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "madrid"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-madrid:/app/descargas-madrid
+
+  melilla:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "melilla"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-melilla:/app/descargas-melilla
+
+  murcia:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "murcia"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-murcia:/app/descargas-murcia
+
+  navarra:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "navarra"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-navarra:/app/descargas-navarra
+
+  rioja:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "rioja"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-rioja:/app/descargas-rioja
+
+  valencia:
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "valencia"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-valencia:/app/descargas-valencia
+
+  # La federación de PRUEBA (`prueba-10gb`): misma cola que se usa en el PC para las pruebas del programa de
+  # 10 GB. No es una federación real: sirve para comprobar que la imagen y el compose funcionan antes de tocar
+  # nada de producción —
+  #
+  #     docker compose -f docker/compose.yml up -d prueba-10gb
+  #
+  # — y su cola lleva una marca `.PRUEBA` para que los informes de la flota no la cuenten como federación.
+  #
+  # Va en su PROPIO PERFIL (`pruebas`): así un `docker compose up -d` en el servidor levanta las federaciones de
+  # verdad y no la de prueba. Y `docker compose up -d prueba-10gb` sigue funcionando igual, porque nombrar un
+  # servicio activa su perfil (comprobado el 19/09/2026).
+  prueba-10gb:
+    profiles: ["pruebas"]
+    <<: *recolector
+    command: ["bash", "docker/entrada-recolector.sh", "prueba-10gb"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../descargas-prueba-10gb:/app/descargas-prueba-10gb
+
+  # La pasada del fin de semana: reabre jornadas y actas del sábado y el domingo en TODAS las federaciones y
+  # deja su informe. Necesita ver las colas de todas, por eso monta todas las carpetas.
+  fin-de-semana:
+    <<: *recolector
+    mem_limit: 512m
+    command: ["bash", "docker/entrada-fin-de-semana.sh", "${FACYLF_HORA_FINDE:-07:30}"]
+    volumes:
+      - plazas:/app/.estado-workers
+      - ../pruebas/reconstruccion:/app/pruebas/reconstruccion
+      - ../descargas-andalucia:/app/descargas-andalucia
+      - ../descargas-aragon:/app/descargas-aragon
+      - ../descargas-asturias:/app/descargas-asturias
+      - ../descargas-baleares:/app/descargas-baleares
+      - ../descargas-canarias:/app/descargas-canarias
+      - ../descargas-cantabria:/app/descargas-cantabria
+      - ../descargas-castilla-la-mancha:/app/descargas-castilla-la-mancha
+      - ../descargas-cataluna:/app/descargas-cataluna
+      - ../descargas-ceuta:/app/descargas-ceuta
+      - ../descargas-euskadi:/app/descargas-euskadi
+      - ../descargas-extremadura:/app/descargas-extremadura
+      - ../descargas-federacion:/app/descargas-federacion
+      - ../descargas-galicia:/app/descargas-galicia
+      - ../descargas-madrid:/app/descargas-madrid
+      - ../descargas-melilla:/app/descargas-melilla
+      - ../descargas-murcia:/app/descargas-murcia
+      - ../descargas-navarra:/app/descargas-navarra
+      - ../descargas-rioja:/app/descargas-rioja
+      - ../descargas-valencia:/app/descargas-valencia
+
+  # La VIGILANCIA no va aquí a propósito: mide los contenedores DESDE FUERA (memoria de cada uno por cgroups,
+  # reinicios, plazas ocupadas y quién espera) y para eso necesita el cliente de Docker, que no está —ni hace
+  # falta— dentro de la imagen de los recolectores. Se programa con `cron` en el servidor:
+  #
+  #   0 * * * * cd /srv/facylf && node scripts/vigilar-docker.mjs --cada-min 1 --duracion-min 1 \
+  #     >> pruebas/reconstruccion/vigilancia-cron.log 2>&1
+  #
+  # y su tendencia se mira con `node scripts/vigilar-docker.mjs --informe`.
+
+volumes:
+  # Las fichas de plaza de navegador, compartidas por TODOS los contenedores: es el semáforo del presupuesto.
+  plazas:

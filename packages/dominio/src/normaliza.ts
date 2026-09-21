@@ -17,6 +17,7 @@ export function normaliza(nombre: string): string {
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\bretirad[oa]s?\b/g, ' ')        // marca de la federación: "Retirado"
     .replace(/["“”']\s*[a-z]\s*["“”']/g, ' ')
     .replace(PREFIJOS, ' ')
     .replace(/[^a-z0-9]/g, '');

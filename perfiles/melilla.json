@@ -1,0 +1,9 @@
+{
+  "nombre": "melilla",
+  "base": "https://www.rfmf.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-melilla",
+  "config": "recolector.melilla.config.json",
+  "catalogo": "descargas-melilla/competiciones-por-temporada.json",
+  "grupos": "descargas-melilla/grupos-por-temporada.json"
+}

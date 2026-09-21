@@ -1,0 +1,65 @@
+/**
+ * Presupuestos y planes: la parte que se comprueba en cada `pnpm test`, sin medir.
+ *
+ * La medición de verdad (`EXPLAIN (ANALYZE, BUFFERS)` sobre el canónico con volumen) la hace
+ * `pnpm planes`, que además falla si el plan de una consulta cambia de forma. Aquí sólo se defiende lo
+ * que no debe depender de tener PostgreSQL delante: que **toda** consulta declara presupuesto y tipo de
+ * recorrido, que los planes guardados existen y que ninguno se coló sin `LIMIT`.
+ */
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { CONSULTAS_COBERTURA } from '../src/consultas/cobertura';
+import { CONSULTAS_PARTIDOS } from '../src/consultas/partidos';
+
+const RAIZ = join(import.meta.dirname, '..', '..', '..');
+const CARPETA_PLANES = join(RAIZ, 'pruebas', 'planes');
+
+const consultas = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS];
+
+describe('presupuestos de consulta', () => {
+  it('toda consulta declara presupuesto, tipo de recorrido y columnas', () => {
+    expect(consultas.length).toBeGreaterThanOrEqual(6);
+    for (const c of consultas) {
+      expect(c.presupuestoMs, `${c.nombre} sin presupuesto`).toBeGreaterThan(0);
+      expect(['indexado', 'agregado'], `${c.nombre} sin tipo de recorrido`).toContain(c.plan);
+      expect(c.columnas.length, `${c.nombre} sin columnas prometidas`).toBeGreaterThan(0);
+      expect(c.sql.toLowerCase(), `${c.nombre} sin LIMIT`).toContain('limit');
+    }
+  });
+
+  it('las consultas que se enseñan al visitante van por índice; sólo el diagnóstico agrega', () => {
+    // Las que filtran por federación y grupo son las que ve el visitante en una ficha: no pueden
+    // recorrer una tabla de hechos entera. Las agregadas son de la página de diagnóstico.
+    for (const c of consultas) {
+      const porGrupo = /de-grupo|goles-de-partidos|grupo-del-canónico/.test(c.nombre);
+      if (porGrupo) expect(c.plan, `${c.nombre} debería ir por índice`).toBe('indexado');
+    }
+    expect(consultas.filter((c) => c.plan === 'agregado').map((c) => c.nombre).sort())
+      .toEqual(['cobertura-por-federación', 'cobertura-por-grupo', 'grupos-del-canónico', 'resumen-canónico']);
+  });
+
+  it('cada consulta tiene su plan guardado, con presupuesto y forma', () => {
+    expect(existsSync(CARPETA_PLANES), 'falta pruebas/planes/ (se genera con `pnpm planes --guardar`)').toBe(true);
+    const ficheros = readdirSync(CARPETA_PLANES).filter((f) => f.endsWith('.json'));
+    expect(ficheros.length).toBeGreaterThanOrEqual(consultas.length);
+    for (const fichero of ficheros) {
+      const plan = JSON.parse(readFileSync(join(CARPETA_PLANES, fichero), 'utf8'));
+      expect(plan.consulta, fichero).toBeTruthy();
+      expect(plan.presupuestoMs, fichero).toBeGreaterThan(0);
+      expect(['indexado', 'agregado'], fichero).toContain(plan.plan);
+      expect(Array.isArray(plan.forma?.nodos), `${fichero}: sin forma de plan`).toBe(true);
+      expect(plan.forma.nodos.length, `${fichero}: plan vacío`).toBeGreaterThan(0);
+    }
+  });
+
+  it('ninguna consulta indexada guarda un Seq Scan sobre una tabla de hechos', () => {
+    const hechos = ['match', 'appearance', 'match_event', 'match_staff', 'match_report', 'match_official', 'match_source'];
+    for (const fichero of readdirSync(CARPETA_PLANES).filter((f) => f.endsWith('.json'))) {
+      const plan = JSON.parse(readFileSync(join(CARPETA_PLANES, fichero), 'utf8'));
+      if (plan.plan !== 'indexado') continue;
+      const malos = (plan.forma.seqScans ?? []).filter((r: string) => hechos.includes(r));
+      expect(malos, `${plan.consulta}: recorre entera ${malos.join(', ')}`).toEqual([]);
+    }
+  });
+});
