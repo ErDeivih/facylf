@@ -120,7 +120,18 @@ async function leeProcesos(maxEdadMs = 30_000) {
       '-NoProfile', '-NonInteractive', '-Command',
       'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name,CommandLine | ConvertTo-Json -Compress',
     ], { maxBuffer: 96 * 1024 * 1024, timeout: 60_000, windowsHide: true });
-    const datos = JSON.parse(stdout.trim() || '[]');
+    /*
+     * ── POR QUÉ HAY QUE LIMPIAR ANTES DE ANALIZAR (medido el 21/09/2026) ──────────────────────────────
+     *
+     * La línea de órdenes de cualquier proceso puede traer caracteres de control (un byte suelto, un tabulador
+     * raro) y `ConvertTo-Json` los deja tal cual **dentro de la cadena**: `JSON.parse` revienta con «Bad control
+     * character in string literal». Medido en este PC: el supervisor dejó de poder leer la lista de procesos y,
+     * como su regla es no lanzar a ciegas, se quedó esperando en bucle — no relanzaba ningún worker.
+     *
+     * Se sustituyen por un espacio (sólo se usan para comparar líneas de órdenes, así que no cambia nada).
+     */
+    const limpio = stdout.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ' ');
+    const datos = JSON.parse(limpio.trim() || '[]');
     const procesos = Array.isArray(datos) ? datos : [datos];
     cacheProcesos = { cuando: ahora, procesos };
     return procesos;
