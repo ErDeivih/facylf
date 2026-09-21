@@ -11,8 +11,30 @@ Traducido a piezas: la recolección, el canónico, el importador y su estado viv
 copia de datos en ningún otro sitio; y la plataforma web es lo único que se construye y se publica como software,
 leyendo del servidor con el rol de sólo lectura.
 
-## 1 · Qué hay hoy en el servidor (medido, sólo lectura)
+## 0 · ⚠ LO PRIMERO: EL DNS DEL SERVIDOR (medido el 21/09/2026)
 
+El servidor tiene en `/etc/resolv.conf` los resolutores de **Tailscale** (`100.100.1.1`, `100.90.1.1`) pero
+Tailscale tiene el DNS **desactivado** en esa máquina (`tailscale dns status` → *Tailscale DNS: disabled*), así
+que no resuelve **nada**. Medido: el router de casa (192.168.1.1), 1.1.1.1 y 8.8.8.8 responden; los de Tailscale,
+no. Lo que eso bloquea, comprobado uno a uno:
+
+| qué | cómo se ve |
+|---|---|
+| Clonar de GitHub | `git fetch`: «no se pudo consultar el remoto (¿red?)» |
+| El autodeploy de RadioPV | fallando desde el reinicio de las 14:24 del 21/09 (`journalctl -u autodeploy-todos`) |
+| Descargar imágenes de Docker | `docker pull` no resuelve el registro |
+| **La recolección** | **Melilla, ya en el servidor, pedía y fallaba con `net::ERR_NAME_NOT_RESOLVED`**: sin DNS no se puede abrir ni un portal |
+
+Se arregla con dos comandos que necesitan `sudo` (están en `docker/servidor/primeros-pasos-sudo.sh`, que además
+instala el tope de 10 GB):
+
+```bash
+ssh david@servidor.local 'sudo nohup bash /tmp/primeros-pasos-sudo.sh > /tmp/primeros-pasos.log 2>&1 &'
+```
+
+Mientras eso no se haga, la flota **sigue en el PC**: allí el DNS funciona y la recolección no se interrumpe.
+
+## 1 · Qué hay hoy en el servidor (medido, sólo lectura)
 | pieza | cómo está |
 |---|---|
 | sistema | **Debian 12 (bookworm)**, kernel 6.1, **4 núcleos** |

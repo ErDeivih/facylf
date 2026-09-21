@@ -41,8 +41,17 @@ const ESPERA_PNFG = { guion: 'scripts/proximo-trabajo.mjs', porDefecto: 300, min
  * Cada entrada dice: qué guion se lanza, con qué argumentos, dónde está su cola, qué ventana de espera usa
  * tras cada tanda y qué limpieza necesita antes de arrancar. Nada más: lo que el recolector hace por dentro
  * no se describe aquí.
+ *
+ * ── `excluidas`: EL TRASPASO AL SERVIDOR, FEDERACIÓN A FEDERACIÓN (21/09/2026) ────────────────────────────
+ *
+ * Cuando una federación pasa a recolectarse en el servidor, el PC **no puede seguir gestionándola**: dos flotas
+ * sobre la misma cola son peticiones duplicadas a la misma federación. Con `FACYLF_EXCLUIR` (una lista de
+ * nombres) el plan del PC deja fuera esas federaciones y el resto sigue igual. Así el traspaso se hace de una en
+ * una —copiar su cola, arrancar su contenedor, excluirla aquí— y la memoria del PC se libera poco a poco en vez
+ * de todo de golpe al final.
  */
-export function planDeFederaciones() {
+export function planDeFederaciones({ excluidas = [] } = {}) {
+  const fuera = new Set((excluidas ?? []).map((f) => String(f).trim()).filter(Boolean));
   const pnfg = FEDERACIONES_PNFG.map((federacion) => ({
     federacion,
     guion: 'scripts/recolector-local.mjs',
@@ -98,9 +107,8 @@ export function planDeFederaciones() {
       limpieza: 'cataluna',
       espera: { guion: 'scripts/contar-pendientes.mjs', sinPendientes: 1800, conPendientes: 20, porDefecto: 60 },
     },
-  ];
+  ].filter((entrada) => !fuera.has(entrada.federacion));
 }
-
 /**
  * Cuánto esperar tras terminar una tanda, a partir de lo que haya contestado el guion de planificación.
  *

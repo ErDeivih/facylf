@@ -279,7 +279,7 @@ async function main() {
 
   const configuracion = configuracionFlotaLocal(RAIZ);
   const entorno = entornoParaHijos(configuracion);
-  let plan = planDeFederaciones();
+  let plan = planDeFederaciones({ excluidas: configuracion.excluidas });
   if (soloFederacion) plan = plan.filter((e) => e.federacion === soloFederacion);
   if (!plan.length) {
     anota(`No hay ninguna federación que se llame «${soloFederacion}» en el plan.`);
@@ -289,7 +289,8 @@ async function main() {
   const contexto = { entorno, hijos: new Set(), flujos: new Set(), parando: false };
   anota(`Supervisor unico de la flota: ${plan.length} federaciones, ${configuracion.memoriaGb} GB declarados`
     + ` (${configuracion.origen}), reserva ${configuracion.reservaGb} GB, turno ${configuracion.turnoMin} min`
-    + `${configuracion.chromeHeadless ? `, headless ${configuracion.chromeHeadless}` : ''}.`);
+    + `${configuracion.chromeHeadless ? `, headless ${configuracion.chromeHeadless}` : ''}`
+    + `${configuracion.excluidas?.length ? ` · excluidas (las recolecta el servidor): ${configuracion.excluidas.join(', ')}` : ''}.`);
 
   const para = (senal) => {
     if (contexto.parando) return;

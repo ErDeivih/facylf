@@ -33,6 +33,30 @@ test('el plan cubre las 19 federaciones y ninguna se repite', () => {
   assert.deepEqual([...nombres].sort(), esperadas);
 });
 
+test('las federaciones que ya recolecta el servidor quedan fuera del plan del PC', () => {
+  // Sin exclusiones, están todas.
+  assert.equal(planDeFederaciones().length, 19);
+
+  // Excluyendo una, esa no se lanza en el PC y las demás siguen (el traspaso es de una en una).
+  const conUna = planDeFederaciones({ excluidas: ['melilla'] });
+  assert.equal(conUna.length, 18);
+  assert.equal(conUna.some((e) => e.federacion === 'melilla'), false);
+  assert.equal(conUna.some((e) => e.federacion === 'murcia'), true);
+
+  // Excluyendo varias y con espacios, igual de bien.
+  const conVarias = planDeFederaciones({ excluidas: [' melilla ', 'madrid', 'cataluna'] });
+  assert.equal(conVarias.length, 16);
+  for (const fuera of ['melilla', 'madrid', 'cataluna']) {
+    assert.equal(conVarias.some((e) => e.federacion === fuera), false, `${fuera} no debería estar`);
+  }
+
+  // Y con todas excluidas (el día que el servidor lo haga todo), el PC no lanza nada.
+  const todas = [...FEDERACIONES_PNFG, FEDERACION_SIN_PERFIL, 'madrid', 'valencia', 'cataluna'];
+  assert.equal(planDeFederaciones({ excluidas: todas }).length, 0);
+  // Una lista vacía o con basura no excluye a nadie por accidente.
+  assert.equal(planDeFederaciones({ excluidas: ['', '  '] }).length, 19);
+});
+
 test('cada federación sabe con qué guion y con qué argumentos se lanza', () => {
   const plan = planDeFederaciones();
   const porNombre = new Map(plan.map((e) => [e.federacion, e]));

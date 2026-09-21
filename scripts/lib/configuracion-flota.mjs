@@ -15,15 +15,17 @@ export function configuracionFlotaLocal(raiz) {
   let turnoArchivo = null;
   let headlessArchivo = null;
   let topeArchivo = null;
+  let excluirArchivo = null;
   const ruta = join(raiz, 'scripts', 'entorno-flota.ps1');
   if (process.platform === 'win32' && existsSync(ruta)) {
     const texto = readFileSync(ruta, 'utf8');
-    const valor = (nombre) => new RegExp(`\\$env:${nombre}\\s*=\\s*['\"]([^'\"]+)['\"]`, 'i').exec(texto)?.[1] ?? null;
+    const valor = (nombre) => new RegExp(`\\$env:${nombre}\\s*=\\s*['\"]([^'\"]*)['\"]`, 'i').exec(texto)?.[1] ?? null;
     memoriaArchivo = valor('FACYLF_MEMORIA_GB');
     reservaArchivo = valor('FACYLF_RESERVA_GB');
     turnoArchivo = valor('FACYLF_TURNO_PLAZA_MIN');
     headlessArchivo = valor('FACYLF_CHROME_HEADLESS');
     topeArchivo = valor('FACYLF_TOPE_NAVEGADOR_MB');
+    excluirArchivo = valor('FACYLF_EXCLUIR');
   }
   return {
     memoriaGb: Number(process.env.FACYLF_MEMORIA_GB ?? memoriaArchivo ?? 10),
@@ -41,6 +43,15 @@ export function configuracionFlotaLocal(raiz) {
      * hijos usarían los 900 MB de siempre aunque la flota del PC diga otra cosa.
      */
     topeNavegadorMb: process.env.FACYLF_TOPE_NAVEGADOR_MB ?? topeArchivo ?? null,
+    /*
+     * ── `excluidas`: LAS FEDERACIONES QUE YA RECOLECTA EL SERVIDOR ────────────────────────────────────────
+     *
+     * Durante el traspaso, una federación puede estar ya corriendo en el servidor: el PC **no debe tocarla**,
+     * porque dos flotas sobre la misma cola son peticiones duplicadas a la misma federación. `FACYLF_EXCLUIR`
+     * es una lista separada por comas («melilla,andalucia»). Sin declarar, no se excluye nada.
+     */
+    excluidas: String(process.env.FACYLF_EXCLUIR ?? excluirArchivo ?? '')
+      .split(',').map((f) => f.trim()).filter(Boolean),
     origen: process.env.FACYLF_MEMORIA_GB ? 'entorno' : (memoriaArchivo ? 'entorno-flota.ps1' : 'predeterminado'),
   };
 }

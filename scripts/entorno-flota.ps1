@@ -49,6 +49,17 @@ $env:FACYLF_TURNO_PLAZA_MIN = '20'
 $env:FACYLF_RESERVA_GB = '1'
 $env:FACYLF_CHROME_HEADLESS = '1'
 
+# ── TRASPASO AL SERVIDOR: FEDERACIONES QUE YA NO GESTIONA EL PC ─────────────────────────────────────────────
+#
+# Lista separada por comas. Cuando una federación pasa a recolectarse en el servidor, se copia su cola, se
+# arranca su contenedor allí y **se añade aquí**: a partir de ese momento el supervisor del PC no la lanza, así
+# que no hay dos flotas pidiendo a la misma federación (peticiones duplicadas) y su memoria queda libre.
+#
+# El traspaso se hace de una en una a propósito: la memoria se libera poco a poco y se puede comprobar cada
+# federación antes de seguir. Cuando estén las 19, esta línea las tendrá todas y el supervisor del PC no
+# arrancará nada.
+$env:FACYLF_EXCLUIR = ''
+
 # ── TOPE DE RECICLADO DEL NAVEGADOR: SE DEJA EN 900 ──────────────────────────────────────────────────────────
 #
 # Se probó a bajarlo a 500 MB el 21/09/2026 y no compensa: el navegador ya se queda en ~480-630 MB en cuanto
