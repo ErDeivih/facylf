@@ -187,6 +187,53 @@ Propuesta:
 - **El HTML archivado** hace falta para la clasificación **oficial**; por eso el `rsync` de los 21 GB va en segundo
   plano desde el primer día, aunque la importación empiece con la reconstruida.
 
+### ⚠ Lo que se encontró al probar la importación de verdad (21/09/2026)
+
+Antes de dar la carga masiva por lanzable se probaron unidades reales con `scripts/importar-masivo.mjs`. Resultado:
+**todas las probadas fallan la validación del lote**, y el motivo es de datos, no del despliegue:
+
+```
+✗ La validación del lote 2454 ha fallado: actas analizadas 18≠9,
+  participaciones 672≠331, eventos 522≠267, técnicos 163≠82
+```
+
+**Qué pasa exactamente** (medido en el grupo 22841470 de Navarra, 2026-27): la cola tiene **27 actas hechas pero
+sólo 18 partidos**, y de esas 27 **9 no las cita ningún partido** (`partidos.codigo_acta` no las referencia; la
+25449854, por ejemplo, no la cita nadie). El importador escribe las 18 que sí enlazan —no puede hacer otra cosa:
+un informe de partido sin partido no existe— y la validación compara con las 27 del origen. Como el lote es
+**una transacción entera**, se revierte y el grupo no entra.
+
+Números medidos en las 19 colas: **377 131 actas hechas** y **81 521 partidos sin acta enlazada (9,4 %**, normal:
+partidos todavía sin acta publicada). Lo que rompe la validación es lo contrario: actas **de más** cuyo `grupo` no
+corresponde a ningún partido de ese grupo.
+
+**Tres salidas, y hay que elegir** (ninguna se ha aplicado):
+
+1. **Arreglar la cola** (lo correcto si las actas están mal etiquetadas de grupo): reasignar el `grupo` de esas
+   actas a partir del partido que las cita —o del que debería—, de modo que los recuentos cuadren. Antes hay que
+   entender **por qué** están en ese grupo: puede ser que el portal publique el acta del mismo partido en dos
+   grupos (fase y grupo) y el recolector la guarde con el grupo de la competición en la que la encontró.
+2. **Que el importador tolere las actas sin partido**: escribir las que enlazan y registrar la incidencia
+   («N actas del grupo no corresponden a ningún partido») en el lote, sin fallarlo y sin callarlo. Es lo que el
+   proyecto hace con todo lo que no entiende: **no se convierte en cero, se registra**.
+3. **Apartar esos grupos** (lo que ya hace el lanzador): la carga masiva avanza con los que validan y deja
+   listados los que no, con su motivo, en `estado/importacion.json`. Es lo que está pasando ahora mismo.
+
+Mientras no se decida, la carga masiva **no puede empezar de verdad**: el lanzador apartará los grupos afectados y
+seguirá, pero conviene saber qué proporción son (se medirá en la primera tanda, que lleva el contador de
+apartados).
+
+### Corrección: el canónico NO está vacío
+
+Una medición anterior de este documento (`pg_stat_user_tables.n_live_tup`, que estaba sin actualizar) hizo pensar
+que el canónico no tenía datos. **No es así**: medido con `count(*)` el 21/09/2026, el canónico del PC tiene
+**9 148 partidos, 7 310 informes de partido, 21 639 personas, 34 ediciones de competición y 270 lotes**. Los
+agregados `analytics.*` **sí están vacíos** (el informe del importador lo dice: «el importador todavía no las
+rellena»), pero la web no los usa: lee de `core.*` (`core.match`, `core.match_report`, `core.appearance`,
+`core.match_event`, `core.person`…). Por eso la portada enseña «0 competiciones · 0 partidos» **de la temporada en
+curso**: filtra por temporada y la 2026-27 todavía no tiene nada importado.
+
+
 ## 7 · Monitorización: qué se mide, dónde se ve y cuándo avisa
 
 El objetivo que pediste es «ver todo lo que ocurre para poder depurar». Cuatro capas, la mitad ya existe en el
