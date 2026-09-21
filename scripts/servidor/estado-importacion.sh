@@ -20,5 +20,14 @@ echo "── estado del lanzador ──"
 cat /srv/data/facylf/estado/importacion-resumen.json 2>/dev/null || echo "(todavía sin resumen)"
 
 echo
+echo "── fallos y apartados del lanzador ──"
+echo "  líneas de fallo:  $(docker logs facylf-importador 2>&1 | grep -c 'fallo ' || true)"
+echo "  líneas de apartado: $(docker logs facylf-importador 2>&1 | grep -c 'Apartado' || true)"
+echo "  últimos fallos:"
+docker logs facylf-importador 2>&1 | grep 'fallo ' | tail -4 | sed 's/^/    /'
+echo "  últimos apartados:"
+docker logs facylf-importador 2>&1 | grep 'Apartado' | tail -3 | sed 's/^/    /'
+
+echo
 echo "── contenedores de facylf ──"
 docker ps --filter name=facylf --format '  {{.Names}} · {{.Status}}'
