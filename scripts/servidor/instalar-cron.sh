@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # ── Instala en el servidor las tareas periódicas de facylf (cron del usuario `david`, sin `sudo`) ───────────
 #
-# El servidor NO tiene Node instalado, así que las tareas corren en contenedor con `node:22-alpine` (ya
-# descargada) y el cron del host sólo deja preparados dos ficheros que el monitor lee:
+# ── QUÉ PUEDE CORRER AQUÍ Y QUÉ NO (medido el 21/09/2026) ──────────────────────────────────────────────────
 #
-#   · `estado/canonico.txt`     → tamaño del canónico y estado de los lotes del importador
-#   · `estado/contenedores.txt` → consumo de cada contenedor (por si el socket no está disponible)
+# El servidor **no tiene Node** en el host (y no se puede instalar sin DNS/apt), pero sí tiene el cliente de
+# Docker y la imagen `node:22-alpine`. De ahí salen tres casos:
+#
+#   · lo que sólo necesita DOCKER → corre en el host directamente (leer el canónico, medir contenedores);
+#   · lo que sólo necesita NODE → corre en un contenedor `node:22-alpine` con el repositorio montado;
+#   · lo que necesita NODE **Y** DOCKER a la vez (`ajustar-flota.mjs`, `vigilar-docker.mjs`, que paran y
+#     levantan contenedores) → **aquí no se puede** con lo que hay: haría falta una imagen con Node y el cliente
+#     de Docker. Quedan documentadas abajo y se pueden lanzar desde el PC por `ssh` mientras tanto.
 #
 # Se puede ejecutar más de una vez: sustituye las líneas de facylf y deja las demás del crontab en paz.
 #
@@ -13,7 +18,6 @@
 set -euo pipefail
 
 RAIZ="${1:-/srv/data/facylf}"
-IMAGEN_NODE="node:22-alpine"
 
 if [ ! -d "$RAIZ" ]; then
   echo "No existe $RAIZ: primero hay que clonar el repositorio." >&2
@@ -22,26 +26,23 @@ fi
 
 mkdir -p "$RAIZ/estado"
 
-# Las líneas nuevas. Ojo con las comillas: el cron las pasa a `sh -c`, así que aquí sí se pueden usar tal cual.
 NUEVAS="$(cat <<EOF
 # ── facylf (instalado por scripts/servidor/instalar-cron.sh) ──────────────────────────────────────────────
 # El canónico y el importador, para que el monitor no necesite cliente de PostgreSQL dentro del contenedor.
 * * * * * cd $RAIZ && docker exec facylf-postgres psql -U facylf_admin -d facylf -Atc "select pg_size_pretty(pg_database_size(current_database())); select count(*) from ops.batch; select count(*) from ops.batch where estado = 'validado'; select count(*) from ops.batch where terminado_en is null;" > estado/canonico.txt 2>/dev/null
-# Consumo de contenedores (red de seguridad por si el socket no se puede leer desde el contenedor).
+# Consumo de contenedores (red de seguridad por si el socket no se puede leer desde el contenedor del monitor).
 * * * * * cd $RAIZ && docker stats --no-stream --format '{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}|{{.MemPerc}}|{{.PIDs}}' > estado/contenedores.txt 2>/dev/null
-# La flota suelta capacidad: la federación que termina su trabajo apaga su contenedor y la que vuelve lo enciende.
-*/15 * * * * cd $RAIZ && docker run --rm -v $RAIZ:/app -w /app $IMAGEN_NODE node scripts/ajustar-flota.mjs --aplicar >> estado/ajustar-flota.log 2>&1
-# Vigilancia periódica con las herramientas del proyecto.
-0 * * * * cd $RAIZ && docker run --rm -v $RAIZ:/app -w /app $IMAGEN_NODE node scripts/vigilar-docker.mjs --cada-min 1 --duracion-min 1 >> estado/vigilancia.log 2>&1
-# Copias de seguridad de lo irrecuperable (colas + canónico).
+# Copias de seguridad de lo irrecuperable (colas + canónico + catálogos).
 30 3 * * * cd $RAIZ && bash scripts/servidor/copias.sh >> estado/copias.log 2>&1
+# ── PENDIENTES: necesitan Node y el cliente de Docker en la misma máquina (aquí no hay Node) ─────────────
+# */15 * * * * cd $RAIZ && node scripts/ajustar-flota.mjs --aplicar >> estado/ajustar-flota.log 2>&1
+# 0 * * * * cd $RAIZ && node scripts/vigilar-docker.mjs --cada-min 1 --duracion-min 1 >> estado/vigilancia.log 2>&1
 EOF
 )"
 
-# Se quitan las líneas anteriores de facylf (entre el rótulo y la siguiente línea en blanco o el final) y se añade el bloque nuevo.
 crontab -l 2>/dev/null | sed '/# ── facylf (instalado por/,/^$/d' > /tmp/crontab-sin-facylf || true
 { cat /tmp/crontab-sin-facylf; echo "$NUEVAS"; } | crontab -
 rm -f /tmp/crontab-sin-facylf
 
 echo "cron instalado. Reglas de facylf:"
-crontab -l | grep -A0 -E 'facylf|ajustar-flota|vigilar-docker|copias.sh' | sed 's/^/  /'
+crontab -l | grep -E 'facylf|canonico|copias.sh' | sed 's/^/  /'

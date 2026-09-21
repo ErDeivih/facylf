@@ -19,12 +19,22 @@ services:
     restart: unless-stopped
     cgroup_parent: facylf.slice
     mem_limit: 256m
+    # Con el usuario del servidor y el GRUPO de Docker: así puede leer el socket (`root:996`, modo 660) y lo que
+    # escribe en `estado/` queda como david, para que el `cron` del host siga escribiendo ahí. Medido el
+    # 21/09/2026: como `1000:1000` el socket daba `EACCES`, y como root los ficheros quedaban de root y el cron
+    # no habría podido tocarlos.
+    user: "1000:996"
     command: ["node", "/app/scripts/monitor-flota.mjs", "--cada-seg", "60"]
     environment:
       FACYLF_RAIZ: /app
       FACYLF_ESTADO_DIR: /app/estado
       FACYLF_DOCKER_SOCK: /var/run/docker.sock
       FACYLF_SLICE_GB: "10"
+      # La respuesta del canónico la deja el `cron` del host en este fichero (dentro del contenedor no hay
+      # cliente de PostgreSQL). Sin esta variable el monitor intentaría `docker exec`, que aquí no existe.
+      FACYLF_CANONICO_TXT: /app/estado/canonico.txt
+      # Y el consumo de contenedores, por si algún día el socket no se puede leer: el cron también lo deja hecho.
+      FACYLF_CONTENEDORES_TXT: /app/estado/contenedores.txt
       # Los dos avisos. `host.docker.internal` es el servidor de casa: ntfy escucha ahí en el 8085.
       FACYLF_NTFY: "${FACYLF_NTFY:-http://host.docker.internal:8085/facylf}"
       FACYLF_KUMA_PUSH: "${FACYLF_KUMA_PUSH:-}"

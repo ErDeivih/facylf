@@ -21,7 +21,7 @@
  * Uso:  node scripts/monitor-flota.mjs [--una-vez] [--cada-seg 60] [--sin-avisos] [--json]
  */
 import { execFile } from 'node:child_process';
-import { request as http } from 'node:http';
+import { request } from 'node:http';
 import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -124,7 +124,7 @@ async function leeContenedores() {
 /** Petición HTTP por el socket de Docker (funciona en Linux y en las tuberías con nombre de Windows). */
 function pideAlSocket(socket, ruta) {
   return new Promise((listo, falla) => {
-    const peticion = http.request({ socketPath: socket, path: ruta, method: 'GET' }, (respuesta) => {
+    const peticion = request({ socketPath: socket, path: ruta, method: 'GET' }, (respuesta) => {
       let cuerpo = '';
       respuesta.on('data', (trozo) => { cuerpo += trozo; });
       respuesta.on('end', () => {
@@ -343,14 +343,26 @@ async function leeCanonicoEImportador() {
   return salida;
 }
 
-/** El disco donde viven las colas: sin disco se rompe lo único irrecuperable. */
+/**
+ * El disco donde viven las colas: sin disco se rompe lo único irrecuperable.
+ *
+ * Con `statfsSync` de Node y no con `df`: dentro del contenedor del monitor (Alpine) el `df` es el de BusyBox y
+ * **no admite `--output`** — medido el 21/09/2026, esa sonda devolvía «unrecognized option». Node se lo pregunta
+ * al sistema directamente y así funciona en cualquier imagen.
+ */
 async function leeDisco() {
   try {
-    const { stdout } = await ejecuta('df', ['-k', '--output=size,avail', RAIZ], { timeout: 30_000 });
-    const [total, libre] = stdout.trim().split('\n')[1].trim().split(/\s+/).map(Number);
-    return { totalGb: Number((total / 1024 ** 2).toFixed(1)), libreGb: Number((libre / 1024 ** 2).toFixed(1)), libreProporcion: libre / total };
+    const { statfsSync } = await import('node:fs');
+    const datos = statfsSync(RAIZ);
+    const total = Number(datos.blocks) * Number(datos.bsize);
+    const libre = Number(datos.bavail) * Number(datos.bsize);
+    return {
+      totalGb: Number((total / 1024 ** 3).toFixed(1)),
+      libreGb: Number((libre / 1024 ** 3).toFixed(1)),
+      libreProporcion: total ? libre / total : null,
+    };
   } catch (error) {
-    return { detalle: error.message.slice(0, 200) };
+    return { detalle: `no se pudo medir el disco: ${error.message.slice(0, 160)}` };
   }
 }
 
