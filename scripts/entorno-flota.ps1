@@ -58,7 +58,7 @@ $env:FACYLF_CHROME_HEADLESS = '1'
 # El traspaso se hace de una en una a propósito: la memoria se libera poco a poco y se puede comprobar cada
 # federación antes de seguir. Cuando estén las 19, esta línea las tendrá todas y el supervisor del PC no
 # arrancará nada.
-$env:FACYLF_EXCLUIR = ''
+$env:FACYLF_EXCLUIR = 'melilla,andalucia,aragon,asturias,baleares,canarias,cantabria'
 
 # ── TOPE DE RECICLADO DEL NAVEGADOR: SE DEJA EN 900 ──────────────────────────────────────────────────────────
 #

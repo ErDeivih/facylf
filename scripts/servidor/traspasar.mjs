@@ -70,12 +70,30 @@ function workersEnPCEsDe(federacion) {
   return Number(salida) || 0;
 }
 
-/** El servidor cumple las condiciones para recoger: imagen, DNS resolviendo portales y sitio. */
+/**
+ * El servidor cumple las condiciones para recoger: imagen, DNS resolviendo portales y sitio.
+ *
+ * ── EL DNS SE COMPRUEBA DESDE UN CONTENEDOR, NO DESDE EL HOST (21/09/2026) ────────────────────────────────
+ *
+ * El host del servidor **no resuelve** (tiene los resolutores de Tailscale, que están desactivados), pero los
+ * contenedores sí: la imagen de los recolectores resuelve `rfmf.es`, `fcf.cat` y `futnavarra.es` sin problema.
+ * Comprobar el DNS con `getent` en el host abortaba el traspaso por un problema que la flota no tiene.
+ *
+ * Lo que de verdad importa es que **el contenedor del recolector** abra el portal, así que eso es lo que se
+ * prueba: una petición real desde la imagen.
+ */
 function compruebaServidor(federacion) {
   const imagen = enServidor("docker image inspect facylf-recolectores:local --format '{{.Id}}' 2>/dev/null | cut -c1-19");
-  const dns = enServidor('getent hosts www.rfef.es >/dev/null 2>&1 && echo SI || echo NO');
   const disco = enServidor("df -h / | tail -1 | awk '{print $4}'");
-  return { imagen: imagen || '(sin imagen)', dns: dns === 'SI', disco };
+  let dns = false;
+  let portal = '';
+  try {
+    portal = enServidor('docker run --rm --entrypoint getent facylf-recolectores:local hosts www.rfef.es 2>&1 | head -1');
+    dns = portal.length > 0 && !/not found|SERVFAIL|no such/i.test(portal);
+  } catch (error) {
+    portal = `fallo: ${String(error.message).slice(0, 120)}`;
+  }
+  return { imagen: imagen || '(sin imagen)', dns, portal, disco };
 }
 
 /** Los errores de red del registro de esa federación en el servidor (lo que delata el DNS roto). */
@@ -87,11 +105,12 @@ function erroresDeRed(federacion) {
 async function traspasa(federacion) {
   console.log(`\n════════ traspaso de ${federacion} ════════`);
 
-  paso(1, '¿el servidor puede recogerla? (imagen, DNS, disco)');
+  paso(1, '¿el servidor puede recogerla? (imagen, DNS desde el contenedor, disco)');
   const estado = compruebaServidor(federacion);
-  console.log(`   imagen: ${estado.imagen} · DNS: ${estado.dns ? 'resuelve' : 'NO RESUELVE'} · disco libre: ${estado.disco}`);
+  console.log(`   imagen: ${estado.imagen} · disco libre: ${estado.disco}`);
+  console.log(`   DNS desde el contenedor: ${estado.dns ? `resuelve (${estado.portal})` : `NO RESUELVE (${estado.portal})`}`);
   if (!estado.dns) {
-    console.log('   ✗ sin DNS el servidor no puede abrir los portales (ERR_NAME_NOT_RESOLVED): se aborta sin tocar nada');
+    console.log('   ✗ sin DNS el contenedor no puede abrir los portales: se aborta sin tocar nada');
     return false;
   }
 
@@ -107,14 +126,22 @@ async function traspasa(federacion) {
   }
 
   paso(2, `el PC deja de gestionar ${federacion}`);
-  escribeExcluidas([...new Set([...yaExcluidas, federacion])]);
-  reiniciaSupervisorDelPC();
-  console.log(`   supervisor del PC reiniciado · workers de ${federacion} vivos: ${workersEnPCEsDe(federacion)}`);
+  /*
+   * Sólo se reinicia el supervisor si la lista CAMBIÓ. Con `--todas` la lista se deja puesta de una vez antes de
+   * empezar (ver `main`), así que aquí ya está y no se vuelve a reiniciar: cada reinicio corta las sesiones de
+   * TODAS las federaciones y en un traspaso de siete eso sería siete cortes de todo para nada.
+   */
+  const yaEstaba = yaExcluidas.includes(federacion);
+  if (!yaEstaba) {
+    escribeExcluidas([...new Set([...yaExcluidas, federacion])]);
+    reiniciaSupervisorDelPC();
+  }
+  console.log(`   supervisor del PC ${yaEstaba ? 'ya la tenía excluida' : 'reiniciado'} · workers de ${federacion} vivos: ${workersEnPCEsDe(federacion)}`);
 
   paso(3, 'copiar la cola (ahora sí, sin nadie escribiéndola)');
   try {
     const salida = ejecuta('node', [join(RAIZ, 'scripts', 'servidor', 'copiar-datos.mjs'),
-      '--federaciones', federacion, '--rehacer'], { stdio: ['ignore', 'pipe', 'inherit'] });
+      '--federaciones', federacion, '--rehacer', '--solo-cola'], { stdio: ['ignore', 'pipe', 'inherit'] });
     console.log(`   ${salida.trim().split('\n').slice(-2).join(' · ')}`);
   } catch (error) {
     console.log(`   ✗ falló la copia: ${String(error.message).slice(0, 200)}`);
@@ -153,13 +180,27 @@ function deshace(federacion, excluidasAntes) {
 }
 
 async function main() {
-  const federaciones = TODAS
-    ? ['andalucia', 'aragon', 'asturias', 'melilla']
-    : [arg('federacion', '')].filter(Boolean);
+  const lista = arg('federaciones', '').split(',').map((f) => f.trim()).filter(Boolean);
+  const federaciones = lista.length
+    ? lista
+    : (TODAS ? ['andalucia', 'aragon', 'asturias', 'melilla'] : [arg('federacion', '')].filter(Boolean));
   if (!federaciones.length) {
-    console.error('Falta --federacion <nombre> o --todas');
+    console.error('Falta --federacion <nombre>, --federaciones a,b,c o --todas');
     process.exit(1);
   }
+  /*
+   * Con `--todas`, las exclusiones se dejan puestas de UNA vez y antes de empezar: así el supervisor del PC se
+   * reinicia una sola vez (cada reinicio corta las sesiones de todas las federaciones) y los traspasos
+   * posteriores no lo tocan. Con `--federacion` se hace igual: una exclusión, un reinicio.
+   */
+  const yaExcluidas = excluidasActuales();
+  const nuevas = federaciones.filter((f) => !yaExcluidas.includes(f));
+  if (nuevas.length && !SECO) {
+    console.log(`Dejo al PC sin gestionar: ${nuevas.join(', ')} (una sola reinicialización del supervisor)`);
+    escribeExcluidas([...new Set([...yaExcluidas, ...nuevas])]);
+    reiniciaSupervisorDelPC();
+  }
+
   const resultados = [];
   for (const federacion of federaciones) resultados.push({ federacion, ok: await traspasa(federacion) });
   console.log('\n════════ resumen ════════');

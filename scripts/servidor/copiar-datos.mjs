@@ -38,6 +38,14 @@ const DESTINO = arg('destino', '/srv/data/facylf');
 const SOLO = arg('solo', 'todo');            // todo | colas | archivo
 const SECO = argumentos.includes('--seco');
 const REHACER = argumentos.includes('--rehacer');
+/*
+ * `--solo-cola`: copia ÚNICAMENTE la instantánea de la cola, sin el árbol del archivo.
+ *
+ * Es lo que se usa al TRASPASAR una federación (el árbol ya se copió en la pasada grande y sólo crece): volver
+ * a enviar 3 GB de archivo por un cambio de 300 MB de cola era el 90 % del tiempo del traspaso. La cola es el
+ * estado del trabajo; el HTML archivado que falte se sincroniza después en una pasada aparte.
+ */
+const SOLO_COLA = argumentos.includes('--solo-cola');
 const TMP = join(tmpdir(), 'facylf-copia');
 const marcador = (federacion) => `${DESTINO}/.copiado-${federacion}`;
 
@@ -145,7 +153,7 @@ async function main() {
     const empezado = Date.now();
     console.log(`\n── ${federacion}`);
     try {
-      if (SOLO === 'todo' || SOLO === 'archivo') {
+      if (!SOLO_COLA && (SOLO === 'todo' || SOLO === 'archivo')) {
         process.stdout.write('   copiando el arbol (cola y perfil excluidos)... ');
         const arbol = await copiaArbol(federacion);
         console.log(arbol.error ? `con avisos: ${arbol.error.slice(0, 160)}` : 'hecho');
