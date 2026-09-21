@@ -414,8 +414,21 @@ export function abreBase(ruta) {
     db.exec('drop index if exists peticiones_dia');
   }
   db.exec('create index if not exists peticiones_dia on peticiones(dia_madrid)');
+
+  /*
+   * ── Y EL ÍNDICE DE LA HORA DE CADA PETICIÓN (medido el 21/09/2026) ──────────────────────────────────────
+   *
+   * No existía, y todas las consultas «¿qué ha pasado en la última media hora?» pagaban un barrido completo de
+   * `peticiones`. Medido en la cola de Murcia (379 MB, 35 749 peticiones): `select max(iniciada_en)` tardaba
+   * **9,9 s**, y hacerlo sobre las 19 federaciones dejaba al monitor de la flota en más de tres minutos por
+   * vuelta — con el disco apretado y sin caché, que es justo cuando más falta hace mirar.
+   *
+   * Con este índice las mismas consultas son de milisegundos y no cambian nada del comportamiento: es sólo una
+   * forma de encontrar filas por fecha. Se crea sola al abrir la cola, como el resto del esquema.
+   */
+  db.exec('create index if not exists peticiones_iniciada on peticiones(iniciada_en)');
   db.prepare('insert or replace into metadatos(clave, valor) values (?, ?)')
-    .run('version_esquema', '4');
+    .run('version_esquema', '5');
   return db;
 }
 

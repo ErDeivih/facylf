@@ -1,0 +1,40 @@
+# El monitor de la flota, en un contenedor.
+#
+# El servidor NO tiene Node instalado, así que el monitor corre dentro de `node:22-alpine` (imagen que ya está
+# descargada allí: no hace falta `docker pull`, que es lo que el DNS roto impide). Habla con Docker por su socket
+# y lee las colas del repositorio montado: ni un paquete más que instalar en el host.
+#
+# Arranque (desde la raíz del repositorio):
+#   docker compose --env-file docker/.env -f docker/monitor.yml up -d
+#
+# Deja escrito, cada minuto:
+#   estado/facylf.json        la foto de ahora
+#   estado/historial.jsonl    una línea por vuelta (tendencias)
+#   estado/alertas.log        lo que se ha avisado
+# y avisa por ntfy. Con `FACYLF_KUMA_PUSH` (la URL del monitor «push» de Uptime-Kuma) además late.
+services:
+  monitor:
+    image: node:22-alpine
+    container_name: facylf-monitor
+    restart: unless-stopped
+    cgroup_parent: facylf.slice
+    mem_limit: 256m
+    command: ["node", "/app/scripts/monitor-flota.mjs", "--cada-seg", "60"]
+    environment:
+      FACYLF_RAIZ: /app
+      FACYLF_ESTADO_DIR: /app/estado
+      FACYLF_DOCKER_SOCK: /var/run/docker.sock
+      FACYLF_SLICE_GB: "10"
+      # Los dos avisos. `host.docker.internal` es el servidor de casa: ntfy escucha ahí en el 8085.
+      FACYLF_NTFY: "${FACYLF_NTFY:-http://host.docker.internal:8085/facylf}"
+      FACYLF_KUMA_PUSH: "${FACYLF_KUMA_PUSH:-}"
+      TZ: Europe/Madrid
+    volumes:
+      # El repositorio entero: las colas, el estado y los guiones viven ahí.
+      - ..:/app
+      # El socket de Docker, en sólo lectura, para saber el consumo de cada contenedor.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Los contadores de la rebanada de memoria (el tope de 10 GB del proyecto).
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

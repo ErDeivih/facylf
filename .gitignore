@@ -20,6 +20,9 @@ descargas-*/
 # única. El registro es local y crece; el candado guarda el identificador del proceso vivo.
 registros/
 .supervisor-flota.lock
+# Lo que escribe el monitor (`scripts/monitor-flota.mjs`): la foto de ahora, el histórico, las alertas y lo que
+# deja el cron del servidor. Es estado de la máquina, no fuente.
+estado/
 # Binarios de Chromium descargados para las pruebas de memoria (por ejemplo `chrome-headless-shell` en el A/B
 # de `scripts/prueba-banderas-chrome.mjs`): cientos de MB, se vuelven a descargar cuando hacen falta.
 .navegadores/

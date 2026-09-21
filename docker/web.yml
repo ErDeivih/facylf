@@ -1,0 +1,38 @@
+# La plataforma web en el servidor: lo ÚNICO del proyecto que se despliega como software.
+#
+# No tiene base de datos propia: pregunta al canónico del servidor con el rol de sólo lectura
+# (`DATABASE_URL_LECTOR` → `facylf_lector`). Los datos (colas, canónico, importador) no viajan dentro.
+#
+# Arranque (desde la raíz del repositorio):
+#   docker compose --env-file docker/.env -f docker/web.yml up -d
+#
+# Se sirve SÓLO por la red privada. Por defecto escucha en `127.0.0.1` y se publica donde diga
+# `FACYLF_WEB_BIND` (en el servidor, la IP de Tailscale: así llega al móvil y al PC por la tailnet y no queda
+# expuesto ni a la LAN ni a Internet, que es lo que pide `docs/plataforma-web/SEGURIDAD-OPERACION.md`).
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    image: facylf-web:local
+    container_name: facylf-web
+    restart: unless-stopped
+    # Dentro del tope duro de 10 GB del proyecto entero, y con su propio límite como red de seguridad.
+    cgroup_parent: facylf.slice
+    mem_limit: 1g
+    environment:
+      DATABASE_URL_LECTOR: "${DATABASE_URL_LECTOR:?falta DATABASE_URL_LECTOR en docker/.env (rol facylf_lector)}"
+      NEXT_TELEMETRY_DISABLED: "1"
+      FACYLF_TEMPORADA_MINIMA: "${FACYLF_TEMPORADA_MINIMA:-}"
+      TZ: Europe/Madrid
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "${FACYLF_WEB_BIND:-127.0.0.1:3100}:3000"
+    healthcheck:
+      # La web necesita la base para enseñar nada: si responde, el proceso está en pie.
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
