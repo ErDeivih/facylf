@@ -245,6 +245,27 @@ Mientras no se decida, la carga masiva **no puede empezar de verdad**: el lanzad
 seguirá, pero conviene saber qué proporción son (se medirá en la primera tanda, que lleva el contador de
 apartados).
 
+### ✅ RESUELTO (21/09/2026): la opción 2, con la incidencia contada y listada
+
+Se aplicó la **opción 2**: el importador ahora compara el destino con **las actas que de verdad enlazan con un
+partido** (`partidos.codigo_acta`) y las que no enlazan **no se importan pero se cuentan y se listan una por una**.
+Medido con el mismo grupo que antes fallaba (Navarra 22841470):
+
+```
+✓ recuentos origen/destino: cuadran
+✓ actas sin partido en el grupo: 9 acta(s) de la cola no las cita ningún partido del grupo
+  filas rechazadas: 9
+    · acta sin partido en el grupo: acta 25449854 J2
+    · acta sin partido en el grupo: acta 25449855 J2   (…hasta la 25449862)
+RESUMEN: 1 grupo(s) · 2656 filas insertadas · 9 rechazadas · validación correcta en 1/1
+```
+
+Nada se silencia: cada acta que no encaja queda en `ops.batch.validacion` y en la lista de rechazadas con su
+motivo. Y la carga masiva ya avanza sola: `scripts/importar-masivo.mjs` importó dos unidades de Canarias
+(1 136 + 565 filas) y el canónico creció de 9 148 a **9 175 partidos**, 7 310 a **7 337 informes** y 21 639 a
+**22 167 personas**. Las 146 pruebas del paquete canónico siguen en verde.
+
+
 ### Corrección: el canónico NO está vacío
 
 Una medición anterior de este documento (`pg_stat_user_tables.n_live_tup`, que estaba sin actualizar) hizo pensar

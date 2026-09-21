@@ -283,22 +283,55 @@ export class ColaOrigen {
       .get(codigo) as unknown as FilaPersona | undefined;
   }
 
-  /** Recuentos de origen de un ámbito, para la comparación origen/destino. */
+  /**
+   * Recuentos de origen de un ámbito, para la comparación origen/destino.
+   *
+   * ── POR QUÉ HAY DOS JUEGOS DE RECUENTOS (medido el 21/09/2026) ──────────────────────────────────────────
+   *
+   * El destino sólo puede recibir **las actas que están enlazadas con un partido** (`partidos.codigo_acta`):
+   * un informe de partido sin partido no existe. Pero la cola puede tener **más actas que partidos** —medido en
+   * Navarra, grupo 22841470: 27 actas y 18 partidos, y el acta 25449854 («Beti Kozkor K.E. 1-0 C.D. Pamplona»)
+   * no la cita ningún partido de ese grupo—, y entonces comparar el destino contra el TOTAL hacía fallar el lote
+   * entero: la carga masiva se quedaba a cero.
+   *
+   * Así que se devuelven los dos:
+   *
+   *   · `actasHechas`, `participaciones`… (el total, como siempre) → sirve para DECIR cuántas no encajan;
+   *   · `actasEnlazadas`, `participacionesEnlazadas`… (sólo las que se van a escribir) → sirve para COMPARAR.
+   *
+   * La diferencia no se silencia: quien llama la cuenta y la deja registrada en el lote (ver `lote.ts`).
+   */
   recuentos(ambito: AmbitoGrupo) {
     const uno = (sql: string, ...parametros: Array<string | number>) => {
       const fila = this.db.prepare(sql).get(...parametros) as { n?: number } | undefined;
       return Number(fila?.n ?? 0);
     };
     const p = [ambito.temporada, ambito.competicion, ambito.grupo] as const;
+    // «Enlazada» = el acta existe, está hecha y algún partido del grupo la cita.
+    const ENLAZADA = `exists (select 1 from partidos p
+      where p.temporada = actas.temporada and p.grupo = actas.grupo and p.codigo_acta = actas.codigo)`;
+    const ENLAZADA_FILA = `exists (select 1 from partidos p
+      where p.temporada = t.temporada and p.grupo = t.grupo
+        and p.codigo_acta = t.acta
+        and exists (select 1 from actas a where a.codigo = t.acta and a.temporada = t.temporada
+                    and a.grupo = t.grupo and a.estado = 'hecha'))`;
     return {
       jornadas: uno('select count(*) n from jornadas where temporada = ? and competicion = ? and grupo = ?', ...p),
       partidos: uno('select count(*) n from partidos where temporada = ? and competicion = ? and grupo = ?', ...p),
       partidosConResultado: uno('select count(*) n from partidos where temporada = ? and competicion = ? and grupo = ? and goles_local is not null', ...p),
       actas: uno('select count(*) n from actas where temporada = ? and competicion = ? and grupo = ?', ...p),
       actasHechas: uno("select count(*) n from actas where temporada = ? and competicion = ? and grupo = ? and estado = 'hecha'", ...p),
+      actasEnlazadas: uno(`select count(*) n from actas
+        where temporada = ? and competicion = ? and grupo = ? and estado = 'hecha' and ${ENLAZADA}`, ...p),
       participaciones: uno('select count(*) n from participaciones where temporada = ? and competicion = ? and grupo = ?', ...p),
+      participacionesEnlazadas: uno(`select count(*) n from participaciones t
+        where t.temporada = ? and t.competicion = ? and t.grupo = ? and ${ENLAZADA_FILA}`, ...p),
       eventos: uno('select count(*) n from eventos_acta where temporada = ? and competicion = ? and grupo = ?', ...p),
+      eventosEnlazados: uno(`select count(*) n from eventos_acta t
+        where t.temporada = ? and t.competicion = ? and t.grupo = ? and ${ENLAZADA_FILA}`, ...p),
       tecnicos: uno('select count(*) n from tecnicos_acta where temporada = ? and competicion = ? and grupo = ?', ...p),
+      tecnicosEnlazados: uno(`select count(*) n from tecnicos_acta t
+        where t.temporada = ? and t.competicion = ? and t.grupo = ? and ${ENLAZADA_FILA}`, ...p),
       partidosConArbitro: uno("select count(*) n from partidos where temporada = ? and competicion = ? and grupo = ? and arbitro is not null and trim(arbitro) <> ''", ...p),
     };
   }

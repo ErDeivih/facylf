@@ -1129,14 +1129,26 @@ async function validaLote(
   const compara = (entidad: string, origenN: number, destinoN: number) => {
     if (origenN !== destinoN) diferencias.push({ entidad, origen: origenN, destino: destinoN });
   };
+  /*
+   * ── SE COMPARA LO QUE SE VA A ESCRIBIR, NO TODO LO QUE HAY (medido el 21/09/2026) ──────────────────────
+   *
+   * El destino sólo puede recibir las actas que algún partido del grupo cita: un informe de partido sin partido
+   * no existe. Cuando la cola tiene más actas que partidos —27 frente a 18 en el grupo 22841470 de Navarra—,
+   * comparar el destino contra el TOTAL hacía fallar el lote entero y la carga masiva se quedaba a cero.
+   *
+   * Ahora se compara contra las **enlazadas** (las que se escriben) y la diferencia no se pierde: queda contada
+   * como incidencia unas líneas más abajo. Es la misma regla de siempre —lo que no se entiende se registra, no
+   * se convierte en cero— aplicada a un caso que estaba bloqueando todo.
+   */
   compara('jornadas', origen.jornadas, jornadasDestino);
   compara('partidos', origen.partidos, partidosDestino);
   compara('partidos con resultado', origen.partidosConResultado, conResultadoDestino);
-  compara('actas analizadas', origen.actasHechas, informesDestino);
-  compara('participaciones', origen.participaciones, aparicionesDestino);
-  compara('eventos', origen.eventos, eventosDestino);
-  compara('técnicos', origen.tecnicos, tecnicosDestino);
+  compara('actas analizadas', origen.actasEnlazadas, informesDestino);
+  compara('participaciones', origen.participacionesEnlazadas, aparicionesDestino);
+  compara('eventos', origen.eventosEnlazados, eventosDestino);
+  compara('técnicos', origen.tecnicosEnlazados, tecnicosDestino);
   compara('árbitros designados', origen.partidosConArbitro, arbitrosDestino);
+  const actasSinPartido = Math.max(0, origen.actasHechas - origen.actasEnlazadas);
 
   // Marcador contra eventos: coinciden o la diferencia queda como incidencia estructurada.
   const discrepancias = await uno(
@@ -1153,6 +1165,13 @@ async function validaLote(
     diferencias,
     comprobaciones: [
       { nombre: 'recuentos origen/destino', ok: diferencias.length === 0, detalle: diferencias.length === 0 ? 'cuadran' : `${diferencias.length} diferencias` },
+      {
+        nombre: 'actas sin partido en el grupo',
+        ok: true,
+        detalle: actasSinPartido
+          ? `${actasSinPartido} acta(s) de la cola no las cita ningún partido del grupo: no se importan y quedan contadas aquí`
+          : 'ninguna',
+      },
       { nombre: 'marcador contra eventos', ok: true, detalle: `${discrepancias} partido(s) con diferencia (quedan como incidencia, no se silencian)` },
     ],
   };
