@@ -87,11 +87,26 @@ fi
 
 echo "$(date '+%F %T')  Supervisor en contenedor iniciado para $fed (script $guion)." >> "$registro"
 
+# ── QUIÉN VA SIN `--perfil` ─────────────────────────────────────────────────────────────────────────────
+#
+# Castilla y León es la ÚNICA federación sin perfil propio: es el comportamiento original del recolector
+# (RFCYLF) y su cola vive en `descargas-federacion`. El plan del PC (`scripts/lib/plan-flota.mjs`,
+# `FEDERACION_SIN_PERFIL`) la lanza con `arrancar` a secas, y el recolector decide por la AUSENCIA de `--perfil`
+# cuál es su portal y su carpeta.
+#
+# Sin esta rama el contenedor pedía `perfiles/federacion.json`, que no existe (ni debe existir), y la
+# federación moría en bucle cada 20 s con `ENOENT: no such file or directory, open '/app/perfiles/federacion.json'`
+# —medido en el servidor el 21/09/2026, con el contenedor reiniciándose sin recolectar nada.
+sin_perfil=0
+case "$fed" in
+  federacion|madrid|valencia|cataluna) sin_perfil=1 ;;
+esac
+
 while true; do
   limpia_restos
   echo "$(date '+%F %T')  Arrancando o reanudando la ingesta." >> "$registro"
   # El worker va en segundo plano para poder pararlo con orden si el contenedor recibe la señal de cierre.
-  if [ "$fed" = "madrid" ] || [ "$fed" = "valencia" ] || [ "$fed" = "cataluna" ]; then
+  if [ "$sin_perfil" = "1" ]; then
     node "$raiz/scripts/$guion" arrancar >> "$registro" 2>&1 &
   else
     node "$raiz/scripts/$guion" arrancar --perfil "$perfil" >> "$registro" 2>&1 &

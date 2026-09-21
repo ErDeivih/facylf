@@ -21,6 +21,7 @@ descargas-euskadi
 descargas-extremadura
 descargas-galicia
 descargas-madrid
+descargas-melilla
 descargas-murcia
 descargas-navarra
 # Las federaciones de PRUEBA (`prueba-10gb` y las `prueba-a`…`prueba-f` de las pruebas de fondo) son datos del
@@ -32,16 +33,26 @@ descargas-valencia
 .estado-workers
 pruebas
 
-# Los perfiles de Chrome del sondeo (1,5 GB entre las 17 federaciones) no se usan en la ingesta: al servidor
-# sólo van los catálogos `*-sondeo.json` que sí leen Madrid y Valencia.
+# Los PERFILES de Chrome del sondeo (1,5 GB medidos el 21/09/2026 entre 18 carpetas `perfil-*`) no se usan en la
+# ingesta: al servidor sólo van los catálogos `*-sondeo.json`, que es lo que leen Madrid y Valencia. Sin estas
+# tres líneas el `COPY . .` metía 1,6 GB de caché de navegador DENTRO de la imagen.
 descargas-federacion-sondeo/perfil-*
+descargas-federacion-sondeo/muestras-*
+descargas-federacion-sondeo/*.log
 
-# Artefactos y basura de desarrollo.
+# Artefactos y basura de desarrollo: el almacén de pnpm y el de corepack (400 MB y 17 MB), los restos de
+# trabajo (`_borrar`, `_nuevo`), los registros del PC y los estados que genera el propio servidor. Nada de
+# esto es programa y nada de esto se usa dentro del contenedor.
 **/dist
 **/.next
 **/.next-*
+.pnpm-store
+.corepack
 _borrar
 _nuevo
+registros
+estado
+estudio-proxies
 .git
 .gitignore
 *.log

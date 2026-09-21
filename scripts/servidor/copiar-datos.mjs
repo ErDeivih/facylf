@@ -21,6 +21,7 @@
  *   node scripts/servidor/copiar-datos.mjs                      # todo, al servidor
  *   node scripts/servidor/copiar-datos.mjs --federaciones murcia,navarra
  *   node scripts/servidor/copiar-datos.mjs --solo colas         # sólo las colas (lo urgente)
+ *   node scripts/servidor/copiar-datos.mjs --solo estado        # cola + catálogo + estado, sin el archivo
  *   node scripts/servidor/copiar-datos.mjs --seco               # dice qué haría, sin copiar
  */
 import { spawn } from 'node:child_process';
@@ -29,13 +30,15 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 
+import { listaDeEstado } from '../lib/copia-estado.mjs';
+
 const argumentos = process.argv.slice(2);
 const arg = (n, d) => { const i = argumentos.indexOf(`--${n}`); return i >= 0 ? argumentos[i + 1] : d; };
 
 const RAIZ = resolve(process.env.FACYLF_RAIZ ?? '.');
 const SERVIDOR = arg('servidor', 'david@servidor.local');
 const DESTINO = arg('destino', '/srv/data/facylf');
-const SOLO = arg('solo', 'todo');            // todo | colas | archivo
+const SOLO = arg('solo', 'todo');            // todo | colas | archivo | estado
 const SECO = argumentos.includes('--seco');
 const REHACER = argumentos.includes('--rehacer');
 /*
@@ -88,23 +91,38 @@ function instantaneaDeCola(ruta, destino) {
 }
 
 /** Copia el árbol de una federación por `tar` sobre la entrada estándar de `ssh`. */
-function copiaArbol(federacion) {
+function copiaArbol(federacion, { ficheros = null } = {}) {
   return new Promise((listo, falla) => {
-    const tar = spawn('tar', [
-      '-cf', '-',
-      '--exclude=perfil-chrome',
-      '--exclude=*.log',
-      '--exclude=cola-v2.sqlite',
-      '--exclude=cola-v2.sqlite-wal',
-      '--exclude=cola-v2.sqlite-shm',
-      `descargas-${federacion}`,
-    ], { cwd: RAIZ, windowsHide: true });
+    /*
+     * Con `ficheros` (modo `estado`) el tar lleva una lista explícita por la entrada estándar: el catálogo, las
+     * temporadas, el inventario de códigos… y NADA del archivo de evidencia (`t11`…`t22`), que es el 99 % del
+     * peso. El worker no arranca sin el catálogo, así que esto es lo que hay que enviar primero.
+     */
+    const parametros = ['-cf', '-'];
+    if (ficheros) {
+      parametros.push('--files-from=-');
+    } else {
+      parametros.push(
+        '--exclude=perfil-chrome',
+        '--exclude=*.log',
+        '--exclude=cola-v2.sqlite',
+        '--exclude=cola-v2.sqlite-wal',
+        '--exclude=cola-v2.sqlite-shm',
+        `descargas-${federacion}`,
+      );
+    }
+    const tar = spawn('tar', parametros, { cwd: RAIZ, windowsHide: true });
     const remoto = spawn('ssh', ['-o', 'BatchMode=yes', SERVIDOR,
       `mkdir -p ${DESTINO} && tar -xf - -C ${DESTINO}`], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     let error = '';
     remoto.stderr.on('data', (d) => { error += d.toString(); });
     tar.stdout.pipe(remoto.stdin);            // binario, de proceso a proceso: PowerShell no toca nada
     tar.stderr.on('data', (d) => { error += d.toString(); });
+    if (ficheros) {
+      tar.stdin.end(ficheros.length ? `${ficheros.join('\n')}\n` : '');
+    } else {
+      tar.stdin.end();
+    }
     let pendientes = 2;
     const termina = () => { pendientes -= 1; if (pendientes === 0) listo({ error }); };
     tar.on('close', (codigo) => { if (codigo !== 0) error += `tar salió con ${codigo}; `; termina(); });
@@ -131,7 +149,9 @@ async function main() {
   if (SECO) {
     for (const f of federaciones) {
       const cola = join(RAIZ, `descargas-${f}`, 'recolector-local', 'cola-v2.sqlite');
-      console.log(`  ${f.padEnd(20)} cola ${mb(statSync(cola).size).padStart(7)} MB`);
+      const estado = listaDeEstado(RAIZ, f);
+      console.log(`  ${f.padEnd(20)} cola ${mb(statSync(cola).size).padStart(7)} MB · estado ${String(estado.length).padStart(2)} ficheros`
+        + `${estado.length ? ` (${estado.map((r) => r.split('/').pop()).join(', ')})` : ''}`);
     }
     return;
   }
@@ -153,9 +173,16 @@ async function main() {
     const empezado = Date.now();
     console.log(`\n── ${federacion}`);
     try {
-      if (!SOLO_COLA && (SOLO === 'todo' || SOLO === 'archivo')) {
-        process.stdout.write('   copiando el arbol (cola y perfil excluidos)... ');
-        const arbol = await copiaArbol(federacion);
+      if (!SOLO_COLA && (SOLO === 'todo' || SOLO === 'archivo' || SOLO === 'estado')) {
+        // En modo `estado` sólo viaja la lista corta (catálogo, temporadas, inventario…), no el archivo.
+        const ficheros = SOLO === 'estado' ? listaDeEstado(RAIZ, federacion) : null;
+        if (ficheros && ficheros.length === 0) {
+          console.log('   aviso: no se encontró ningún fichero de estado (¿federación recién creada?)');
+        }
+        process.stdout.write(ficheros
+          ? `   copiando el estado (${ficheros.length} ficheros)... `
+          : '   copiando el arbol (cola y perfil excluidos)... ');
+        const arbol = await copiaArbol(federacion, { ficheros });
         console.log(arbol.error ? `con avisos: ${arbol.error.slice(0, 160)}` : 'hecho');
       }
 

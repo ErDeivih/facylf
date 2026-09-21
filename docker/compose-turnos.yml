@@ -1,0 +1,69 @@
+# GENERADO por scripts/servidor/calcula-turnos.mjs — no se edita a mano.
+#
+# Reparte el tiempo de plaza de navegador según el trabajo que le queda a cada federación: las grandes
+# conservan la plaza más tiempo y las que están terminando la sueltan antes para que circule.
+#
+# Se aplica ENCIMA del compose base (los ficheros de compose se fusionan, así que aquí sólo va el turno):
+#   docker compose -p facylf --env-file docker/.env \
+#     -f docker/compose.yml -f docker/compose-turnos.yml up -d
+#
+# Vuelve a generarlo cuando el reparto de trabajo cambie:
+#   node scripts/servidor/calcula-turnos.mjs
+services:
+  cataluna:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "480"
+  andalucia:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "480"
+  federacion:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "420"
+  asturias:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "360"
+  galicia:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "330"
+  aragon:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "330"
+  madrid:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "300"
+  valencia:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "270"
+  extremadura:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "270"
+  castilla-la-mancha:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "240"
+  cantabria:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "210"
+  navarra:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "210"
+  murcia:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "180"
+  baleares:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "150"
+  rioja:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "120"
+  euskadi:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "60"
+  melilla:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "60"
+  ceuta:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "60"
+  canarias:
+    environment:
+      FACYLF_TURNO_PLAZA_MIN: "60"
