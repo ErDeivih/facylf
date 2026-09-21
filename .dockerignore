@@ -57,8 +57,12 @@ estudio-proxies
 .gitignore
 *.log
 visor*.log
-.env
-.env.*
+# `docker/.env` lleva la contraseña de PostgreSQL del servidor. El patrón `.env` de antes sólo excluía el
+# `.env` de la RAÍZ, así que `docker/.env` se colaba dentro de la imagen: medido el 21/09/2026 al revisar qué
+# entraba en la capa de `COPY . .`. Nada de dentro del contenedor lee ese fichero (el compose le pasa las
+# variables en tiempo de ejecución), así que se excluye en cualquier carpeta.
+**/.env
+**/.env.*
 
 # La web no se construye aquí (los recolectores no la usan), pero su `package.json` sí entra para que el
 # fichero de bloqueo de pnpm siga cuadrando.
