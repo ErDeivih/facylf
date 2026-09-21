@@ -13,57 +13,76 @@ services:
   cataluna:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "480"
+    cpus: 1.5
   andalucia:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "480"
+    cpus: 1.5
   federacion:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "420"
+    cpus: 1.36
   asturias:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "360"
+    cpus: 1.21
   galicia:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "330"
+    cpus: 1.14
   aragon:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "330"
+    cpus: 1.14
   madrid:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "300"
+    cpus: 1.07
   valencia:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "270"
+    cpus: 1
   extremadura:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "270"
+    cpus: 1
   castilla-la-mancha:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.93
   cantabria:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "210"
+    cpus: 0.86
   navarra:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "210"
+    cpus: 0.86
   murcia:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "180"
+    cpus: 0.79
   baleares:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "150"
+    cpus: 0.71
   rioja:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "120"
+    cpus: 0.64
   euskadi:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "60"
+    cpus: 0.5
   melilla:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "60"
+    cpus: 0.5
   ceuta:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "60"
+    cpus: 0.5
   canarias:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "60"
+    cpus: 0.5

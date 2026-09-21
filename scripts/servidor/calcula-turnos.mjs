@@ -31,6 +31,21 @@ const SALIDA = resolve(arg('salida', join(RAIZ, 'docker', 'compose-turnos.yml'))
 const REPARTO_MIN = Number(arg('reparto', 240));   // turno de una federación «media»
 const MINIMO = Number(arg('minimo', 60));
 const MAXIMO = Number(arg('maximo', 480));
+/*
+ * ── Y LA CUOTA DE PROCESADOR, CON EL MISMO CRITERIO (21/09/2026) ────────────────────────────────────────
+ *
+ * El turno arregla QUIÉN tiene la plaza; esto arregla CUÁNTO puede apretar mientras la tiene. Con un tope
+ * plano de 0,75 núcleos por recolector, medido en el servidor, Castilla-La Mancha se quedaba pegada al 73,95 %
+ * —es decir, estrangulada por su propio tope— mientras el procesador tenía un núcleo entero sin usar (la
+ * flota entera sumaba 3,08 de 4). El tope no repartía: recortaba.
+ *
+ * La cuota va en la misma proporción que el turno (las grandes pueden usar más núcleo, las que están
+ * terminando menos), y los topes son deliberadamente bajos: la cuota es un freno para que ninguna federación
+ * se coma el procesador, no una reserva. El reparto fino lo hace el planificador del sistema, que sí sabe
+ * quién está esperando a disco.
+ */
+const CPU_MIN = Number(arg('cpu-min', 0.5));
+const CPU_MAX = Number(arg('cpu-max', 1.5));
 const SECO = argumentos.includes('--seco');
 
 const FEDERACIONES = [
@@ -70,15 +85,22 @@ const media = total / datos.length;
 const redondea30 = (minutos) => Math.max(MINIMO, Math.min(MAXIMO, Math.round(minutos / 30) * 30));
 
 console.log(`reparto del turno de plaza · ${datos.length} federaciones · ${total.toLocaleString('es-ES')} trabajos pendientes`);
-console.log(`  turno de una federación media: ${REPARTO_MIN} min · topes: ${MINIMO}-${MAXIMO} min\n`);
-console.log('  federación            pendientes   % del total   turno');
+console.log(`  turno de una federación media: ${REPARTO_MIN} min · topes: ${MINIMO}-${MAXIMO} min`);
+console.log(`  cuota de procesador: ${CPU_MIN} (la que casi ha terminado) a ${CPU_MAX} (la más grande)\n`);
+console.log('  federación            pendientes   % del total   turno    cpu');
 const turnos = {};
+const cuotas = {};
 for (const dato of datos.sort((a, b) => b.pendientes - a.pendientes)) {
   const proporcion = dato.pendientes / media;
   const turno = redondea30(REPARTO_MIN * proporcion);
   turnos[dato.federacion] = turno;
+  // La cuota se ancla al MISMO eje que el turno: la que más turno tiene es la que más núcleo puede usar.
+  const escala = MAXIMO > MINIMO ? (turno - MINIMO) / (MAXIMO - MINIMO) : 0;
+  const cpu = Number((CPU_MIN + (CPU_MAX - CPU_MIN) * escala).toFixed(2));
+  cuotas[dato.federacion] = cpu;
   console.log(`  ${dato.federacion.padEnd(20)} ${String(dato.pendientes).padStart(10)} `
-    + `${((dato.pendientes / total) * 100).toFixed(1).padStart(11)} % ${String(turno).padStart(7)} min`);
+    + `${((dato.pendientes / total) * 100).toFixed(1).padStart(11)} % ${String(turno).padStart(7)} min `
+    + `${cpu.toFixed(2).padStart(6)}`);
 }
 
 // Un turno no puede ser tan corto que la federación no haga nada: con el ritmo configurado (6-8 s por
@@ -100,7 +122,8 @@ const cabecera = `# GENERADO por scripts/servidor/calcula-turnos.mjs — no se e
 services:`;
 
 const cuerpo = Object.entries(turnos)
-  .map(([federacion, turno]) => `  ${federacion}:\n    environment:\n      FACYLF_TURNO_PLAZA_MIN: "${turno}"`)
+  .map(([federacion, turno]) => `  ${federacion}:\n    environment:\n      FACYLF_TURNO_PLAZA_MIN: "${turno}"\n`
+    + `    cpus: ${cuotas[federacion]}`)
   .join('\n');
 
 if (SECO) {
