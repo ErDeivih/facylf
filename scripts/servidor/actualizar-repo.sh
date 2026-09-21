@@ -21,9 +21,13 @@ cd "$RAIZ" || { echo "no existe $RAIZ"; exit 1; }
 echo "── antes ──"
 git status --short | head -10
 
-# Restaurar sólo ficheros VERSIONADOS modificados: `git checkout -- .` no toca ni los ignorados ni los datos.
-if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
-  git checkout -- . && echo "  ficheros versionados restaurados (lo sobrescrito a mano está en el commit que se trae)"
+# Si hay cambios locales (ficheros que se sobrescribieron a mano durante el despliegue) se apartan en un `stash`:
+# su contenido YA está en el commit que se trae, así que no se pierde nada, y así la fusión no se niega a
+# seguir. Se deja anotado el stash por si alguien quiere mirarlo.
+SUCIO="$(git status --porcelain | head -1)"
+if [ -n "$SUCIO" ]; then
+  git stash push --include-untracked --quiet --message "despliegue $(date '+%F %H:%M')" \
+    && echo "  cambios locales apartados en un stash (su contenido está en el commit que se trae)"
 fi
 
 echo "── actualizando ──"
