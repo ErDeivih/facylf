@@ -186,6 +186,28 @@ Hoy `apps/web` es Next.js 15 que lee del canónico con `DATABASE_URL_LECTOR` y *
 4. **Qué enseñará al principio**: nada, porque el canónico está vacío. La web funciona desde el primer día, pero
    las pantallas se irán llenando conforme avance la importación (por eso el orden de §7 importa).
 
+### ⚠ Lo que se encontró al mirar la web desplegada (21/09/2026): la portada no lee el canónico
+
+La web está en pie y **la vía canónica funciona**: `/canonico` enseña, leído con el rol de sólo lectura, lo que
+hay en PostgreSQL —medido con la importación recién arrancada: 6 federaciones, 21 ediciones, 28 grupos,
+**522 partidos, 492 actas**, 17 354 participaciones, 13 199 eventos y 12 032 personas—.
+
+Pero **la portada, `/federaciones` y `/competiciones` siguen leyendo el repositorio local** (`src/lib/repositorio-local.ts`,
+`datos.ts`, `competiciones.ts`: las SQLite y los XLSX de `descargas-*`), y dentro del contenedor de la web esas
+carpetas no están montadas. Por eso la portada dice «18 federaciones · **0 competiciones · 0 partidos · 0 actas**»
+mientras el canónico ya tiene cientos de partidos. En el PC pasaba lo mismo (decía 0 con 9 148 partidos
+importados): **no es un fallo del despliegue, es que esas pantallas todavía no se han pasado al canónico**.
+
+Queda por tanto una tarea de producto, no de infraestructura: **llevar las páginas a la capa canónica**
+(`src/consultas/*`, que ya existe y ya se usa en `/canonico`). Tiene dos partes:
+
+1. portada, federaciones, competiciones, partidos, equipos, jugadores y técnicos → consultas del canónico;
+2. decidir qué hacer con lo que el repositorio local sabía y el canónico todavía no (por ejemplo, el
+   descubrimiento: `competiciones`/`grupos` que existen en la cola pero aún no se han importado).
+
+Mientras eso no se haga, la plataforma **enseña los datos en `/canonico`** pero no en las pantallas de consulta.
+
+
 ### La importación masiva (el trabajo grande de verdad)
 
 Medido en las colas: **375 213 actas ya recogidas** repartidas en **29 539 calendarios/grupos** descubiertos
