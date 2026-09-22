@@ -32,15 +32,27 @@ FALLOS=0
 echo "════ $(date '+%F %T') · copia de facylf ════"
 
 # 1 · Las colas, con la instantánea coherente de SQLite.
+#
+# MEDIDO EL 22/09/2026: esto llevaba fallando las 19 colas TODAS las noches. Dos motivos, los dos arreglados:
+#   · `sqlite3` no está instalado en el servidor (el host no tiene Node, ni pnpm, ni sqlite3);
+#   · el respaldo de emergencia usaba `node:22-alpine`, donde `node:sqlite` exige `--experimental-sqlite`, así
+#     que también fallaba.
+# Ahora lo hace `copia-cola.mjs` con la imagen del recolector (Node 24, sin banderas), que además COMPRUEBA la
+# copia abriéndola: si no abre, cuenta como fallo y avisa.
 echo "── colas ──"
+IMAGEN_COPIAS="${FACYLF_IMAGEN:-facylf-recolectores:local}"
 for COLA in "$RAIZ"/descargas-*/recolector-local/cola-v2.sqlite; do
   [ -f "$COLA" ] || continue
   FEDERACION="$(basename "$(dirname "$(dirname "$COLA")")")"
   SALIDA="$DESTINO/colas/$FEDERACION-$SELLO.sqlite"
-  if sqlite3 "$COLA" ".backup '$SALIDA'" 2>/dev/null || \
-     docker run --rm -v "$RAIZ:/app" -v "$DESTINO:/copias" node:22-alpine \
-       node -e "const {DatabaseSync}=require('node:sqlite');const d=new DatabaseSync('$COLA',{readOnly:true});d.exec(\"vacuum into '/copias/colas/$FEDERACION-$SELLO.sqlite'\");d.close();" 2>/dev/null; then
-    echo "  $FEDERACION: $(du -h "$SALIDA" 2>/dev/null | cut -f1)"
+  # El contenedor corre con el usuario del servidor: si no, la copia quedaría de `root` y la retención (que va
+  # con `find -delete` como este usuario) no podría borrar las viejas.
+  if docker run --rm --user "$(id -u):$(id -g)" \
+       -v "$RAIZ:/app" -v "$DESTINO:/copias" --entrypoint node "$IMAGEN_COPIAS" \
+       /app/scripts/servidor/copia-cola.mjs \
+       "/app/$FEDERACION/recolector-local/cola-v2.sqlite" \
+       "/copias/colas/$FEDERACION-$SELLO.sqlite" 2>&1 | tail -1; then
+    :
   else
     echo "  $FEDERACION: FALLO"
     FALLOS=$((FALLOS + 1))

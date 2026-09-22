@@ -22,10 +22,14 @@ RAIZ=${FACYLF_RAIZ:-/srv/data/facylf}
 ENV="$RAIZ/docker/.env"
 MEMORIA=""
 CPU_DEFECTO=""
+CPU_IMPORTADOR=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --memoria-gb) MEMORIA="$2"; shift 2 ;;
     --cpu-defecto) CPU_DEFECTO="$2"; shift 2 ;;
+    # El importador también tiene cuota: un grupo grande (22 000 filas) se lleva casi un núcleo entero
+    # mientras lo resuelve, y con 19 recolectores detrás conviene que no se lo quede todo.
+    --cpu-importador) CPU_IMPORTADOR="$2"; shift 2 ;;
     *) echo "opción no reconocida: $1"; exit 1 ;;
   esac
 done
@@ -45,7 +49,7 @@ pon() {
 echo "── antes ──"
 grep -E '^FACYLF_(MEMORIA_GB|RESERVA_GB|CPUS_)' "$ENV" | sed 's/^/  /' || true
 
-if [ -z "$MEMORIA" ] && [ -z "$CPU_DEFECTO" ]; then
+if [ -z "$MEMORIA" ] && [ -z "$CPU_DEFECTO" ] && [ -z "$CPU_IMPORTADOR" ]; then
   echo
   echo "── plazas que salen de esa memoria ──"
   actual=$(grep -E '^FACYLF_MEMORIA_GB=' "$ENV" | cut -d= -f2)
@@ -58,6 +62,7 @@ fi
 
 [ -n "$MEMORIA" ] && pon FACYLF_MEMORIA_GB "$MEMORIA"
 [ -n "$CPU_DEFECTO" ] && pon FACYLF_CPUS_POR_RECOLECTOR "$CPU_DEFECTO"
+[ -n "$CPU_IMPORTADOR" ] && pon FACYLF_CPUS_IMPORTADOR "$CPU_IMPORTADOR"
 
 echo "── después ──"
 grep -E '^FACYLF_(MEMORIA_GB|RESERVA_GB|CPUS_)' "$ENV" | sed 's/^/  /'
