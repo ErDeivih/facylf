@@ -30,7 +30,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 
-import { listaDeEstado } from '../lib/copia-estado.mjs';
+import { listaDeEstado, veredictoDeIntegridad, decisionDeCopia } from '../lib/copia-estado.mjs';
 
 const argumentos = process.argv.slice(2);
 const arg = (n, d) => { const i = argumentos.indexOf(`--${n}`); return i >= 0 ? argumentos[i + 1] : d; };
@@ -49,8 +49,32 @@ const REHACER = argumentos.includes('--rehacer');
  * estado del trabajo; el HTML archivado que falte se sincroniza después en una pasada aparte.
  */
 const SOLO_COLA = argumentos.includes('--solo-cola');
+const FORZAR = argumentos.includes('--forzar');
 const TMP = join(tmpdir(), 'facylf-copia');
 const marcador = (federacion) => `${DESTINO}/.copiado-${federacion}`;
+const IMAGEN = arg('imagen', 'facylf-recolectores:local');
+
+/*
+ * ── PROGRAMAS QUE SE EJECUTAN EN EL SERVIDOR ────────────────────────────────────────────────────────────
+ *
+ * Viajan en base64 para que el intérprete de PowerShell del PC (que ya se ha comido comillas más veces de las
+ * que me gustaría contar) no tenga nada que romper: es texto sin comillas ni tuberías.
+ */
+const enBase64 = (texto) => Buffer.from(texto, 'utf8').toString('base64');
+
+const PROGRAMA_INTEGRIDAD = `
+import { DatabaseSync } from 'node:sqlite';const ruta = '/datos/descargas-' + process.argv[2] + '/recolector-local/cola-v2.sqlite';
+try {
+  const db = new DatabaseSync(ruta, { readOnly: true });
+  const integridad = db.prepare('pragma integrity_check').get().integrity_check;
+  const peticiones = db.prepare('select count(*) n from peticiones').get().n;
+  const pendientes = db.prepare("select count(*) n from trabajos where estado in ('pendiente','bloqueado')").get().n;
+  console.log('integridad=' + integridad + '  peticiones=' + peticiones + '  pendientes=' + pendientes);
+  db.close();
+} catch (error) {
+  console.log('NO ABRE: ' + error.message);
+}
+`;
 
 const mb = (bytes) => (bytes / 1024 ** 2).toFixed(1);
 const segundos = (ms) => (ms / 1000).toFixed(0);
@@ -170,6 +194,24 @@ async function main() {
       }
     }
 
+    /*
+     * ── Y NO SE COPIA CON EL RECOLECTOR DENTRO ──────────────────────────────────────────────────────────
+     *
+     * `scp` no renombra el fichero: lo abre y lo reescribe. Con el recolector dentro, éste ve cambiarle las
+     * páginas debajo mientras su `-wal` describe la base vieja, y la cola queda ilegible. Pasó con Madrid,
+     * Murcia y Valencia (22/09/2026), las tres en bucle de caída con «database disk image is malformed».
+     */
+    const enMarcha = (await ssh(
+      `docker ps --filter name=facylf-${federacion}-1 --format '{{.Names}}'`,
+    )).salida.includes(`facylf-${federacion}-1`);
+    const decision = decisionDeCopia({ contenedorEnMarcha: enMarcha, forzar: FORZAR });
+    if (!decision.copiar) {
+      console.log(`\n── ${federacion}\n   SE SALTA: ${decision.motivo}`);
+      console.log(`   para pararlo:  ssh ${SERVIDOR} 'docker stop facylf-${federacion}-1'`);
+      resumen.push({ federacion, saltada: true, motivo: decision.motivo });
+      continue;
+    }
+
     const empezado = Date.now();
     console.log(`\n── ${federacion}`);
     try {
@@ -189,19 +231,55 @@ async function main() {
       process.stdout.write('   instantanea de la cola y envio... ');
       const instantanea = join(TMP, `cola-${federacion}.sqlite`);
       const tamano = instantaneaDeCola(cola, instantanea);
+      /*
+       * ── LOS DIARIOS HUÉRFANOS SE APARTAN ANTES DE ESCRIBIR ────────────────────────────────────────────
+       *
+       * Si el contenedor ya había estado corriendo en el servidor, en la carpeta queda un `cola-v2.sqlite-wal`
+       * de SU base. Al llegar la copia, ese diario se aplica a un fichero que no es el suyo y la base queda
+       * ilegible («database disk image is malformed», medido con Galicia, Madrid, Valencia y Extremadura el
+       * 21/09/2026). Se APARTAN, no se borran: quedan como `.previo-<marca>` para poder volver atrás.
+       */
+      const marca = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const aparta = `cd ${DESTINO}/descargas-${federacion}/recolector-local 2>/dev/null && `
+        + `for s in '' '-wal' '-shm'; do [ -f "cola-v2.sqlite$s" ] && mv -f "cola-v2.sqlite$s" "cola-v2.sqlite.previo-${marca}$s"; done; true`;
+      await ssh(aparta);
+
       const envio = await corre('scp', ['-q', instantanea,
         `${SERVIDOR}:${DESTINO}/descargas-${federacion}/recolector-local/cola-v2.sqlite`]);
       if (envio.codigo !== 0) throw new Error(`scp falló: ${envio.error.slice(0, 200)}`);
 
-      // Verificación: el fichero del servidor tiene que pesar lo mismo que la instantánea.
+      // Verificación 1: el fichero del servidor tiene que pesar lo mismo que la instantánea.
       const comprobacion = await ssh(`stat -c %s ${DESTINO}/descargas-${federacion}/recolector-local/cola-v2.sqlite`);
       const remoto = Number(comprobacion.salida.trim());
       const igual = remoto === tamano;
       console.log(`cola ${mb(tamano)} MB · ${igual ? 'verificada' : `NO CUADRA (servidor ${mb(remoto)} MB)`}`);
       rmSync(instantanea, { force: true });
 
-      if (igual) await ssh(`touch ${marcador(federacion)}`);
-      resumen.push({ federacion, colaMb: Number(mb(tamano)), segundos: Number(segundos(Date.now() - empezado)), verificada: igual });
+      /*
+       * Verificación 2, la que no puede mentir: ABRIR la cola copiada dentro de la imagen del recolector y
+       * pedirle un `integrity_check`. El tamaño igual no basta —fue exactamente el caso de las cuatro
+       * federaciones que quedaron ilegibles con el tamaño correcto—, así que si esto falla NO se pone el
+       * marcador y la federación se vuelve a copiar.
+       */
+      process.stdout.write('   comprobando que la base abre y esta integra... ');
+      const programa = enBase64(PROGRAMA_INTEGRIDAD);
+      const ordenIntegridad = `echo ${programa} | base64 -d > /tmp/verifica-cola-${federacion}.mjs && `
+        + `docker run --rm -v ${DESTINO}:/datos -v /tmp/verifica-cola-${federacion}.mjs:/verifica.mjs:ro `
+        + `--entrypoint node ${IMAGEN} /verifica.mjs ${federacion} 2>&1 | tail -1`;
+      const comprueba = await ssh(ordenIntegridad);
+      const veredicto = veredictoDeIntegridad(comprueba.salida);
+      console.log(veredicto.ok ? `íntegra (${veredicto.peticiones} peticiones, ${veredicto.pendientes} pendientes)` : `NO VALE: ${veredicto.motivo}`);
+
+      if (igual && veredicto.ok) await ssh(`touch ${marcador(federacion)}`);
+      resumen.push({
+        federacion,
+        colaMb: Number(mb(tamano)),
+        segundos: Number(segundos(Date.now() - empezado)),
+        verificada: igual,
+        integra: veredicto.ok,
+        peticiones: veredicto.peticiones,
+        pendientes: veredicto.pendientes,
+      });
     } catch (error) {
       console.log(`   FALLO: ${error.message.slice(0, 200)}`);
       resumen.push({ federacion, fallo: error.message.slice(0, 200) });
@@ -210,15 +288,19 @@ async function main() {
 
   console.log('\n════════ resumen ════════');
   let totalMb = 0;
+  let totalPendientes = 0;
   let fallos = 0;
   for (const r of resumen) {
-    if (r.saltada) { console.log(`  ${r.federacion.padEnd(20)} ya estaba`); continue; }
+    if (r.saltada) { console.log(`  ${r.federacion.padEnd(20)} ya estaba (usa --rehacer para repetir)`); continue; }
     if (r.fallo) { console.log(`  ${r.federacion.padEnd(20)} FALLO: ${r.fallo}`); fallos += 1; continue; }
     totalMb += r.colaMb ?? 0;
+    totalPendientes += r.pendientes ?? 0;
     console.log(`  ${r.federacion.padEnd(20)} cola ${String(r.colaMb).padStart(6)} MB · ${String(r.segundos).padStart(5)} s · `
-      + `${r.verificada ? 'verificada' : 'SIN VERIFICAR'}`);
+      + `${r.verificada ? 'tamaño ok' : 'TAMAÑO NO CUADRA'} · `
+      + `${r.integra ? `base íntegra (${r.pendientes} pendientes)` : 'BASE ILEGIBLE'}`);
+    if (!r.integra) fallos += 1;
   }
-  console.log(`  total de colas copiadas: ${totalMb.toFixed(0)} MB · fallos: ${fallos}`);
+  console.log(`  total de colas copiadas: ${totalMb.toFixed(0)} MB · trabajo pendiente que traen: ${totalPendientes.toLocaleString('es-ES')} · fallos: ${fallos}`);
   process.exit(fallos ? 2 : 0);
 }
 

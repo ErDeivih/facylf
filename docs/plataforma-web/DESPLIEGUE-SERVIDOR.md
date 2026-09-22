@@ -444,6 +444,64 @@ del PC son las de antes del traspaso: lo que haya recogido el servidor en ese ti
 (rsync inverso de `descargas-*`) para no perderlo.
 
 
+### 8-ter · Lo que se aprendió traspasando las ocho federaciones que faltaban (22/09/2026)
+
+Las 19 federaciones están ya en el servidor y el PC no recolecta nada. Lo que costó, y lo que quedó escrito para
+que no vuelva a costar:
+
+**1. Copiar una cola no es copiar un fichero.** Es copiar una base de datos, y se rompe de dos maneras que el
+tamaño del fichero no detecta:
+
+| cómo se rompe | qué se ve | arreglo |
+|---|---|---|
+| en la carpeta de destino queda el `cola-v2.sqlite-wal` de una sesión ANTERIOR del contenedor, y SQLite lo aplica a una base que no es la suya | `Error: database disk image is malformed` (`errcode: 11`); el fichero pesa **exactamente lo mismo** que la instantánea, así que la comprobación de tamaño decía «verificada» | los diarios se **apartan** (`.previo-<fecha>`) antes de escribir la instantánea |
+| se copia con el recolector **en marcha**: `scp` no renombra, abre y reescribe el fichero que el worker tiene abierto, que sigue con su `-wal` describiendo la base vieja | lo mismo, pero las tres federaciones afectadas (Madrid, Murcia, Valencia) quedan en bucle de caída cada 300 s | `copiar-datos.mjs` **se niega a copiar** si el contenedor está en marcha (`decisionDeCopia`, con pruebas) |
+
+Y la verificación que sí lo caza: **abrir la cola copiada dentro de la imagen del recolector y pedirle un
+`integrity_check`** (`scripts/lib/copia-estado.mjs`, `veredictoDeIntegridad`). El tamaño igual no basta.
+
+**2. Los contenedores crean las carpetas como `root`.** `david` puede leerlas pero no escribir, así que la copia
+fallaba con `scp: dest open … Permission denied`. Sin `sudo` se arregla desde un contenedor efímero:
+`scripts/servidor/arregla-permisos-datos.sh`.
+
+**3. El servidor no puede reconstruir la imagen mientras su DNS esté roto.** `docker build` resuelve el `FROM`
+contra el registro y falla (`lookup registry-1.docker.io on 100.90.1.1:53: i/o timeout`); además
+`node:24-bookworm-slim` no está en el almacén local y `docker build` **no acepta `--dns`** (sí `--add-host`, que no
+sirve para esto). Consecuencia práctica: el lanzador de `federacion` —la única federación sin `--perfil`, cuya
+rama se añadió después de construir la imagen— se monta desde el repositorio (`docker/compose.yml`). Cuando el
+responsable ejecute el script con `sudo` y el DNS se arregle, esa línea sobra.
+
+**4. El procesador es viejo y no es sólo nuestro.** Medido con `scripts/servidor/mide-cpu.sh` (60 s, no una foto):
+
+| grupo | núcleos | % del servidor |
+|---|---|---|
+| facylf (19 recolectores + base + web + importador + monitor) | 2,31 | 58 % |
+| radiopv (api + web + worker + collector) | 1,28 | 32 % |
+| resto del sistema (Navidrome/`ffmpeg`, otros contenedores, SO) | ~0,36 | 10 % |
+
+Con las 19 federaciones y 11 plazas la carga llegó a **41** y facylf a 2,64 núcleos. A petición del responsable
+(«seamos más respetuosos, es una CPU vieja») se bajó a **4 plazas** (`FACYLF_MEMORIA_GB=5`) y cuotas por
+federación de **0,20-0,35 núcleos** (`scripts/servidor/calcula-turnos.mjs --cpu-min 0.2 --cpu-max 0.35`), con
+turnos de 45-240 min. Resultado: carga 16, la rotación sigue funcionando (4 con navegador, 7 esperando plaza,
+4 sin trabajo pendiente) y el trabajo pendiente baja igual.
+
+**5. Las plazas no se quedan encalladas.** El turno sólo se cede **si hay quien espera** (`hayEspera`): sin
+espera, ceder no reparte nada y cuesta un arranque de navegador. Con 4 plazas y 19 federaciones la rotación es
+lenta pero real, y las fichas `slot-1..4.lock` no pueden pasar del presupuesto, así que el reparto se cumple por
+construcción (`scripts/servidor/estado-plazas.sh`).
+
+**6. El monitor puede dar un falso «ilegible».** Lee las colas mientras el recolector las escribe; si ese día la
+base está ocupada, marca `colaLegible: false` sin serlo (comprobado: Valencia «ilegible» con
+`integrity_check: ok` en el mismo minuto). Para las alertas conviene leer con espera (`busy_timeout`), no de una
+vez.
+
+**7. Herramientas que quedaron en `scripts/servidor/`** (todas de sólo lectura salvo las que dicen lo contrario):
+`estado-recolectores.sh` (quién pide de verdad), `estado-plazas.sh` (plazas y espera), `verifica-integridad-colas.sh`
+(`quick_check`/`integrity_check`), `mide-cpu.sh` (consumo medido, por grupo), `quien-consume.sh` (los procesos que
+más gastan), `vigila-importador.sh` (¿avanza o gira?), `lee-registro.sh` (`docker logs` sale vacío: el registro va
+a fichero), `arregla-permisos-datos.sh`, `ajusta-ritmo.sh` y `aplica-turnos.sh` (estas dos sí cambian la flota).
+
+
 ## 9 · Orden de ejecución (para cuando des el visto bueno)
 
 | fase | qué | puerta de verificación |

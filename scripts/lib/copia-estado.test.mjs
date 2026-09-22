@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { listaDeEstado } from './copia-estado.mjs';
+import { listaDeEstado, veredictoDeIntegridad, decisionDeCopia } from './copia-estado.mjs';
 
 /** Disco de mentira: se declara qué existe y qué cuelga de cada carpeta. */
 function discoFalso({ ficheros = [], carpetas = [], directorios = [] }) {
@@ -104,4 +104,70 @@ test('la lista sale ordenada y sin repetidos', () => {
   const rutas = listaDeEstado(RAIZ, 'galicia', fs);
   assert.deepEqual(rutas, [...rutas].sort());
   assert.equal(new Set(rutas).size, rutas.length);
+});
+
+/*
+ * ── LA VERIFICACIÓN DE INTEGRIDAD ────────────────────────────────────────────────────────────────────────
+ *
+ * Estas pruebas fijan el caso real del 21/09/2026: la cola de Galicia copiada encima de una carpeta con el
+ * `-wal` de la sesión anterior del contenedor. El tamaño del fichero cuadraba —la verificación vieja decía
+ * «verificada»— y la base estaba ilegible. Si esto no distingue «íntegra» de «malformed», el traspaso vuelve
+ * a dar por bueno un dato que no se puede abrir.
+ */
+test('una cola con el diario de otra sesión NO se da por buena', () => {
+  const salida = 'abriendo /datos/descargas-galicia/recolector-local/cola-v2.sqlite\n'
+    + 'Error: database disk image is malformed\n'
+    + "    errcode: 11,\n    errstr: 'database disk image is malformed'";
+  const veredicto = veredictoDeIntegridad(salida);
+  assert.equal(veredicto.ok, false, 'una base malformed no puede pasar la verificación');
+  assert.match(veredicto.motivo, /malformed/);
+});
+
+test('una cola que no abre tampoco se da por buena', () => {
+  const veredicto = veredictoDeIntegridad('NO ABRE: unable to open database file');
+  assert.equal(veredicto.ok, false);
+  assert.match(veredicto.motivo, /unable to open/);
+});
+
+test('una salida vacía es un fallo, no un aprobado', () => {
+  const veredicto = veredictoDeIntegridad('');
+  assert.equal(veredicto.ok, false);
+  assert.equal(veredicto.motivo, 'sin salida de la comprobación');
+});
+
+test('una cola íntegra pasa, y deja ver el trabajo que trae', () => {
+  const veredicto = veredictoDeIntegridad('integridad=ok  peticiones=418779  pendientes=47941');
+  assert.deepEqual(veredicto, { ok: true, motivo: 'íntegra', peticiones: 418779, pendientes: 47941 });
+});
+
+test('un `integrity_check` que devuelve otra cosa que ok no pasa', () => {
+  const veredicto = veredictoDeIntegridad('integridad=*** in database main ***  peticiones=10  pendientes=2');
+  assert.equal(veredicto.ok, false);
+  assert.match(veredicto.motivo, /integridad=/);
+});
+
+/*
+ * ── Y NO SE COPIA CON EL RECOLECTOR DENTRO ───────────────────────────────────────────────────────────────
+ *
+ * El caso que costó Madrid, Murcia y Valencia: `scp` reescribe el fichero que el recolector tiene abierto y la
+ * base queda ilegible. Copiar tiene que negarse, no avisar.
+ */
+test('con el recolector en marcha no se copia', () => {
+  const decision = decisionDeCopia({ contenedorEnMarcha: true });
+  assert.equal(decision.copiar, false);
+  assert.match(decision.motivo, /en marcha/);
+});
+
+test('con el recolector parado sí se copia', () => {
+  assert.equal(decisionDeCopia({ contenedorEnMarcha: false }).copiar, true);
+});
+
+test('`--forzar` es la única forma de copiar con el recolector dentro, y lo dice', () => {
+  const decision = decisionDeCopia({ contenedorEnMarcha: true, forzar: true });
+  assert.equal(decision.copiar, true);
+  assert.match(decision.motivo, /forzado/);
+});
+
+test('sin datos del contenedor se copia (una federación que nunca se ha levantado)', () => {
+  assert.equal(decisionDeCopia({}).copiar, true);
 });

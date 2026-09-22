@@ -12,77 +12,77 @@
 services:
   cataluna:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "480"
-    cpus: 1.5
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   andalucia:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "480"
-    cpus: 1.5
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   federacion:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "420"
-    cpus: 1.36
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   asturias:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "360"
-    cpus: 1.21
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   galicia:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "330"
-    cpus: 1.14
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   aragon:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "330"
-    cpus: 1.14
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   madrid:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "300"
-    cpus: 1.07
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   valencia:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "270"
-    cpus: 1
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   extremadura:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "270"
-    cpus: 1
+      FACYLF_TURNO_PLAZA_MIN: "240"
+    cpus: 0.35
   castilla-la-mancha:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "240"
-    cpus: 0.93
+    cpus: 0.35
   cantabria:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "210"
-    cpus: 0.86
+    cpus: 0.33
   navarra:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "210"
-    cpus: 0.86
+    cpus: 0.33
   murcia:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "180"
-    cpus: 0.79
+    cpus: 0.3
   baleares:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "150"
-    cpus: 0.71
+    cpus: 0.28
   rioja:
     environment:
       FACYLF_TURNO_PLAZA_MIN: "120"
-    cpus: 0.64
+    cpus: 0.26
   euskadi:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "60"
-    cpus: 0.5
+      FACYLF_TURNO_PLAZA_MIN: "45"
+    cpus: 0.2
   melilla:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "60"
-    cpus: 0.5
+      FACYLF_TURNO_PLAZA_MIN: "45"
+    cpus: 0.2
   ceuta:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "60"
-    cpus: 0.5
+      FACYLF_TURNO_PLAZA_MIN: "45"
+    cpus: 0.2
   canarias:
     environment:
-      FACYLF_TURNO_PLAZA_MIN: "60"
-    cpus: 0.5
+      FACYLF_TURNO_PLAZA_MIN: "45"
+    cpus: 0.2
