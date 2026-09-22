@@ -215,6 +215,22 @@ services:
   valencia:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "valencia"]
+    # ── ESCALÓN DE CORTESÍA EN PRUEBA (23/09/2026) ──────────────────────────────────────────────────────────
+    #
+    # Valencia es la ÚNICA federación cuyo ritmo lo manda de verdad la cortesía: medido, su hueco mediano entre
+    # inicios de petición es 5,6 s y tiene 4-6 s configurados, así que sí está esperando. En las PNFG el hueco
+    # mediano es 8,8-19,9 s, MÁS que su cortesía máxima (8 s): allí `ritmo.antes()` espera 0 s porque el trabajo
+    # ya dura más, y bajar el intervalo no cambiaría nada.
+    #
+    # Se prueba aquí sin reconstruir la imagen porque `docker/entrada-recolector.sh` reenvía `FACYLF_ARGS` al
+    # worker (los dos recolectores aceptan `--intervalo-min`/`--intervalo-max` por línea de órdenes y usan el
+    # fichero de configuración sólo como respaldo). Se aplica recreando el contenedor:
+    #     bash scripts/servidor/aplica-turnos.sh valencia
+    #
+    # NO es una federación con navegador: va por API y cuesta ~0,08 s de procesador por petición, frente a los
+    # ~5 s de una PNFG con Chrome. Por eso bajarle la cortesía sí puede subir el ritmo sin comerse la máquina.
+    environment:
+      FACYLF_ARGS: "--intervalo-min 2 --intervalo-max 3"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-valencia:/app/descargas-valencia

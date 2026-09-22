@@ -6,6 +6,29 @@
 
 ---
 
+## ⚠️ Actualización del 23/09/2026: lee `RITMO-MEDIDO.md` antes de empezar
+
+La medición de este traspaso se ha hecho y **corrige su premisa en dos puntos**. El detalle, con números y
+herramientas, está en [`RITMO-MEDIDO.md`](./RITMO-MEDIDO.md). En resumen:
+
+1. **No hay ~16 s «sin explicar».** La máquina está al **97,8 % de procesador** (3,91 núcleos de demanda sobre
+   4) y el ritmo medido es exactamente el que cabe en ella: `4 núcleos ÷ 3,82 s de CPU por petición =
+   62,8 pet/min`, frente a los 61–68 medidos. **La CPU es el recurso escaso, no el trabajo local del worker**
+   (eso cuesta 76 ms por trabajo, el 0,8 % del ciclo).
+2. **(B) no sirve para las PNFG.** La cortesía se mide de inicio a inicio y **sólo manda cuando el trabajo dura
+   menos que ella**. En 12 de 14 federaciones el hueco mediano (8,8–19,9 s) ya **supera** la cortesía máxima
+   configurada (8 s), así que `ritmo.antes()` espera 0 s: **bajarla no cambia nada**. La única federación
+   donde manda de verdad es **Valencia**.
+3. **El método de (B) de este documento no funciona tal como está escrito**: `recolector.<fed>.config.json`
+   viaja **dentro de la imagen** (no se monta por volumen) y `aplica-turnos.sh` sólo recrea el contenedor con
+   la misma imagen. Cambiar el JSON no habría hecho nada, en silencio. **Ya está arreglado** reenviando
+   `FACYLF_ARGS` desde `docker/entrada-recolector.sh`.
+4. **(C) empeora el problema**, no lo mejora: no hay procesador que repartir entre dos pestañas.
+5. **El importador no es una palanca de CPU** y bajarle la cuota es contraproducente: retiene el bloqueo de la
+   cola (unidades de hasta 1 195 s) y Galicia acumula 250 «database is locked».
+
+---
+
 ## 1 · Dónde está todo
 
 | qué | dónde |
@@ -137,7 +160,25 @@ Valores de hoy: **6–8 s** en las 17 PNFG; **4–6 s** en Madrid y Valencia (so
 
 | federación | cortesía actual | escalón probado | fallos | límite encontrado |
 |---|---|---|---|---|
-| (rellenar en la siguiente conversación) | | | | |
+| **(medido el 23/09/2026 — ver `RITMO-MEDIDO.md` §3)** | | | | |
+| andalucia | 6-8 s | — | 0 | **no aplica**: el hueco entre peticiones es 9,1 s, mayor que la cortesía → ya espera 0 s |
+| aragon | 6-8 s | — | 0 | no aplica (hueco 8,8 s) |
+| asturias | 6-8 s | — | 0 | no aplica (hueco 8,9 s) |
+| baleares | 6-8 s | — | 0 | no aplica (hueco 8,8 s) |
+| cantabria | 6-8 s | — | 0 | no aplica (hueco 9,4 s) |
+| castilla-la-mancha | 6-8 s | — | 0 | no aplica (hueco 17,2 s) |
+| cataluna | 6-8 s | — | 0 | no aplica (hueco 19,9 s) |
+| extremadura | 6-8 s | — | 0 | no aplica (hueco 9,7 s) |
+| galicia | 6-8 s | — | 0 | **al borde** (hueco 7,9 s); además sufre 250 «database is locked» |
+| madrid | 4-6 s | — | 0 | no aplica (hueco 7,9 s, ya mayor que el máximo) |
+| melilla | 6-8 s | — | 0 | no aplica (hueco 14,2 s) |
+| murcia | 6-8 s | — | 0 | no aplica (hueco 8,7 s) |
+| navarra | 6-8 s | — | 0 | no aplica (hueco 8,8 s) |
+| **valencia** | 4-6 s | **2-3 s** | en curso | **única donde la cortesía manda** (hueco 5,6 s dentro del rango); prueba en curso, ver §9 de `RITMO-MEDIDO.md` |
+
+**Cómo se ha medido:** `mide-huecos.mjs` compara el hueco mediano entre inicios de petición con la cortesía
+configurada. Si el hueco es mayor, la cortesía ya no se está esperando y bajarla no puede subir el ritmo. Las
+federaciones sin trabajo (canarias, ceuta, euskadi, federacion, rioja) no salen porque no hacen peticiones.
 
 **Red de seguridad:** si una federación empieza a fallar, se le sube la cortesía en el acto; el fichero de
 configuración se cambia y se recrea su contenedor

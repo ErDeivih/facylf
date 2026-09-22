@@ -102,14 +102,34 @@ case "$fed" in
   federacion|madrid|valencia|cataluna) sin_perfil=1 ;;
 esac
 
+# ── EL RITMO SE PUEDE AJUSTAR SIN RECONSTRUIR LA IMAGEN ────────────────────────────────────────────────
+#
+# La configuración de cada federación (`recolector.<fed>.config.json`) vive DENTRO de la imagen, no montada por
+# volumen: cambiarla obliga a reconstruir la imagen entera. Eso hace carísimo lo que el responsable pidió —
+# bajar la cortesía por escalones y encontrar el límite de cada portal—, porque cada escalón costaría una
+# reconstrucción.
+#
+# Los dos recolectores ya aceptan `--intervalo-min` y `--intervalo-max` por línea de órdenes y usan el fichero
+# SÓLO como respaldo (`opcionesNumericas` + `argumento()` en ambos guiones). Lo que faltaba era poder pasarlos:
+# el supervisor no reenviaba nada. Con esto, el ritmo de UNA federación se ajusta desde su servicio del compose
+# y se aplica recreando su contenedor, que es lo que ya hace `aplica-turnos.sh <fed>`.
+#
+# Ejemplo: FACYLF_ARGS="--intervalo-min 2 --intervalo-max 3"
+# Sin la variable no se añade ningún argumento, así que el comportamiento de siempre no cambia.
+args_extra="${FACYLF_ARGS:-}"
+
 while true; do
   limpia_restos
   echo "$(date '+%F %T')  Arrancando o reanudando la ingesta." >> "$registro"
   # El worker va en segundo plano para poder pararlo con orden si el contenedor recibe la señal de cierre.
+  #
+  # `$args_extra` va SIN comillas a propósito: así sus palabras se separan en argumentos (que es lo que se
+  # quiere) y, si está vacío, no se añade ninguno. Entrecomillarlo pasaría «--intervalo-min 2» como un solo
+  # argumento y el recolector no lo entendería.
   if [ "$sin_perfil" = "1" ]; then
-    node "$raiz/scripts/$guion" arrancar >> "$registro" 2>&1 &
+    node "$raiz/scripts/$guion" arrancar $args_extra >> "$registro" 2>&1 &
   else
-    node "$raiz/scripts/$guion" arrancar --perfil "$perfil" >> "$registro" 2>&1 &
+    node "$raiz/scripts/$guion" arrancar --perfil "$perfil" $args_extra >> "$registro" 2>&1 &
   fi
   worker=$!
   wait "$worker"
