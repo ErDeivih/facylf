@@ -39,17 +39,44 @@ export const UMBRALES = {
 /** Estados de una federación que NO son una avería: son el gobernador y la rotación funcionando. */
 const ESPERAS_LEGITIMAS = new Set(['memoria', 'turno', 'pausa', 'sin-trabajo']);
 
+/** Lo que dice un registro cuando la federación se está cayendo de verdad. */
+const LINEAS_DE_AVERIA = /termin[oó] con c[oó]digo [1-9]|error|malformed|enoent|no existe|traceback|fatal/i;
+
 /**
  * Una federación está **atascada** si tiene trabajo disponible ahora y no ha pedido nada en la ventana.
  *
  * Ojo con el matiz: si está esperando memoria o turno, no está atascada, está en la cola. Y si no tiene trabajo
  * disponible, tampoco: no hay nada que pedir.
+ *
+ * ── Y EL MATIZ QUE FALTABA (22/09/2026) ──────────────────────────────────────────────────────────────────
+ *
+ * Con 19 federaciones y 3 plazas de navegador, una federación pasa buena parte del rato **esperando turno**, y
+ * el estado se deduce de la última línea de su registro. El problema: entre dos mensajes de espera, la última
+ * línea es la del PLAN («sesión limitada a 228 trabajos…»), así que la federación figuraba como `trabajando` y
+ * el monitor avisaba «federación atascada» cada media hora por algo que es el reparto funcionando. Medido el
+ * 22/09/2026: avisos falsos de Asturias (107 min), Melilla (51) y Navarra (26) mientras las tres esperaban
+ * plaza, con el sistema perfectamente sano.
+ *
+ * Así que cuando el estado no basta, se mira lo que sólo pasa cuando hay un problema de verdad:
+ *
+ *   · **tiene plaza de navegador y no pide**: el navegador se ha quedado colgado, eso sí es un atasco;
+ *   · **su registro dice que se cae** («terminó con código 1», `malformed`, `ENOENT`): es el bucle de caída que
+ *     dejó Madrid/Murcia/Valencia con la cola ilegible, y hay que avisar;
+ *   · **no se escribe en su registro desde hace media hora**: el worker murió y nadie lo relanzó.
+ *
+ * Sin ninguna de las tres, no pedir es esperar el turno, no estar atascada.
  */
 export function estaAtascada(federacion, umbrales = UMBRALES) {
   if (!federacion || federacion.disponibles === 0) return false;
   if (ESPERAS_LEGITIMAS.has(federacion.estado)) return false;
   const minutos = Number(federacion.minutosSinPedir);
-  return Number.isFinite(minutos) && minutos >= umbrales.minutosSinPedir;
+  if (!Number.isFinite(minutos) || minutos < umbrales.minutosSinPedir) return false;
+
+  if (federacion.plaza) return true;
+  if (LINEAS_DE_AVERIA.test(String(federacion.ultimaLinea ?? ''))) return true;
+  const sinRegistro = Number(federacion.minutosSinRegistro);
+  if (Number.isFinite(sinRegistro) && sinRegistro >= umbrales.minutosSinPedir) return true;
+  return false;
 }
 
 /** La proporción de fallos de la ventana (0 si no hubo peticiones: no se inventa un cero de la nada). */

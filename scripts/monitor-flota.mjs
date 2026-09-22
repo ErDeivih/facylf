@@ -274,14 +274,18 @@ function leeFederaciones(desde, { completas = new Set(), cache = {} } = {}) {
     const minutosSinPedir = datos.ultimaPeticion
       ? Math.round((Date.now() - Date.parse(datos.ultimaPeticion)) / 60_000)
       : null;
+    // Y cuánto hace que no se escribe en su registro: es lo que distingue «esperando turno» de «se ha muerto».
+    const minutosSinRegistro = registroModificado
+      ? Math.round((Date.now() - Date.parse(registroModificado)) / 60_000)
+      : null;
     const texto = `${ultimaLinea ?? ''}`.toLowerCase();
     const estado = datos.colaLegible === false ? 'ilegible'
-      : /esperando para abrir chrome|reserva es/.test(texto) ? 'memoria'
+      : /esperando para abrir chrome|no cabe por reparto|plazas ocupadas|reserva es/.test(texto) ? 'memoria'
         : /esperando turno|no hay nadie esperando/.test(texto) ? 'turno'
           : datos.enPausa ? 'pausa'
             : (datos.disponibles === 0 ? 'sin-trabajo' : 'trabajando');
 
-    federaciones.push({ federacion, ...datos, minutosSinPedir, plaza, ultimaLinea, registroModificado, estado });
+    federaciones.push({ federacion, ...datos, minutosSinPedir, minutosSinRegistro, plaza, ultimaLinea, registroModificado, estado });
     if (DEPURAR) {
       const ms = Date.now() - empezado;
       if (ms > 1000) console.error(`  [monitor]   ${federacion}: ${ms} ms${completo ? ' (completa)' : ''}`);

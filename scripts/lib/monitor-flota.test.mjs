@@ -20,17 +20,53 @@ const federacion = (extra = {}) => ({
 });
 
 test('una federación con trabajo que no pide está atascada', () => {
-  assert.equal(estaAtascada(federacion({ disponibles: 50, minutosSinPedir: 25 })), true);
-  assert.equal(estaAtascada(federacion({ disponibles: 50, minutosSinPedir: 5 })), false);
-  assert.equal(estaAtascada(federacion({ disponibles: 0, minutosSinPedir: 600 })), false, 'sin trabajo disponible no hay nada que pedir');
+  // Sin señales de vida en su registro y con trabajo delante: eso es un atasco.
+  assert.equal(estaAtascada(federacion({ disponibles: 50, minutosSinPedir: 25, minutosSinRegistro: 25 })), true);
+  assert.equal(estaAtascada(federacion({ disponibles: 50, minutosSinPedir: 5, minutosSinRegistro: 5 })), false);
+  assert.equal(estaAtascada(federacion({ disponibles: 0, minutosSinPedir: 600, minutosSinRegistro: 600 })), false,
+    'sin trabajo disponible no hay nada que pedir');
 });
 
 test('esperar memoria o turno NO es estar atascada', () => {
   for (const estado of ['memoria', 'turno', 'pausa', 'sin-trabajo']) {
     assert.equal(estaAtascada(federacion({ disponibles: 900, minutosSinPedir: 300, estado })), false, `estado ${estado}`);
   }
-  // Y si el estado dice que trabaja pero lleva media hora callada con trabajo delante, sí se avisa.
-  assert.equal(estaAtascada(federacion({ disponibles: 900, minutosSinPedir: 300, estado: 'trabajando' })), true);
+  // Y si el estado dice que trabaja pero lleva media hora callada (sin plaza, sin error y sin escribir en su
+  // registro), tampoco se avisa: con 19 federaciones y 3 plazas, esperar turno es lo normal.
+  assert.equal(estaAtascada(federacion({ disponibles: 900, minutosSinPedir: 300, estado: 'trabajando' })), false);
+});
+
+/*
+ * ── LA FALSA ALARMA QUE HABÍA QUE QUITAR (22/09/2026) ────────────────────────────────────────────────────
+ *
+ * Con 3 plazas, entre dos mensajes de espera la última línea del registro es la del PLAN, así que la federación
+ * figuraba como `trabajando` y el monitor avisaba «atascada» por algo que era el reparto funcionando: Asturias
+ * 107 min, Melilla 51, Navarra 26, las tres esperando plaza y el sistema sano.
+ */
+test('esperar plaza con el registro vivo no es estar atascada', () => {
+  const esperando = federacion({
+    disponibles: 13215, minutosSinPedir: 107, minutosSinRegistro: 1, estado: 'trabajando',
+    ultimaLinea: '· sesión limitada a 228 trabajos para reciclar Chrome y contener la memoria.',
+    plaza: null,
+  });
+  assert.equal(estaAtascada(esperando), false, 'el registro se escribe: la federación está viva, esperando turno');
+});
+
+test('una caída en bucle sí avisa, aunque el registro esté recién escrito', () => {
+  const cayendose = federacion({
+    disponibles: 900, minutosSinPedir: 40, minutosSinRegistro: 1, estado: 'trabajando',
+    ultimaLinea: '2026-09-22 11:47:58  El worker termino con codigo 1; siguiente intento en 300 s.',
+    plaza: null,
+  });
+  assert.equal(estaAtascada(cayendose), true, 'es el bucle de caída que dejó tres colas ilegibles');
+});
+
+test('con plaza de navegador y sin pedir, es un atasco de verdad', () => {
+  const conPlaza = federacion({
+    disponibles: 900, minutosSinPedir: 45, minutosSinRegistro: 1, estado: 'trabajando',
+    ultimaLinea: '… pausa respetuosa de 4 s', plaza: { contenido: '1322 645feb623e50' },
+  });
+  assert.equal(estaAtascada(conPlaza), true, 'tiene el navegador y no lo usa: algo se ha colgado');
 });
 
 test('la proporción de fallos no se inventa cuando no hubo peticiones', () => {
@@ -55,7 +91,12 @@ test('la misma alerta no se repite cada minuto', () => {
   const instantanea = {
     cuando: '2026-09-21T16:00:00.000Z',
     rebanada: { memoriaGb: 9.4, oomKills: 0 },
-    federaciones: [federacion({ disponibles: 40, minutosSinPedir: 30 })],
+    // Con la evidencia que hace falta: su registro dice que se cae (si sólo fuese «lleva 30 min sin pedir», no
+    // se avisaría: con 3 plazas, esperar turno es lo normal).
+    federaciones: [federacion({
+      disponibles: 40, minutosSinPedir: 30, minutosSinRegistro: 1,
+      ultimaLinea: 'El worker termino con codigo 1; siguiente intento en 300 s.',
+    })],
   };
   const primera = decideAlertas(instantanea);
   assert.ok(primera.alertas.some((a) => a.clave === 'atascada:murcia'));
