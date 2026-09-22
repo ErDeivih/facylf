@@ -154,17 +154,10 @@ services:
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-federacion:/app/descargas-federacion
-      # ── EL LANZADOR, MONTADO DESDE EL REPOSITORIO (21/09/2026) ──────────────────────────────────────────
-      #
-      # Castilla y León es la única federación que va SIN `--perfil`, y su rama del lanzador se añadió después
-      # de construir la imagen. Reconstruirla en el servidor NO es posible ahora mismo: su DNS está roto para
-      # `docker build` (`lookup registry-1.docker.io on 100.90.1.1:53: i/o timeout`) y `node:24-bookworm-slim`
-      # no está en el almacén local, así que el `FROM` necesita el registro. Con `sudo` se arregla de raíz
-      # (`docker/README.md`, sección del DNS) y entonces esta línea sobra.
-      #
-      # Mientras tanto, el lanzador de ESTA federación viene del repositorio y no de la imagen: es el único
-      # sitio donde el de la imagen está desfasado. Es de sólo lectura para el contenedor.
-      - ../docker/entrada-recolector.sh:/app/docker/entrada-recolector.sh:ro
+      # (Aquí hubo un montaje del lanzador desde el repositorio, del 21/09/2026 al 22/09/2026: Castilla y León
+      #  es la única federación que va SIN `--perfil`, y esa rama se añadió a `entrada-recolector.sh` después de
+      #  construir la imagen. Con el DNS del servidor roto no se podía reconstruir. Ya no hace falta: la imagen
+      #  se reconstruyó el 22/09/2026 y trae el lanzador corregido.)
 
   galicia:
     <<: *recolector
