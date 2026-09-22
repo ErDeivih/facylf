@@ -172,6 +172,17 @@ services:
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-madrid:/app/descargas-madrid
+      # ── EL CATÁLOGO DE SONDEO, POR VOLUMEN Y NO DENTRO DE LA IMAGEN (22/09/2026) ─────────────────────
+      #
+      # Madrid y Valencia (iSquad) leen el catálogo del sondeo, que vive en `descargas-federacion-sondeo/`. Esa
+      # carpeta está en `.gitignore` —es DATO, no programa— así que no está en el repositorio y, al reconstruir
+      # la imagen, dejó de estar dentro: los dos recolectores empezaron a fallar con
+      #
+      #     Error: No existe el catálogo de Valencia: /app/descargas-federacion-sondeo/valencia-isquad-sondeo.json
+      #
+      # Además, cada actualización del repositorio del servidor aparta en un `stash` lo que no está versionado,
+      # así que meterlo en la imagen era frágil de todas formas. Se monta, como el resto de los datos.
+      - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
 
   melilla:
     <<: *recolector
@@ -207,6 +218,8 @@ services:
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-valencia:/app/descargas-valencia
+      # Mismo caso que Madrid: el catálogo del sondeo es DATO y va montado (ver el comentario de Madrid).
+      - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
 
   # La federación de PRUEBA (`prueba-10gb`): misma cola que se usa en el PC para las pruebas del programa de
   # 10 GB. No es una federación real: sirve para comprobar que la imagen y el compose funcionan antes de tocar
@@ -255,6 +268,9 @@ services:
       - ../descargas-navarra:/app/descargas-navarra
       - ../descargas-rioja:/app/descargas-rioja
       - ../descargas-valencia:/app/descargas-valencia
+      # El catálogo del sondeo va montado por el mismo motivo que en Madrid y Valencia: es dato, no está en el
+      # repositorio, y sin él los dos recolectores de iSquad no arrancan.
+      - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
 
   # La VIGILANCIA no va aquí a propósito: mide los contenedores DESDE FUERA (memoria de cada uno por cgroups,
   # reinicios, plazas ocupadas y quién espera) y para eso necesita el cliente de Docker, que no está —ni hace

@@ -60,10 +60,14 @@ done
 echo
 echo "pidiendo: $pidiendo · sin escribir en $MINUTOS min: $esperando · con la cola ilegible: $caidos"
 echo
-echo "── últimos fallos por federación (si los hay) ──"
+echo "── fallos recientes de cada federación ──"
+# OJO: el registro de un recolector es ACUMULATIVO. Buscar «Error» en todo el fichero saca fallos de ayer ya
+# resueltos y hace parecer que algo va mal cuando no (medido el 22/09/2026: el informe listaba el `malformed`
+# de Valencia de por la mañana como si fuese de ahora). Se miran sólo las últimas 400 líneas, que en un registro
+# que avanza cubren de sobra la ventana de minutos.
 for f in "${FEDERACIONES[@]}"; do
   registro="$RAIZ/descargas-$f/recolector-local/worker-programado.log"
   [ -f "$registro" ] || continue
-  ultimo=$(grep -E 'Error|error|malformed|ENOENT' "$registro" 2>/dev/null | tail -1)
+  ultimo=$(tail -400 "$registro" 2>/dev/null | grep -E 'Error|error|malformed|ENOENT|codigo [1-9]' | tail -1)
   [ -n "$ultimo" ] && printf '  %-22s %s\n' "$f" "${ultimo:0:110}"
 done
