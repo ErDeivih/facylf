@@ -29,6 +29,25 @@ avisar() {
 mkdir -p "$DESTINO/colas" "$DESTINO/canónico"
 FALLOS=0
 
+# ── CERROJO: QUE NO HAYA DOS COPIAS A LA VEZ ─────────────────────────────────────────────────────────────
+#
+# Medido el 22/09/2026: con la flota a 11 recolectores, copiar una cola viva va a ~0,3 MB/s, así que las 19
+# pueden tardar HORAS. Si el `cron` lanza la de mañana mientras la de hoy sigue, las dos se pelean por el mismo
+# disco y las dos van la mitad de rápido (me pasó a mano y tuve que matar la vieja). `mkdir` es atómico, así que
+# sirve de cerrojo sin herramientas extra. Si el cerrojo tiene más de 12 h es de una ejecución que murió: se quita.
+CERROJO="$DESTINO/.copia-en-marcha"
+if ! mkdir "$CERROJO" 2>/dev/null; then
+  if [ -n "$(find "$CERROJO" -maxdepth 0 -mmin +720 2>/dev/null)" ]; then
+    echo "cerrojo viejo (más de 12 h): se quita y se sigue"
+    rmdir "$CERROJO" 2>/dev/null
+    mkdir "$CERROJO" 2>/dev/null || { echo "no se pudo tomar el cerrojo; se sale"; exit 1; }
+  else
+    echo "ya hay una copia en marcha ($CERROJO): no se lanza otra"
+    exit 0
+  fi
+fi
+trap 'rmdir "$CERROJO" 2>/dev/null' EXIT
+
 echo "════ $(date '+%F %T') · copia de facylf ════"
 
 # 1 · Las colas, con la instantánea coherente de SQLite.
