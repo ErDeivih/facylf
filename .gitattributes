@@ -1,0 +1,14 @@
+# ── FINALES DE LÍNEA: LOS GUIONES DE SHELL VAN SIEMPRE EN LF ──────────────────────────────────────────────
+#
+# Este repositorio se trabaja en Windows y se ejecuta en un servidor Debian. Con `core.autocrlf=true` (que es
+# lo que hay configurado aquí), un `git checkout` en Windows escribe los ficheros de texto con CRLF — y **un
+# `.sh` con CRLF no lo ejecuta `bash` en Linux**: falla con «$'\r': command not found» o, peor, con errores que
+# parecen del propio guion y no del final de línea.
+#
+# Importa porque el flujo de trabajo del servidor es, textualmente, «escribe un `.sh` local, súbelo con `scp` y
+# ejecútalo». Sin esto, ese flujo se rompe de una forma que cuesta media hora entender, y ya ha pasado.
+#
+# Se limita a `*.sh` a propósito: es el caso que se ejecuta con `bash` y el único que se rompe en silencio. Los
+# `.mjs` van con Node (que tolera CRLF) y los `.yml` con Docker, así que fijarlos también sólo añadiría ruido
+# de normalización en el árbol de trabajo a cambio de nada.
+*.sh text eol=lf
