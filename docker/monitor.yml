@@ -29,7 +29,15 @@ services:
       FACYLF_RAIZ: /app
       FACYLF_ESTADO_DIR: /app/estado
       FACYLF_DOCKER_SOCK: /var/run/docker.sock
-      FACYLF_SLICE_GB: "10"
+      # ── EL TECHO DE MEMORIA QUE SE VIGILA (22/09/2026) ────────────────────────────────────────────────
+      #
+      # No es el «presupuesto de plazas» (`FACYLF_MEMORIA_GB`): es el techo REAL de la rebanada, que es lo que
+      # decide si el aviso de memoria alta tiene sentido. La máquina tiene 15,9 GB y aquí viven también
+      # PostgreSQL y la web, así que se declaran 14 GB y el aviso salta al 85 % de eso (≈11,9 GB).
+      #
+      # Antes estaba fijo en 10 y el aviso saltaba a los 9 GB: con la flota usando 9,5 GB de 10 —lo previsto—
+      # avisaba cada cuarto de hora, y una alerta que suena siempre deja de ser una alerta.
+      FACYLF_SLICE_GB: "${FACYLF_SLICE_GB:-14}"
       # La respuesta del canónico la deja el `cron` del host en este fichero (dentro del contenedor no hay
       # cliente de PostgreSQL). Sin esta variable el monitor intentaría `docker exec`, que aquí no existe.
       FACYLF_CANONICO_TXT: /app/estado/canonico.txt

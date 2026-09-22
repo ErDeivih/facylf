@@ -30,6 +30,8 @@ export const UMBRALES = {
   minutosVentanaFallos: 30,
   /** Memoria de la rebanada a partir de la cual se avisa (el tope duro son 10 GB). */
   memoriaAvisoGb: 9,
+  /** Proporción del techo declarado a partir de la cual se avisa. Manda sobre `memoriaAvisoGb`. */
+  proporcionMemoriaAviso: 0.85,
   /** Minutos seguidos por encima de ese aviso para que merezca la pena decirlo. */
   minutosMemoriaAlta: 15,
   /** Disco libre por debajo del cual se avisa. */
@@ -109,15 +111,23 @@ export function decideAlertas(instantanea, estadoPrevio = { claves: {} }, umbral
   };
 
   // 1. Memoria de la rebanada: el tope duro del proyecto entero.
+  //
+  // El aviso es PROPORCIONAL al techo declarado, no un número absoluto. Con el umbral fijo de 9 GB y un techo
+  // de 10, la flota al 95 % avisaba cada cuarto de hora aunque fuese exactamente lo previsto (medido el
+  // 22/09/2026, con 9,5 GB de 10). Lo que hay que avisar es acercarse al techo, y el techo lo declara el
+  // despliegue (`FACYLF_SLICE_GB`).
   const memoriaGb = Number(instantanea.rebanada?.memoriaGb ?? 0);
+  const topeGb = Number(instantanea.rebanada?.topeGb ?? 0) || umbrales.memoriaAvisoGb / umbrales.proporcionMemoriaAviso;
+  const avisoGb = topeGb * umbrales.proporcionMemoriaAviso;
   if (Number(instantanea.rebanada?.oomKills ?? 0) > 0) {
     anota('oom', 'critico', 'Sin memoria en la rebanada de facylf',
       `${instantanea.rebanada.oomKills} proceso(s) murieron por falta de memoria (pico ${instantanea.rebanada.picoGb ?? '?'} GB). `
       + 'Mira el reparto de plazas en el registro del monitor o baja FACYLF_MEMORIA_GB.');
   }
-  if (memoriaGb >= umbrales.memoriaAvisoGb) {
+  if (memoriaGb >= avisoGb) {
     anota('memoria-alta', 'medio', 'La flota va cerca del tope de memoria',
-      `${memoriaGb.toFixed(2)} GB en uso de 10 GB (aviso a partir de ${umbrales.memoriaAvisoGb} GB).`);
+      `${memoriaGb.toFixed(2)} GB en uso de ${topeGb.toFixed(1)} GB `
+      + `(aviso a partir del ${Math.round(umbrales.proporcionMemoriaAviso * 100)} % = ${avisoGb.toFixed(1)} GB).`);
   }
 
   // 2. Federaciones atascadas o que fallan mucho.
