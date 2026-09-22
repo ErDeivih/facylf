@@ -41,13 +41,14 @@ if (!url) throw new Error('Falta DATABASE_URL_LECTOR en .env');
 const importa = (relativa) => import(pathToFileURL(join(RAIZ, relativa)).href);
 const { CONSULTAS_COBERTURA, PARAMETROS_POR_DEFECTO } = await importa('apps/web/src/consultas/cobertura.ts');
 const { CONSULTAS_PARTIDOS, PARAMETROS_PARTIDOS } = await importa('apps/web/src/consultas/partidos.ts');
+const { CONSULTAS_CATALOGO, PARAMETROS_CATALOGO } = await importa('apps/web/src/consultas/catalogo.ts');
 
 /** Tablas de hechos: crecen con los partidos y nunca deben recorrerse enteras en un recorrido crítico. */
 const TABLAS_DE_HECHOS = ['match', 'appearance', 'match_event', 'match_staff', 'match_report', 'match_official', 'match_source'];
 
-const catalogo = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS].map((c) => ({
+const catalogo = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO].map((c) => ({
   ...c,
-  parametros: PARAMETROS_POR_DEFECTO[c.nombre] ?? PARAMETROS_PARTIDOS[c.nombre] ?? [],
+  parametros: PARAMETROS_POR_DEFECTO[c.nombre] ?? PARAMETROS_PARTIDOS[c.nombre] ?? PARAMETROS_CATALOGO[c.nombre] ?? [],
 }));
 
 function recorrePlan(nodo, acumulador = { nodos: [], seqScans: [], filas: 0 }) {

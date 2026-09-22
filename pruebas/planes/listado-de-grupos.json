@@ -1,0 +1,26 @@
+{
+  "consulta": "listado-de-grupos",
+  "presupuestoMs": 500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Hash",
+      "Hash Join",
+      "Index Only Scan",
+      "Limit",
+      "Result",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "coverage_checkpoint",
+      "federation",
+      "phase_group",
+      "season"
+    ],
+    "filas": 39
+  }
+}

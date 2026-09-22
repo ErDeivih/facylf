@@ -12,10 +12,9 @@
       "Seq Scan"
     ],
     "seqScans": [
-      "competition_edition",
       "coverage_checkpoint",
-      "federation"
+      "phase_group"
     ],
-    "filas": 22
+    "filas": 30
   }
 }

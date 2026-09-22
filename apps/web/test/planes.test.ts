@@ -10,12 +10,16 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CONSULTAS_COBERTURA } from '../src/consultas/cobertura';
+import { CONSULTAS_CATALOGO } from '../src/consultas/catalogo';
 import { CONSULTAS_PARTIDOS } from '../src/consultas/partidos';
 
 const RAIZ = join(import.meta.dirname, '..', '..', '..');
 const CARPETA_PLANES = join(RAIZ, 'pruebas', 'planes');
 
-const consultas = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS];
+const consultas = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO];
+
+/** El nombre del fichero de plan: el mismo saneado que hace `scripts/planes.mjs`. */
+const ficheroDe = (nombre: string) => `${nombre.replace(/[^\w-]/g, '-')}.json`;
 
 describe('presupuestos de consulta', () => {
   it('toda consulta declara presupuesto, tipo de recorrido y columnas', () => {
@@ -28,21 +32,32 @@ describe('presupuestos de consulta', () => {
     }
   });
 
-  it('las consultas que se enseñan al visitante van por índice; sólo el diagnóstico agrega', () => {
+  it('las consultas que se enseñan al visitante van por índice; los recuentos del catálogo agregan a propósito', () => {
     // Las que filtran por federación y grupo son las que ve el visitante en una ficha: no pueden
-    // recorrer una tabla de hechos entera. Las agregadas son de la página de diagnóstico.
+    // recorrer una tabla de hechos entera. Las `agregado` son las que cuentan o resumen tablas de
+    // catálogo enteras porque es lo que piden: la cobertura del diagnóstico y, desde que la portada,
+    // `/federaciones` y `/competiciones` leen el canónico, los recuentos y las facetas del catálogo.
+    // Ninguna de ellas toca `core.match` ni las demás tablas de hechos: para eso está `resumen-canónico`,
+    // que vive en el diagnóstico a propósito.
     for (const c of consultas) {
       const porGrupo = /de-grupo|goles-de-partidos|grupo-del-canónico/.test(c.nombre);
       if (porGrupo) expect(c.plan, `${c.nombre} debería ir por índice`).toBe('indexado');
     }
     expect(consultas.filter((c) => c.plan === 'agregado').map((c) => c.nombre).sort())
-      .toEqual(['cobertura-por-federación', 'cobertura-por-grupo', 'grupos-del-canónico', 'resumen-canónico']);
+      .toEqual(['cobertura-por-federación', 'cobertura-por-grupo', 'facetas-del-catálogo',
+        'federaciones-del-canónico', 'grupos-del-canónico', 'recuentos-del-canónico', 'resumen-canónico']);
   });
 
   it('cada consulta tiene su plan guardado, con presupuesto y forma', () => {
     expect(existsSync(CARPETA_PLANES), 'falta pruebas/planes/ (se genera con `pnpm planes --guardar`)').toBe(true);
     const ficheros = readdirSync(CARPETA_PLANES).filter((f) => f.endsWith('.json'));
     expect(ficheros.length).toBeGreaterThanOrEqual(consultas.length);
+    // Que el fichero sea legible no basta: tiene que existir el de CADA consulta declarada. Sin esta
+    // comprobación, una consulta nueva podía entrar sin que nadie hubiera mirado su plan.
+    for (const c of consultas) {
+      expect(existsSync(join(CARPETA_PLANES, ficheroDe(c.nombre))),
+        `${c.nombre} sin plan guardado: ejecuta \`pnpm planes --guardar\``).toBe(true);
+    }
     for (const fichero of ficheros) {
       const plan = JSON.parse(readFileSync(join(CARPETA_PLANES, fichero), 'utf8'));
       expect(plan.consulta, fichero).toBeTruthy();

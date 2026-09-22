@@ -207,6 +207,41 @@ Queda por tanto una tarea de producto, no de infraestructura: **llevar las pági
 
 Mientras eso no se haga, la plataforma **enseña los datos en `/canonico`** pero no en las pantallas de consulta.
 
+### ✅ RESUELTO EN PARTE (23/09/2026): portada, `/federaciones` y `/competiciones` ya leen el canónico
+
+Las tres primeras páginas de la lista (`1. portada, federaciones, competiciones`) ya no tocan
+`src/lib/repositorio-local.ts` ni las carpetas `descargas-*`:
+
+- las consultas nuevas están en `apps/web/src/consultas/catalogo.ts` (`listado-de-grupos`,
+  `facetas-del-catálogo`, `federaciones-del-canónico` y `recuentos-del-canónico`), con el mismo contrato
+  que las demás: `LIMIT`, parámetros numerados, metadatos declarados y plan guardado en
+  `pruebas/planes/`;
+- las tres páginas copian el patrón de `/canonico`: `motivoSinCanonico()` **antes** de tocar la base,
+  `try/catch` de `CanonicoNoDisponible` y `export const dynamic = 'force-dynamic'`;
+- los recuentos de cabecera salen de `ops.coverage_checkpoint` (con su `calculado_en` a la vista) y del
+  catálogo (`core.matchday`, `core.phase_group`, `core.competition_edition`, `core.federation`). No se
+  cuenta `core.match` en ninguna página pública: el único recuento global de hechos sigue siendo
+  `resumen-canónico`, en el diagnóstico;
+- **«descubrimiento» (parte 2 de la lista): se decidió dejar de enseñarlo** en lugar de guardarlo. El
+  avance de la cola (`trabajos`, grupos descubiertos y por descubrir) vive en cada `cola-v2.sqlite` y no
+  tiene equivalente en el esquema canónico. Guardarlo exigiría una migración nueva en `ops` **y**
+  alimentarla desde el importador, que no entraba en este encargo; así que `/federaciones` enseña ahora
+  la cobertura medida de lo importado y explica en la propia página por qué ya no muestra esa barra. Si
+  se quiere recuperar, el trabajo es: migración `ops.trabajos_*` con su `grant` a `facylf_lector`, que el
+  importador la rellene al cerrar cada lote, y una consulta nueva del catálogo.
+- **Las federaciones salen de `core.federation`**, no de una lista escrita a mano: nombre y
+  `portal_url` incluidos. Ojo con el supuesto de «19 territoriales»: las filas las crea el **importador**
+  al importar el primer grupo de cada federación (`packages/canonico/src/lote.ts`), así que hoy hay 21
+  (las 18 de la lista local más `pruebas`, `pruebas-retirada` y `pruebas-sincodigo`) y **Melilla todavía
+  no tiene fila** porque no se ha importado ningún grupo suyo. Aparecerá sola en el primer import.
+- **Queda pendiente**: las otras rutas (`/partidos`, `/equipos`, `/jugadores`, `/tecnicos`, `/buscar`…)
+  siguen leyendo el repositorio local, y la cabecera de `layout.tsx` sigue diciendo «18 federaciones»
+  desde la lista estática. Los enlaces de la portada a esas fichas lo dicen con palabras.
+- **Entorno (no es código)**: en este PC los roles `facylf_lector` y `facylf_publicador` no tenían la
+  contraseña de `.env`, así que las 18 pruebas que hablan con el canónico fallaban con «credenciales de
+  lectura del canónico no son válidas». Se aplicó el paso 3 de `scripts/servidor/aplicar-migraciones.sh`
+  (`alter role … password '<la de .env>'`). Sin eso, `pnpm test` no puede pasar.
+
 
 ### La importación masiva (el trabajo grande de verdad)
 

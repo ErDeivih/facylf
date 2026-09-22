@@ -4,8 +4,6 @@
   "plan": "indexado",
   "forma": {
     "nodos": [
-      "Hash",
-      "Hash Join",
       "Index Scan",
       "Limit",
       "Nested Loop",
@@ -13,8 +11,7 @@
       "Sort"
     ],
     "seqScans": [
-      "competition_edition",
-      "federation"
+      "phase_group"
     ],
     "filas": 38
   }

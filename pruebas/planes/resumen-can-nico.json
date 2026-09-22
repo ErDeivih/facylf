@@ -9,15 +9,13 @@
       "Index Only Scan",
       "Limit",
       "Result",
-      "Seq Scan",
-      "Sort"
+      "Seq Scan"
     ],
     "seqScans": [
       "competition_edition",
       "coverage_checkpoint",
-      "match",
       "phase_group"
     ],
-    "filas": 106037
+    "filas": 84365
   }
 }

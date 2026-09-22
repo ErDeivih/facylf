@@ -23,9 +23,11 @@ pnpm planes --guardar  # vuelve a guardar los planes (después de mirar por qué
 - **Presupuesto**: si una consulta tarda más que su presupuesto, `pnpm planes` falla.
 - **Recorrido**: una consulta marcada `indexado` (las que filtran por federación y grupo, que son las
   que ve el visitante en una ficha) **no puede** acabar en un `Seq Scan` sobre una tabla de hechos
-  (partidos, participaciones, eventos, fichas, actas, árbitros). Las `agregado` (recuentos globales y
-  cobertura por federación) recorren tablas enteras porque es lo que piden, y sólo las usa la página de
-  diagnóstico.
+  (partidos, participaciones, eventos, fichas, actas, árbitros). Las `agregado` (recuentos globales,
+  cobertura por federación y, desde que la portada, `/federaciones` y `/competiciones` leen el canónico,
+  los recuentos y las facetas del catálogo) recorren tablas enteras porque es lo que piden. Ninguna
+  `agregado` agrega tablas de hechos: el único recuento global de hechos, `resumen-canónico`, vive en la
+  página de diagnóstico a propósito (23/9/2026).
 - **Forma del plan**: se guarda en `pruebas/planes/<consulta>.json`. Si cambia, `pnpm planes` falla con
   el antes y el después, para que alguien mire por qué en vez de actualizar el fichero sin pensar.
 - En `pnpm test` se defiende lo que no necesita PostgreSQL: que toda consulta declara presupuesto, tipo
@@ -48,6 +50,22 @@ Medido el 14/9/2026 con 22 grupos, 6.483 partidos, 160.450 participaciones y 106
 Todas dentro de presupuesto y ninguna indexada recorriendo tablas de hechos. Las cifras son de esta
 máquina (la que también recolecta, así que son pesimistas): lo que prohíbe la skill aquí es Lighthouse,
 Playwright y las pruebas de carga, no unos cuantos `EXPLAIN` de milisegundos.
+
+Medido de nuevo el 23/9/2026 —39 grupos, 9 175 partidos— al llevar la portada, `/federaciones` y
+`/competiciones` al canónico, con las cuatro consultas nuevas del catálogo declaradas en
+`apps/web/src/consultas/catalogo.ts`:
+
+| consulta | tiempo | presupuesto |
+|---|---|---|
+| `listado-de-grupos` (indexada) | 0,5 ms | 500 ms |
+| `facetas-del-catálogo` (agregada) | 0,2 ms | 300 ms |
+| `federaciones-del-canónico` (agregada) | 0,3 ms | 300 ms |
+| `recuentos-del-canónico` (agregada) | 0,4 ms | 500 ms |
+
+Los planes de las tres consultas que ya existían también se volvieron a guardar ese día: el volumen
+había crecido desde el 14/9 (22 → 39 grupos) y PostgreSQL cambió el recorrido de `resumen-canónico`,
+`grupo-del-canónico` y `clasificación-del-grupo` sin salirse de presupuesto ni tocar una tabla de hechos
+por índice.
 
 PostgreSQL recuerda que los índices aceleran lecturas pero añaden coste de escritura y espacio; los
 multicolumna son más eficaces cuando sus columnas iniciales coinciden con filtros reales. Véanse

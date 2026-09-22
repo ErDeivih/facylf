@@ -7,6 +7,10 @@ import type { Consulta, FilaFederacion, FilaGrupo, FilaResumen } from './contrat
  * interpola en el texto —van todos por parámetros— y no se suman jornadas esperadas de grupos
  * distintos, porque ese número no significa nada.
  *
+ * (La portada sí suma `ops.coverage_checkpoint.jornadas_esperadas` por grupos, pero como **recuento**
+ * de jornadas —una por grupo—, no equiparando el número de jornada de un grupo con el de otro: eso
+ * vive en `catalogo.ts`, no aquí.)
+ *
  * Lo que se enseña sale de `ops.coverage_checkpoint`, que el importador recalcula al cerrar cada
  * lote. La web **no** calcula completitud recorriendo partidos: eso sería una segunda verdad.
  */

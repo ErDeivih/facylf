@@ -1,0 +1,23 @@
+{
+  "consulta": "facetas-del-catálogo",
+  "presupuestoMs": 300,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Append",
+      "CTE Scan",
+      "Hash",
+      "Hash Join",
+      "Limit",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "competition_edition",
+      "season"
+    ],
+    "filas": 37
+  }
+}

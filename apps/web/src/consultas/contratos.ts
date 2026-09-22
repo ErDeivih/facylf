@@ -16,8 +16,10 @@ export type Consulta<Fila> = {
    * Cómo debe recorrerse:
    *  · `indexado` — filtra por federación y grupo: no puede acabar en un `Seq Scan` sobre una tabla de
    *    hechos (partidos, participaciones, eventos, fichas). Lo comprueba `scripts/planes.mjs`.
-   *  · `agregado` — cuenta o resume tablas enteras: el recorrido completo es lo que pide la consulta.
-   *    Sólo las usa la página de diagnóstico, nunca una página pública.
+   *  · `agregado` — cuenta o resume tablas enteras porque es lo que pide la consulta. Ninguna agrega
+   *    tablas de hechos: las de cobertura y catálogo (`ops.coverage_checkpoint`, `core.phase_group`…)
+   *    son pequeñas y acotadas, y `resumen-canónico` —el único recuento global de hechos— vive en la
+   *    página de diagnóstico a propósito. Lo comprueba `apps/web/test/planes.test.ts`.
    */
   plan: 'indexado' | 'agregado';
   /** Columnas que la consulta promete. La prueba falla si desaparece alguna. */
