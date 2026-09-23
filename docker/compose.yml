@@ -78,7 +78,7 @@ x-comun: &recolector
   image: facylf-recolectores:local
   restart: unless-stopped
   cgroup_parent: facylf.slice
-  # ── DNS EXPLÍCITO (21/09/2026) ──────────────────────────────────────────────────────────────────────────
+  # ── DNS EXPLÍCITO (21/09/2026, ampliado a cuatro el 23/09/2026) ──────────────────────────────────────────
   #
   # El servidor tiene en `/etc/resolv.conf` los resolutores de Tailscale (`100.100.1.1`) pero Tailscale tiene el
   # DNS desactivado en esa máquina, así que el HOST no resuelve nada: ni `apt`, ni `docker pull`, ni el
@@ -87,9 +87,22 @@ x-comun: &recolector
   #
   # Poner aquí los resolutores que SÍ existen evita el problema sin tocar el host (que necesita `sudo`):
   # el router de casa y Cloudflare. Si el servidor se muda de red, esto es lo primero que hay que revisar.
+  #
+  # ── POR QUÉ AHORA SON CUATRO Y NO DOS (medido el 23/09/2026) ─────────────────────────────────────────────
+  #
+  # Con dos, basta con que uno falle mientras el otro va lento para que el contenedor se quede sin resolver: es
+  # lo que le pasó a Castilla-La Mancha, que estuvo un rato con `net::ERR_NAME_NOT_RESOLVED` mientras las demás
+  # federaciones iban bien. Y su coste se ve en el ritmo: **62 actas/hora frente a 300** de las demás, porque
+  # Chrome se caía en bucle y cada sesión se reiniciaba desde cero.
+  #
+  # Y los cuatro no son cuatro veces lo mismo: el router de casa resuelve por la red local y los tres públicos
+  # son de proveedores distintos (Cloudflare, Google y Quad9). Para quedarse sin resolver tienen que caerse a la
+  # vez el router y los tres, que es mucho pedir.
   dns:
     - "${FACYLF_DNS_1:-192.168.1.1}"
     - "${FACYLF_DNS_2:-1.1.1.1}"
+    - "${FACYLF_DNS_3:-8.8.8.8}"
+    - "${FACYLF_DNS_4:-9.9.9.9}"
   # Un navegador sin cabeza con sus procesos auxiliares medido dentro del contenedor: ~1,0 GB de RSS (que
   # sobreestima, porque Chrome comparte memoria entre sus procesos). El límite por contenedor es una red de
   # seguridad para un navegador desbocado, no el reparto: el reparto lo lleva el gobernador (11 plazas) y el

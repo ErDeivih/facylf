@@ -692,57 +692,64 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
      * esperar antes de darse por vencido. Pulsar es el plan B, no el A: si la ruta directa funciona, no se
      * toca nada.
      */
-    const hayJornadas = async () => Boolean(await driver.executeScript(`
-      const principal = document.querySelector('main') || document.body;
-      return [...principal.querySelectorAll('span,div,h3,h4')].some((e) =>
-        e.children.length === 0 && /^JORNADA\\s+\\d+\\b/i.test((e.textContent || '').trim()));
-    `));
+    /*
+     * ── LA PREGUNTA «¿HAY JORNADAS?» LA CONTESTA EL EXTRACTOR, NO UNA EXPRESIÓN REGULAR (23/09/2026) ──────
+     *
+     * Antes se esperaba a que apareciera un elemento HOJA cuyo texto fuese «JORNADA N» a secas. Es frágil: si
+     * la maqueta envuelve el número en otro elemento, o le añade la fecha, la comprobación NO CASA NUNCA
+     * aunque el calendario esté perfectamente pintado. Y el diagnóstico usaba el mismo filtro, así que devolvía
+     * `jornadas: []` — «no hay ninguna jornada» — con la página llena. Es exactamente lo que se veía.
+     *
+     * Así que ahora se espera a que la página TENGA CONTENIDO (algo que no depende de ninguna maqueta) y la
+     * pregunta la contesta el EXTRACTOR de verdad, el mismo que después se usa para guardar. Si no saca nada, se
+     * prueba a pulsar la pestaña «CALENDARI» —que puede no venir activa aunque la URL la pida— y se vuelve a
+     * extraer. Sólo entonces se da por vencido, y con el diagnóstico puesto.
+     */
     const espera = String(trabajo.temporada) === temporadaActual ? 15000 : 30000;
-
-    let visible = false;
     try {
-      await driver.wait(hayJornadas, espera);
-      visible = true;
-    } catch { /* se prueba el plan B antes de rendirse */ }
-
-    if (!visible) {
-      const pulsada = await driver.executeScript(`
-        const objetivo = [...document.querySelectorAll('button,a,[role=tab],li,span')]
-          .find((e) => /^\\s*CALENDARI\\s*$/i.test((e.innerText || e.textContent || '').trim()));
-        if (!objetivo) return false;
-        objetivo.click();
-        return true;
-      `).catch(() => false);
-      if (pulsada) {
-        try {
-          await driver.wait(hayJornadas, espera);
-          visible = true;
-        } catch { /* tampoco así: se cae al diagnóstico de siempre */ }
-      }
-    }
-
-    if (!visible) {
-      const diagnostico = await driver.executeScript(`
+      await driver.wait(async () => Boolean(await driver.executeScript(`
         const principal = document.querySelector('main') || document.body;
-        return {
-          url: location.href,
-          botones: [...document.querySelectorAll('button')].map((b) => (b.innerText || '').trim())
-            .filter(Boolean).slice(0, 30),
-          jornadas: [...principal.querySelectorAll('span,div,h3,h4')]
-            .map((e) => (e.textContent || '').replace(/\\s+/g, ' ').trim())
-            .filter((t) => /JORNADA/i.test(t)).slice(0, 8),
-          texto: (principal.innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 240),
-        };
-      `).catch(() => null);
-      const pista = diagnostico ? ` [${JSON.stringify(diagnostico)}]` : '';
-      throw new ErrorFuente(`el calendario no muestra ninguna jornada${pista}`, false, true);
-    }
-    return { detalle: 'calendario visible' };
+        return (principal.innerText || '').trim().length > 200;
+      `)), espera);
+    } catch { /* se sigue igual: si no hay contenido, lo dirá el diagnóstico del final */ }
+    return { detalle: 'página cargada' };
   });
-  const jornadas = await driver.executeScript(EXTRAE_CALENDARIO);
+
+  let jornadas = await driver.executeScript(EXTRAE_CALENDARIO);
+
+  if (!jornadas.length) {
+    // Plan B: pulsar la pestaña del calendario. En un SPA puede no venir activa aunque la URL la pida.
+    const pulsada = await driver.executeScript(`
+      const objetivo = [...document.querySelectorAll('button,a,[role=tab],li,span')]
+        .find((e) => /^\\s*CALENDARI\\s*$/i.test((e.innerText || e.textContent || '').trim()));
+      if (!objetivo) return false;
+      objetivo.click();
+      return true;
+    `).catch(() => false);
+    if (pulsada) {
+      await new Promise((r) => setTimeout(r, 2000));
+      jornadas = await driver.executeScript(EXTRAE_CALENDARIO);
+    }
+  }
+
   // Un calendario vacío puede ser una competición aún sin publicar. Nunca se descarta: si la
   // maqueta vuelve a cambiar quedará visible como pendiente, no como una cobertura falsamente cerrada.
-  if (!jornadas.length) throw new ErrorFuente('el calendario no muestra ninguna jornada', false, true);
+  if (!jornadas.length) {
+    const diagnostico = await driver.executeScript(`
+      const principal = document.querySelector('main') || document.body;
+      return {
+        url: location.href,
+        botones: [...document.querySelectorAll('button')].map((b) => (b.innerText || '').trim())
+          .filter(Boolean).slice(0, 30),
+        filasConJornada: [...principal.querySelectorAll('*')]
+          .map((e) => (e.textContent || '').replace(/\\s+/g, ' ').trim())
+          .filter((t) => /JORNADA/i.test(t)).slice(0, 8),
+        texto: (principal.innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 240),
+      };
+    `).catch(() => null);
+    const pista = diagnostico ? ` [${JSON.stringify(diagnostico)}]` : '';
+    throw new ErrorFuente(`el calendario no muestra ninguna jornada${pista}`, false, true);
+  }
 
   const nombreComp = db.prepare('select nombre from competiciones where temporada=? and codigo=?')
     .get(trabajo.temporada, trabajo.competicion)?.nombre ?? '';
