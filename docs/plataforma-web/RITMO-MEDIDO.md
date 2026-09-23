@@ -457,6 +457,32 @@ decisión del responsable**, así que se prueba en UNA federación (Murcia) y no
 Se recuperan los ~3,2 s que predecía la medición del `fsync`. La cola de Murcia queda **íntegra** (cero errores
 de SQLite en el registro tras el cambio) y la federación sigue trabajando con normalidad.
 
+**Y se repite en una segunda federación, que era lo que faltaba para poder decidir.** Andalucía —una de las
+colas grandes, 66.038 trabajos pendientes— con el mismo instrumento:
+
+| grupo | con `FULL` (20 trabajos) | con `NORMAL` (30 trabajos) |
+|---|---|---|
+| **escrituras nuestras** | **8,59 s (69 %)** | **6,27 s (56 %)** |
+| portal | 3,73 s | 4,20 s |
+| cortesía | 0,00 s | 0,42 s |
+| `acta_estructura` | 6,19 s | 5,24 s |
+| `acta_guardar_html` | 1,57 s | 0,76 s |
+| `acta_guardar_json` | 0,83 s | 0,27 s |
+| **ciclo por trabajo** | **12,5 s** | **11,1 s** |
+
+Dos federaciones distintas, las dos con menos tiempo en escrituras y ciclo más corto (Murcia −19 %, Andalucía
+−11 %). **La ganancia es menor en Andalucía porque su `acta_estructura` sigue en 5,24 s: eso ya no es `fsync`,
+es trabajo real** —muchísimos `insert` sobre una cola de 438 MB con sus índices—, y ahí el `fsync` no tenía nada
+que rascar. Es decir: `NORMAL` quita el coste de sincronizar, no el de escribir.
+
+Antes/después, con la misma máquina y el mismo instrumento:
+
+| | Murcia | Andalucía |
+|---|---|---|
+| escrituras | 6,01 s → **2,80 s** | 8,59 s → **6,27 s** |
+| ciclo | 10,0 s → **8,1 s** | 12,5 s → **11,1 s** |
+| cortesía | 0,03 s → 0,82 s | 0,00 s → 0,42 s |
+
 ### 6.3 · Y ahora el cuello ha cambiado de sitio: la cortesía **sí** manda
 
 El dato más útil del apartado anterior no es el 23 % de mejora: es que **la cortesía ha pasado de 0,03 s (0 %)
@@ -472,6 +498,50 @@ disco, y después bajar el intervalo, que es lo que ahora limita.
 > fases mide el ciclo de los trabajos que ocurren y **no cuenta los huecos entre sesiones**, así que da ~360
 > pet/h donde el dato real de la cola da ~180-250. Hace falta una hora limpia de después (la variación natural
 > de una federación es del 27-39 %, ver §8) y la ventana de 11:00 mezcla antes y después.
+
+### 6.4 · Lo que queda después del `fsync`: escribir de verdad, y por qué Andalucía tarda más que Murcia
+
+Tras `NORMAL`, lo que sobra en `acta_estructura` ya **no es sincronizar el disco**: Andalucía sigue en **5,24 s**
+y Murcia en 1,88 s. La diferencia entre las dos no es el `fsync` —las dos van con `NORMAL`— sino el TAMAÑO de la
+cola: la de Andalucía tiene **66.038 trabajos pendientes y 438 MB**, y guardar un acta hace decenas de `insert`
+en `participaciones`, `eventos_acta` y `personas` con sus índices. Eso es trabajo real: ni se puede quitar con
+una variable, ni lo arregla el SSD del todo.
+
+Las palancas que quedan para ese resto, en orden de relación efecto/riesgo:
+
+1. **Menos escrituras por acta**: el JSON del análisis ya viaja dentro de la columna `datos` de `actas`, así que
+   el fichero `.json` aparte es un gzip y una escritura por acta que se pueden discutir.
+2. **Una sola transacción por acta** en vez de las que quedan sueltas (`enTransaccion` ya es reentrante, que era
+   lo que hacía falta para poder envolverlas).
+3. **La cola al SSD** (o al menos el archivo HTML/JSON): con `NORMAL` el `fsync` ya no duele, pero leer y
+   escribir páginas de una base de 438 MB en un disco duro compartido sigue costando.
+
+Y una observación que conviene no perder: **el mismo trabajo cuesta muy distinto según la federación** (ciclo de
+8,1 s en Murcia y 11,1 s en Andalucía, con `acta_estructura` de 1,88 s frente a 5,24 s). Optimizar «el worker»
+como si fuera uno solo lleva a conclusiones falsas; hay que mirar por federación.
+
+### 6.5 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
+
+Persiguiendo el ritmo real —224 pet/h en Murcia cuando su ciclo de 8,1 s permitiría 444— hice un análisis de
+huecos que decía que **entre un tercio y casi la mitad del reloj se va en espacios de más de un minuto**, en
+todas las federaciones. La conclusión que saqué primero fue: **relevos de sesión** (cerrar Chrome, esperar al
+supervisor, abrir otro). Sonaba bien y era razonable… y **era falsa**. Las tres comprobaciones que la tiraron:
+
+| hipótesis | comprobación | resultado |
+|---|---|---|
+| «son relevos de sesión» | `analiza-relevos.sh`: duración de las sesiones | 160-219 trabajos por sesión y el supervisor espera **20 s**; en 3 h pierde menos de 1 min |
+| «no tiene trabajo que pedir» | `analiza-sin-trabajo.sh` | Andalucía tiene **49.146 trabajos disponibles** y **0** veces dijo «sin trabajo»; Asturias, 9.888 |
+| «hay peticiones que se cuelgan» | `analiza-duraciones.mjs` | de 570 peticiones, la **más lenta son 10,0 s** y todas `ok`; ninguna pasa de 15 s |
+| «trabaja en ráfagas» | `analiza-actividad.mjs` | **0 tramos vacíos de 24**: hace peticiones en todos los tramos de 5 minutos |
+
+Lo que de verdad pasa: **trabaja de forma continua y lenta.** Andalucía hace 14 peticiones por tramo de 5
+minutos (2,9 pet/min) con peticiones de 3,2 s de mediana, o sea un **ciclo real de ~21 s**, y ninguno de esos
+segundos está en la red, ni esperando trabajo, ni en un relevo. Están **dentro del worker**, que es justo lo que
+la medición por fases sabe desglosar — y ahí es donde manda `acta_estructura`.
+
+La lección de método: **una diferencia entre «el ciclo medido» y «las peticiones por hora» no dice dónde está el
+tiempo; hay que ir a buscarlo.** Las cuatro comprobaciones de arriba cuestan minutos y cada una descarta una
+familia de explicaciones. Tres de las cuatro eran fáciles de creer.
 
 ---
 
@@ -501,6 +571,12 @@ disco, y después bajar el intervalo, que es lo que ahora limita.
 | `mide-cola-en-disco.mjs [fed] [n]` | la misma escritura de un trabajo sobre copias de la cola en cada disco |
 | `mide-commit-cola.mjs [n] [filas]` | **cuánto cuesta confirmar una escritura** en el disco duro y en el SSD, con `FULL` y con `NORMAL` |
 | `trae-paginas-web.sh [carpeta]` | se trae las páginas de la plataforma para mirar QUÉ enseñan, no sólo si dan 200 |
+| `analiza-huecos-federacion.mjs [fed] [h]` | reparte el reloj: dentro de la petición, ciclo, huecos de 15-60 s, relevos y paradas |
+| `analiza-relevos.sh [fed] [h]` | cuánto duran las sesiones, con qué código terminan y cuánto espera el supervisor |
+| `analiza-sin-trabajo.sh [fed] [h]` | ¿se queda sin trabajo disponible? ¿cuántos pendientes hay aplazados? |
+| `analiza-duraciones.mjs [fed] [h]` | distribución de la duración de las peticiones y las más lentas, con su tipo |
+| `analiza-actividad.mjs [fed] [h]` | peticiones cada 5 minutos: dice si trabaja seguido o a ráfagas |
+| `compara-relevos.sh [h] [feds…]` | compara el tiempo perdido entre federaciones de un vistazo |
 | `compara-entorno-recolectores.sh` | caza variables perdidas por declarar `environment:` y pisar el ancla |
 | `estado-ultima-tanda.sh` · `revisa-salud-flota.sh` | ¿trabajando o caída? Bucles de caída y federaciones mudas |
 | `para-medicion.sh <guion.mjs>` | para SÓLO un contenedor de medición, sin tocar los 19 recolectores |

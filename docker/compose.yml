@@ -99,6 +99,27 @@ services:
   andalucia:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "andalucia"]
+    # ── SEGUNDA FEDERACIÓN DE MEDICIÓN (23/09/2026) ─────────────────────────────────────────────────────────
+    #
+    # Murcia ya se midió (`FACYLF_PERF=1` abajo) y su ciclo queda explicado: portal 39-53 %, escrituras, cortesía.
+    # Pero Andalucía —una de las colas grandes, 66.000 trabajos pendientes— tarda **~21 s por trabajo** con
+    # peticiones de 3,2 s de mediana, y NINGUNA petición se cuelga (la más lenta son 10 s, todas `ok`). Es decir:
+    # le sobran ~17 s por vuelta que no son la red.
+    #
+    # Y no es que esté parada: hace peticiones en los 24 tramos de 5 minutos de dos horas seguidas, sin un solo
+    # tramo vacío. Trabaja de forma continua y lenta, que es justo lo que la medición por fases sabe desglosar.
+    #
+    # Se instrumenta la SEGUNDA federación a propósito, como pedía el traspaso («en UNA federación primero, y
+    # sólo después al resto»): si sale el mismo reparto que en Murcia, el patrón es del worker; si sale otro,
+    # el problema es de esta cola —que es la más grande— y se habrá acotado sin tocar las 19.
+    environment:
+      <<: *ambiente-recolector
+      FACYLF_PERF: "1"
+      # Segunda federación del experimento de `synchronous` (la primera es Murcia, ver su comentario). Andalucía
+      # es la prueba dura: su `acta_estructura` mide 6,19 s de media (mediana 3,61 s) con `FULL`, el triple que
+      # Murcia, y su cola es de las grandes. Si aquí la ganancia se repite, el caso para el resto de la flota
+      # queda medido en dos federaciones distintas y no en una.
+      FACYLF_SINCRONO: "NORMAL"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-andalucia:/app/descargas-andalucia
