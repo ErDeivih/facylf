@@ -157,8 +157,40 @@ export function urlActa(acta) {
 export function abreBase(ruta) {
   mkdirSync(dirname(ruta), { recursive: true });
   const db = new DatabaseSync(ruta);
+  /*
+   * ── SINCRONIZACION DEL DISCO EN CADA CONFIRMACION (medido el 23/09/2026) ──────────────────────────────
+   *
+   * SQLite, con `synchronous = FULL` (su valor por defecto), SINCRONIZA EL DISCO en cada confirmacion. En el
+   * servidor eso cuesta, medido con `mide-commit-cola.mjs` sobre `/srv/data`, que es un disco DURO:
+   *
+   *     1 fila = 1 confirmacion, con FULL    -> 540 ms de mediana (hasta 1.312 ms)
+   *     1 fila = 1 confirmacion, con NORMAL  ->   0,0 ms
+   *     400 filas = 1 confirmacion, con FULL -> 883 ms
+   *     (en el SSD del sistema, con FULL:      3,8 ms)
+   *
+   * Y guardar un acta hacia VARIAS confirmaciones sueltas, asi que el coste se multiplicaba: la medicion por
+   * fases ponia 6,01 s de 10,0 s en las fases de escritura. No era el volumen de datos ni la CPU (sha256 1,3 ms
+   * y gzip 4,8 ms): era sincronizar el disco una y otra vez en un disco duro compartido por 19 recolectores y el
+   * importador.
+   *
+   * QUE CAMBIA EXACTAMENTE `NORMAL`. En modo WAL, `NORMAL` sigue siendo seguro frente a la CORRUPCION — la base
+   * nunca queda rota—, pero si se va la luz o se cae el sistema operativo se pueden perder las ULTIMAS
+   * confirmaciones (segundos). Frente a la caida del propio proceso, sigue siendo seguro.
+   *
+   * Para este proyecto eso significa: en el peor caso se repiten unas cuantas peticiones ya hechas, porque la
+   * cola es idempotente y los trabajos vuelven a 'pendiente'. Es una decision del responsable, no un detalle
+   * tecnico, asi que va por variable y por federacion:
+   *
+   *     FACYLF_SINCRONO=NORMAL   -> sin sincronizacion en cada confirmacion (mucho mas rapido)
+   *     sin la variable           -> FULL, que es el comportamiento de siempre
+   *
+   * Se pone DESPUES de `journal_mode = WAL` a proposito: el valor de `synchronous` depende del modo de diario, y
+   * cambiar el modo lo reinicia.
+   */
+  const sincrono = String(process.env.FACYLF_SINCRONO ?? '').toUpperCase() === 'NORMAL' ? 'NORMAL' : 'FULL';
   db.exec(`
     pragma journal_mode = WAL;
+    pragma synchronous = ${sincrono};
     pragma foreign_keys = ON;
     -- ── ESPERAR A QUE EL OTRO TERMINE (medido el 21/09/2026) ────────────────────────────────────────────
     --
@@ -446,15 +478,52 @@ export function abreBase(ruta) {
   return db;
 }
 
+/**
+ * Ejecuta `operacion` dentro de una transacción. **Reentrante**: si ya hay una abierta, participa en ella.
+ *
+ * ── POR QUÉ ES REENTRANTE (medido el 23/09/2026) ────────────────────────────────────────────────────────
+ *
+ * Porque cada confirmación cuesta, en el servidor, **540 ms de mediana** (hasta 1.312 ms). No es escribir: es
+ * que SQLite en modo WAL con `synchronous = FULL` **sincroniza el disco en cada confirmación**, y `/srv/data` es
+ * un disco DURO que comparten 19 recolectores y el importador. Medido con `mide-commit-cola.mjs`: la misma
+ * confirmación en el SSD cuesta 3,8 ms, y con `synchronous = NORMAL` cuesta 0,0 ms.
+ *
+ * Guardar un acta hacía SIETE confirmaciones sueltas (el `upsert` de `archivos` del HTML, el del JSON, la
+ * transacción del guardado estructurado, las decisiones de descanso, la reconciliación, el `update actas` y el
+ * `update trabajos`): siete por 540 ms son casi cuatro segundos **por acta**, que es justo el hueco que la
+ * medición por fases encontraba en `acta_estructura` (2,72 s) y en las fases de escritura (6,01 s de 10,0 s).
+ *
+ * Agruparlas no cambia DÓNDE viven los datos ni su durabilidad: sigue habiendo una confirmación, sólo que una
+ * en vez de siete. Y para poder agrupar desde fuera hace falta esto: sin reentrancia, la transacción interna de
+ * `guardaActaEstructura` abortaría con «cannot start a transaction within a transaction».
+ *
+ * El anidamiento mejora la atomicidad, que es lo que se quiere: si algo falla a mitad, se deshace el acta
+ * entera en vez de dejarla a medias. El dueño de la transacción externa es quien la confirma.
+ */
+const TRANSACCIONES_ABIERTAS = new WeakMap();
+
 export function enTransaccion(db, operacion) {
+  const abiertas = TRANSACCIONES_ABIERTAS.get(db) ?? 0;
+  if (abiertas > 0) {
+    // Ya hay una transacción en curso en esta base: se participa en ella, no se abre otra.
+    TRANSACCIONES_ABIERTAS.set(db, abiertas + 1);
+    try {
+      return operacion();
+    } finally {
+      TRANSACCIONES_ABIERTAS.set(db, abiertas);
+    }
+  }
   db.exec('begin immediate');
+  TRANSACCIONES_ABIERTAS.set(db, 1);
   try {
     const resultado = operacion();
     db.exec('commit');
     return resultado;
   } catch (error) {
-    db.exec('rollback');
+    try { db.exec('rollback'); } catch { /* la transacción ya no estaba */ }
     throw error;
+  } finally {
+    TRANSACCIONES_ABIERTAS.set(db, 0);
   }
 }
 

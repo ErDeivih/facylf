@@ -416,6 +416,63 @@ Arreglos posibles, de más a menos directo:
 > espera; pero para afirmarlo con todas las letras habría que medir el tiempo de CPU de la propia fase, y eso
 > queda pendiente.
 
+### 6.2 · Y el coste no era escribir: era **un `fsync` por confirmación** (ya arreglado y medido)
+
+Buscando qué había dentro de esas escrituras, la respuesta resultó ser mucho más concreta de lo que parecía.
+SQLite, con `synchronous = FULL` (su valor por defecto, que es el que había), **sincroniza el disco en cada
+confirmación**. Medido con `mide-commit-cola.mjs` sobre una base de usar y tirar:
+
+| | `/srv/data` (disco DURO) | `/ (SSD)` |
+|---|---|---|
+| 1 fila = 1 confirmación, `FULL` | **540 ms** de mediana (hasta 1.312 ms) | 3,8 ms |
+| 1 fila = 1 confirmación, `NORMAL` | **0,0 ms** | 0,0 ms |
+| 400 filas = 1 confirmación, `FULL` | 883 ms | 7,1 ms |
+
+**Un factor 140 entre los dos discos, y el coste desaparece con `NORMAL`.** Y guardar un acta hacía **siete
+confirmaciones sueltas** (el `upsert` de `archivos` del HTML, el del JSON, la transacción de
+`guardaActaEstructura`, las decisiones de descanso, la reconciliación, el `update actas` y el `update trabajos`):
+siete por 540 ms son **casi cuatro segundos por acta**. Eso es, exactamente, el hueco que la medición por fases
+encontraba.
+
+**El arreglo, y por qué va por variable.** Se añade `FACYLF_SINCRONO` en `abreBase`:
+
+- sin la variable → `FULL`, **el comportamiento de siempre** (las 18 federaciones que no se tocan siguen igual);
+- `FACYLF_SINCRONO=NORMAL` → sin sincronización en cada confirmación.
+
+`NORMAL` en modo WAL **sigue siendo seguro frente a la corrupción** —la base nunca se rompe—, pero si se va la
+luz o se cae el sistema operativo se pueden perder las **últimas confirmaciones**. Aquí eso significa repetir
+unas cuantas peticiones ya hechas, porque la cola es idempotente y los trabajos vuelven a `pendiente`. **Es una
+decisión del responsable**, así que se prueba en UNA federación (Murcia) y no en las 19.
+
+**Resultado medido, con el mismo instrumento antes y después:**
+
+| grupo | con `FULL` (220 trabajos) | con `NORMAL` (60 trabajos) |
+|---|---|---|
+| **escrituras nuestras** | **6,01 s (60 %)** | **2,80 s (35 %)** |
+| portal | 3,89 s | 4,27 s |
+| **cortesía** | 0,03 s (0 %) | **0,82 s (10 %)** |
+| análisis del acta | 0,07 s | 0,19 s |
+| **ciclo por trabajo** | **10,0 s** | **8,1 s** |
+
+Se recuperan los ~3,2 s que predecía la medición del `fsync`. La cola de Murcia queda **íntegra** (cero errores
+de SQLite en el registro tras el cambio) y la federación sigue trabajando con normalidad.
+
+### 6.3 · Y ahora el cuello ha cambiado de sitio: la cortesía **sí** manda
+
+El dato más útil del apartado anterior no es el 23 % de mejora: es que **la cortesía ha pasado de 0,03 s (0 %)
+a 0,82 s (10 %)**, y de esperarse en 9 de 150 trabajos a **28 de 60**. Con el trabajo ya por debajo de la
+cortesía configurada (6-8 s), `ritmo.antes()` empieza a esperar de verdad.
+
+Es decir: **al quitar el coste de disco, el apartado (B) pasa a tener sentido — y justo en ese orden**. Antes
+bajar la cortesía no servía de nada porque el worker no llegaba a esperarla; ahora sí. La secuencia correcta es
+la que dice el traspaso, aunque por un motivo distinto del que decía: primero dejar de perder tiempo en el
+disco, y después bajar el intervalo, que es lo que ahora limita.
+
+> **Lo que falta para cerrarlo:** la confirmación de extremo a extremo con **peticiones/hora**. La medición por
+> fases mide el ciclo de los trabajos que ocurren y **no cuenta los huecos entre sesiones**, así que da ~360
+> pet/h donde el dato real de la cola da ~180-250. Hace falta una hora limpia de después (la variación natural
+> de una federación es del 27-39 %, ver §8) y la ventana de 11:00 mezcla antes y después.
+
 ---
 
 ## 7 · Herramientas nuevas (todas de sólo lectura sobre la flota)
@@ -442,6 +499,8 @@ Arreglos posibles, de más a menos directo:
 | `mide-guardado-acta.mjs [fed] [n]` | coste suelto de sha256, gzip y escribir, **en el disco duro y en el SSD** |
 | `mide-bloqueo-cola.mjs [fed] [n]` | cuánto tarda en concederse el bloqueo de la cola (sin modificar nada) |
 | `mide-cola-en-disco.mjs [fed] [n]` | la misma escritura de un trabajo sobre copias de la cola en cada disco |
+| `mide-commit-cola.mjs [n] [filas]` | **cuánto cuesta confirmar una escritura** en el disco duro y en el SSD, con `FULL` y con `NORMAL` |
+| `trae-paginas-web.sh [carpeta]` | se trae las páginas de la plataforma para mirar QUÉ enseñan, no sólo si dan 200 |
 | `compara-entorno-recolectores.sh` | caza variables perdidas por declarar `environment:` y pisar el ancla |
 | `estado-ultima-tanda.sh` · `revisa-salud-flota.sh` | ¿trabajando o caída? Bucles de caída y federaciones mudas |
 | `para-medicion.sh <guion.mjs>` | para SÓLO un contenedor de medición, sin tocar los 19 recolectores |
@@ -540,25 +599,54 @@ Lo que hay que aprender:
 
 ## 10 · Qué hacer ahora, en orden
 
-1. **Atacar el disco, que es el 60 % del ciclo** (§6.1). Por orden: mover el archivo HTML/JSON al SSD, luego
-   las colas, luego escribir menos (el `.json` del análisis ya está dentro de `actas.datos`). Es la palanca más
-   grande que hay hoy y no pide ni una petición más a nadie. **Decisión del responsable** en lo que toque a
-   dónde viven los datos.
-2. **Arreglar el importador que se atasca** (§5.1): tope de tiempo y de procesador por unidad, y acotar el
-   resolutor de equipos. Quema un 11 % de la máquina sin avanzar, frena a la federación cuya cola tiene
-   ocupada y **compite por el mismo disco duro** que las escrituras del punto 1.
-3. **Repetir bien la prueba de Valencia** (§9), sin la unidad del importador encima y sin cruzar la noche con
-   la mañana: ventanas de una hora y la referencia horaria al lado.
-4. **No tocar la cortesía de las PNFG.** Medido: es el 0,3 % del ciclo. Cambiarla sólo añadiría ruido.
-5. **Explorar la sesión anónima sin navegador** (§6): es el camino al otro 39 %. Ya se sabe que el muro es de
-   sesión y no de render, así que es trabajo de producto con pruebas.
-6. **(C), descartado** mientras la máquina siga saturada. Reabrirlo sólo si se añaden núcleos.
-7. **Arreglar el reloj del servidor**: no tiene NTP (`System clock synchronized: no`). No es cosmético — el cupo
-   diario cuenta por día civil de Madrid y los aplazamientos se calculan con ese reloj.
-8. **Dejar de creerse el «sin trabajo» del monitor** (§0): distinguir «no tiene trabajo» de «arranca y muere»
-   en `estado-general.sh`, no sólo en la herramienta nueva.
+1. **Decidir sobre `FACYLF_SINCRONO=NORMAL` para las 19** (§6.2). Medido en Murcia: las escrituras bajan de
+   6,01 s a 2,80 s y el ciclo de 10,0 s a 8,1 s (+23 %), con la cola íntegra. **Es una decisión del responsable**
+   porque con `NORMAL` una caída de luz puede perder las últimas confirmaciones (la base nunca se corrompe, y
+   aquí sólo significa repetir peticiones ya hechas). Va por variable: sin ella, comportamiento de siempre.
+2. **Cerrar la confirmación de extremo a extremo** (§6.3): una hora limpia de peticiones/hora, porque la
+   medición por fases no cuenta los huecos entre sesiones.
+3. **Y ahora sí, bajar la cortesía por federación** (apartado B): con el disco arreglado, la cortesía ha pasado
+   a mandar de verdad en Murcia (0,03 s → 0,82 s; 9 de 150 trabajos → 28 de 60). Antes no servía de nada.
+4. **Agrupar las escrituras de un acta en UNA transacción.** Quedan 2,80 s de escrituras y la mayoría son
+   confirmaciones sueltas (`reconciliaEnlaceActa`, el `update actas`, los dos `upsert` de `archivos`). El
+   terreno está preparado: `enTransaccion` ya es reentrante, que era lo que faltaba para poder envolverlas.
+5. **Mover el archivo (HTML y JSON) al SSD**: de los 2,80 s que quedan, buena parte sigue siendo escribir en el
+   disco duro. Decisión del responsable en lo que toque a dónde viven los datos.
+6. **Arreglar el importador que se atasca** (§5.1): quema un 11 % de la máquina sin avanzar, frena a la
+   federación cuya cola tiene ocupada y compite por el mismo disco duro.
+7. **Explorar la sesión anónima sin navegador** (§6): es el camino al 53 % que ahora se lleva el portal.
+8. **(C), descartado** mientras la máquina siga saturada. Reabrirlo sólo si se añaden núcleos.
+9. **Arreglar el reloj del servidor**: no tiene NTP (`System clock synchronized: no`).
+10. **Dejar de creerse el «sin trabajo» del monitor** (§0) y **mandar el «18 federaciones» del encabezado al
+    canónico**, que tiene 21 filas (18 locales y 3 de pruebas, y ninguna de Melilla hasta que se importe).
 
 **Ya hecho:** Castilla y León vuelve a recoger (§0), el entorno de Compose ya no se pierde al añadir variables
-(§0.1), el método de (B) es aplicable sin reconstruir la imagen (§3), Valencia corre en el escalón legal más
-bajo (§9), **el ciclo por fases está instrumentado y medido** (§6.1) y quedan ocho herramientas nuevas para no
-volver a empezar de cero (§7).
+(§0.1), **la plataforma enseña datos reales del canónico con su procedencia** (§11), el ciclo por fases está
+instrumentado y medido (§6.1), el coste del `fsync` está localizado y hay un arreglo probado en una federación
+(§6.2), el método de (B) es aplicable sin reconstruir la imagen (§3) y Valencia corre en el escalón legal más
+bajo (§9).
+
+---
+
+## 11 · La plataforma de consultas ya enseña datos reales (desplegado y verificado)
+
+La otra mitad del objetivo. Estaba escrita y probada, pero **la imagen web era de hacía 34 horas**, así que no
+estaba desplegada. Ya lo está, y verificado mirando el contenido de las páginas (que den 200 no dice nada: el
+síntoma era justamente un 200 con ceros).
+
+| página | qué enseña ahora |
+|---|---|
+| portada | «18 federaciones · 358 ediciones · 56.605 partidos conocidos · 48.887 actas analizadas», con cobertura desglosada y la frase que explica de dónde sale cada cifra |
+| `/federaciones` | «18 con datos importados · medido 23/9/2026, 11:02:23» y la explicación de **por qué ya no enseña** el avance de la cola |
+| `/competiciones` | grupos reales con «8/8 resultados · 30 jornadas · 16 inscripciones · actas 8/8» y **«medido el 22/9/2026»** en cada uno |
+| `/canonico` | sigue igual que estaba (era la única que ya leía el canónico) |
+
+Los invariantes se respetan y se ven en el HTML: **«Un guion es un dato que no existe, no un cero»**; la
+provincia no se ofrece porque el importador todavía no la rellena, y la página lo dice en vez de filtrar a
+vacío; y el avance de descubrimiento no se enseña a cero, se explica que vive en una tabla que el canónico no
+tiene.
+
+**Queda pendiente de esta mitad:** el rediseño como producto de consulta y la investigación de patrones de UI y
+de Generative UI que pide el traspaso; migrar las otras 17 rutas (siguen leyendo el SQLite local, y la propia
+portada avisa de que la búsqueda todavía lo hace); y el encabezado, que sigue diciendo «18 federaciones» desde
+una lista fija.

@@ -250,6 +250,18 @@ services:
     environment:
       <<: *ambiente-recolector
       FACYLF_PERF: "1"
+      # ── EXPERIMENTO: SIN SINCRONIZACIÓN DE DISCO EN CADA CONFIRMACIÓN (23/09/2026) ────────────────────────
+      #
+      # Medido: confirmar una escritura en la cola cuesta 540 ms de mediana en el disco DURO (3,8 ms en el SSD),
+      # y guardar un acta hacía varias confirmaciones sueltas → ~6 s de 10 s por trabajo. Con `NORMAL` la misma
+      # confirmación cuesta 0,0 ms. En modo WAL esto sigue siendo seguro frente a la corrupción; lo que se puede
+      # perder, si se va la luz, son las últimas confirmaciones (segundos), y aquí eso significa repetir unas
+      # peticiones ya hechas.
+      #
+      # Se prueba SÓLO EN MURCIA, que es la federación que ya se está midiendo. Si el resultado acompaña, se
+      # propone al responsable para el resto; mientras tanto, las otras 18 siguen con el comportamiento de
+      # siempre (`FULL`). Quitar esta línea devuelve Murcia a `FULL` sin más.
+      FACYLF_SINCRONO: "NORMAL"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-murcia:/app/descargas-murcia

@@ -32,6 +32,20 @@ Y además:
    **Y ojo: esto corrige el «no insistas por ahí» de este documento.** `mide-analisis-acta.mjs` medía el
    análisis (50 ms, tenía razón) pero guardaba en una SQLite **vacía en `/tmp`** (el SSD), así que **no medía
    las escrituras**, que son el 60 % del ciclo.
+
+1.b. **Y no era escribir: era un `fsync` por confirmación.** SQLite con `synchronous = FULL` (su valor por
+   defecto) sincroniza el disco **en cada confirmación**, y en el disco duro eso cuesta **540 ms de mediana**
+   (3,8 ms en el SSD; **0,0 ms** con `NORMAL`). Guardar un acta hacía **siete** confirmaciones sueltas: casi
+   cuatro segundos por acta. Probado en Murcia con `FACYLF_SINCRONO=NORMAL` (variable nueva; **sin ella, el
+   comportamiento de siempre**): las escrituras bajan de **6,01 s a 2,80 s** y el ciclo de **10,0 s a 8,1 s**
+   (+23 %), con la cola íntegra. **Es decisión del responsable** extenderlo a las 19, porque con `NORMAL` una
+   caída de luz puede perder las últimas confirmaciones (la base nunca se corrompe y aquí sólo se repetirían
+   peticiones ya hechas). Ver `RITMO-MEDIDO.md` §6.2.
+
+1.c. **Y con eso el cuello ha cambiado de sitio: ahora la cortesía sí manda.** En Murcia pasó de 0,03 s (0 %,
+   esperada en 9 de 150 trabajos) a **0,82 s (10 %, esperada en 28 de 60)**. Es decir: **(B) pasa a tener
+   sentido, y justo en ese orden** — primero dejar de perder tiempo en el disco y después bajar el intervalo,
+   que es lo que ahora limita. Antes no servía de nada.
 2. **(B) no sirve para las PNFG.** La cortesía se mide de inicio a inicio y **sólo manda cuando el trabajo dura
    menos que ella**. En 12 de 14 federaciones el hueco mediano (8,8–19,9 s) ya **supera** la cortesía máxima
    configurada (8 s), así que `ritmo.antes()` espera 0 s: **bajarla no cambia nada**. La única federación
