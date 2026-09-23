@@ -158,6 +158,21 @@ services:
       #  es la única federación que va SIN `--perfil`, y esa rama se añadió a `entrada-recolector.sh` después de
       #  construir la imagen. Con el DNS del servidor roto no se podía reconstruir. Ya no hace falta: la imagen
       #  se reconstruyó el 22/09/2026 y trae el lanzador corregido.)
+      #
+      # ── SU CONFIGURACIÓN VA MONTADA, NO DENTRO DE LA IMAGEN (23/09/2026) ─────────────────────────────────
+      #
+      # Castilla y León es la ÚNICA federación sin `--perfil`: el recolector decide su portal y su carpeta por
+      # la AUSENCIA de ese argumento y lee `recolector.config.json` de la raíz. Y ese fichero **está en
+      # `.gitignore`**, así que nunca llegó al servidor; como la imagen se construye desde el repositorio del
+      # servidor, **no lo contenía**. Consecuencia medida el 23/09/2026: `opcionesChrome()` lanzaba
+      # «Falta el contacto real (identidad.contacto) en recolector.config.json», el worker moría con código 1
+      # en cada arranque y **la federación no recogía NADA**, con 45.935 trabajos esperando en su cola. El
+      # monitor la contaba como «sin trabajo», que es lo que ocultaba la avería.
+      #
+      # Se monta en vez de copiarla a la imagen por el mismo motivo que el resto de los datos: es
+      # configuración, no programa, y así se puede ajustar sin reconstruir. Las otras 18 federaciones llevan su
+      # `recolector.<federación>.config.json` dentro de la imagen porque SÍ están versionados.
+      - ../recolector.config.json:/app/recolector.config.json:ro
 
   galicia:
     <<: *recolector
@@ -227,10 +242,15 @@ services:
     # fichero de configuración sólo como respaldo). Se aplica recreando el contenedor:
     #     bash scripts/servidor/aplica-turnos.sh valencia
     #
-    # NO es una federación con navegador: va por API y cuesta ~0,08 s de procesador por petición, frente a los
-    # ~5 s de una PNFG con Chrome. Por eso bajarle la cortesía sí puede subir el ritmo sin comerse la máquina.
+    # ¡OJO CON EL SUELO DE 4 S! `Ritmo` comprueba `minimo < 4000` y **lanza un error** si no se cumple: un
+    # `--intervalo-min` por debajo de 4 s NO baja el ritmo, DEJA LA FEDERACIÓN SIN RECOLECTAR (el worker muere con
+    # código 1 y el supervisor reintenta cada 20 s). Pasó el 23/09/2026 probando 2-3 s: Valencia estuvo 37
+    # minutos sin hacer una sola petición y el ritmo total de la flota cayó de ~65 a 57 pet/min. Es un suelo de
+    # cortesía deliberado, no un límite técnico: se respeta.
+    #
+    # Por eso el escalón más bajo posible aquí es 4-5 s (media 4,5 frente a los 5,0 actuales, ~10 % menos espera).
     environment:
-      FACYLF_ARGS: "--intervalo-min 2 --intervalo-max 3"
+      FACYLF_ARGS: "--intervalo-min 4 --intervalo-max 5"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-valencia:/app/descargas-valencia

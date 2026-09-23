@@ -22,18 +22,28 @@ RAIZ=${FACYLF_RAIZ:-/srv/data/facylf}
 IMAGEN=facylf-recolectores:local
 
 echo "midiendo $VENTANA s de CPU real por contenedor…"
-T0=$(date +%s)
 declare -A U0
+declare -A T0_C
 for c in $(docker ps --filter 'name=facylf' --format '{{.Names}}' | sort); do
-  u=$(cat "/sys/fs/cgroup$(awk -F: '/^0::/ { print $3 }' /proc/$(docker inspect -f '{{.State.Pid}}' "$c")/cgroup)/cpu.stat" 2>/dev/null \
-      | awk '/^usage_usec/ { print $2 }')
-  U0[$c]=${u:-0}
+  # ── POR QUÉ SE GUARDA LA HORA DE CADA UNO ───────────────────────────────────────────────────────────────
+  #
+  # Leer `cpu.stat` de 23 contenedores pasa por `docker inspect` y tarda unos 28 s. Si se toma una sola hora
+  # para todos, los contenedores leídos al principio parecen haber consumido procesador durante más tiempo del
+  # que se les atribuye... o al revés: con dos bucles que no son simultáneos, la suma puede salir POR ENCIMA de
+  # lo que la máquina puede dar. Pasó el 23/09/2026: la suma dio 293 cpu-s/min sobre 4 núcleos, cuando el
+  # máximo posible son 240. Guardando la hora DE CADA CONTENEDOR, cada uno se mide contra su propio intervalo y
+  # la suma no puede mentir.
+  pid=$(docker inspect -f '{{.State.Pid}}' "$c" 2>/dev/null)
+  [ -z "$pid" ] && continue
+  cg="/sys/fs/cgroup$(awk -F: '/^0::/ { print $3 }' /proc/$pid/cgroup 2>/dev/null)"
+  u=$(awk '/^usage_usec/ { print $2 }' "$cg/cpu.stat" 2>/dev/null)
+  [ -n "$u" ] && { U0[$c]=$u; T0_C[$c]=$(date +%s.%N); }
 done
 
 sleep "$VENTANA"
 
-DESDE=$(date -u -d "@$T0" +%Y-%m-%dT%H:%M:%S.000Z)
-HASTA=$(date -u -d "@$(date +%s)" +%Y-%m-%dT%H:%M:%S.000Z)
+DESDE=$(date -u -d "@${T0_C[$(docker ps --filter 'name=facylf' --format '{{.Names}}' | sort | head -1)]%.*}" +%Y-%m-%dT%H:%M:%S.000Z 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%S.000Z)
+HASTA=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
 # Las peticiones se cuentan en las colas: el host no tiene Node, así que se hace dentro del contenedor.
 PET=$(docker run --rm -v "$RAIZ:/app" --entrypoint node "$IMAGEN" \
@@ -41,7 +51,7 @@ PET=$(docker run --rm -v "$RAIZ:/app" --entrypoint node "$IMAGEN" \
 
 echo
 echo '════════ ¿EN QUÉ SE VA EL PROCESADOR DE CADA RECOLECTOR? ════════'
-echo '  contenedor                     cuota   peticiones   cpu-s total   cpu-s/petición'
+echo '  contenedor                     cuota   peticiones   cpu-s total   cpu-s/petición   ritmo(ventana)'
 printf '%s\n' "$PET" | while IFS=$'\t' read -r fed n; do
   [ -z "$fed" ] && continue
   c="facylf-${fed}-1"
@@ -50,20 +60,28 @@ printf '%s\n' "$PET" | while IFS=$'\t' read -r fed n; do
   cg="/sys/fs/cgroup$(awk -F: '/^0::/ { print $3 }' /proc/$pid/cgroup 2>/dev/null)"
   u2=$(awk '/^usage_usec/ { print $2 }' "$cg/cpu.stat" 2>/dev/null)
   [ -z "$u2" ] && continue
-  cuota=$(awk '{ if ($1 == "max") print "sin tope"; else printf "%.2f", $1 / $2 }' "$cg/cpu.max" 2>/dev/null)
-  cpu_s=$(awk -v a="${U0[$c]:-0}" -v b="$u2" 'BEGIN { printf "%.1f", (b - a) / 1000000 }')
-  por=$(awk -v s="$cpu_s" -v n="$n" 'BEGIN { if (n + 0 > 0) printf "%.2f", s / n; else printf "—" }')
-  printf '  %-30s %-7s %-12s %-13s %s\n' "$c" "${cuota:-?}" "$n" "$cpu_s" "$por"
+  # LC_ALL=C: con la configuración regional en español, awk escribe la coma decimal.
+  cuota=$(LC_ALL=C awk '{ if ($1 == "max") print "sin tope"; else printf "%.2f", $1 / $2 }' "$cg/cpu.max" 2>/dev/null)
+  # El intervalo REAL de este contenedor, no la ventana nominal.
+  t0=${T0_C[$c]:-}
+  transcurrido=$(LC_ALL=C awk -v a="$t0" -v b="$(date +%s.%N)" 'BEGIN { printf "%.1f", b - a }')
+  cpu_s=$(LC_ALL=C awk -v a="${U0[$c]:-0}" -v b="$u2" 'BEGIN { printf "%.1f", (b - a) / 1000000 }')
+  por=$(LC_ALL=C awk -v s="$cpu_s" -v n="$n" 'BEGIN { if (n + 0 > 0) printf "%.2f", s / n; else printf "—" }')
+  ritmo=$(LC_ALL=C awk -v s="$cpu_s" -v t="$transcurrido" 'BEGIN { if (t > 0) printf "%.1f", s * 60 / t; else printf "—" }')
+  printf '  %-30s %-7s %-12s %-13s %-16s %s\n' "$c" "${cuota:-?}" "$n" "$cpu_s" "$por" "$ritmo"
 done
 
 echo
 echo '── OTROS CONSUMIDORES (no recolectan, pero comen de la misma máquina) ──'
+SUMA=0
 for c in facylf-importador facylf-postgres facylf-web facylf-monitor; do
   pid=$(docker inspect -f '{{.State.Pid}}' "$c" 2>/dev/null); [ -z "$pid" ] && continue
   cg="/sys/fs/cgroup$(awk -F: '/^0::/ { print $3 }' /proc/$pid/cgroup 2>/dev/null)"
   u2=$(awk '/^usage_usec/ { print $2 }' "$cg/cpu.stat" 2>/dev/null); [ -z "$u2" ] && continue
-  cpu_s=$(awk -v a="${U0[$c]:-0}" -v b="$u2" 'BEGIN { printf "%.1f", (b - a) / 1000000 }')
-  printf '  %-30s %s cpu-s en %s s de reloj\n' "$c" "$cpu_s" "$VENTANA"
+  t0=${T0_C[$c]:-}
+  transcurrido=$(LC_ALL=C awk -v a="$t0" -v b="$(date +%s.%N)" 'BEGIN { printf "%.1f", b - a }')
+  cpu_s=$(LC_ALL=C awk -v a="${U0[$c]:-0}" -v b="$u2" 'BEGIN { printf "%.1f", (b - a) / 1000000 }')
+  printf '  %-30s %s cpu-s en %s s de reloj\n' "$c" "$cpu_s" "$transcurrido"
 done
 
 echo

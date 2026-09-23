@@ -11,6 +11,17 @@
 La medición de este traspaso se ha hecho y **corrige su premisa en dos puntos**. El detalle, con números y
 herramientas, está en [`RITMO-MEDIDO.md`](./RITMO-MEDIDO.md). En resumen:
 
+**Y una avería que este documento no recogía, ya arreglada:**
+
+0. **Castilla y León (`federacion`) no recogía NADA y ya recoge.** `recolector.config.json` está en
+   `.gitignore`, así que nunca llegó al servidor; como la imagen se construye desde el repositorio del servidor,
+   no lo contenía, y **es la única federación que lee ese fichero** (es la única sin `--perfil`). El worker
+   moría con código 1 en cada arranque, con **45.935 trabajos esperando** en su cola, y `estado-general.sh` la
+   contaba entre las «sin trabajo» — que es lo que ocultaba la avería. Arreglado montando el fichero como
+   volumen de sólo lectura y **verificado**: figura como «trabajando ahora». Ver `RITMO-MEDIDO.md` §0.
+
+Y además:
+
 1. **No hay ~16 s «sin explicar».** La máquina está al **97,8 % de procesador** (3,91 núcleos de demanda sobre
    4) y el ritmo medido es exactamente el que cabe en ella: `4 núcleos ÷ 3,82 s de CPU por petición =
    62,8 pet/min`, frente a los 61–68 medidos. **La CPU es el recurso escaso, no el trabajo local del worker**
@@ -25,7 +36,10 @@ herramientas, está en [`RITMO-MEDIDO.md`](./RITMO-MEDIDO.md). En resumen:
    `FACYLF_ARGS` desde `docker/entrada-recolector.sh`.
 4. **(C) empeora el problema**, no lo mejora: no hay procesador que repartir entre dos pestañas.
 5. **El importador no es una palanca de CPU** y bajarle la cuota es contraproducente: retiene el bloqueo de la
-   cola (unidades de hasta 1 195 s) y Galicia acumula 250 «database is locked».
+   cola (unidades de hasta 1 195 s) y Galicia acumula 250 «database is locked». **Y hay una unidad atascada**:
+   62 minutos de reloj, 20:47 de procesador, estado `R` y **0 consultas activas en PostgreSQL** — está girando
+   en local, quemando un 11 % de la máquina sin avanzar y reteniendo la cola de **Valencia**, que por eso pasó
+   de 477 a 178 peticiones/hora. Ver `RITMO-MEDIDO.md` §5.1. **Es lo primero que hay que arreglar.**
 
 ---
 

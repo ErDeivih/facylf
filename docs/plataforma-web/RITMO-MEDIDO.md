@@ -1,9 +1,56 @@
 # Ritmo de recolección: lo que está medido
 
-**Fecha:** 23/09/2026, 00:30–01:15 (hora de Madrid).
+**Fecha:** 23/09/2026, 00:30–09:45 (hora de Madrid).
 **Qué es esto:** la medición del apartado (A) del traspaso y la revisión de los apartados (B) y (C), hecha
 sobre la máquina en marcha. **Corrige la premisa del traspaso en dos puntos importantes**, y ambos están
 medidos, no supuestos. Donde no he podido llegar, lo dice: ver «Límites de estas mediciones».
+
+---
+
+## 0 · La avería que estaba escondida: Castilla y León no recogía nada (y ya recoge)
+
+Esto no estaba en el traspaso y es lo más importante que ha salido. Lo encontré persiguiendo el ritmo, al
+comprobar que **ninguna** federación estuviera en bucle de caída.
+
+**El síntoma:** `federacion` (Castilla y León) arrancaba, hacía el trabajo local y moría con **código 1**. El
+registro lo decía:
+
+```
+Error: Falta el contacto real (identidad.contacto) en recolector.config.json.
+    at creaDriver (file:///app/scripts/recolector.mjs:2053:77)
+```
+
+Y una pista que lo confirmaba sin ambigüedad, en la misma tanda:
+
+```
+ℹ️  Proyecto personal/no comercial: ritmo configurado de 180-300 s entre peticiones.
+```
+
+**180-300 s son los valores POR DEFECTO del código**: esa federación no estaba leyendo su configuración.
+
+**La causa:** `recolector.config.json` está en **`.gitignore`** (lleva la identidad real), así que nunca llegó
+al servidor. La imagen se construye desde el repositorio del servidor, así que **no lo contiene** — comprobado:
+`docker run --entrypoint ls facylf-recolectores:local /app/recolector.config.json` → *No such file*. Y Castilla
+y León es **la única federación sin `--perfil`**: es la única que lee ese fichero, y por eso es la única rota.
+
+**Por qué nadie se había dado cuenta:** `estado-general.sh` la contaba entre las «sin trabajo», cuando lo que
+pasaba es que **no podía arrancar**. Y las que no tienen trabajo hacen 0 peticiones igual que las averiadas, así
+que el monitor las veía idénticas. Su cola tenía **45.935 trabajos pendientes** que no se iban a recoger nunca.
+
+**El arreglo:** montar el fichero como volumen de sólo lectura para ese servicio (es configuración, no programa
+— el mismo criterio que el resto de los datos, regla 9 del traspaso), en vez de copiarlo dentro de la imagen:
+
+```yaml
+- ../recolector.config.json:/app/recolector.config.json:ro
+```
+
+**Verificado, no supuesto:** tras recrear el contenedor, `federacion` figura como **«trabajando ahora»** en
+`estado-ultima-tanda.sh` y su registro enseña clasificaciones guardándose una tras otra. La flota pasó de 14 a
+**15 federaciones recogiendo de verdad**.
+
+**Lo que hay que aprender de esto:** «0 peticiones» es ambiguo. Hay que distinguir **«no tiene trabajo»** de
+**«arranca y muere»**, y el monitor no las distinguía. Por eso `estado-ultima-tanda.sh` compara ahora el ORDEN
+del último arranque y del último cierre, en vez de mirar sólo el último código de salida.
 
 ---
 
@@ -208,6 +255,42 @@ más cortas, o leer la cola por lotes en vez de mantenerla abierta), no un ajust
 > `docker update --cpus=1,50` lo rechaza. **Ya está restaurada a 1,50** (comprobado con `docker inspect`) y el
 > guion está corregido con `LC_ALL=C`. Si se repite el experimento, el restaurador funciona.
 
+### 5.1 · Y hay una unidad del importador que se ha atascado girando en local
+
+Esto se encontró por casualidad, persiguiendo otra cosa, y es lo más accionable de todo el documento.
+
+El importador llevaba **62 minutos sin completar una sola unidad** (`estado-general.sh` decía «última actividad:
+hace 62 min») mientras seguía consumiendo ~11 % del procesador. `diagnostica-importador.sh` lo identifica:
+
+| qué | valor medido |
+|---|---|
+| unidad en curso | `valencia \| 2025-26 \| 29509174` |
+| tiempo de reloj | **01:02:22** |
+| tiempo de **procesador** | **00:20:47** |
+| estado del proceso | **`R`** — ejecutando |
+| consultas activas en PostgreSQL | **0** |
+| lo que tardan las unidades normales | 45–124 s (el registro) |
+
+**Cero consultas activas y el proceso en `R` significa que no está esperando a la base: está girando en
+local.** Veinte minutos de procesador para una unidad que debería costar uno o dos, y encima **retiene la cola
+de Valencia mientras lo hace**.
+
+Esto encaja con dos cosas que ya estaban en el traspaso y que hasta ahora parecían independientes:
+
+- los **88 unidades del importador con fallo**, de las que **66 son «nombre de equipo no resuelto en la
+  fuente»** (`packages/canonico/src/resolucion/inscripcion.ts`): un resolutor que no acota su búsqueda se ve
+  exactamente así desde fuera — un proceso que gira sin hablar con la base;
+- **el desplome de Valencia**: pasó de 477 peticiones/hora a 178 sin que nadie le tocara nada. La causa
+  probable no es el portal ni su ritmo, sino que **el importador le tenía la cola ocupada**.
+
+**Qué hacer:** poner un tope de tiempo y de procesador por unidad en el importador (una unidad que pasa de, por
+ejemplo, dos minutos se aparta y sigue la siguiente) y acotar la búsqueda del resolutor de equipos. No es un
+ajuste de ritmo: es que hoy el importador se queda atascado y, de paso, frena a una federación.
+
+> **Consecuencia para la prueba de Valencia (§9):** mientras el importador tenga la cola de Valencia ocupada, la
+> prueba está **contaminada** y su resultado no se puede atribuir a la cortesía. Hay que repetirla con el
+> importador arreglado, o al menos sin una unidad suya en curso sobre Valencia.
+
 ---
 
 ## 6 · La única palanca de verdad: que cada página cueste menos
@@ -258,6 +341,10 @@ JavaScript del portal, bloquear más recursos en Chrome o cambiar de herramienta
 | `mide-consulta-trabajo.mjs <fed> [n]` | cuánto cuesta `siguienteTrabajo` y su plan de ejecución |
 | `prueba-html-sin-navegador.mjs` · `prueba-html-con-sesion.mjs` · `muestra-muro.mjs` | ¿hace falta navegador? Enseña el muro tal cual |
 | `busca-bloqueos-cola.sh` | esperas por la cola («database is locked») por federación |
+| `diagnostica-importador.sh` | tiempo de CPU y de reloj por unidad, y si trabaja en PostgreSQL o gira en local |
+| `estado-ultima-tanda.sh` | ¿cómo terminó la última tanda de cada federación? Distingue «trabajando» de «caída» |
+| `revisa-salud-flota.sh` | busca bucles de caída y federaciones que arrancan y no piden nada |
+| `compara-relojes.sh` | reloj del host, del contenedor y lo escrito en las colas (husos y día de Madrid) |
 
 ---
 
@@ -276,24 +363,74 @@ JavaScript del portal, bloquear más recursos en Chrome o cambiar de herramienta
 3. **La variación natural de una federación es enorme**: Valencia hace entre 56 y 544 peticiones por hora
    (mediana 388, coeficiente de variación **39 %**). Cualquier prueba de cortesía que dure menos de una hora no
    puede concluir nada. Por eso la prueba del apartado 9 se mide con la referencia horaria al lado.
-4. Las cifras del traspaso (58,4 pet/min, 629 lotes) eran de su momento; las de aquí son de las 00:30–01:15.
+4. Las cifras del traspaso (58,4 pet/min, 629 lotes) eran de su momento; las de aquí son de las 00:30–09:45.
    La máquina sigue trabajando mientras se lee esto.
+5. **La sesión de medición duró casi diez horas de reloj** (de las 23:53 a las 09:45, comprobado con `uptime`:
+   pasó de «1 día 10:26» a «1 día 19:19», así que **no fue un salto de reloj**). Eso significa que comparar
+   «el ritmo de antes» con «el ritmo de después» cruza la noche con la mañana, y los portales no se comportan
+   igual: el ritmo medido osciló entre **45 y 68 pet/min** sin que se tocara nada. Cualquier comparación
+   antes/después que cruce ese límite está contaminada. El anfitrión **no tiene NTP** (`timedatectl`:
+   `System clock synchronized: no`), lo que conviene arreglar.
+6. **El cuello cambia de sitio según el momento, y eso hay que respetarlo.** A las 00:15 el procesador estaba al
+   97,8 % (esta es la medición que sostiene todo el apartado 1). A las 09:45, en cambio,
+   `estado-cpu-real.sh` da **65,8 % calculando y 30,4 % esperando a disco**, y avisa por sí solo: «el cuello es
+   el DISCO, no el procesador». Las dos cosas son ciertas en momentos distintos: la conclusión de este
+   documento vale para cuando la máquina está **saturada de procesador**, que es como estaba cuando se midió.
 
 ---
 
-## 9 · Prueba en curso: la cortesía de Valencia
+## 9 · Valencia: el único sitio donde la cortesía manda, y el suelo de 4 s
 
 Única federación donde la cortesía manda (hueco mediano 5,6 s dentro de 4-6 s) y, además, **barata**: va por API
-y cuesta 0,15 s de procesador por petición, así que subirle el ritmo no le quita nada a las demás.
+y cuesta 0,15 s de procesador por petición, así que subirle el ritmo no le quita nada a las demás, al contrario
+que en las PNFG.
 
-- **Escalón probado:** 2-3 s (desde 4-6 s), aplicado con `FACYLF_ARGS` en `docker/compose.yml` y
-  `aplica-turnos.sh valencia`. Verificado: `docker exec facylf-valencia-1 printenv FACYLF_ARGS` →
-  `--intervalo-min 2 --intervalo-max 3`.
+**Estado:** Valencia corre ahora con **4-5 s** (`FACYLF_ARGS` en `docker/compose.yml`), que es el escalón más
+bajo legal, y está **trabajando con normalidad** (`estado-ultima-tanda.sh`: «trabajando ahora»). El premio de
+ese escalón es pequeño —media 4,5 frente a 5,0, unos +45 pet/h, ~1 % del total de la flota— y **queda como
+decisión del responsable confirmarlo**, no como algo que se deje puesto sin más después del incidente de abajo.
+
+**La medición que iba a respaldarlo NO vale.** Ver §9.1.
+
+- **Escalón probado:** primero 2-3 s (**error mío, ver abajo**); corregido a **4-5 s**, que es el escalón más
+  bajo legal. Aplicado con `FACYLF_ARGS` en `docker/compose.yml` y `aplica-turnos.sh valencia`. Verificado:
+  `docker exec facylf-valencia-1 printenv FACYLF_ARGS` → `--intervalo-min 4 --intervalo-max 5`.
 - **Referencia:** mediana de 388 pet/h en las horas anteriores, con variación natural del 39 %. Una hora de
   margen a cada lado es lo mínimo para poder decir algo.
 - **Qué se mira:** peticiones/hora **y fallos** (`fallosVentana` en `colas.json`; y en el registro: `403`,
   `429`, `robots`, respuestas vacías, `codigo 1`). Al primer síntoma de bloqueo se sube un escalón y se deja
   esa federación ahí.
+
+### 9.1 · El error que cometí, para que no se repita
+
+Puse el escalón en **2-3 s**. `Ritmo` lo rechaza de plano:
+
+```js
+if (this.minimo < 4_000 || this.maximo < this.minimo) {
+  throw new Error('El intervalo debe ser como mínimo 4 s y el máximo no puede ser menor.');
+}
+```
+
+El worker murió con **código 1** en cada arranque y el supervisor reintentaba cada 20 s. **Valencia estuvo
+37 minutos sin hacer una sola petición** (de 00:43 a 01:20) y el ritmo total de la flota cayó de ~65 a
+57,4 pet/min. Los 37 minutos de caída de una federación explican por sí solos los 8 pet/min que faltaban.
+
+Lo que hay que aprender:
+
+1. **Ese 4 s no es un límite técnico: es un suelo de cortesía deliberado.** El código lo defiende a propósito,
+   y tiene razón: bajar de ahí es pedirle a un portal más de lo que este proyecto se ha comprometido a pedirle.
+2. **Un argumento inválido no da un error visible: deja la federación en silencio.** El contenedor seguía
+   «arriba» y el registro lo decía, pero nadie estaba mirando el registro. Si se vuelve a tocar el ritmo, hay
+   que comprobar **peticiones/hora**, no que el contenedor esté en pie.
+3. **El aviso del registro mintió**: seguía diciendo «ritmo configurado de 4-6 s» porque `compruebaPermiso()`
+   lee el fichero y no los argumentos. Es lo que me hizo tardar en verlo.
+4. El escalón más bajo posible es **4-5 s** (media 4,5 frente a 5,0: ~10 % menos espera, unos +45 pet/h en
+   Valencia, ~1 % del total de la flota). Un premio pequeño para el riesgo que tiene tocar el suelo, así que
+   **queda como decisión del responsable confirmarlo**, no como algo que yo deje puesto sin más.
+
+> **Consecuencia:** la medición de la FASE 2 que corrió entre 00:49 y 01:19 no mide la cortesía, mide la caída
+> de Valencia por mi error. **No vale y no se usa.** Hay que repetirla con el escalón 4-5 s y con el importador
+> sin una unidad suya en curso sobre Valencia.
 
 > **Nota cosmética que conviene arreglar:** el registro sigue diciendo «ritmo configurado de 4-6 s entre
 > peticiones» porque `compruebaPermiso()` lee el fichero de configuración y no los argumentos de la línea de
@@ -303,13 +440,22 @@ y cuesta 0,15 s de procesador por petición, así que subirle el ritmo no le qui
 
 ## 10 · Qué hacer ahora, en orden
 
-1. **Terminar la prueba de Valencia** (§9) y dejar el escalón encontrado escrito, o subirla si falla.
-2. **No tocar la cortesía de las PNFG.** Está medido que no sirve; cambiarla sólo añadiría ruido.
-3. **Instrumentar el ciclo por fases en una federación** (`galicia` o `murcia`). Es lo que decide si el enemigo
+1. **Arreglar el importador que se atasca** (§5.1): tope de tiempo y de procesador por unidad, y acotar el
+   resolutor de equipos. Es lo primero porque hoy **quema un 11 % de la máquina sin avanzar y frena a la
+   federación cuya cola tiene ocupada** — Valencia pasó de 477 a 178 peticiones/hora por esto. Mientras siga
+   así, cualquier medición de ritmo queda contaminada.
+2. **Repetir bien la prueba de Valencia** (§9), ya sin la unidad del importador encima y sin cruzar la noche
+   con la mañana: ventanas de una hora y la referencia horaria al lado.
+3. **No tocar la cortesía de las PNFG.** Está medido que no sirve; cambiarla sólo añadiría ruido.
+4. **Instrumentar el ciclo por fases en una federación** (`galicia` o `murcia`). Es lo que decide si el enemigo
    es el JavaScript del portal, el render de Chrome o el guardado, y es la única forma de seguir bajando el
-   procesador por página. **Es el siguiente paso de verdad.**
-4. **Que el importador suelte la cola antes** (transacciones más cortas o lectura por lotes). Es lo único que
-   hoy bloquea a federaciones concretas: Galicia acumula 250 «database is locked».
+   procesador por página. **Es el siguiente paso de fondo.**
 5. **Explorar la sesión anónima sin navegador** (§6): es el único camino a un cambio de orden de magnitud, pero
    es trabajo de producto con pruebas.
 6. **(C), descartado** mientras la máquina siga saturada. Reabrirlo sólo si se añaden núcleos.
+7. **Arreglar el reloj del servidor**: no tiene NTP (`System clock synchronized: no`). No es cosmético — el cupo
+   diario cuenta por día civil de Madrid y los aplazamientos se calculan con ese reloj.
+
+**Ya hecho en esta sesión:** Castilla y León vuelve a recoger (§0), el método de (B) es aplicable sin
+reconstruir la imagen (§3), Valencia corre en el escalón legal más bajo (§9) y quedan cinco herramientas nuevas
+para medir esto sin volver a empezar de cero (§7).
