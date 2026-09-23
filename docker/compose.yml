@@ -18,6 +18,36 @@
 #
 # Uso:  docker compose -f docker/compose.yml up -d
 #       docker compose -f docker/compose.yml logs -f galicia
+# ── EL ENTORNO VA EN SU PROPIA ANCLA, Y NO ES UN CAPRICHO ────────────────────────────────────────────────
+#
+# Las variables comunes viven aparte para poder FUSIONARLAS cuando un servicio necesita añadir la suya. En
+# YAML, `<<: *ancla` fusiona CLAVES: si el servicio declara su propio `environment:`, **reemplaza el del ancla
+# entero** en vez de añadirse a él.
+#
+# Eso pasó el 23/09/2026, y costó una federación entera: al añadir `FACYLF_PERF: "1"` a Murcia para medir el
+# ciclo por fases, Murcia se quedó SIN `FACYLF_MEMORIA_GB`. Y ese número no es decorativo:
+#
+#   · `repartePlazas` cae al respaldo («la mitad de la memoria del equipo») → 8 plazas en vez de 16;
+#   · y sobre todo `RESERVA_AIRE_GB` vuelve a 1,5 GB (en vez de 0,25). En un contenedor de 1,6 GB **nunca**
+#     caben 1,5 GB libres, así que el worker se quedó en «esperando para abrir Chrome» para siempre. Es el
+#     mismo atasco que se documentó el 18/09/2026, y no se ve en `docker ps`: el contenedor sigue «arriba»
+#     mientras la federación no recoge nada.
+#
+# Con esta ancla, un servicio que necesite una variable extra hace:
+#
+#     environment:
+#       <<: *ambiente-recolector
+#       FACYLF_LO_QUE_SEA: "1"
+#
+# Hay una herramienta para comprobarlo: `scripts/servidor/compara-entorno-recolectores.sh`.
+x-ambiente-recolector: &ambiente-recolector
+  TZ: Europe/Madrid
+  FACYLF_MEMORIA_GB: "${FACYLF_MEMORIA_GB:-10}"
+  FACYLF_CHROME_HEADLESS: "1"
+  # Turno máximo con una plaza cuando hay federaciones esperando: es lo que hace que todas entren a lo largo
+  # del día en un servidor donde no caben las 19 a la vez.
+  FACYLF_TURNO_PLAZA_MIN: "${FACYLF_TURNO_PLAZA_MIN:-150}"
+
 x-comun: &recolector
   build:
     context: ..
@@ -55,13 +85,8 @@ x-comun: &recolector
   # sigue siendo utilizable**, que es la prioridad. Se ajusta con `FACYLF_CPUS_POR_RECOLECTOR` en el `.env`
   # (por ejemplo `1` si el servidor tiene núcleos de sobra).
   cpus: "${FACYLF_CPUS_POR_RECOLECTOR:-0.5}"
-  environment:
-    TZ: Europe/Madrid
-    FACYLF_MEMORIA_GB: "${FACYLF_MEMORIA_GB:-10}"
-    FACYLF_CHROME_HEADLESS: "1"
-    # Turno máximo con una plaza cuando hay federaciones esperando: es lo que hace que todas entren a lo largo
-    # del día en un servidor donde no caben las 19 a la vez.
-    FACYLF_TURNO_PLAZA_MIN: "${FACYLF_TURNO_PLAZA_MIN:-150}"
+  # El entorno común viene de su ancla, para que un servicio pueda AÑADIR variables sin perderlo (ver arriba).
+  environment: *ambiente-recolector
   volumes:
     - plazas:/app/.estado-workers
   logging:
@@ -209,6 +234,22 @@ services:
   murcia:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "murcia"]
+    # ── FEDERACIÓN DE MEDICIÓN: el ciclo por fases (23/09/2026) ─────────────────────────────────────────────
+    #
+    # El traspaso pedía instrumentar el ciclo del worker «en UNA federación primero (por ejemplo galicia o
+    # murcia), y sólo después al resto». Es Murcia porque es una PNFG corriente, con volumen suficiente para
+    # tener muestra en minutos y sin las particularidades que contaminarían la medida: Galicia acumula esperas
+    # por la cola («database is locked», 250 medidas) y Melilla/Cataluña tienen los portales más pesados.
+    #
+    # Con `FACYLF_PERF=1` el recolector apunta una línea por trabajo en
+    # `descargas-murcia/recolector-local/perf-fases.jsonl` y se lee con `analiza-fases.mjs`. **Sin esta
+    # variable el código de medición no ejecuta ni una línea**, así que las demás federaciones siguen igual.
+    #
+    # CUANDO TERMINE LA MEDICIÓN, ESTA VARIABLE SE QUITA: es un instrumento, no una configuración. Dejarla
+    # puesta haría que Murcia escribiera un fichero para siempre a cambio de nada.
+    environment:
+      <<: *ambiente-recolector
+      FACYLF_PERF: "1"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-murcia:/app/descargas-murcia
@@ -250,6 +291,7 @@ services:
     #
     # Por eso el escalón más bajo posible aquí es 4-5 s (media 4,5 frente a los 5,0 actuales, ~10 % menos espera).
     environment:
+      <<: *ambiente-recolector
       FACYLF_ARGS: "--intervalo-min 4 --intervalo-max 5"
     volumes:
       - plazas:/app/.estado-workers

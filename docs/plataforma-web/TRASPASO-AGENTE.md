@@ -22,10 +22,16 @@ herramientas, está en [`RITMO-MEDIDO.md`](./RITMO-MEDIDO.md). En resumen:
 
 Y además:
 
-1. **No hay ~16 s «sin explicar».** La máquina está al **97,8 % de procesador** (3,91 núcleos de demanda sobre
-   4) y el ritmo medido es exactamente el que cabe en ella: `4 núcleos ÷ 3,82 s de CPU por petición =
-   62,8 pet/min`, frente a los 61–68 medidos. **La CPU es el recurso escaso, no el trabajo local del worker**
-   (eso cuesta 76 ms por trabajo, el 0,8 % del ciclo).
+1. **No hay ~16 s «sin explicar», y la respuesta está medida con la instrumentación que pedías.** El ciclo de
+   un trabajo en Murcia (150 trabajos reales, `FACYLF_PERF=1`) se reparte así: **portal + Chrome 39 %**,
+   **nuestras propias escrituras 60 %** (HTML + JSON + SQLite), **análisis del acta 0,5 %** y **cortesía 0,3 %**.
+   Ciclo medio 10,0 s → 360 pet/h. El culpable es el **disco**: `acta_estructura` 2,72 s,
+   `acta_guardar_html` 1,70 s y `acta_guardar_json` 0,66 s, con `sha256` de 1,3 ms y `gzip` de 4,8 ms medidos
+   aparte. `/srv/data` es un disco DURO compartido por 19 recolectores y el importador. Ver `RITMO-MEDIDO.md`
+   §6.1.
+   **Y ojo: esto corrige el «no insistas por ahí» de este documento.** `mide-analisis-acta.mjs` medía el
+   análisis (50 ms, tenía razón) pero guardaba en una SQLite **vacía en `/tmp`** (el SSD), así que **no medía
+   las escrituras**, que son el 60 % del ciclo.
 2. **(B) no sirve para las PNFG.** La cortesía se mide de inicio a inicio y **sólo manda cuando el trabajo dura
    menos que ella**. En 12 de 14 federaciones el hueco mediano (8,8–19,9 s) ya **supera** la cortesía máxima
    configurada (8 s), así que `ritmo.antes()` espera 0 s: **bajarla no cambia nada**. La única federación

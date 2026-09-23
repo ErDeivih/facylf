@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
@@ -791,14 +791,106 @@ async function aceptaAvisoCookie(driver) {  const patron = /^(aceptar todo|acept
   return false;
 }
 
+/*
+ * ── MEDICIÓN DEL CICLO POR FASES (opt-in) ───────────────────────────────────────────────────────────────
+ *
+ * El traspaso del 22/09/2026 dejaba ~16 s por petición sin explicar y proponía buscarlos aquí: marcar por
+ * fases dónde va el tiempo de cada trabajo y volcar un resumen. Esto lo hace.
+ *
+ * ── POR QUÉ NO SE PUEDE SABER SIN ESTO ──────────────────────────────────────────────────────────────────
+ *
+ * Las dos cosas que sí se saben están medidas y NO explican el hueco: la petición en sí cuesta 3-4 s
+ * (`peticiones.duracion_ms`) y el análisis del acta 20 ms (`mide-analisis-acta.mjs`). Entre una petición y la
+ * siguiente quedan ~9 s que la cola no registra: porque **una cosa es lo que dura la petición y otra lo que
+ * tarda el worker en estar listo para la siguiente**, y eso sólo se ve marcando el ciclo entero.
+ *
+ * Las fases están elegidas para que cada una se pueda atacar de una forma distinta:
+ *
+ *   · `cortesia`          — la pausa de `ritmo.antes()`. Si manda, se toca el ritmo (apartado B).
+ *   · `red_render`        — `driver.get` + espera + `outerHTML`. Si manda, el enemigo es el portal o Chrome.
+ *   · `analisis_guardado` — validar, analizar, comprimir y escribir el HTML, y las escrituras en SQLite.
+ *   · `consulta`          — `siguienteTrabajo`. Medido aparte: 76 ms, no puede ser el culpable.
+ *   · `cierre`            — LO QUE NADIE HABÍA MIRADO: lo que queda entre acabar un trabajo y empezar el
+ *                           siguiente. Aquí caen `marcaTrabajo`, el **reciclado de Chrome** (cerrar y abrir el
+ *                           navegador cuesta 15-25 s, medido el 17/09/2026) y el mantenimiento local. Un
+ *                           reciclado cada 40 trabajos, si de verdad cuesta 20 s, son 0,5 s por trabajo; si
+ *                           cuesta más, aquí se verá.
+ *
+ * ── CÓMO SE ACTIVA Y QUÉ GARANTIZA ──────────────────────────────────────────────────────────────────────
+ *
+ * Con `FACYLF_PERF=1` en el entorno del contenedor. **Sin esa variable no se ejecuta ni una línea**: las
+ * funciones salen en la primera comprobación, así que las 18 federaciones que no se están midiendo siguen
+ * igual. La medición escribe en `descargas-<fed>/recolector-local/perf-fases.jsonl`, una línea por trabajo.
+ *
+ * Y NUNCA puede impedir recolectar: si no se puede escribir el fichero, el error se traga y el worker sigue.
+ * Un instrumento que tumba lo que mide no sirve de nada.
+ */
+const PERF = process.env.FACYLF_PERF ? {
+  ruta: join(CARPETA, 'perf-fases.jsonl'),
+  fases: {},
+  anterior: process.hrtime.bigint(),
+  trabajo: null,
+  pendientesDeVolcar: [],
+  trabajos: 0,
+  trabajoIniciadoEn: null,
+} : null;
+
+/** Cierra la fase anterior y abre la que empieza ahora. */
+function perfMarca(fase) {
+  if (!PERF) return;
+  const ahora = process.hrtime.bigint();
+  const ms = Number(ahora - PERF.anterior) / 1e6;
+  PERF.anterior = ahora;
+  if (fase) PERF.fases[fase] = (PERF.fases[fase] ?? 0) + ms;
+}
+
+/** Empieza a medir un trabajo. No reinicia el reloj: la marca `cierre` del bucle mide la cola del anterior. */
+function perfEmpieza(clave) {
+  if (!PERF) return;
+  PERF.trabajo = clave;
+  PERF.fases = {};
+  PERF.trabajoIniciadoEn = Date.now();
+}
+
+/** Cierra el trabajo en curso y lo apunta para volcar. */
+function perfCierra(resultado) {
+  if (!PERF) return;
+  perfMarca('cola_del_bucle');
+  PERF.trabajos += 1;
+  const fases = PERF.fases;
+  const total = Object.values(fases).reduce((a, b) => a + b, 0);
+  PERF.pendientesDeVolcar.push({
+    t: new Date().toISOString(),
+    trabajo: PERF.trabajo,
+    resultado,
+    totalMs: Math.round(total),
+    ...Object.fromEntries(Object.entries(fases).map(([k, v]) => [k, Math.round(v)])),
+  });
+  PERF.fases = {};
+  if (PERF.pendientesDeVolcar.length >= 10) perfVuelca();
+}
+
+/** Escribe lo acumulado. Cada 10 trabajos y al terminar la sesión, para no perder la medición si se corta. */
+function perfVuelca() {
+  if (!PERF || PERF.pendientesDeVolcar.length === 0) return;
+  try {
+    mkdirSync(CARPETA, { recursive: true });
+    appendFileSync(PERF.ruta, PERF.pendientesDeVolcar.map((f) => JSON.stringify(f)).join('\n') + '\n');
+  } catch { /* la medición nunca puede impedir recolectar */ }
+  PERF.pendientesDeVolcar = [];
+}
+
 async function navega(driver, ritmo, db, trabajo, url) {
+  perfMarca('preparacion');
   await ritmo.antes();
+  perfMarca('cortesia');
   const inicio = Date.now();
   const iniciadaEn = new Date(inicio).toISOString();
   try {
     await driver.get(url);
     await driver.wait(until.elementLocated(By.css('body')), 20_000);
     let html = await htmlActual(driver);
+    perfMarca('red_render');
     const sinCookie = html.length < 3_000 && /no se ha aceptado el cookie/i.test(html);
     const conCartel = /cmpbox|consentimiento para cookies|aceptar todo/i.test(html);
     /*
@@ -829,16 +921,22 @@ async function navega(driver, ritmo, db, trabajo, url) {
       // presenta el aviso que ve cualquier visitante; se acepta una vez y la cookie queda en el
       // perfil propio de esta federación. No es autenticación ni se comparte entre workers.
       if (sinCookie) {
+        perfMarca('preparacion');
         await ritmo.antes();
+        perfMarca('cortesia');
         await driver.get(new URL('/pnfg/', url).href);
         await driver.wait(until.elementLocated(By.css('body')), 20_000);
+        perfMarca('red_render');
       }
       const aceptada = await aceptaAvisoCookie(driver);
       if (aceptada) {
+        perfMarca('preparacion');
         await ritmo.antes();
+        perfMarca('cortesia');
         await driver.get(url);
         await driver.wait(until.elementLocated(By.css('body')), 20_000);
         html = await htmlActual(driver);
+        perfMarca('red_render');
       }
     }
     // Nova crea primero JSESSIONID y devuelve a la portada. En Melilla esa primera respuesta ya
@@ -853,10 +951,13 @@ async function navega(driver, ritmo, db, trabajo, url) {
         trabajo: trabajo.clave, url, iniciadaEn, duracionMs: Date.now() - inicio,
         resultado: 'inicio_sesion', detalle: `redirección inicial a ${rutaActual || 'portada'}; se repite con la sesión anónima`,
       });
+      perfMarca('preparacion');
       await ritmo.antes();
+      perfMarca('cortesia');
       await driver.get(url);
       await driver.wait(until.elementLocated(By.css('body')), 20_000);
       html = await htmlActual(driver);
+      perfMarca('red_render');
     }
     registraPeticion(db, {
       trabajo: trabajo.clave, url, iniciadaEn, duracionMs: Date.now() - inicio,
@@ -1870,11 +1971,13 @@ async function procesa(driver, ritmo, db, trabajo) {
     const carpetaActas = join(carpeta, acta.menores ? 'actas-menores' : 'actas-adultos');
     const ruta = join(carpetaActas, `acta-${trabajo.acta}.html`);
     const guardado = guardaAtomico(ruta, html, db, trabajo.tipo);
+    perfMarca('acta_guardar_html');
     // Análisis estructurado de la ficha (marcador, equipos, alineaciones, goles, sustituciones,
     // cuerpo técnico y tarjetas). En estos grupos apenas hay tarjetas, así que puede salir vacío;
     // lo importante es el marcador y las alineaciones. Se guarda como JSON junto al HTML y en la
     // columna `datos` de la tabla `actas` para reprocesar sin red.
     const parseada = contextualizaActa(db, trabajo, parseaActa(html));
+    perfMarca('acta_analizar');
     for (const guardada of decisionesPendientesPorActa(db, trabajo)) {
       const entrada = {
         federacion: guardada.federacion, temporada: guardada.temporada,
@@ -1890,6 +1993,7 @@ async function procesa(driver, ritmo, db, trabajo) {
         guardaDecisionDescanso(db, comparada.resultado.decision, comparada.resultado.motivo);
       }
     }
+    perfMarca('acta_decisiones');
     // Una página que se ha descargado pero de la que no sale NADA no es un acta que hayamos
     // entendido: es una maquetación distinta (Euskadi sirve sus actas con el tema nova y en
     // euskera, y el parser no las lee). Marcarla como 'hecha' con cero alineaciones es peor que no
@@ -1954,7 +2058,9 @@ async function procesa(driver, ritmo, db, trabajo) {
       );
     }
     const calidad = evaluaCalidadActa(db, trabajo, parseada, html);
+    perfMarca('acta_calidad');
     guardaJson(join(carpetaActas, `acta-${trabajo.acta}.json`), parseada, db, 'acta');
+    perfMarca('acta_guardar_json');
     guardaActaEstructura(db, trabajo, acta, parseada);
     reconciliaEnlaceActa(db, trabajo, parseada);
     db.prepare(`update actas set estado='hecha',archivo=?,hash=?,datos=?,comprobada_en=?,
@@ -1963,6 +2069,7 @@ async function procesa(driver, ritmo, db, trabajo) {
       .run(ruta, guardado.hash, JSON.stringify(parseada), new Date().toISOString(),
         VERSION_PARSER_ACTA, calidad.calidad, JSON.stringify(calidad.incidencias),
         trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
+    perfMarca('acta_estructura');
     return `acta ${acta.menores ? 'de base' : 'adulta'} guardada y analizada; ${parseada.golesLocal ?? '?'}-${parseada.golesVisitante ?? '?'}, ` +
       `${titulares} titulares, ${suplentes} suplentes, ${parseada.goles?.length ?? 0} goles, ` +
       `${parseada.tecnicos?.length ?? 0} técnicos${calidad.calidad === 'revisar' ?
@@ -2076,13 +2183,21 @@ async function ejecutar(db) {
   try {
     driver = await creaDriver();
     while (hechos < max) {
+      // La marca `cierre` mide la COLA del trabajo anterior: `marcaTrabajo`, el reciclado de Chrome y el
+      // mantenimiento local. Es la fase que nadie había mirado y donde puede estar el hueco.
+      perfMarca('cierre');
       const trabajo = siguienteTrabajo(db);
+      perfMarca('consulta');
       if (!trabajo) break;
       db.prepare("update trabajos set estado='en_curso',actualizado_en=? where clave=?")
         .run(new Date().toISOString(), trabajo.clave);
+      perfMarca('marcar_en_curso');
+      perfEmpieza(trabajo.clave);
       console.log(`→ ${trabajo.clave}`);
       try {
         const detalle = await procesa(driver, ritmo, db, trabajo);
+        perfMarca('analisis_guardado');
+        perfCierra('hecho');
         marcaTrabajo(db, trabajo.clave, 'hecho');
         console.log(`  ✓ ${detalle}`);
         hechos++;
@@ -2165,6 +2280,10 @@ async function ejecutar(db) {
           break;
         }
       } catch (error) {
+        // Se cierra la medición del trabajo TAMBIÉN cuando falla: un trabajo que falla también gasta tiempo, y
+        // si no se apuntara, el resumen sólo hablaría de los que salen bien (que es justo lo contrario de lo
+        // que hace falta para entender un cuello de botella).
+        perfCierra('error');
         const mensaje = error instanceof Error ? error.message : String(error);
         if (error?.operativa) {
           liberaTrabajo(db, trabajo.clave);
@@ -2387,6 +2506,9 @@ async function ejecutar(db) {
       }
     }
   } finally {
+    // Y se vuelca lo que quede sin escribir: si la sesión se corta (un fallo, un reinicio del contenedor), lo
+    // medido hasta ahí no se pierde.
+    perfVuelca();
     if (driver) await driver.quit().catch(() => {});
     // Al cerrar la sesión se limpia lo que el navegador deja detrás. Es el momento en que NADIE usa este
     // perfil, así que no hay ninguna sesión viva que proteger, y evita que la basura de esta sesión se sume a

@@ -52,6 +52,26 @@ que el monitor las veía idénticas. Su cola tenía **45.935 trabajos pendientes
 **«arranca y muere»**, y el monitor no las distinguía. Por eso `estado-ultima-tanda.sh` compara ahora el ORDEN
 del último arranque y del último cierre, en vez de mirar sólo el último código de salida.
 
+### 0.1 · Y una trampa de YAML que me llevé yo por delante
+
+Al añadir una variable de entorno a un servicio para medir, **dejé a Murcia sin recoger durante unos minutos**.
+Merece la pena escribirlo porque es un fallo silencioso y volverá a pasar.
+
+En `docker/compose.yml` los servicios heredan del ancla con `<<: *recolector`. Pero eso fusiona **claves**: si
+el servicio declara su propio `environment:`, **reemplaza el del ancla entero** en vez de añadirse a él. Al
+poner `FACYLF_PERF: "1"` en Murcia, Murcia se quedó sin `FACYLF_MEMORIA_GB`… y ese número no es decorativo:
+
+- `repartePlazas` cae al respaldo («la mitad de la memoria del equipo»): **8 plazas en vez de 16**;
+- y sobre todo `RESERVA_AIRE_GB` vuelve a **1,5 GB** en vez de 0,25. En un contenedor de 1,6 GB nunca caben
+  1,5 GB libres, así que el worker se quedó en `esperando para abrir Chrome: cabe por reparto (5/8) pero a
+  este contenedor le quedan 1.36 GB, menos que la reserva de 1.5 GB` **para siempre**. Es el mismo atasco que
+  ya se documentó el 18/09/2026, y el contenedor seguía «arriba» como si nada.
+
+**Arreglado de raíz:** las variables comunes viven en su propia ancla (`&ambiente-recolector`) y quien añade
+algo hace `<<: *ambiente-recolector` seguido de lo suyo. Y hay una herramienta que lo caza en dos segundos:
+**`compara-entorno-recolectores.sh`**, que enseña el entorno de los 19 y marca en rojo la columna que falte.
+Valencia tenía el mismo agujero (se libró por ir por API, sin navegador que abrir) y también está corregida.
+
 ---
 
 ## 1 · La cuenta cierra: el hueco no es trabajo oculto, es procesador que no existe
@@ -325,6 +345,79 @@ JavaScript del portal, bloquear más recursos en Chrome o cambiar de herramienta
 
 ---
 
+## 6.1 · La respuesta de (A): el 60 % del ciclo son nuestras propias escrituras
+
+El traspaso pedía instrumentar el ciclo por fases. Está hecho, corriendo en Murcia
+(`FACYLF_PERF=1`), y **sobre 150 trabajos reales** sale esto:
+
+| grupo | tiempo | % del ciclo |
+|---|---|---|
+| **portal + Chrome** (`driver.get` + espera + `outerHTML`) | 3,89 s | 39 % |
+| **escrituras nuestras: HTML + JSON + SQLite** | **6,01 s** | **60 %** |
+| análisis del acta (`parseaActa`) | 0,05 s | **0,5 %** |
+| espera de cortesía | 0,03 s | **0,3 %** |
+| bucle y planificación | 0,01 s | 0 % |
+
+Ciclo medio **10,0 s** por trabajo (mediana 9,4 s) → 360 pet/h. Detalle de la parte que manda:
+
+| fase | media | qué es |
+|---|---|---|
+| `acta_estructura` | **2,72 s** | `guardaActaEstructura` + `reconciliaEnlaceActa` + marcar el acta como hecha |
+| `acta_guardar_html` | **1,70 s** | sha256 + gzip + escribir el `.gz` y anotarlo en `archivos` |
+| `analisis_guardado` (resto) | 0,93 s | validación y lo que no cae en las fases marcadas |
+| `acta_guardar_json` | **0,66 s** | gzip + escribir el JSON del análisis |
+| `acta_analizar` | **0,05 s** | `parseaActa` + `contextualizaActa` |
+
+### Contradice al traspaso, y se puede decir exactamente por qué
+
+El traspaso concluía: «la palanca del análisis está descartada con datos: 20 ms por acta, el 0,2 % del hueco.
+**No insistas por ahí**». Y sobre el **análisis** tiene razón: aquí son 50 ms, el 0,5 %. El error fue medir el
+análisis y **llamar a eso el guardado**. `mide-analisis-acta.mjs` hace tres cosas:
+
+1. leer y descomprimir el `.gz` del archivo;
+2. `parseaActa`;
+3. `guardaActaEstructura`… **en una SQLite temporal y vacía en `/tmp`**.
+
+Lo que **no** mide es justo lo que domina en producción:
+
+- `guardaAtomico`: `sha256` + `gzip` + **escribir en `/srv/data`, un disco DURO**, + `renameSync` + el `upsert`
+  en `archivos`;
+- `guardaJson`: un segundo gzip y una segunda escritura;
+- y las escrituras reales en la **cola viva** (438 MB en Murcia, con su WAL), no en una base de juguete en
+  `/tmp`, que está en el **SSD**.
+
+Y hay una comprobación que lo cierra: escribiendo la **misma** secuencia de escritura de un trabajo sobre una
+copia real de la cola, y midiendo también con el micro-banco `mide-guardado-acta.mjs`, el trabajo de CPU es de
+milisegundos —`sha256` 1,3 ms y `gzip` 4,8 ms con actas reales de 112 KB— mientras que escribir en el disco
+duro tiene **mediana 0,3 ms pero media 18,5 ms y picos de 116 ms**: un colazo de latencia, no un coste de CPU.
+
+### Lo que esto significa para el ritmo
+
+Si las escrituras bajaran a casi nada, el ciclo pasaría de 10 s a ~4 s: **de 360 a ~900 pet/h por federación**.
+Bajar sólo a la mitad ya da ~+40 % de ritmo. Es, con diferencia, la palanca más grande que hay hoy — y no toca
+al portal ni pide una petición más.
+
+Arreglos posibles, de más a menos directo:
+
+1. **Mover el archivo (HTML y JSON) al SSD.** Es donde está el grueso de `acta_guardar_html` y
+   `acta_guardar_json` (2,4 s de 10). `/` es SSD y tiene cientos de GB libres; `/srv/data` es el disco duro.
+   Cuidado: el traspaso dice que los datos van en `/srv/data`, así que es una decisión del responsable, pero la
+   medición la respalda.
+2. **Mover las colas al SSD** (`acta_estructura`, 2,72 s). Es más gordo: las colas son la evidencia de ingesta
+   y hay que revisar copias y retención.
+3. **Escribir menos**: el JSON del análisis ya viaja dentro de la columna `datos` de `actas`, así que el
+   fichero `.json` aparte es un segundo gzip y una segunda escritura por acta; y el `upsert` en `archivos` se
+   hace una vez por fichero.
+4. **Que el importador no lea las colas a la vez que se escribe en ellas** (ver §5): compite por el mismo
+   disco.
+
+> **Lo que esta medición NO separa:** dentro de las fases de escritura, cuánto es espera de disco y cuánto es
+> CPU de SQLite. Los micro-bancos enseñan que la parte de CPU es de milisegundos, así que lo que queda es
+> espera; pero para afirmarlo con todas las letras habría que medir el tiempo de CPU de la propia fase, y eso
+> queda pendiente.
+
+---
+
 ## 7 · Herramientas nuevas (todas de sólo lectura sobre la flota)
 
 | herramienta | para qué |
@@ -345,6 +438,13 @@ JavaScript del portal, bloquear más recursos en Chrome o cambiar de herramienta
 | `estado-ultima-tanda.sh` | ¿cómo terminó la última tanda de cada federación? Distingue «trabajando» de «caída» |
 | `revisa-salud-flota.sh` | busca bucles de caída y federaciones que arrancan y no piden nada |
 | `compara-relojes.sh` | reloj del host, del contenedor y lo escrito en las colas (husos y día de Madrid) |
+| `analiza-fases.mjs [fed] [min]` | **el ciclo por fases**: reparte el tiempo de cada trabajo y lo agrupa en portal / escrituras / análisis / espera |
+| `mide-guardado-acta.mjs [fed] [n]` | coste suelto de sha256, gzip y escribir, **en el disco duro y en el SSD** |
+| `mide-bloqueo-cola.mjs [fed] [n]` | cuánto tarda en concederse el bloqueo de la cola (sin modificar nada) |
+| `mide-cola-en-disco.mjs [fed] [n]` | la misma escritura de un trabajo sobre copias de la cola en cada disco |
+| `compara-entorno-recolectores.sh` | caza variables perdidas por declarar `environment:` y pisar el ancla |
+| `estado-ultima-tanda.sh` · `revisa-salud-flota.sh` | ¿trabajando o caída? Bucles de caída y federaciones mudas |
+| `para-medicion.sh <guion.mjs>` | para SÓLO un contenedor de medición, sin tocar los 19 recolectores |
 
 ---
 
@@ -440,22 +540,25 @@ Lo que hay que aprender:
 
 ## 10 · Qué hacer ahora, en orden
 
-1. **Arreglar el importador que se atasca** (§5.1): tope de tiempo y de procesador por unidad, y acotar el
-   resolutor de equipos. Es lo primero porque hoy **quema un 11 % de la máquina sin avanzar y frena a la
-   federación cuya cola tiene ocupada** — Valencia pasó de 477 a 178 peticiones/hora por esto. Mientras siga
-   así, cualquier medición de ritmo queda contaminada.
-2. **Repetir bien la prueba de Valencia** (§9), ya sin la unidad del importador encima y sin cruzar la noche
-   con la mañana: ventanas de una hora y la referencia horaria al lado.
-3. **No tocar la cortesía de las PNFG.** Está medido que no sirve; cambiarla sólo añadiría ruido.
-4. **Instrumentar el ciclo por fases en una federación** (`galicia` o `murcia`). Es lo que decide si el enemigo
-   es el JavaScript del portal, el render de Chrome o el guardado, y es la única forma de seguir bajando el
-   procesador por página. **Es el siguiente paso de fondo.**
-5. **Explorar la sesión anónima sin navegador** (§6): es el único camino a un cambio de orden de magnitud, pero
-   es trabajo de producto con pruebas.
+1. **Atacar el disco, que es el 60 % del ciclo** (§6.1). Por orden: mover el archivo HTML/JSON al SSD, luego
+   las colas, luego escribir menos (el `.json` del análisis ya está dentro de `actas.datos`). Es la palanca más
+   grande que hay hoy y no pide ni una petición más a nadie. **Decisión del responsable** en lo que toque a
+   dónde viven los datos.
+2. **Arreglar el importador que se atasca** (§5.1): tope de tiempo y de procesador por unidad, y acotar el
+   resolutor de equipos. Quema un 11 % de la máquina sin avanzar, frena a la federación cuya cola tiene
+   ocupada y **compite por el mismo disco duro** que las escrituras del punto 1.
+3. **Repetir bien la prueba de Valencia** (§9), sin la unidad del importador encima y sin cruzar la noche con
+   la mañana: ventanas de una hora y la referencia horaria al lado.
+4. **No tocar la cortesía de las PNFG.** Medido: es el 0,3 % del ciclo. Cambiarla sólo añadiría ruido.
+5. **Explorar la sesión anónima sin navegador** (§6): es el camino al otro 39 %. Ya se sabe que el muro es de
+   sesión y no de render, así que es trabajo de producto con pruebas.
 6. **(C), descartado** mientras la máquina siga saturada. Reabrirlo sólo si se añaden núcleos.
 7. **Arreglar el reloj del servidor**: no tiene NTP (`System clock synchronized: no`). No es cosmético — el cupo
    diario cuenta por día civil de Madrid y los aplazamientos se calculan con ese reloj.
+8. **Dejar de creerse el «sin trabajo» del monitor** (§0): distinguir «no tiene trabajo» de «arranca y muere»
+   en `estado-general.sh`, no sólo en la herramienta nueva.
 
-**Ya hecho en esta sesión:** Castilla y León vuelve a recoger (§0), el método de (B) es aplicable sin
-reconstruir la imagen (§3), Valencia corre en el escalón legal más bajo (§9) y quedan cinco herramientas nuevas
-para medir esto sin volver a empezar de cero (§7).
+**Ya hecho:** Castilla y León vuelve a recoger (§0), el entorno de Compose ya no se pierde al añadir variables
+(§0.1), el método de (B) es aplicable sin reconstruir la imagen (§3), Valencia corre en el escalón legal más
+bajo (§9), **el ciclo por fases está instrumentado y medido** (§6.1) y quedan ocho herramientas nuevas para no
+volver a empezar de cero (§7).
