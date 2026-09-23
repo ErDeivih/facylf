@@ -569,7 +569,87 @@ Y una observación que conviene no perder: **el mismo trabajo cuesta muy distint
 8,1 s en Murcia y 11,1 s en Andalucía, con `acta_estructura` de 1,88 s frente a 5,24 s). Optimizar «el worker»
 como si fuera uno solo lleva a conclusiones falsas; hay que mirar por federación.
 
-### 6.6 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
+### 6.6 · Aplicado a toda la flota, y la cola al SSD (23/09/2026, tarde)
+
+Los tres ajustes medidos se aplicaron **a las 19 federaciones**, y se añadió un cuarto:
+
+| ajuste | dónde | efecto medido |
+|---|---|---|
+| `synchronous = NORMAL` | ancla del compose, las 19 | Murcia −19 % de ciclo, Andalucía −11 % |
+| `cache_size = 32 MB` | ancla del compose, las 19 | Andalucía: ciclo 11,1 → 8,4 s |
+| **la cola al SSD** | por federación, con enlace | Andalucía: escrituras 4,11 → 2,95 s |
+
+**La cola al SSD, en Andalucía y con el mismo instrumento:**
+
+| | ciclo | escrituras | `acta_guardar_estructura` |
+|---|---|---|---|
+| `FULL`, caché 2 MB | 12,5 s | 8,59 s | 6,19 s |
+| + `NORMAL` | 11,1 s | 6,27 s | — |
+| + caché 32 MB | 8,4 s | 4,11 s | 3,66 s |
+| **+ cola en SSD** | **8,2 s** | **2,95 s** | **2,41 s** |
+
+**Las escrituras han bajado un 66 %** (8,59 → 2,95 s). Y el ciclo se ha quedado en 8,2 s porque **ahora manda
+la cortesía**: subió de 0,42 s a 2,18 s y se espera en **171 de 250 trabajos**. El trabajo ya es más corto que
+el suelo de 6-8 s, así que a partir de aquí **lo que sube el ritmo es bajar el intervalo** (apartado B), no
+seguir optimizando el trabajo.
+
+**Cómo se mueve sin romper nada.** Mover una cola SQLite es delicado por tres motivos, y cada uno tiene su
+remedio en `mueve-cola-al-ssd.sh`:
+
+1. **copiarla viva la corrompe** → se para el contenedor, se copia y se comprueba con `quick_check` ANTES de
+   tocar el original (que se conserva como `cola-v2.sqlite.envuelta-en-ssd`);
+2. **cambiar la ruta rompería a los tres que la leen** (el recolector, el importador y el monitor) → se deja un
+   **enlace** en la ruta de siempre, así que nadie cambia de ruta;
+3. **y el enlace tiene que resolver dentro de los contenedores** → el árbol del SSD se monta en la misma ruta
+   absoluta que en el host, en los tres.
+
+**Lo que salió mal, y por qué se cuenta.** El punto 3 me costó tres federaciones paradas unos minutos. Añadí el
+montaje al **ancla** del compose dando por hecho que todas lo heredarían… y no: **en YAML, `volumes` de un
+servicio REEMPLAZA la lista del ancla, igual que pasa con `environment:`**. Es la misma trampa que ya me había
+mordido esa mañana con las variables de entorno, y volví a caer. Andalucía, Aragón y Asturias se quedaron con
+un enlace apuntando a una ruta inexistente (`unable to open database file`) mientras las demás seguían bien.
+Se paró la migración, se añadió el montaje **a los 21 servicios uno a uno** y las tres volvieron solas.
+
+> La lección, que ya está anotada arriba pero conviene repetir: **en este compose, un servicio que declara
+> `volumes` está REEMPLAZANDO el del ancla, no ampliándolo.** Vale para `volumes` y para `environment`. Si hay
+> que añadir algo común, va en cada servicio o con una ancla que se fusione con `<<:`.
+
+### 6.7 · Y el ritmo de la FLOTA no subió: la cuenta que falta
+
+Aquí está lo incómodo, y es lo que más importa de este apartado. Con las 19 en `NORMAL` y con caché de 32 MB,
+**el ritmo total de la flota se quedó igual**: 43,5 pet/min antes de aplicarlo y 42,2 pet/min en una ventana
+limpia después. Y en cambio el ciclo por trabajo de Andalucía bajó de 12,5 s a 8,4 s.
+
+Las dos cosas son ciertas a la vez, y la explicación está medida:
+
+- **por federación el resultado está repartido**: Murcia pasó de 225 a **309 pet/h** (+37 %), pero Andalucía
+  cayó de 191 a 142 y Extremadura de 179 a 132. Las que mejoraban ganaban CPU a costa de las demás;
+- **la máquina sigue siendo el tope**, sólo que ahora cambia de recurso según el momento: al mediodía estaba al
+  92,8 % de procesador (el recurso escaso era la CPU) y por la tarde pasó a **60,3 % de CPU y 37,8 % esperando a
+  disco**. Con el disco como cuello, quitar espera de CPU no sube el total.
+
+O sea: **estas mejoras son reales y están medidas, pero no suben el techo de la flota mientras el techo sea la
+máquina.** Lo que hacen es que cada federación necesite menos tiempo (y menos disco) para el mismo trabajo — lo
+cual es la condición para que, cuando el cuello se quite, el ritmo suba.
+
+Y quedan dos agujeros grandes, los dos medidos, que no son el ciclo del worker:
+
+1. **El arranque de sesión cuesta minutos.** Medido con `mide-arranque-sesion.mjs`: desde «Arrancando o
+   reanudando la ingesta» hasta la PRIMERA petición pasan **3,6 min de mediana en Andalucía** (hasta 7,3) y
+   1,9 min en Galicia. Se va en preparar el plan, la vigilancia, aplazar jornadas futuras y **repriorizar todos
+   los trabajos pendientes**, con una cola de decenas de miles de trabajos.
+2. **Los huecos de más de un minuto se llevan entre el 33 % y el 59 % del reloj**, y no son relevos del
+   supervisor (20 s), ni falta de trabajo (49.146 disponibles), ni peticiones colgadas (la más lenta, 10 s), ni
+   ráfagas (hay actividad en todos los tramos de 5 min). Están **dentro** de la sesión.
+
+Lo siguiente, por tanto, no es el ciclo: es **el arranque de sesión y esos huecos**. `mide-arranque-sesion.mjs`
+señala al culpable más probable y al más fácil de arreglar: `reprioritizaPlan` recorre TODOS los trabajos
+pendientes en cada arranque. Con 66.000 pendientes en Andalucía, pagar eso cada sesión es caro y casi nunca
+cambia nada: se podría hacer cada N sesiones, o sólo cuando el plan haya cambiado de verdad.
+
+---
+
+### 6.8 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
 
 Persiguiendo el ritmo real —224 pet/h en Murcia cuando su ciclo de 8,1 s permitiría 444— hice un análisis de
 huecos que decía que **entre un tercio y casi la mitad del reloj se va en espacios de más de un minuto**, en
@@ -626,6 +706,16 @@ familia de explicaciones. Tres de las cuatro eran fáciles de creer.
 | `analiza-duraciones.mjs [fed] [h]` | distribución de la duración de las peticiones y las más lentas, con su tipo |
 | `analiza-actividad.mjs [fed] [h]` | peticiones cada 5 minutos: dice si trabaja seguido o a ráfagas |
 | `compara-relevos.sh [h] [feds…]` | compara el tiempo perdido entre federaciones de un vistazo |
+| `diagnostica-cache-cola.mjs [feds…]` | tamaño de la cola frente a la caché de SQLite: qué porcentaje cabe |
+| `lista-huecos-largos.mjs [fed] [h] [s]` | los huecos largos uno a uno, con su hora y el trabajo de alrededor |
+| `mide-arranque-sesion.mjs [fed] [h]` | **de arrancar la sesión a la primera petición**: el trabajo local que se paga en cada arranque |
+| `analiza-trabajos-lentos.mjs [fed] [n]` | la cola larga de duraciones: qué pocos trabajos se llevan casi todo el tiempo |
+| `cuenta-reinicios-contenedor.sh [h]` | distingue arranques de worker, arranques de contenedor y paradas |
+| `mueve-cola-al-ssd.sh <fed>` | mueve UNA cola al SSD con enlace, verificando la copia antes de cambiar nada |
+| `mueve-colas-al-ssd-todas.sh [feds…]` | lo mismo para varias, de una en una y con informe |
+| `para-migracion-ssd.sh` | para la migración y deja en claro qué colas están enlazadas y cuáles no |
+| `trozo-registro.sh <fed> <desde> <hasta>` | el registro entre dos horas (mezcla líneas con fecha y sin ella) |
+| `espacio-y-tamanos.sh` | discos, y qué ocupa cada federación |
 | `compara-entorno-recolectores.sh` | caza variables perdidas por declarar `environment:` y pisar el ancla |
 | `estado-ultima-tanda.sh` · `revisa-salud-flota.sh` | ¿trabajando o caída? Bucles de caída y federaciones mudas |
 | `para-medicion.sh <guion.mjs>` | para SÓLO un contenedor de medición, sin tocar los 19 recolectores |

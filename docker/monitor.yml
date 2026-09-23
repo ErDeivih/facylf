@@ -50,6 +50,10 @@ services:
     volumes:
       # El repositorio entero: las colas, el estado y los guiones viven ahí.
       - ..:/app
+      # Las colas que se hayan movido al SSD (piloto del 23/09/2026) tienen un ENLACE en su ruta de siempre.
+      # Para que el enlace resuelva aquí también, el árbol del SSD se monta en la MISMA ruta absoluta que en el
+      # host. Sin esto, el monitor vería las colas de esas federaciones como ilegibles.
+      - /srv/ssd/facylf:/srv/ssd/facylf
       # El socket de Docker, en sólo lectura, para saber el consumo de cada contenedor.
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # Los contadores de la rebanada de memoria (el tope de 10 GB del proyecto).

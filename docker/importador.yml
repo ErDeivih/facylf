@@ -34,6 +34,10 @@ services:
     volumes:
       # El estado (lo comparte con el monitor y sobrevive a los reinicios).
       - ../estado:/app/estado
+      # Las colas que se hayan movido al SSD (piloto del 23/09/2026) tienen un ENLACE en su ruta de siempre. El
+      # árbol del SSD se monta en la MISMA ruta absoluta que en el host, para que el enlace resuelva y el
+      # importador siga leyendo esas colas como si nada.
+      - /srv/ssd/facylf:/srv/ssd/facylf
       # Y las colas, una por federación. Sólo estos datos entran aquí: el importador no ve nada más.
       - ../descargas-andalucia:/app/descargas-andalucia
       - ../descargas-aragon:/app/descargas-aragon

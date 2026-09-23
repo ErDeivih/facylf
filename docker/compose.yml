@@ -47,6 +47,29 @@ x-ambiente-recolector: &ambiente-recolector
   # Turno máximo con una plaza cuando hay federaciones esperando: es lo que hace que todas entren a lo largo
   # del día en un servidor donde no caben las 19 a la vez.
   FACYLF_TURNO_PLAZA_MIN: "${FACYLF_TURNO_PLAZA_MIN:-150}"
+  # ── DOS AJUSTES DE ESCRITURA, PROBADOS Y AHORA PARA TODA LA FLOTA (23/09/2026) ──────────────────────────
+  #
+  # Los dos salen de partir el ciclo del worker por fases. Medido con `analiza-fases.mjs`, el grueso del ciclo
+  # no era el portal: eran NUESTRAS escrituras, y dentro de ellas los `insert` de `guardaActaEstructura`.
+  #
+  # 1. `FACYLF_SINCRONO=NORMAL` — SQLite con `synchronous = FULL` (su valor por defecto) sincroniza el disco en
+  #    CADA confirmación, y en el disco duro eso son **540 ms de mediana** (3,8 ms en el SSD). Guardar un acta
+  #    hacía varias confirmaciones sueltas. Con `NORMAL` la confirmación cuesta 0,0 ms. En modo WAL sigue siendo
+  #    seguro frente a la CORRUPCIÓN; lo que puede perderse, si se va la luz, son las últimas confirmaciones, y
+  #    aquí eso sólo significa repetir peticiones ya hechas, porque la cola es idempotente.
+  #    Medido: Murcia −19 % de ciclo, Andalucía −11 %.
+  #
+  # 2. `FACYLF_CACHE_MB=32` — la caché por defecto de SQLite son **2 MB** y las colas son de 414-524 MB, o sea
+  #    que cabe el **0,5 %**: casi toda página que toca un `insert` hay que ir a buscarla al disco. Medido en
+  #    Andalucía: ciclo 11,1 s → 8,4 s y escrituras 6,27 s → 4,11 s. Es memoria, no disco ni durabilidad.
+  #    32 MB por recolector son ~608 MB en total y la rebanada `facylf.slice` tiene 12 GB de tope, así que
+  #    conviene vigilar `MemoryCurrent` si se sube más.
+  #
+  # Se pueden cambiar sin tocar el compose, desde `docker/.env`:
+  #     FACYLF_SINCRONO=FULL        (vuelve al comportamiento de siempre)
+  #     FACYLF_CACHE_MB=              (deja la caché que trae SQLite)
+  FACYLF_SINCRONO: "${FACYLF_SINCRONO:-NORMAL}"
+  FACYLF_CACHE_MB: "${FACYLF_CACHE_MB:-32}"
 
 x-comun: &recolector
   build:
@@ -89,6 +112,20 @@ x-comun: &recolector
   environment: *ambiente-recolector
   volumes:
     - plazas:/app/.estado-workers
+    # ── EL ÁRBOL DEL SSD, PARA TODAS (23/09/2026) ───────────────────────────────────────────────────────────
+    #
+    # `/srv/data` es un disco DURO y la máquina pasa un ~30 % del tiempo esperándolo. Las colas SQLite se mueven
+    # al SSD con `scripts/servidor/mueve-cola-al-ssd.sh`, que **deja un enlace en la ruta de siempre** para que
+    # ningún consumidor cambie de ruta. Para que ese enlace resuelva dentro del contenedor, el árbol del SSD se
+    # monta en la MISMA ruta absoluta que en el host.
+    #
+    # Va en el ancla porque todas las federaciones lo necesitan; tener el montaje sin enlace no cambia nada, así
+    # que se puede migrar federación a federación sin tocar esto.
+    #
+    # Medido en el piloto (Andalucía): las escrituras bajan de 4,11 s a 2,95 s por acta y `acta_guardar_estructura`
+    # de 3,66 s a 2,41 s. El ciclo se queda en 8,2 s porque ahora manda la CORTESÍA (26 % del ciclo, esperada en
+    # 171 de 250 trabajos): el trabajo ya es más corto que el suelo de 6-8 s.
+    - /srv/ssd/facylf:/srv/ssd/facylf
   logging:
     driver: json-file
     options:
@@ -114,25 +151,12 @@ services:
     # el problema es de esta cola —que es la más grande— y se habrá acotado sin tocar las 19.
     environment:
       <<: *ambiente-recolector
+      # `FACYLF_SINCRONO` y `FACYLF_CACHE_MB` ya vienen del ancla para TODA la flota (ver arriba): se probaron
+      # aquí primero y se midió la ganancia, así que ahora son el comportamiento por defecto.
       FACYLF_PERF: "1"
-      # Segunda federación del experimento de `synchronous` (la primera es Murcia, ver su comentario). Andalucía
-      # es la prueba dura: su `acta_estructura` mide 6,19 s de media (mediana 3,61 s) con `FULL`, el triple que
-      # Murcia, y su cola es de las grandes. Si aquí la ganancia se repite, el caso para el resto de la flota
-      # queda medido en dos federaciones distintas y no en una.
-      FACYLF_SINCRONO: "NORMAL"
-      # ── CACHÉ DE SQLITE EN PRUEBA (23/09/2026) ───────────────────────────────────────────────────────────
-      #
-      # Partiendo `acta_estructura` en tres se vio que lo que manda son los `insert` de
-      # `guardaActaEstructura`, no la reconciliación ni el `update` final. Y `diagnostica-cache-cola.mjs`
-      # enseña por qué: la cola de Andalucía son 414 MB y la caché de SQLite son **2 MB**, o sea que cabe el
-      # **0,5 %**. Casi todas las páginas que toca un `insert` hay que ir a buscarlas al disco duro.
-      #
-      # 32 MB es memoria —no toca dónde viven los datos ni su durabilidad— y vive dentro del contenedor, que
-      # tiene 1,6 GB. Se prueba aquí y se mide con `analiza-fases.mjs`: si `acta_guardar_estructura` baja, se
-      # propone para el resto; si no baja, se quita.
-      FACYLF_CACHE_MB: "32"
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-andalucia:/app/descargas-andalucia
 
   aragon:
@@ -140,6 +164,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "aragon"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-aragon:/app/descargas-aragon
 
   asturias:
@@ -147,6 +172,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "asturias"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-asturias:/app/descargas-asturias
 
   baleares:
@@ -154,6 +180,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "baleares"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-baleares:/app/descargas-baleares
 
   canarias:
@@ -161,6 +188,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "canarias"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-canarias:/app/descargas-canarias
 
   cantabria:
@@ -168,6 +196,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "cantabria"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-cantabria:/app/descargas-cantabria
 
   castilla-la-mancha:
@@ -175,6 +204,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "castilla-la-mancha"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-castilla-la-mancha:/app/descargas-castilla-la-mancha
 
   cataluna:
@@ -182,6 +212,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "cataluna"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-cataluna:/app/descargas-cataluna
 
   ceuta:
@@ -189,6 +220,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "ceuta"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-ceuta:/app/descargas-ceuta
 
   euskadi:
@@ -196,6 +228,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "euskadi"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-euskadi:/app/descargas-euskadi
 
   extremadura:
@@ -203,6 +236,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "extremadura"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-extremadura:/app/descargas-extremadura
 
   federacion:
@@ -210,6 +244,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "federacion"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-federacion:/app/descargas-federacion
       # (Aquí hubo un montaje del lanzador desde el repositorio, del 21/09/2026 al 22/09/2026: Castilla y León
       #  es la única federación que va SIN `--perfil`, y esa rama se añadió a `entrada-recolector.sh` después de
@@ -236,6 +271,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "galicia"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-galicia:/app/descargas-galicia
 
   madrid:
@@ -243,6 +279,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "madrid"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-madrid:/app/descargas-madrid
       # ── EL CATÁLOGO DE SONDEO, POR VOLUMEN Y NO DENTRO DE LA IMAGEN (22/09/2026) ─────────────────────
       #
@@ -261,6 +298,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "melilla"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-melilla:/app/descargas-melilla
 
   murcia:
@@ -282,20 +320,12 @@ services:
     environment:
       <<: *ambiente-recolector
       FACYLF_PERF: "1"
-      # ── EXPERIMENTO: SIN SINCRONIZACIÓN DE DISCO EN CADA CONFIRMACIÓN (23/09/2026) ────────────────────────
-      #
-      # Medido: confirmar una escritura en la cola cuesta 540 ms de mediana en el disco DURO (3,8 ms en el SSD),
-      # y guardar un acta hacía varias confirmaciones sueltas → ~6 s de 10 s por trabajo. Con `NORMAL` la misma
-      # confirmación cuesta 0,0 ms. En modo WAL esto sigue siendo seguro frente a la corrupción; lo que se puede
-      # perder, si se va la luz, son las últimas confirmaciones (segundos), y aquí eso significa repetir unas
-      # peticiones ya hechas.
-      #
-      # Se prueba SÓLO EN MURCIA, que es la federación que ya se está midiendo. Si el resultado acompaña, se
-      # propone al responsable para el resto; mientras tanto, las otras 18 siguen con el comportamiento de
-      # siempre (`FULL`). Quitar esta línea devuelve Murcia a `FULL` sin más.
-      FACYLF_SINCRONO: "NORMAL"
+      # Aquí estuvo el primer experimento de `FACYLF_SINCRONO=NORMAL` (23/09/2026): midió −19 % de ciclo y por
+      # eso ahora va en el ancla para toda la flota. Se deja `FACYLF_PERF` porque Murcia sigue siendo una de las
+      # dos federaciones de medición.
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-murcia:/app/descargas-murcia
 
   navarra:
@@ -303,6 +333,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "navarra"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-navarra:/app/descargas-navarra
 
   rioja:
@@ -310,6 +341,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "rioja"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-rioja:/app/descargas-rioja
 
   valencia:
@@ -339,6 +371,7 @@ services:
       FACYLF_ARGS: "--intervalo-min 4 --intervalo-max 5"
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-valencia:/app/descargas-valencia
       # Mismo caso que Madrid: el catálogo del sondeo es DATO y va montado (ver el comentario de Madrid).
       - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
@@ -360,6 +393,7 @@ services:
     command: ["bash", "docker/entrada-recolector.sh", "prueba-10gb"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-prueba-10gb:/app/descargas-prueba-10gb
 
   # La pasada del fin de semana: reabre jornadas y actas del sábado y el domingo en TODAS las federaciones y
@@ -370,6 +404,7 @@ services:
     command: ["bash", "docker/entrada-fin-de-semana.sh", "${FACYLF_HORA_FINDE:-07:30}"]
     volumes:
       - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
       - ../pruebas/reconstruccion:/app/pruebas/reconstruccion
       - ../descargas-andalucia:/app/descargas-andalucia
       - ../descargas-aragon:/app/descargas-aragon
