@@ -675,13 +675,53 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
     // programático dejó repetidamente el DOM en RESULTATS. La ruta es pública y estable; entrar
     // directamente evita depender de un evento de React y sustituye (no añade) la carga del grupo.
     await driver.get(urlCalendario.toString());
+
+    /*
+     * ── COMPROBAR, Y SI NO HAY JORNADAS, PULSAR LA PESTAÑA (medido el 23/09/2026) ──────────────────────────
+     *
+     * El parámetro `tab=calendari` NO siempre basta: medido hoy, la página carga bien pero se queda en
+     * RESULTATS y no aparece ni un «JORNADA». El diagnóstico lo dejaba claro: el texto de la ficha empieza por
+     * «…GRUP 3 RESULTATS CLASSIFICACIÓ CALE…» y entre los botones están `RESULTATS`, `CLASSIFICACIÓ` y
+     * `CALENDARI` — o sea que la pestaña del calendario está ahí, sin pulsar.
+     *
+     * Y eso no era una molestia: Cataluña tenía **90.832 ACTAS disponibles y recogibles paradas** detrás de
+     * 1.209 calendarios rotos, porque `calendario` es fase 1 y va antes que `acta` (fase 2). La federación
+     * gastaba todas sus peticiones en calendarios que no leía y no descargaba ni una acta.
+     *
+     * Así que ahora, si al primer intento no hay jornadas, se PULSA la pestaña «CALENDARI» y se vuelve a
+     * esperar antes de darse por vencido. Pulsar es el plan B, no el A: si la ruta directa funciona, no se
+     * toca nada.
+     */
+    const hayJornadas = async () => Boolean(await driver.executeScript(`
+      const principal = document.querySelector('main') || document.body;
+      return [...principal.querySelectorAll('span,div,h3,h4')].some((e) =>
+        e.children.length === 0 && /^JORNADA\\s+\\d+\\b/i.test((e.textContent || '').trim()));
+    `));
+    const espera = String(trabajo.temporada) === temporadaActual ? 15000 : 30000;
+
+    let visible = false;
     try {
-      await driver.wait(async () => Boolean(await driver.executeScript(`
-        const principal = document.querySelector('main') || document.body;
-        return [...principal.querySelectorAll('span,div,h3,h4')].some((e) =>
-          e.children.length === 0 && /^JORNADA\\s+\\d+\\b/i.test((e.textContent || '').trim()));
-      `)), String(trabajo.temporada) === temporadaActual ? 15000 : 30000);
-    } catch {
+      await driver.wait(hayJornadas, espera);
+      visible = true;
+    } catch { /* se prueba el plan B antes de rendirse */ }
+
+    if (!visible) {
+      const pulsada = await driver.executeScript(`
+        const objetivo = [...document.querySelectorAll('button,a,[role=tab],li,span')]
+          .find((e) => /^\\s*CALENDARI\\s*$/i.test((e.innerText || e.textContent || '').trim()));
+        if (!objetivo) return false;
+        objetivo.click();
+        return true;
+      `).catch(() => false);
+      if (pulsada) {
+        try {
+          await driver.wait(hayJornadas, espera);
+          visible = true;
+        } catch { /* tampoco así: se cae al diagnóstico de siempre */ }
+      }
+    }
+
+    if (!visible) {
       const diagnostico = await driver.executeScript(`
         const principal = document.querySelector('main') || document.body;
         return {

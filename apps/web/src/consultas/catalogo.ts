@@ -90,7 +90,26 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
            g.nombre                             as grupo,
            g.tipo                               as grupo_tipo,
            g.jornadas_previstas,
-           (select count(*) from core.team_entry te where te.phase_group_id = g.id)::int as inscripciones,
+           /*
+            * ── LAS INSCRIPCIONES SE CUENTAN UNA VEZ, NO UNA POR GRUPO (medido el 23/09/2026) ──────────────
+            *
+            * Aquí había una subconsulta correlacionada:
+            *
+            *     (select count(*) from core.team_entry te where te.phase_group_id = g.id)::int
+            *
+            * y el EXPLAIN (ANALYZE, BUFFERS) de la consulta real mostró que era el 60 % del tiempo de
+            * ejecución: SubPlan 1, 20,1 ms por grupo y 60 repeticiones. Veinte milisegundos por grupo, sesenta
+            * veces, para contar diez filas — y con lecturas de disco, en un servidor donde una lectura de
+            * página cuesta decenas de milisegundos.
+            *
+            * Con la tabla agregada aparte (left join sobre el recuento por grupo) el trabajo se hace UNA vez
+            * para toda la tabla y luego se une. Es el mismo número, pero sin repetir la cuenta por cada fila
+            * del resultado.
+            *
+            * OJO: este texto vive DENTRO de una plantilla de JavaScript. Nada de acentos graves aquí: cerrarían
+            * la plantilla y romperían el fichero entero. Pasó al escribir esta misma mejora el 23/09/2026.
+            */
+           coalesce(te.inscripciones, 0)::int   as inscripciones,
            c.partidos_conocidos,
            c.partidos_con_resultado,
            c.actas_disponibles,
@@ -104,6 +123,9 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
       join core.federation f on f.id = e.federation_id
       join core.season s on s.id = e.season_id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
+      -- El recuento de inscripciones, calculado UNA vez para toda la tabla (ver el comentario del select).
+      left join (select phase_group_id, count(*) as inscripciones
+                   from core.team_entry group by phase_group_id) te on te.phase_group_id = g.id
      where ($1::text is null or f.codigo = $1)
        and ($2::text is null or s.etiqueta = $2)
        and ($3::text is null or s.etiqueta >= $3)
