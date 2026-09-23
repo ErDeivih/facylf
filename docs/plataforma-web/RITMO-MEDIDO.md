@@ -611,6 +611,12 @@ familia de explicaciones. Tres de las cuatro eran fáciles de creer.
    `estado-cpu-real.sh` da **65,8 % calculando y 30,4 % esperando a disco**, y avisa por sí solo: «el cuello es
    el DISCO, no el procesador». Las dos cosas son ciertas en momentos distintos: la conclusión de este
    documento vale para cuando la máquina está **saturada de procesador**, que es como estaba cuando se midió.
+7. **El ritmo no se puede comparar sin mirar QUÉ se estaba pidiendo.** A las 00:15 la flota hacía 64,5
+   peticiones/min con 3,9 núcleos ocupados (3,64 s de CPU por petición); a las 12:15 hacía 46,6 con 3,7 núcleos
+   (4,77 s por petición). El procesador era el mismo: lo que había cambiado era la mezcla. Medido con
+   `analiza-mezcla-trabajos.mjs`, en esa última ventana el **71 % de las peticiones eran actas** —el trabajo con
+   el camino de escritura más pesado— y un calendario tarda **16,3 s** dentro de la petición. Comparar dos
+   ritmos separados en el tiempo sin esta tabla es comparar cosas distintas, y es una trampa fácil.
 
 ---
 
