@@ -35,7 +35,10 @@ const ORDEN_FASES = [
   'red_render',
   // Dentro de lo que pasa DESPUÉS de tener la página, que es donde está el 55 % del ciclo medido en Murcia:
   'acta_guardar_html', 'acta_analizar', 'acta_decisiones', 'acta_calidad',
-  'acta_guardar_json', 'acta_estructura',
+  'acta_guardar_json',
+  // `acta_estructura` se partió en tres el 23/09/2026: en Andalucía eran 5,24 s de 11,1 s y había que saber
+  // cuál de las tres cosas era. Los ficheros anteriores a esa fecha siguen teniendo `acta_estructura`.
+  'acta_guardar_estructura', 'acta_reconciliar', 'acta_marcar_hecha', 'acta_estructura',
   'analisis_guardado', 'cola_del_bucle',
 ];
 
@@ -51,7 +54,10 @@ const QUE_EXPLICA = {
   acta_decisiones: 'decisiones de descanso pendientes de esta acta',
   acta_calidad: 'evaluaCalidadActa',
   acta_guardar_json: 'gzip + escribir el JSON del análisis',
-  acta_estructura: 'guardaActaEstructura + reconciliaEnlaceActa + marcar el acta como hecha',
+  acta_estructura: 'guardaActaEstructura + reconciliaEnlaceActa + marcar el acta como hecha (sin partir)',
+  acta_guardar_estructura: 'insert de participaciones, eventos, técnicos y personas, con sus índices',
+  acta_reconciliar: 'enlazar el acta con su partido (reconciliaEnlaceActa)',
+  acta_marcar_hecha: 'el update final que marca el acta como hecha',
   analisis_guardado: 'resto de la fase (validación y lo que no se haya marcado arriba)',
   cola_del_bucle: 'lo que sobra al cerrar el trabajo (debería ser casi nada)',
 };
@@ -132,7 +138,8 @@ for (const federacion of federaciones) {
   const grupos = {
     portal: ['red_render'],
     'escrituras nuestras (disco y SQLite)': [
-      'acta_guardar_html', 'acta_guardar_json', 'acta_estructura', 'analisis_guardado',
+      'acta_guardar_html', 'acta_guardar_json', 'acta_estructura',
+      'acta_guardar_estructura', 'acta_reconciliar', 'acta_marcar_hecha', 'analisis_guardado',
     ],
     'análisis del acta (CPU)': ['acta_analizar', 'acta_calidad', 'acta_decisiones'],
     'espera de cortesía': ['cortesia'],

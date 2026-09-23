@@ -120,6 +120,17 @@ services:
       # Murcia, y su cola es de las grandes. Si aquí la ganancia se repite, el caso para el resto de la flota
       # queda medido en dos federaciones distintas y no en una.
       FACYLF_SINCRONO: "NORMAL"
+      # ── CACHÉ DE SQLITE EN PRUEBA (23/09/2026) ───────────────────────────────────────────────────────────
+      #
+      # Partiendo `acta_estructura` en tres se vio que lo que manda son los `insert` de
+      # `guardaActaEstructura`, no la reconciliación ni el `update` final. Y `diagnostica-cache-cola.mjs`
+      # enseña por qué: la cola de Andalucía son 414 MB y la caché de SQLite son **2 MB**, o sea que cabe el
+      # **0,5 %**. Casi todas las páginas que toca un `insert` hay que ir a buscarlas al disco duro.
+      #
+      # 32 MB es memoria —no toca dónde viven los datos ni su durabilidad— y vive dentro del contenedor, que
+      # tiene 1,6 GB. Se prueba aquí y se mide con `analiza-fases.mjs`: si `acta_guardar_estructura` baja, se
+      # propone para el resto; si no baja, se quita.
+      FACYLF_CACHE_MB: "32"
     volumes:
       - plazas:/app/.estado-workers
       - ../descargas-andalucia:/app/descargas-andalucia

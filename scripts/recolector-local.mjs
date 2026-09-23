@@ -2061,15 +2061,31 @@ async function procesa(driver, ritmo, db, trabajo) {
     perfMarca('acta_calidad');
     guardaJson(join(carpetaActas, `acta-${trabajo.acta}.json`), parseada, db, 'acta');
     perfMarca('acta_guardar_json');
+    // ── `acta_estructura` SE PARTE EN TRES (medido el 23/09/2026) ─────────────────────────────────────────
+    //
+    // En Andalucía, `acta_estructura` se llevaba 5,24 s de un ciclo de 11,1 s (el 47 %) con
+    // `synchronous=NORMAL`, o sea SIN el coste de sincronizar el disco: eso ya no era el `fsync`. Dentro hay
+    // tres cosas que se arreglan de forma distinta, así que se separan:
+    //
+    //   · `acta_guardar_estructura` — los `insert` de participaciones, eventos, técnicos y personas, con sus
+    //     índices. Si manda esto, el problema es el VOLUMEN de escrituras o los índices, y se ataca ahí;
+    //   · `acta_reconciliar` — el enlace del acta con su partido;
+    //   · `acta_marcar_hecha` — el `update` final del acta.
+    //
+    // Y quedan dentro los dos sitios donde puede esconderse una PAUSA que no es trabajo: la confirmación de la
+    // transacción de `guardaActaEstructura` (que en WAL puede incluir un punto de control automático, y eso sí
+    // escribe en el disco duro) y la confirmación del `update` final.
     guardaActaEstructura(db, trabajo, acta, parseada);
+    perfMarca('acta_guardar_estructura');
     reconciliaEnlaceActa(db, trabajo, parseada);
+    perfMarca('acta_reconciliar');
     db.prepare(`update actas set estado='hecha',archivo=?,hash=?,datos=?,comprobada_en=?,
       version_parser=?,calidad=?,incidencias=?
       where temporada=? and competicion=? and grupo=? and jornada=? and codigo=?`)
       .run(ruta, guardado.hash, JSON.stringify(parseada), new Date().toISOString(),
         VERSION_PARSER_ACTA, calidad.calidad, JSON.stringify(calidad.incidencias),
         trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
-    perfMarca('acta_estructura');
+    perfMarca('acta_marcar_hecha');
     return `acta ${acta.menores ? 'de base' : 'adulta'} guardada y analizada; ${parseada.golesLocal ?? '?'}-${parseada.golesVisitante ?? '?'}, ` +
       `${titulares} titulares, ${suplentes} suplentes, ${parseada.goles?.length ?? 0} goles, ` +
       `${parseada.tecnicos?.length ?? 0} técnicos${calidad.calidad === 'revisar' ?

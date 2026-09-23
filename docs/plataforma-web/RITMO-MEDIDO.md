@@ -516,11 +516,60 @@ Las palancas que quedan para ese resto, en orden de relación efecto/riesgo:
 3. **La cola al SSD** (o al menos el archivo HTML/JSON): con `NORMAL` el `fsync` ya no duele, pero leer y
    escribir páginas de una base de 438 MB en un disco duro compartido sigue costando.
 
+### 6.5 · Y ese resto era la CACHÉ de SQLite: 2 MB para una cola de 414 MB
+
+Partiendo `acta_estructura` en tres (marca nueva) se vio de qué estaba hecho, en Andalucía:
+
+| parte | tiempo | |
+|---|---|---|
+| `acta_guardar_estructura` (los `insert`) | **la que manda** | participaciones, eventos, técnicos y personas, con sus índices |
+| `acta_reconciliar` | 0,03 s | enlazar el acta con su partido |
+| `acta_marcar_hecha` | 0,09 s | el `update` final |
+
+O sea: **no era el `fsync`, no era la reconciliación y no era el `update` final: eran los `insert`.** Y
+`diagnostica-cache-cola.mjs` enseñó por qué, con una cifra que no se esperaba nadie:
+
+| federación | cola | caché de SQLite | **cabe** |
+|---|---|---|---|
+| andalucia | 414 MB (105.924 páginas) | 2,0 MB | **0,5 %** |
+| murcia | 423 MB | 2,0 MB | 0,5 % |
+| galicia | 494 MB | 2,0 MB | 0,4 % |
+| navarra | 524 MB | 2,0 MB | 0,4 % |
+
+**La caché por defecto de SQLite son 2 MB.** En una cola de 414 MB cabe el **0,5 %**, así que casi todas las
+páginas que toca un `insert` hay que ir a buscarlas al disco duro compartido. Un centenar de `insert` por acta
+por un fallo de caché cada uno son los segundos que se veían.
+
+**El arreglo es memoria, no disco.** `FACYLF_CACHE_MB=32` (variable nueva; **sin ella se deja la de SQLite**,
+que es como estaba). Medido en Andalucía con el mismo instrumento:
+
+| | sin caché (20 trabajos) | con 32 MB (20 trabajos) |
+|---|---|---|
+| **ciclo por trabajo** | 11,1 s | **8,4 s** |
+| **escrituras nuestras** | 6,27 s (56 %) | **4,11 s (49 %)** |
+| `acta_guardar_html` | 0,76 s | **0,25 s** |
+| `acta_guardar_json` | 0,27 s | **0,05 s** |
+| `acta_guardar_estructura` | ~4,5 s | **3,66 s** |
+
+**Y acumulado en Andalucía, los tres cambios medidos con el mismo instrumento:**
+
+| | ciclo por trabajo |
+|---|---|
+| `synchronous = FULL` (como estaba) | 12,5 s |
+| + `synchronous = NORMAL` | 11,1 s |
+| + caché de 32 MB | **8,4 s** |
+
+Un **−33 %** de ciclo, y ninguno de los tres cambios toca al portal ni pide una petición más. Los tres van por
+variable y probados en una federación. **La caché es la menos arriesgada de las tres** —es memoria, no
+durabilidad ni sitio de los datos—, pero también consume: 19 recolectores × 32 MB son ~608 MB, y cada
+contenedor tiene su propio límite de 1,6 GB con Chrome dentro. Conviene mirar la memoria libre del sistema
+antes de extenderla.
+
 Y una observación que conviene no perder: **el mismo trabajo cuesta muy distinto según la federación** (ciclo de
 8,1 s en Murcia y 11,1 s en Andalucía, con `acta_estructura` de 1,88 s frente a 5,24 s). Optimizar «el worker»
 como si fuera uno solo lleva a conclusiones falsas; hay que mirar por federación.
 
-### 6.5 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
+### 6.6 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
 
 Persiguiendo el ritmo real —224 pet/h en Murcia cuando su ciclo de 8,1 s permitiría 444— hice un análisis de
 huecos que decía que **entre un tercio y casi la mitad del reloj se va en espacios de más de un minuto**, en

@@ -188,9 +188,37 @@ export function abreBase(ruta) {
    * cambiar el modo lo reinicia.
    */
   const sincrono = String(process.env.FACYLF_SINCRONO ?? '').toUpperCase() === 'NORMAL' ? 'NORMAL' : 'FULL';
+  /*
+   * ── LA CACHE DE SQLITE ES EL 0,5 % DE LA COLA (medido el 23/09/2026) ────────────────────────────────────
+   *
+   * De los 5,24 s de `acta_estructura` en Andalucia, lo que manda son los `insert` de `guardaActaEstructura`
+   * (participaciones, eventos, tecnicos y personas con sus indices): la reconciliacion y el `update` final son
+   * milisegundos. Y la causa es facil de ver con `diagnostica-cache-cola.mjs`:
+   *
+   *     cola de Andalucia:  414 MB, 105.924 paginas de 4 KB
+   *     cache_size:         -2000  ->  2,0 MB  ->  cabe el 0,5 %
+   *     (Murcia 423 MB, Galicia 494 MB, Navarra 524 MB: todas entre el 0,4 % y el 0,5 %)
+   *
+   * Nueve de cada diez paginas que toca un `insert` no estan en memoria, asi que hay que ir a buscarlas al
+   * disco DURO —el mismo que comparten 19 recolectores y el importador— y cada fallo cuesta decenas de
+   * milisegundos. Multiplicado por el centenar de `insert` de un acta, son los segundos que se ven.
+   *
+   * Subir la cache es memoria, no disco: no cambia donde viven los datos ni su durabilidad, y se puede medir.
+   * Va por variable para no cambiar el comportamiento de las 19 de golpe:
+   *
+   *     FACYLF_CACHE_MB=32   -> cache de 32 MB por conexion
+   *     sin la variable        -> se deja la de SQLite, que es como estaba
+   *
+   * OJO al reparto: cada recolector tiene su propio contenedor de 1,6 GB y su propia cache, asi que 32 MB por
+   * conexion no son 32 x 19 en la misma maquina; pero conviene mirar la memoria libre del sistema al subirlo,
+   * porque el contenedor tambien lleva Chrome dentro.
+   */
+  const cacheMb = Number(process.env.FACYLF_CACHE_MB ?? 0);
+  const lineaCache = Number.isFinite(cacheMb) && cacheMb > 0 ? `pragma cache_size = ${-Math.round(cacheMb * 1024)};` : '';
   db.exec(`
     pragma journal_mode = WAL;
     pragma synchronous = ${sincrono};
+    ${lineaCache}
     pragma foreign_keys = ON;
     -- ── ESPERAR A QUE EL OTRO TERMINE (medido el 21/09/2026) ────────────────────────────────────────────
     --
