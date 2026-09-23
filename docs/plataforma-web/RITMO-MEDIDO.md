@@ -649,7 +649,58 @@ cambia nada: se podría hacer cada N sesiones, o sólo cuando el plan haya cambi
 
 ---
 
-### 6.8 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
+### 6.8 · El `cron` que se comía la máquina (y no era de la recolección)
+
+Y aquí aparece la explicación de por qué, después de arreglar el disco, el ritmo seguía sin subir. La carga del
+sistema llegó a **227 sobre 4 núcleos**, con la flota **sana** (las 19 federaciones con código 0, ninguna caída).
+Contando HILOS por estado —la carga de Linux cuenta hilos, no procesos— resultó que de los 264 que estaban
+ejecutando, **87 eran `containerd-shim` y 73 `docker`, y sólo 17 de Chrome**.
+
+El culpable estaba en el `cron` del proyecto, instalado por `scripts/servidor/instalar-cron.sh`:
+
+```
+* * * * * cd /srv/data/facylf && docker stats --no-stream --format '…' > estado/contenedores.txt
+```
+
+`docker stats --no-stream` mira los cgroups de TODOS los contenedores y, con 20 vivos y la máquina cargada,
+**tarda más de un minuto**. Sin ninguna protección, cada minuto arrancaba otro sin esperar al anterior: **45-65
+procesos `docker stats` a la vez**, cada uno consumiendo procesador de verdad.
+
+Es un bucle que **se alimenta solo**: más carga → más tarda cada uno → más se apilan → más carga. Y no aparece en
+ningún sitio de los que se miran: la flota está sana, no hay errores, no hay fallos. Sólo falta procesador.
+
+**Arreglado** (y en la fuente, para que una reinstalación no lo reintroduzca):
+
+- `flock -n /tmp/facylf-contenedores.lock` → si ya hay una ejecución en marcha, la nueva **se salta**;
+- `timeout 45` → una ejecución atascada muere antes de que llegue la siguiente.
+
+Medido al cortarlo: **45 procesos → 6**, y la carga de **177 → 138**. La herramienta para verlo y cortarlo es
+`corta-pila-docker-stats.sh` (con el patrón de `pkill` DENTRO del fichero, porque escrito en la línea de órdenes
+se mataría a sí mismo).
+
+### 6.9 · Y ahora el cuello es la CPU, limpia
+
+Después de todo lo anterior, la foto de la máquina es esta:
+
+| recurso | mediodía (antes) | ahora |
+|---|---|---|
+| procesador calculando | 92,8 % | **100,0 % (4,00 de 4 núcleos)** |
+| esperando a disco | 5,9 % | **0,0 %** |
+| procesador libre | 1,3 % | **0,0 %** |
+
+Es decir: **el disco ha dejado de ser el cuello** —el `fsync`, la caché y el SSD hicieron su trabajo— y lo que
+queda es una máquina **sin un solo ciclo libre**. Con 4 núcleos al 100 % y 129 hilos esperando turno, el ritmo de
+la flota lo fija el procesador y **ninguna optimización de escritura puede subirlo más**.
+
+Lo que sí se puede, por orden de efecto:
+
+1. **Bajar el procesador por página** (el portal y Chrome son el 36-39 % del ciclo, y Chrome es lo que más CPU
+   consume de todo lo que corre): bloquear más recursos en el navegador, o dejar de renderizar.
+2. **Menos navegadores a la vez y más ocupados** — que es, al final, la idea que planteó el responsable con los
+   workers compartidos: no crea procesador, pero quita lastre de 19 Chrome compitiendo.
+3. Más núcleos, que no está en mi mano.
+
+### 6.10 · Un callejón sin salida que conviene dejar escrito (para no repetirlo)
 
 Persiguiendo el ritmo real —224 pet/h en Murcia cuando su ciclo de 8,1 s permitiría 444— hice un análisis de
 huecos que decía que **entre un tercio y casi la mitad del reloj se va en espacios de más de un minuto**, en

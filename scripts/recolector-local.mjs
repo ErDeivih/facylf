@@ -764,6 +764,48 @@ function reprioritizaPlan(db) {
   if (cambiados) console.log(`  · ${cambiados} trabajos ordenados: descubrimiento de grupos → competiciones prioritarias recientes → resto.`);
 }
 
+/**
+ * ── REPRIORIZAR SÓLO SI HACE FALTA (medido el 23/09/2026) ────────────────────────────────────────────────
+ *
+ * `reprioritizaPlan` recorre TODOS los trabajos pendientes con dos JOIN y recalcula la prioridad de cada uno. Se
+ * llama en CADA arranque de sesión, y medido con `mide-arranque-sesion.mjs`: desde «Arrancando o reanudando la
+ * ingesta» hasta la PRIMERA petición pasan **3,6 minutos de mediana en Andalucía** (hasta 7,3) y 1,9 en Galicia.
+ * Con 66.038 trabajos pendientes, esa lectura sola ya tarda minutos.
+ *
+ * Y las prioridades son una función PURA del catálogo (el nombre de la competición, el del grupo y la
+ * temporada): **si el catálogo no ha cambiado, no pueden haber cambiado**. Además, cuando se encola un trabajo
+ * nuevo, `encola` ya le pone la prioridad buena. Así que rehacerlo en cada arranque es pagar minutos por nada
+ * casi siempre.
+ *
+ * La huella es barata —dos tablas pequeñas— y detecta lo único que puede cambiar las prioridades: que aparezcan
+ * competiciones o grupos nuevos. Y se rehace igualmente cada 12 horas, porque un CAMBIO DE NOMBRE sin filas
+ * nuevas la huella no lo vería, y esa ventana acota el daño sin volver a pagar el recorrido en cada arranque.
+ */
+function huellaDelCatalogo(db) {
+  const c = db.prepare('select count(*) n, coalesce(max(rowid),0) r from competiciones').get();
+  const g = db.prepare('select count(*) n, coalesce(max(rowid),0) r from grupos').get();
+  return `${c.n}:${c.r}|${g.n}:${g.r}`;
+}
+
+const HORAS_ENTRE_REPRIORIZADOS = Number(process.env.FACYLF_HORAS_REPRIORIZAR ?? 12);
+
+function reprioritizaPlanSiHaceFalta(db) {
+  const huella = huellaDelCatalogo(db);
+  const guardada = leeMetadato(db, 'plan_huella');
+  const cuando = Number(leeMetadato(db, 'plan_huella_en') ?? 0);
+  const horas = cuando > 0 ? (Date.now() - cuando) / 3_600_000 : Infinity;
+
+  if (guardada === huella && horas < HORAS_ENTRE_REPRIORIZADOS) {
+    console.log(`  · El catálogo no ha cambiado (${horas.toFixed(1)} h desde el último repaso): `
+      + 'no se reprioriza el plan, y así no se recorre entero en cada arranque.');
+    return;
+  }
+
+  reprioritizaPlan(db);
+  guardaMetadato(db, 'plan_huella', huella);
+  guardaMetadato(db, 'plan_huella_en', String(Date.now()));
+}
+
 async function htmlActual(driver) {
   return String(await driver.executeScript('return document.documentElement.outerHTML'));
 }
@@ -2123,7 +2165,9 @@ async function ejecutar(db) {
     console.log(`  · Repaso reciente: ${repaso.jornadas} jornadas y ` +
       `${repaso.clasificaciones} clasificaciones vuelven a cola sin repetir actas completas.`);
   }
-  reprioritizaPlan(db);
+  // Aquí estaba `reprioritizaPlan(db)` a secas, y era el grueso del retraso del arranque. Ahora sólo se recorre
+  // el plan entero si el catálogo ha cambiado o si hace más de 12 h. Ver `reprioritizaPlanSiHaceFalta`.
+  reprioritizaPlanSiHaceFalta(db);
   const pausa = pausaGlobalActiva(db);
   if (pausa) {
     console.log(`Recolección en pausa hasta ${pausa.hasta}: ${pausa.motivo}`);
