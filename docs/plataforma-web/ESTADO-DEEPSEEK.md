@@ -2,7 +2,38 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 24/10/2026 00:05 (DeepSeek: actas priorizadas en TODAS las colas y estimación definitiva de CyL)
+**Última actualización:** 24/10/2026 00:35 (DeepSeek: comprobado que las actas se bajan de verdad y medido cuántas faltan por DESCUBRIR)
+
+## ★★★★★ DeepSeek, 24/10, 00:35 — funciona, y sí: hay actas sin descubrir (y son muchas)
+
+### Comprobado en marcha (no sólo en el papel)
+
+- **PC**: 54 actas en los últimos 15 minutos (≈216/h); en el registro, Madrid, Valencia y CyL van todos por
+  «→ acta». Antes de la banda, CyL hacía **0** actas/hora.
+- **Servidor**: 66 actas en 15 minutos (≈260/h); CyL del servidor también encadenando actas. Sin errores en su
+  registro.
+- Juntas: **≈480 actas/hora**. La banda de prioridad persiste en las colas (es dato), así que aguanta el apagón
+  del PC y el reinicio del servidor: no hay que reaplicarla, sólo cuando se encole acta nueva.
+
+### Lo que faltaba por contar: **jornadas sin leer = actas sin descubrir**
+
+| | PC | servidor | total |
+|---|---|---|---|
+| jornadas leídas | 61.072 | 66.409 | 127.481 |
+| **jornadas sin leer** | **34.533** (34.488 nunca intentadas) | **33.484** (todas) | **68.017** |
+| partidos jugados ya conocidos **sin ninguna fila de acta** | 2.674 | 2.945 | **5.619** (1,7 %) |
+| partidos que podrían aparecer en esas jornadas (estimación por temporada) | ~64.100 | ~49.700 | **hasta ~113.800** |
+
+Es decir: los **21.344 actas conocidas** se acaban el domingo, pero **CyL entera no estará hasta leer esas 68.017
+jornadas**, y detrás puede haber del orden de **50.000-100.000 actas más** (parte de esa estimación son jornadas
+futuras de 2026-27, así que el número real será menor). A ~500 peticiones/hora son **~136 horas: casi seis días**
+si van después de las actas.
+
+**Decisión pendiente mía/David:** hoy y mañana se bajan actas (lo pedido); cuando el atraso de actas conocidas
+baje de ~5.000, se vuelve a poner por delante el descubrimiento de jornadas, o se intercala (3 de cada 4
+peticiones a actas, 1 a jornadas) con un cambio de una línea en el `order by` —código de Claude—.
+
+
 
 ## ★★★★★ DeepSeek, 24/10, 00:05 — actas primero en todas las federaciones, y por fin la cuenta definitiva de CyL
 
