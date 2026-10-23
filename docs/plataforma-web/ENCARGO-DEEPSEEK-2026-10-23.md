@@ -220,8 +220,8 @@ Haz lo que puedas en este orden; lo que no, déjalo especificado en ESTADO-DEEPS
 | # | Estado | Qué falta o dónde está |
 |---|---|---|
 | T1 | **✓ hecha** | R2 en PostgreSQL 18.6 real (0001-0045 desde cero, 0 errores; 0035-0045 reaplicadas sin error; 0024/0029 no son repetibles por `select s.*` y no se tocan: el runner nunca reaplica). R3: 285 ✓ de m29-m45+análisis, m46 41 ✓, banco 32.760 partidos/685.440 apariciones, «66 consultas · 0 a revisar». R1: `pnpm test` 630 bien / 3 mal **por tiempo** (1 es el recuento de `/canonico` que arregla la 0047 en curso; 2 son hooks de 90 s de `retirada.test.ts`), `scripts/lib` 219 ✓, lint y tsc de la web ✓. R5/R7 ✓. R4: sin barras invertidas en el SQL, permisos de `facylf_app` revisados |
-| T2 | **✓ once commits locales** | Sin `push` (lo decide David). Fuera a propósito: 0047, `m47.mjs`, `pruebas/sql/README.md` y `proyectar-lectura.mjs` (los está escribiendo otra sesión ahora mismo) y la evidencia `.txt/.json/.log/.html/.pdf` |
-| T3 | **en marcha por otra sesión** | 0023-0046 **ya aplicadas a la base real** (y la 0047 pendiente). Faltan unir clubes, reclasificar, posiciones, proyección nocturna, las 6 comprobaciones y `planes --guardar` |
+| T2 | **✓ trece commits locales** | Sin `push` (lo decide David). La 0047 y `m47.mjs` entraron al final, ya aplicadas y comprobadas. Fuera a propósito: la evidencia `.txt/.json/.log/.html/.pdf` y los fixtures de `scripts/multideporte` |
+| T3 | **en marcha por otra sesión** | 0023-0046 **ya aplicadas a la base real, y la 0047 tambi�n**. Faltan unir clubes, reclasificar, posiciones, proyección nocturna, las 6 comprobaciones y `planes --guardar` |
 | T4 | pendiente | Necesita T3 |
 | T5 | parcial | Despliegue al servidor ✓; reimportar Cataluña/Madrid/Valencia **después de T3**; historia de Cataluña |
 | T6 | **✓ hecha** | `0046-perfil-de-las-ocho-del-servidor.sql` + `pruebas/sql/m46.mjs` (41 ✓); en la base real, `avisos_de_datos('extremadura')` ya da `identidad_por_nombre` y **0 federaciones sin medir** |

@@ -6,7 +6,7 @@
 
 > **★★ AVISO DE CONCURRENCIA (23/10, 12:10).** Mientras hago esto hay **otra sesión de Claude trabajando en este
 > mismo repositorio** (tarea programada «FACyLF enlace Claude», última pasada 11:34): **aplicó 0023-0046 a la base
-> real** y estaba escribiendo **0047-recuento-del-canonico.sql** y el cambio de `scripts/proyectar-lectura.mjs`
+> real** y escribi� **0047-recuento-del-canonico.sql** (ya aplicada) y el cambio de `scripts/proyectar-lectura.mjs`
 > (el `/canonico` contaba 19,5 M de apariciones en cada visita y agotaba los 20 s). Por eso **la fase A está a
 > medias y en marcha**: no lances migraciones ni la proyección a ciegas; mira `estado/claude/` y `tmp/a3-*.log`
 > antes. Los commits son locales y no incluyen lo suyo a medias (0047, `m47.mjs`, README de `pruebas/sql` y
@@ -98,6 +98,13 @@ Criterio que he aplicado (y por qué): **sólo código, migraciones, configuraci
 `canonico/`, 11 planes en `pruebas/planes/`, 54 fixtures de `scripts/multideporte/` con datos de otras webs), que
 además pueden llevar nombres. **No se ha subido nada a GitHub** (`git push` lo decide David; la regla de menores
 lo exige).
+
+Dos matices de esos commits, para que conste: la **0047 y `m47.mjs`** (de la otra sesión, ya aplicada en la base)
+entraron al final en un decimotercer commit (`520d343`), comprobadas dos veces en PostgreSQL 18 limpio; y
+`pruebas/sql/README.md` y `scripts/proyectar-lectura.mjs` se colaron en los commits de documentación y de
+recolectores (los alcanzaron los comodines `*.md` y `scripts/*.mjs`) aunque mi mensaje del commit de plataforma
+decía lo contrario: están subidos, que es lo correcto, y quedan comprobados (`node --check`).
+
 
 ### Lo que NO he hecho, y por qué
 
