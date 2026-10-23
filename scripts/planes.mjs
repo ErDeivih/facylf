@@ -42,13 +42,27 @@ const importa = (relativa) => import(pathToFileURL(join(RAIZ, relativa)).href);
 const { CONSULTAS_COBERTURA, PARAMETROS_POR_DEFECTO } = await importa('apps/web/src/consultas/cobertura.ts');
 const { CONSULTAS_PARTIDOS, PARAMETROS_PARTIDOS } = await importa('apps/web/src/consultas/partidos.ts');
 const { CONSULTAS_CATALOGO, PARAMETROS_CATALOGO } = await importa('apps/web/src/consultas/catalogo.ts');
+const { CONSULTAS_ENTIDADES, PARAMETROS_ENTIDADES } = await importa('apps/web/src/consultas/entidades.ts');
+// Identidad entre federaciones (0024). Si la migración no está aplicada, `pnpm planes` lo dirá al medirlas.
+const { CONSULTAS_IDENTIDAD, PARAMETROS_IDENTIDAD } = await importa('apps/web/src/consultas/identidad.ts');
+const { CONSULTAS_PANELES, PARAMETROS_PANELES } = await importa('apps/web/src/consultas/paneles.ts');
+const { CONSULTAS_OJEO, PARAMETROS_OJEO } = await importa('apps/web/src/consultas/ojeo.ts');
+// Usuarios (0031): accesos rápidos y bandeja de avisos.
+const { CONSULTAS_USUARIO, PARAMETROS_USUARIO } = await importa('apps/web/src/consultas/usuario.ts');
+// Panel de administración (0030-0035).
+const { CONSULTAS_ADMIN, PARAMETROS_ADMIN } = await importa('apps/web/src/consultas/admin.ts');
+// Lo que cambia por federación (0038).
+const { CONSULTAS_FEDERACIONES, PARAMETROS_FEDERACIONES } = await importa('apps/web/src/consultas/federaciones.ts');
+// Análisis: forma, rachas, reparto de goles.
+const { CONSULTAS_ANALISIS, PARAMETROS_ANALISIS } = await importa('apps/web/src/consultas/analisis.ts');
 
 /** Tablas de hechos: crecen con los partidos y nunca deben recorrerse enteras en un recorrido crítico. */
 const TABLAS_DE_HECHOS = ['match', 'appearance', 'match_event', 'match_staff', 'match_report', 'match_official', 'match_source'];
 
-const catalogo = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO].map((c) => ({
+const catalogo = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO, ...CONSULTAS_ENTIDADES, ...CONSULTAS_IDENTIDAD, ...CONSULTAS_PANELES, ...CONSULTAS_OJEO, ...CONSULTAS_USUARIO, ...CONSULTAS_ADMIN, ...CONSULTAS_FEDERACIONES, ...CONSULTAS_ANALISIS].map((c) => ({
   ...c,
-  parametros: PARAMETROS_POR_DEFECTO[c.nombre] ?? PARAMETROS_PARTIDOS[c.nombre] ?? PARAMETROS_CATALOGO[c.nombre] ?? [],
+  parametros: PARAMETROS_POR_DEFECTO[c.nombre] ?? PARAMETROS_PARTIDOS[c.nombre] ?? PARAMETROS_CATALOGO[c.nombre]
+    ?? PARAMETROS_ENTIDADES[c.nombre] ?? PARAMETROS_IDENTIDAD[c.nombre] ?? PARAMETROS_PANELES[c.nombre] ?? PARAMETROS_OJEO[c.nombre] ?? PARAMETROS_USUARIO[c.nombre] ?? PARAMETROS_ADMIN[c.nombre] ?? PARAMETROS_FEDERACIONES[c.nombre] ?? PARAMETROS_ANALISIS[c.nombre] ?? [],
 }));
 
 function recorrePlan(nodo, acumulador = { nodos: [], seqScans: [], filas: 0 }) {
