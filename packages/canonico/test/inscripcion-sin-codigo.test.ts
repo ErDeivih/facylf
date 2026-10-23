@@ -20,7 +20,7 @@ import { DatabaseSync } from '../src/origen/sqlite.js';
 import { canonicoDisponible, creaPool, type PoolCanonico } from '../src/destino/pool.js';
 import { importaFederacion } from '../src/lote.js';
 import { revierteLote } from '../src/reversion.js';
-import { MARCADORES_ESTADO_SEPARADOS, PREFIJO_CONTEXTUAL, construyeCandidatos, construyeCatalogoInscripciones, esExternalIdContextual, externalIdContextual, normalizadoDeExternalId, resuelveInscripcion, type VinculacionContextual } from '../src/resolucion/inscripcion.js';
+import { MARCADORES_ESTADO_SEPARADOS, PREFIJO_CONTEXTUAL, construyeCandidatos, construyeCatalogoInscripciones, esExternalIdContextual, externalIdContextual, normalizadoDeExternalId, resuelveInscripcion, sinSufijoDeEquipo, type VinculacionContextual } from '../src/resolucion/inscripcion.js';
 import { MARCADORES_ESTADO } from '@facylf/ingesta';
 
 /* ================================================================== */
@@ -118,6 +118,166 @@ describe('los marcadores de estado se separan; los calificadores legítimos NO',
     const masculino = resuelveInscripcion({ literal: 'CLUB DEPORTIVO', catalogo: c });
     expect(femenino.clave).not.toBe(masculino.clave);
     expect(femenino.referenciaContextual).not.toBe(masculino.referenciaContextual);
+  });
+});
+
+describe('el nombre sin el sufijo de equipo es el mismo equipo', () => {
+  /*
+   * Medido el 25/09/2026 en el canónico, tras reparar el calendario de 23 grupos de Cataluña desde sus
+   * actas: la misma pareja quedó con DOS identidades. El calendario publica «QUART, U.E. A» con su código
+   * (5081, equipo-temporada compartido con 10 inscripciones) y el acta escribe «QUART, U.E.»; sin este
+   * paso, el nombre del acta creaba otro equipo-temporada y el partido quedaba colgado del duplicado.
+   */
+  it('el nombre del acta se une al único equipo del grupo que lleva ese sufijo', () => {
+    const c = catalogoSolo([
+      { literal: 'QUART, U.E. A', codigo: '5081', procedencia: 'calendario' },
+      { literal: 'GIRONA, F.C. A', codigo: '5002', procedencia: 'calendario' },
+    ]);
+    const r = resuelveInscripcion({ literal: 'QUART, U.E.', catalogo: c });
+    expect(r.clave).toBe('5081');
+    expect(r.codigoExterno).toBe('5081');
+    expect(r.metodo).toBe('codigo-externo');
+    expect(r.via).toBe('nombre-sin-sufijo-de-equipo');
+    expect(r.evidencia).toMatch(/sin el sufijo de equipo/);
+  });
+
+  it('con DOS equipos del mismo club (A y B) NO se elige ninguno', () => {
+    // Es la regla que impide el daño peor: unir la plantilla del A con la del B y no notarlo.
+    const c = catalogoSolo([
+      { literal: 'EUROPA, C.E. A', codigo: '3001', procedencia: 'calendario' },
+      { literal: 'EUROPA, C.E. B', codigo: '3002', procedencia: 'calendario' },
+    ]);
+    const r = resuelveInscripcion({ literal: 'EUROPA, C.E.', catalogo: c });
+    expect(r.clave).toBeNull();
+    expect(r.via).toBe('sin-resolver');
+  });
+
+  it('si el nombre exacto está en el grupo, manda el nombre exacto', () => {
+    // El paso 3 va antes: «ARO, C.E.» existe como equipo propio y no se confunde con «ARO, C.E. A».
+    const c = catalogoSolo([
+      { literal: 'ARO, C.E.', codigo: '6001', procedencia: 'calendario' },
+      { literal: 'ARO, C.E. A', codigo: '6002', procedencia: 'calendario' },
+    ]);
+    const r = resuelveInscripcion({ literal: 'ARO, C.E.', catalogo: c });
+    expect(r.clave).toBe('6001');
+    expect(r.via).toBe('codigo-del-catalogo-del-grupo');
+  });
+
+  it('la letra final de una abreviatura de club TAMBIÉN es sufijo de equipo: mandan los casos medidos', () => {
+    /*
+     * «REAL MADRID C.F.» acaba en «F» y esa «F» completa «C.F.»… pero en el naming catalán el tipo de club
+     * va DELANTE de la letra del equipo: «GIMNASTIC TARRAGONA, C. A» es el club «C.» con el equipo «A».
+     * Medido el 25/09/2026: con el guardián de abreviaturas puesto, 181 parejas se quedaron partidas en 96
+     * grupos de Cataluña, cada una con su partido en una identidad y la de código a cero. La evidencia pesa
+     * más que el caso hipotético, y la protección de verdad es que el candidato con sufijo sea ÚNICO.
+     */
+    const c = catalogoSolo([{ literal: 'GIMNASTIC TARRAGONA, C. A', codigo: '3001', procedencia: 'calendario' }]);
+    const r = resuelveInscripcion({ literal: 'GIMNASTIC TARRAGONA, C.', catalogo: c });
+    expect(r.clave).toBe('3001');
+    expect(r.via).toBe('nombre-sin-sufijo-de-equipo');
+    // Y con DOS equipos del club, no se elige: esa es la protección que sí queda.
+    const dos = catalogoSolo([
+      { literal: 'GIMNASTIC TARRAGONA, C. A', codigo: '3001', procedencia: 'calendario' },
+      { literal: 'GIMNASTIC TARRAGONA, C. B', codigo: '3002', procedencia: 'calendario' },
+    ]);
+    expect(resuelveInscripcion({ literal: 'GIMNASTIC TARRAGONA, C.', catalogo: dos }).clave).toBeNull();
+  });
+
+  it('la «F» de Femenino SÍ es sufijo: es el caso medido en Ceuta', () => {
+    // Grupo 21876096 de Ceuta, «ALEVÍN FEMENINO F7»: todos los equipos llevan la «F» y el acta no la
+    // escribe. Sin esto, el grupo se queda bloqueado con «el acta no se corresponde con la fila del
+    // calendario». Y «RACING BLANENC F.C.» sigue sin perder la «C», que completa «F.C.».
+    const c = catalogoSolo([
+      { literal: 'Foso Ceuta "F"', codigo: '21675338', procedencia: 'calendario' },
+      { literal: 'Racing Blanenc F.C.', codigo: '5001', procedencia: 'calendario' },
+    ]);
+    const ceuta = resuelveInscripcion({ literal: 'Foso Ceuta', catalogo: c });
+    expect(ceuta.clave).toBe('21675338');
+    expect(ceuta.via).toBe('nombre-sin-sufijo-de-equipo');
+    expect(sinSufijoDeEquipo('real madrid c f')).toBe('real madrid c');
+    expect(sinSufijoDeEquipo('foso ceuta f')).toBe('foso ceuta');
+    expect(sinSufijoDeEquipo('quart u e a')).toBe('quart u e');
+    expect(sinSufijoDeEquipo('gimnastic tarragona c a')).toBe('gimnastic tarragona c');
+    expect(sinSufijoDeEquipo('un nombre sin letra final')).toBeNull();
+  });
+
+  it('sin código en el grupo, la unión se hace por referencia contextual', () => {
+    const c = catalogoSolo([{ literal: 'ARO, C.E. A', codigo: null, procedencia: 'calendario' }]);
+    const r = resuelveInscripcion({ literal: 'ARO, C.E.', catalogo: c });
+    expect(r.clave).toBe('contexto:aro c e a');
+    expect(r.codigoExterno).toBeNull();
+    expect(r.referenciaContextual).toBe('aro c e a');
+    expect(r.metodo).toBe('referencia-contextual');
+  });
+});
+
+describe('el catálogo fusiona el nombre sin sufijo con la identidad de código', () => {
+  /*
+   * Medido el 25/09/2026: al reparar el calendario de 23 grupos de Cataluña desde sus actas, la cola pasa a
+   * citar «QUART, U.E.» (sin sufijo y sin código) mientras el canónico ya tiene «QUART, U.E. A» con código.
+   * Si el catálogo no las une, cada reimportación crea un equipo nuevo con el partido colgado y la identidad
+   * de código se queda a cero: 263 parejas.
+   */
+  it('una sola inscripción, con el nombre establecido y el otro literal como alias', () => {
+    const c = catalogoSolo([
+      { literal: 'QUART, U.E. A', codigo: '5081', procedencia: 'catalogo' },
+      { literal: 'QUART, U.E.', codigo: null, procedencia: 'acta' },
+    ]);
+    expect([...c.porClave.keys()]).toEqual(['5081']);
+    const inscripcion = c.porClave.get('5081')!;
+    // El nombre se queda el de la identidad establecida: es lo que mantiene estable el equipo-temporada.
+    expect(inscripcion.nombre).toBe('QUART, U.E. A');
+    expect(inscripcion.alias).toEqual(expect.arrayContaining(['QUART, U.E. A', 'QUART, U.E.']));
+    // Y las dos formas resuelven a la misma inscripción: el calendario y el acta hablan del mismo equipo.
+    expect(c.porNormalizado.get('quart u e')).toBe('5081');
+    expect(c.porNormalizado.get('quart u e a')).toBe('5081');
+  });
+
+  it('con A y B en el grupo NO se fusiona: son dos equipos', () => {
+    const c = catalogoSolo([
+      { literal: 'EUROPA, C.E. A', codigo: '3001', procedencia: 'catalogo' },
+      { literal: 'EUROPA, C.E. B', codigo: '3002', procedencia: 'catalogo' },
+      { literal: 'EUROPA, C.E.', codigo: null, procedencia: 'acta' },
+    ]);
+    expect([...c.porClave.keys()].sort()).toEqual(['3001', '3002', 'contexto:europa c e']);
+  });
+
+  it('si el nombre exacto tiene código propio, no se toca', () => {
+    const c = catalogoSolo([
+      { literal: 'ARO, C.E.', codigo: '6001', procedencia: 'catalogo' },
+      { literal: 'ARO, C.E. A', codigo: '6002', procedencia: 'catalogo' },
+    ]);
+    expect([...c.porClave.keys()].sort()).toEqual(['6001', '6002']);
+  });
+  it('un nombre con DOS códigos sigue siendo ambiguo por nombre, pero cada código resuelve', () => {
+    /*
+     * Medido el 25/09/2026: «C.D. Nuestra Señora de Belén» tiene los códigos 14730 y 16964 en el catálogo de
+     * la temporada. El nombre no puede elegir —uniría dos plantillas—, pero descartar el candidato entero se
+     * llevaba también los códigos, y el partido que publica el suyo no podía entrar.
+     */
+    const c = catalogoSolo([
+      { literal: 'C.D. Nuestra Señora de Belén', codigo: '14730', procedencia: 'catalogo' },
+      { literal: 'C.D. Nuestra Señora de Belén', codigo: '16964', procedencia: 'calendario' },
+    ]);
+    expect(c.ambiguos.has('c d nuestra senora de belen')).toBe(true);
+    expect([...c.porClave.keys()].sort()).toEqual(['14730', '16964']);
+    // Por nombre no se elige.
+    const porNombre = resuelveInscripcion({ literal: 'C.D. Nuestra Señora de Belén', catalogo: c });
+    expect(porNombre.clave).toBeNull();
+    expect(porNombre.via).toBe('sin-resolver');
+    // Por el código que publica el partido, sí.
+    const porCodigo = resuelveInscripcion({ literal: 'C.D. Nuestra Señora de Belén', codigoExplicito: '16964', catalogo: c });
+    expect(porCodigo.clave).toBe('16964');
+    expect(porCodigo.via).toBe('codigo-explicito-del-partido');
+    expect(porCodigo.metodo).toBe('codigo-externo');
+  });
+
+  it('un código de otro ámbito sigue sin usarse', () => {
+    const c = catalogoSolo([{ literal: 'C.D. Belén', codigo: '14730', procedencia: 'catalogo' }]);
+    const r = resuelveInscripcion({ literal: 'C.D. Belén', codigoExplicito: '999999', catalogo: c });
+    expect(r.clave).toBeNull();
+    expect(r.via).toBe('sin-resolver');
+    expect(r.evidencia).toMatch(/no está en el catálogo de este grupo/);
   });
 });
 
@@ -389,6 +549,22 @@ describe.skipIf(!canonicoDisponible())('vuelta completa sin códigos, contra Pos
   };
 
   it('importa un grupo SIN ningún código: cada equipo tiene inscripción y código_externo nulo', async () => {
+    // Lo que había ANTES de importar. Hace falta porque la identidad de un equipo sobrevive a la reversión
+    // de un lote —el canónico no olvida quién es un equipo— y una prueba anterior puede haber dejado un
+    // código establecido: medido el 25/09/2026, el grupo conservaba el código 111 que vinculó otra prueba.
+    const clienteAntes = await pool.connect();
+    let codigosPrevios: Set<string>;
+    try {
+      const { rows } = await clienteAntes.query<{ codigo_externo: string }>(
+        `select te.codigo_externo from core.team_entry te
+           join core.phase_group pg on pg.id = te.phase_group_id
+           join core.competition_edition ce on ce.id = pg.competition_edition_id
+           join core.federation f on f.id = ce.federation_id
+          where f.codigo = $1 and te.codigo_externo is not null`, [FEDERACION],
+      );
+      codigosPrevios = new Set(rows.map((r) => r.codigo_externo));
+    } finally { clienteAntes.release(); }
+
     const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
     expect(informes).toHaveLength(1);
     expect(await cuenta()).toBe(4);
@@ -403,9 +579,11 @@ describe.skipIf(!canonicoDisponible())('vuelta completa sin códigos, contra Pos
            join core.federation f on f.id = ce.federation_id
           where f.codigo = $1 order by te.nombre_en_fuente`, [FEDERACION],
       );
-      // Ni un código fabricado: los cuatro nulos.
-      expect(rows.every((r) => r.codigo_externo === null)).toBe(true);
-      expect(rows.every((r) => r.metodo_resolucion === 'referencia-contextual')).toBe(true);
+      // Ni un código fabricado: cada código guardado es nulo, o uno que YA estaba establecido antes de
+      // importar. La cola no publica ninguno, así que aquí no puede aparecer ninguno nuevo.
+      expect(rows.every((r) => r.codigo_externo === null || codigosPrevios.has(r.codigo_externo))).toBe(true);
+      // Y el método de resolución dice de dónde salió cada inscripción: sin código, por referencia contextual.
+      expect(rows.every((r) => r.codigo_externo !== null || r.metodo_resolucion === 'referencia-contextual')).toBe(true);
       expect(rows.every((r) => r.referencia_contextual !== null)).toBe(true);
       // El nombre guardado es el LIMPIO: el marcador de estado no forma parte del nombre del equipo.
       const nombres = rows.map((r) => r.nombre_en_fuente);

@@ -352,6 +352,153 @@ describe.skipIf(!process.env.DATABASE_URL_PUBLICADOR)('importador · §9 pruebas
       cola.cierra();
     }
   });
+
+  /**
+   * «otra» es distinto de «golazo»: no es un valor que no sepamos leer, es un valor que la fuente publica
+   * diciendo justo eso —hubo una tarjeta y no dice de qué color—. Se guarda como `otro`, que es lo que el
+   * modelo canónico tiene para «un evento que sabemos que pasó y no es ninguno de los nombrados».
+   *
+   * Medido el 24/09/2026: 34 eventos así en la cola de Valencia y **29 grupos sin importar** por su culpa.
+   */
+  it('8. «otra» se guarda como `otro` con subtipo nulo, y el grupo se importa entero', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      cola.db.prepare(`insert into eventos_acta values ('21','900','9001',1,'A1',3,'otra',70,'local','J1','GARCÍA LÓPEZ, DANIEL',0,null,null,null,'jugador',null)`).run();
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+
+      const evento = await fila<{ event_type: string; subtipo: string | null }>(pool,
+        `select ev.event_type, ev.subtipo
+           from core.match_event ev
+           join core.match m on m.id = ev.match_id
+           join core.phase_group g on g.id = m.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1 and ev.source_order = 3`, [FEDERACION]);
+      // Ni amarilla ni roja: el color no se inventa. `subtipo` nulo porque tampoco se publicó.
+      expect(evento).toEqual({ event_type: 'otro', subtipo: null });
+      // Y el grupo entra: los 34 eventos que bloqueaban 29 grupos ya no tumban la tanda.
+      const partidos = await cuenta(pool, `select count(*) n from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1`, [FEDERACION]);
+      expect(partidos).toBeGreaterThan(0);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  /**
+   * Una `sin_datos` es un acta que la federación SÍ publica pero con las tablas vacías: el importador le
+   * escribe fila en `core.match_report` con calidad `partial`, así que **cuenta como acta analizada**. El
+   * origen contaba sólo las `hecha` y el destino escribía también ésta: un grupo con 270 actas buenas y una
+   * `sin_datos` daba 270≠271 y se caía entero.
+   *
+   * Medido el 24/09/2026: le pasaba a **siete federaciones a la vez** (Baleares, Asturias, Navarra,
+   * Extremadura, Castilla-La Mancha, Aragón y Rioja), siempre con exactamente una de más.
+   */
+  it('9. una `sin_datos` citada por el calendario cuenta como acta analizada, y el grupo entra', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // El segundo partido de J1 pasa a citar un acta que existe pero vino sin alineaciones.
+      cola.db.prepare(`insert into actas values ('A2','21','900','9001',1,0,'sin_datos','acta-A2.html','hb','{}','2026-09-07T00:00:00Z',19,null,null)`).run();
+      cola.db.prepare(`update partidos set codigo_acta = 'A2' where temporada='21' and competicion='900' and grupo='9001' and jornada=1 and orden=1`).run();
+
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+
+      const informe = await fila<{ quality: string }>(pool,
+        `select r.quality
+           from core.match_report r
+           join core.match m on m.id = r.match_id
+           join core.match_source s on s.match_id = m.id
+           join core.phase_group g on g.id = m.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1 and s.codigo_acta = 'A2'`, [FEDERACION]);
+      // La fila se escribe, con la calidad que le toca: no es «correcta» porque no traía alineaciones.
+      expect(informe).toEqual({ quality: 'partial' });
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  /**
+   * Y la otra mitad de lo mismo: una misma acta citada por DOS filas del calendario.
+   *
+   * El origen cuenta **códigos distintos** (es un conjunto), pero el destino contaba **informes**: dos filas
+   * citando la misma acta daban 1 contra 2 y el grupo se caía. Medido el 24/09/2026 en el grupo 23123012 de
+   * Aragón: 56 filas de calendario y **52 códigos distintos**, «actas analizadas 52≠56».
+   */
+  it('10. una acta citada por dos partidos cuenta una vez, y el grupo entra', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // El mismo código de acta en DOS jornadas: son dos filas de `actas` (la clave lleva la jornada) y las
+      // dos vienen sin alineaciones. Cada una la cita el partido de su jornada.
+      for (const jornada of [1, 2]) {
+        cola.db.prepare(`insert into actas values ('A9','21','900','9001',?,0,'sin_datos','acta-A9.html','h9','{}','2026-09-07T00:00:00Z',19,null,null)`).run(jornada);
+      }
+      cola.db.prepare(`update partidos set codigo_acta = 'A9' where temporada='21' and competicion='900' and grupo='9001' and jornada=1 and orden=0`).run();
+      cola.db.prepare(`insert into partidos values ('21','900','9001',2,0,'A9','E1','E2','C.D. RIBERT "A"','S.D. SAN JOSE "B"',null,null,'2026-09-13','12:00','CAMPO','C1',null,'2026-09-14T00:00:00Z')`).run();
+      // La acta A1 deja de estar citada: su informe no debe entrar en la cuenta.
+      cola.db.prepare(`update actas set estado = 'pendiente' where codigo = 'A1'`).run();
+
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+
+      const informes = await cuenta(pool,
+        `select count(*) n from core.match_report r
+           join core.match m on m.id = r.match_id
+           join core.phase_group g on g.id = m.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1`, [FEDERACION]);
+      // Hay DOS informes (uno por jornada) pero UN solo código de acta distinto: la validación cuenta actas,
+      // no informes. Sin esta distinción el lote se caía con «actas analizadas 1≠2».
+      expect(informes).toBe(2);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  /**
+   * Una fila que pone al MISMO equipo en los dos lados no es un partido, y antes tumbaba el grupo entero.
+   *
+   * Medido el 24/09/2026: **91 filas así en 20 grupos** de siete federaciones, todas con dos códigos
+   * federativos distintos para el mismo nombre. El importador hace bien en no elegir cuál va a cada lado
+   * —elegir sería inventar—, pero la fila se descarta y **el grupo entra**, que es lo que se prueba aquí:
+   * antes, 14 de esos grupos eran 219 partidos con resultado bloqueados por 14 filas.
+   */
+  it('11. una fila con el mismo equipo en los dos lados se descarta, y el grupo entra', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // La misma denominación en los dos lados, con DOS códigos distintos: el caso real.
+      cola.db.prepare(`insert into partidos values ('21','900','9001',1,2,'A1','7001','7002',
+        'U.D. SAN LORENZO C.D.','U.D. San Lorenzo C.D.',0,2,'2026-09-06','12:00','CAMPO DE PRUEBAS','C1',null,'2026-09-07T00:00:00Z')`).run();
+
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+
+      // Los partidos de verdad del grupo entran (los dos de la base) y la fila imposible no.
+      const partidos = await cuenta(pool,
+        `select count(*) n from core.match m
+           join core.phase_group g on g.id = m.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1`, [FEDERACION]);
+      expect(partidos).toBe(2);
+      // Y queda escrito: un descarte que no se ve es un descarte que nadie puede revisar.
+      const aviso = await fila<{ n: string }>(pool,
+        `select count(*) n from ops.normalizacion_error ne
+           join ops.batch b on b.id = ne.batch_id
+           join core.federation f on f.id = b.federation_id
+          where f.codigo = $1 and ne.codigo = 'fila_de_partido_con_el_mismo_equipo_en_los_dos_lados'`, [FEDERACION]);
+      expect(Number(aviso?.n ?? 0)).toBeGreaterThan(0);
+    } finally {
+      cola.cierra();
+    }
+  });
 });
 
 /**
@@ -362,6 +509,108 @@ describe.skipIf(!process.env.DATABASE_URL_PUBLICADOR)('importador · §9 pruebas
  * identidad confirmada. Estas pruebas fijan lo contrario.
  */
 describe('clasificación reconstruida', () => {
+  it('21. un calendario al que le faltan las primeras jornadas NO se declara completo', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // El grupo declara 2 jornadas. Se deja SÓLO la jornada 2 con resultado: es la forma que tiene un
+      // calendario reconstruido desde las actas cuando lo que llegó fue la última jornada del curso.
+      cola.db.prepare("delete from partidos where temporada='21' and competicion='900' and grupo='9001' and jornada=1").run();
+      cola.db.prepare("delete from actas where temporada='21' and competicion='900' and grupo='9001' and jornada=1").run();
+      insertaJornada2(cola);
+
+      const [informe] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+
+      // Antes de arreglarlo, esto salía «completa hasta la jornada 2» y `visibility_state = 'completa'`:
+      // el bucle recorría sólo las jornadas presentes, así que la 1 desaparecida no rompía nada. Medido el
+      // 25/09/2026 en 22 grupos catalanes reparados desde sus actas, con 8 partidos de 240.
+      expect(informe!.cobertura.complete_through_matchday).toBeNull();
+      expect(informe!.cobertura.visibility_state).toBe('parcial_privada');
+      expect(informe!.cobertura.partidos_conocidos).toBe(1);
+      // Y lo que se espera de una liga regular queda escrito, para poder compararlo: 2 equipos → 1 partido
+      // por jornada × 2 jornadas.
+      const esperados = await fila<{ partidos_esperados: number }>(pool,
+        `select c.partidos_esperados from ops.coverage_checkpoint c
+           join core.phase_group g on g.id = c.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id where f.codigo = $1`, [FEDERACION]);
+      expect(esperados!.partidos_esperados).toBe(2);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('22. si el nombre del equipo cambia y el código no, la identidad NO se parte', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    const inscripciones = `select count(*) n from core.team_entry te
+        join core.phase_group g on g.id = te.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id
+       where f.codigo = $1 and te.codigo_externo = 'E1'`;
+    try {
+      siembraBase(cola);
+      insertaJornada2(cola);
+      const [primera] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(primera!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, inscripciones, [FEDERACION])).toBe(1);
+
+      // La fuente cambia la ortografía del nombre y deja el código: es el MISMO equipo. Antes esto creaba
+      // un equipo-temporada nuevo (la identidad es club+temporada+NOMBRE) y la inscripción chocaba con el
+      // índice único (grupo, código): «duplicate key ... team_entry_grupo_codigo_uq», medido en tres grupos
+      // de Cataluña el 25/09/2026.
+      cola.db.prepare("update equipos set nombre = 'C.D. RIBERT' where codigo = 'E1'").run();
+      cola.db.prepare("update partidos set local = 'C.D. RIBERT' where equipo_local_codigo = 'E1'").run();
+      cola.db.prepare("update partidos set visitante = 'C.D. RIBERT' where equipo_visitante_codigo = 'E1'").run();
+
+      const [segunda] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(segunda!.validacion.ok).toBe(true);
+      expect(segunda!.validacion.diferencias).toEqual([]);
+      // Una sola inscripción con ese código, y sigue siendo la de antes.
+      expect(await cuenta(pool, inscripciones, [FEDERACION])).toBe(1);
+      const equiposTemporada = await cuenta(pool,
+        `select count(distinct te.team_season_id) n from core.team_entry te
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1 and te.codigo_externo = 'E1'`, [FEDERACION]);
+      expect(equiposTemporada).toBe(1);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('23. importar NO gasta las secuencias cortas (federación y temporada)', async () => {
+    if (!disponible || !pool) return;
+    const canonico = pool;
+    const cola = creaCola();
+    const ultimaDe = async (secuencia: string): Promise<string | null> => {
+      const { rows } = await canonico.query<{ last_value: string | null }>(
+        'select last_value::text from pg_sequences where sequencename = $1', [secuencia]);
+      return rows[0]?.last_value ?? null;
+    };
+    try {
+      siembraBase(cola);
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      const antesFederacion = await ultimaDe('federation_id_seq');
+      const antesTemporada = await ultimaDe('season_id_seq');
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      /*
+       * `core.federation.id` y `core.season.id` son `smallint` con identidad, así que sus secuencias llegan a
+       * 32767. Un `insert ... on conflict do update` CONSUME un `nextval` aunque acabe en conflicto, y las dos
+       * se llaman una vez por grupo importado: medido el 25/09/2026, con 22 federaciones y 13 temporadas de
+       * verdad se agotaron las dos y fallaron 3.714 grupos por la federación y 3.750 por la temporada, todos
+       * con «nextval: reached maximum value». Ahora se busca primero y sólo se inserta si falta.
+       */
+      expect(await ultimaDe('federation_id_seq')).toBe(antesFederacion);
+      expect(await ultimaDe('season_id_seq')).toBe(antesTemporada);
+    } finally {
+      cola.cierra();
+    }
+  });
+
   it('10. no publica tabla a mitad de jornada y la publica cuando la jornada está entera', async () => {
     if (!disponible || !pool) return;
     const cola = creaCola();
@@ -622,6 +871,158 @@ describe('pareja de equipos: el calendario contra el acta', () => {
       cola.cierra();
     }
   });
+
+  it('16. una corrección de la fuente (un convocado menos, árbitro retirado) no deja filas viejas y el lote valida', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      const opciones = { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' };
+      const deLaFederacion = `join core.phase_group g on g.id = m.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`;
+      const primera = await importaFederacion(pool, opciones);
+      expect(primera[0]!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, `select count(*) n from core.appearance a join core.match m on m.id = a.match_id ${deLaFederacion}`, [FEDERACION])).toBe(3);
+      expect(await cuenta(pool, `select count(*) n from core.match_official o join core.match m on m.id = o.match_id ${deLaFederacion}`, [FEDERACION])).toBe(1);
+
+      // La federación corrige el acta (quita al suplente visitante) y retira el árbitro del calendario.
+      cola.db.prepare(`delete from participaciones where acta = 'A1' and lado = 'visitante'`).run();
+      cola.db.prepare(`update partidos set arbitro = null where codigo_acta = 'A1'`).run();
+
+      const segunda = await importaFederacion(pool, opciones);
+      expect(segunda[0]!.validacion.diferencias).toEqual([]);
+      expect(segunda[0]!.validacion.ok).toBe(true);
+      expect(segunda[0]!.aparicionesRetiradas).toBe(1);
+      expect(await cuenta(pool, `select count(*) n from core.appearance a join core.match m on m.id = a.match_id ${deLaFederacion}`, [FEDERACION])).toBe(2);
+      expect(await cuenta(pool, `select count(*) n from core.match_official o join core.match m on m.id = o.match_id ${deLaFederacion}`, [FEDERACION])).toBe(0);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('17. un equipo que entró SIN código y vuelve CON código y otra ortografía se vincula, no choca', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      const opciones = { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' };
+      const delGrupo = `join core.phase_group g on g.id = te.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`;
+      // Primera versión de la fuente: sin códigos y sin comillas (como Rioja 2026-27 antes del 13/10).
+      cola.db.prepare(`update partidos set equipo_local_codigo = null, equipo_visitante_codigo = null,
+          local = replace(local, '"', ''), visitante = replace(visitante, '"', '')`).run();
+      const primera = await importaFederacion(pool, opciones);
+      expect(primera[0]!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, `select count(*) n from core.team_entry te ${delGrupo}`, [FEDERACION])).toBe(2);
+
+      // La fuente publica después los códigos y escribe la letra entre comillas: «S.D. SAN JOSE "B"».
+      cola.db.prepare(`update partidos set
+          equipo_local_codigo = case when local like 'C.D.%' then 'E1' else 'E2' end,
+          equipo_visitante_codigo = case when visitante like 'C.D.%' then 'E1' else 'E2' end,
+          local = case when local like 'C.D.%' then 'C.D. RIBERT "A"' else 'S.D. SAN JOSE "B"' end,
+          visitante = case when visitante like 'C.D.%' then 'C.D. RIBERT "A"' else 'S.D. SAN JOSE "B"' end`).run();
+      const segunda = await importaFederacion(pool, opciones);
+      expect(segunda[0]!.validacion.ok).toBe(true);
+      // Las MISMAS dos inscripciones, ahora con su código: vinculadas, no duplicadas.
+      expect(await cuenta(pool, `select count(*) n from core.team_entry te ${delGrupo}`, [FEDERACION])).toBe(2);
+      expect(await cuenta(pool, `select count(*) n from core.team_entry te ${delGrupo} and te.codigo_externo is not null`, [FEDERACION])).toBe(2);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('18. un acta guardada bajo otra jornada (partido aplazado) se une a su partido por el código', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // El calendario pone el partido en la jornada 1, pero la cola guardó su acta (y lo que cuelga de ella) bajo la 2.
+      cola.db.prepare("insert into jornadas (temporada, competicion, grupo, numero, fecha, archivo, hash, comprobada_en) values ('21','900','9001',2,'2026-09-13','j2.html','h2','2026-09-14T00:00:00Z') on conflict do nothing").run();
+      for (const tabla of ['actas', 'participaciones', 'eventos_acta', 'tecnicos_acta']) {
+        const columna = tabla === 'actas' ? 'codigo' : 'acta';
+        cola.db.prepare(`update ${tabla} set jornada = 2 where ${columna} = 'A1'`).run();
+      }
+      const [informe] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informe!.validacion.diferencias).toEqual([]);
+      expect(informe!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, `select count(*) n from core.match_report r join core.match m on m.id = r.match_id
+        join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`, [FEDERACION])).toBe(1);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('19. un partido que la fuente deja de publicar se retira del canónico y el lote valida', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      // Sólo la jornada 1 (dos partidos, ida y vuelta de la misma pareja): con una segunda jornada de la MISMA
+      // pareja en el mismo lado saltaría, con razón, el guardián del «calendario imposible».
+      siembraBase(cola);
+      const opciones = { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' };
+      const partidos = `select count(*) n from core.match m join core.phase_group g on g.id = m.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`;
+      const primera = await importaFederacion(pool, opciones);
+      expect(primera[0]!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, partidos, [FEDERACION])).toBe(2);
+      // La federación quita el partido sin resultado de la jornada 1.
+      cola.db.prepare(`delete from partidos where jornada = 1 and orden = 1`).run();
+      const segunda = await importaFederacion(pool, opciones);
+      expect(segunda[0]!.validacion.diferencias).toEqual([]);
+      expect(segunda[0]!.validacion.ok).toBe(true);
+      expect(await cuenta(pool, partidos, [FEDERACION])).toBe(1);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('15. con FACYLF_APARTAR_ACTAS_DISCORDANTES=1 el acta se aparta, el grupo entra y la validación cuadra', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    const antes = process.env.FACYLF_APARTAR_ACTAS_DISCORDANTES;
+    process.env.FACYLF_APARTAR_ACTAS_DISCORDANTES = '1';
+    try {
+      siembraBase(cola);
+      // La misma contradicción irresoluble que la prueba 14.
+      cola.db.prepare("insert into equipos (temporada, codigo, nombre, primera_jornada) values ('21','E3','C.D. TERCERO \"A\"',1)").run();
+      cola.db.prepare(`update partidos set equipo_local_codigo = 'E3', local = 'C.D. TERCERO "A"',
+          equipo_visitante_codigo = 'E1', visitante = 'C.D. RIBERT "A"'
+        where temporada='21' and competicion='900' and grupo='9001' and jornada=1 and orden=0`).run();
+      cola.db.prepare(`update actas set datos = ? where codigo = 'A1'`)
+        .run(JSON.stringify({ local: 'S.D. SAN JOSE "B"', visitante: 'C.D. TERCERO "A"' }));
+
+      const [informe] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      // El grupo entra entero y la validación cuadra: el origen descuenta lo que cuelga del acta apartada.
+      expect(informe!.validacion.ok).toBe(true);
+      expect(informe!.validacion.diferencias).toEqual([]);
+      const deLaFederacion = `join core.phase_group g on g.id = m.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`;
+      // Los dos partidos del calendario están, con el resultado del calendario.
+      expect(await cuenta(pool, `select count(*) n from core.match m ${deLaFederacion}`, [FEDERACION])).toBe(2);
+      expect(await cuenta(pool, `select count(*) n from core.match m ${deLaFederacion} and m.goles_local = 2 and m.goles_visitante = 0`, [FEDERACION])).toBe(1);
+      // El acta NO se enlaza: ni informe, ni alineaciones, ni eventos, ni técnicos de ella.
+      expect(await cuenta(pool, `select count(*) n from core.match_report r join core.match m on m.id = r.match_id ${deLaFederacion}`, [FEDERACION])).toBe(0);
+      expect(await cuenta(pool, `select count(*) n from core.appearance a join core.match m on m.id = a.match_id ${deLaFederacion}`, [FEDERACION])).toBe(0);
+      expect(await cuenta(pool, `select count(*) n from core.match_event v join core.match m on m.id = v.match_id ${deLaFederacion}`, [FEDERACION])).toBe(0);
+      expect(await cuenta(pool, `select count(*) n from core.match_staff t join core.match m on m.id = t.match_id ${deLaFederacion}`, [FEDERACION])).toBe(0);
+      // Y la decisión queda escrita, con las dos parejas.
+      const aviso = await fila<{ parametros: Record<string, unknown> }>(pool,
+        `select e.parametros from ops.normalizacion_error e join ops.batch b on b.id = e.batch_id
+          join core.federation f on f.id = b.federation_id
+         where f.codigo = $1 and e.codigo = 'acta_apartada_por_no_cuadrar'`, [FEDERACION]);
+      expect(aviso?.parametros).toMatchObject({ codigo_acta: 'A1', grupo: '9001' });
+      expect(String(aviso?.parametros.acta)).toContain('TERCERO');
+    } finally {
+      if (antes === undefined) delete process.env.FACYLF_APARTAR_ACTAS_DISCORDANTES;
+      else process.env.FACYLF_APARTAR_ACTAS_DISCORDANTES = antes;
+      cola.cierra();
+    }
+  });
 });
 
 /**
@@ -703,7 +1104,7 @@ describe('clasificación oficial desde clasificacion.json', () => {
     }
   });
 
-  it('16. un equipo de la tabla oficial que no está en el grupo detiene el lote y no escribe nada', async () => {
+  it('16. un equipo de la tabla oficial que no está en el grupo NO tumba el grupo: se descarta la tabla', async () => {
     if (!disponible || !pool) return;
     const cola = creaCola();
     try {
@@ -712,35 +1113,168 @@ describe('clasificación oficial desde clasificacion.json', () => {
         filaJson({ posicion: 1, equipo: 'C.D. RIBERT "A"' }),
         filaJson({ posicion: 2, equipo: 'CLUB DE OTRO GRUPO "A"', puntos: 3, ganados: 1, empatados: 0, perdidos: 1 }),
       ]);
-      await expect(importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' }))
-        .rejects.toThrow(/no se pueden resolver dentro de su propio grupo/);
-      // Media tabla oficial no se escribe, y tampoco se deja el grupo a medias.
+      /*
+       * ── QUÉ CAMBIÓ AQUÍ, Y POR QUÉ ───────────────────────────────────────────────────────────────────
+       *
+       * Antes esta prueba exigía que el lote ENTERO se detuviera y que no se escribiera NADA del grupo. El
+       * motivo era bueno —no escribir media tabla oficial— pero la consecuencia no: una tabla de
+       * clasificación mal publicada se llevaba por delante los partidos, las actas, los jugadores y los
+       * goles de ese grupo.
+       *
+       * Medido el 24/09/2026 cargando las diecinueve federaciones: **184 grupos de Cataluña** rechazados
+       * así, y con ellos toda su cobertura de jugadores. Es el mismo error de fondo que dejó 126 grupos de
+       * 193 sin importar en Castilla y León.
+       *
+       * La tabla oficial se sigue SIN escribir, y ahora además queda un aviso con el motivo exacto. Lo que
+       * ya no pasa es que se pierda el grupo.
+       */
+      const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informes[0]?.error).toBeUndefined();
+      // La tabla oficial no se escribe: ni la mitad que sí casaba.
       expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(0);
-      expect(await cuenta(pool, puntosDeOrigen('reconstruida'), [FEDERACION])).toBe(0);
+      // Pero el grupo SÍ entra: sus partidos están dentro. (La clasificación reconstruida no se comprueba
+      // aquí porque depende de que el fixture tenga una jornada completa, que es lo que fija la prueba 10.)
       expect(await cuenta(pool, `select count(*) n from core.match m join core.phase_group g on g.id = m.phase_group_id
         join core.competition_edition e on e.id = g.competition_edition_id
-        join core.federation f on f.id = e.federation_id where f.codigo = $1`, [FEDERACION])).toBe(0);
+        join core.federation f on f.id = e.federation_id where f.codigo = $1`, [FEDERACION])).toBeGreaterThan(0);
+      // Y el lote queda validado: descartar la tabla oficial no convierte el grupo en un lote fallido.
+      expect(informes[0]!.validacion.ok).toBe(true);
+      // Y queda dicho por qué no está la oficial, con el grupo y la regla que falló.
+      expect(await cuenta(pool, `select count(*) n from ops.normalizacion_error
+        where batch_id = $1 and codigo = 'clasificacion_oficial_ilegible'`, [informes[0]!.batchId])).toBe(1);
     } finally {
       cola.cierra();
     }
   });
 
-  it('17. una tabla oficial inválida detiene el lote en vez de convertirse', async () => {
+  it('16 bis. con el código publicado, el equipo que aún no ha jugado se resuelve por él y la tabla entra', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      // La jornada 1 completa, para que la tabla oficial tenga de dónde colgarse.
+      cola.db.prepare("update partidos set goles_local = 1, goles_visitante = 1 where temporada='21' and competicion='900' and grupo='9001' and jornada=1 and orden=1").run();
+      /*
+       * Los dos equipos de esta tabla NO están en el calendario del grupo —ninguno ha jugado todavía, que es
+       * el caso real: la tabla oficial lista a TODOS los inscritos y el catálogo del grupo se monta con los
+       * que han jugado—, y por eso los dos se resuelven por el CÓDIGO que publica la propia tabla. Es la
+       * prueba 16 con el código puesto: allí, sin código, la tabla se descarta (y sigue descartándose).
+       *
+       * La tercera fila es el bloque de descanso, que la fuente publica como un equipo más con su código
+       * (medido en Aragón: «DESCANSA», `codequipo=5199186`). No puede entrar: crearía la inscripción fantasma
+       * que `retirada.ts` documenta haber tenido que retirar.
+       */
+      escribeJson(cola, [
+        filaJson({ posicion: 1, equipo: 'C.D. NUEVO INSCRITO "A"', equipoCodigo: '777001', puntos: 4, ganados: 1, empatados: 1, perdidos: 0 }),
+        filaJson({ posicion: 2, equipo: 'CLUB DE OTRO GRUPO "A"', equipoCodigo: '777002', puntos: 3, ganados: 1, empatados: 0, perdidos: 1 }),
+        filaJson({ posicion: 3, equipo: 'DESCANSA', equipoCodigo: '777003', puntos: 0, jugados: 0, ganados: 0, empatados: 0, perdidos: 0, ultimos: [] }),
+      ]);
+
+      const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informes[0]?.error).toBeUndefined();
+      // La tabla entra entera: las dos filas de equipos, por el código que publican.
+      expect(informes[0]!.clasificacionOficial?.filas).toBe(2);
+      expect(informes[0]!.clasificacionOficial?.resueltasPorCodigoPublicado).toBe(2);
+      expect(informes[0]!.clasificacionOficial?.filasDeDescanso).toBe(1);
+      expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(2);
+
+      // Y las dos inscripciones existen de verdad, con su código federativo y su nombre publicado.
+      const inscritos = await pool.query<{ codigo_externo: string; nombre_en_fuente: string }>(
+        `select te.codigo_externo, te.nombre_en_fuente
+           from core.team_entry te
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1 and te.codigo_externo in ('777001', '777002', '777003')
+          order by te.codigo_externo`,
+        [FEDERACION],
+      );
+      expect(inscritos.rows.map((r) => r.codigo_externo)).toEqual(['777001', '777002']);
+      expect(inscritos.rows[0]?.nombre_en_fuente).toBe('C.D. NUEVO INSCRITO "A"');
+
+      // Queda declarado en el aviso qué se resolvió por esta vía y qué fila se apartó, sin silencios.
+      const procedencia = await fila<{ codigo_publicado: string; descansos: string }>(pool,
+        `select parametros->>'resueltas_por_codigo_publicado' as codigo_publicado,
+                parametros->>'filas_de_descanso' as descansos
+           from ops.normalizacion_error
+          where batch_id = $1 and codigo = 'clasificacion_oficial_importada'`, [informes[0]!.batchId]);
+      expect(procedencia?.codigo_publicado).toBe('2');
+      expect(procedencia?.descansos).toBe('1');
+
+      // Y la segunda pasada no duplica nada: la inscripción por código es idempotente.
+      const [segundo] = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(segundo!.clasificacionOficial?.filas).toBe(2);
+      expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(2);
+      expect(await cuenta(pool, `select count(*) n from core.team_entry te
+        join core.phase_group g on g.id = te.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id
+       where f.codigo = $1 and te.codigo_externo = '777001'`, [FEDERACION])).toBe(1);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('16 ter. sin jornada completa, la tabla entra anclada a la última jornada y lo declara', async () => {
+    if (!disponible || !pool) return;
+    const cola = creaCola();
+    try {
+      siembraBase(cola);
+      /*
+       * A propósito NO se completa ninguna jornada: es el caso de los 1.404 grupos `sin_corte` —una temporada
+       * que acaba de empezar, o un calendario recogido a medias—. Antes la tabla se descartaba entera; ahora se
+       * escribe anclada a la última jornada que exista, y la salvedad viaja con la foto (migración 0022).
+       */
+      escribeJson(cola, [
+        filaJson({ posicion: 1, equipo: 'C.D. RIBERT "A"', puntos: 4, jugados: 2, ganados: 1, empatados: 1, perdidos: 0 }),
+        filaJson({ posicion: 2, equipo: 'S.D. SAN JOSE "B"', puntos: 0, jugados: 1, ganados: 0, empatados: 0, perdidos: 1 }),
+      ]);
+
+      const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informes[0]?.error).toBeUndefined();
+      // La tabla ENTRA: eso es lo que cambia.
+      expect(informes[0]!.clasificacionOficial?.filas).toBe(2);
+      expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(2);
+      // Y queda dicho que su jornada de corte NO está confirmada, donde lo puede leer la web.
+      const cobertura = await fila<{ corte: boolean | null; estado: string }>(pool,
+        `select cc.tabla_oficial_corte_completo as corte, cc.tabla_oficial_estado as estado
+           from ops.coverage_checkpoint cc
+           join core.phase_group g on g.id = cc.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where f.codigo = $1`, [FEDERACION]);
+      expect(cobertura?.estado).toBe('importada');
+      expect(cobertura?.corte).toBe(false);
+      // Y con su aviso propio, para que dentro de tres meses nadie tenga que adivinar por qué se hizo.
+      expect(await cuenta(pool, `select count(*) n from ops.normalizacion_error
+        where batch_id = $1 and codigo = 'clasificacion_oficial_anclada_a_jornada_incompleta'`,
+      [informes[0]!.batchId])).toBe(1);
+    } finally {
+      cola.cierra();
+    }
+  });
+
+  it('17. una tabla oficial inválida se descarta sin convertirla, y el grupo se importa igual', async () => {
     if (!disponible || !pool) return;
     const cola = creaCola();
     try {
       siembraBase(cola);
       // `puntos: 0.25` es literalmente lo que publican 5 ficheros del corpus. Redondear sería inventar.
       escribeJson(cola, [filaJson({ puntos: 0.25, ganados: 2, empatados: 1, perdidos: 1, jugados: 4 })]);
-      await expect(importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' }))
-        .rejects.toThrow(/R7/);
+      const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informes[0]?.error).toBeUndefined();
       expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(0);
+      const avisos = await pool.query<{ parametros: { motivo: string } }>(
+        `select parametros from ops.normalizacion_error where batch_id = $1 and codigo = 'clasificacion_oficial_ilegible'`,
+        [informes[0]!.batchId],
+      );
+      expect(avisos.rows[0]?.parametros.motivo).toMatch(/R7/);
     } finally {
       cola.cierra();
     }
   });
 
-  it('18. si el HTML y el JSON dicen cosas distintas, no se elige ninguna', async () => {
+  it('18. si el HTML y el JSON dicen cosas distintas, no se elige ninguna y el grupo entra', async () => {
     if (!disponible || !pool) return;
     const cola = creaCola();
     try {
@@ -760,9 +1294,13 @@ describe('clasificación oficial desde clasificacion.json', () => {
         filaJson({ posicion: 1, equipo: 'C.D. RIBERT "A"', puntos: 6, ganados: 2, empatados: 0, perdidos: 0 }),
         filaJson({ posicion: 2, equipo: 'S.D. SAN JOSE "B"', puntos: 3, ganados: 1, empatados: 0, perdidos: 1 }),
       ]);
-      await expect(importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' }))
-        .rejects.toThrow(/se lee distinta en el HTML y en el JSON/);
+      const informes = await importaFederacion(pool, { raiz: cola.raiz, federacion: FEDERACION, temporada: '2025-26', grupo: '9001' });
+      expect(informes[0]?.error).toBeUndefined();
+      // No se elige ninguna de las dos tablas…
       expect(await cuenta(pool, puntosDeOrigen('oficial'), [FEDERACION])).toBe(0);
+      // …y queda dicho que se descartaron, en vez de perderse el grupo entero.
+      expect(await cuenta(pool, `select count(*) n from ops.normalizacion_error
+        where batch_id = $1 and codigo = 'clasificacion_oficial_ilegible'`, [informes[0]!.batchId])).toBe(1);
     } finally {
       cola.cierra();
     }
