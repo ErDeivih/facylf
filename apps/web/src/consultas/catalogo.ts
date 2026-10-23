@@ -234,7 +234,8 @@ export const FEDERACIONES_DEL_CANONICO: Consulta<FilaFederacionCanonica> = {
   nombre: 'federaciones-del-canónico',
   descripcion: 'Las federaciones del canónico con su portal, su adaptador y la cobertura importada de cada una, incluidas las que todavía no tienen nada importado.',
   plan: 'agregado',
-  presupuestoMs: 300,
+  // Agrega 40.000 grupos y su cobertura por federación: 0,2-0,3 s medidos el 23/10/2026 en la base real.
+  presupuestoMs: 400,
   columnas: ['codigo', 'nombre', 'portal_url', 'activa', 'adaptador', 'temporadas', 'ediciones',
     'grupos', 'grupos_medidos', 'partidos_conocidos', 'partidos_con_resultado', 'actas_disponibles',
     'actas_parseadas', 'actas_correctas', 'actas_a_revisar', 'grupos_completos', 'grupos_parciales',

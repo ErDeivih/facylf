@@ -55,7 +55,10 @@ export const RESUMEN_CANONICO: Consulta<FilaResumen> = {
   nombre: 'resumen-canónico',
   descripcion: 'Cuánto hay en el canónico: federaciones, ediciones, grupos, partidos, actas, participaciones, eventos y personas.',
   plan: 'agregado',
-  presupuestoMs: 20_000,
+  // Con la 0047 es la lectura de una fila (índice por clave): 0,4 ms medidos. El presupuesto de 20 s era
+  // del recuento en caliente y ya no tiene sentido; si esto vuelve a pasar de 100 ms, es que alguien
+  // devolvió los `count(*)` a la consulta.
+  presupuestoMs: 100,
   columnas: ['federaciones', 'ediciones', 'grupos', 'partidos', 'informes', 'participaciones', 'eventos', 'personas', 'grupos_completos', 'calculado_en'],
   sql: `
     -- 0047: una fila con los recuentos (ops.recuento_canonico), recalculada al cerrar cada pasada del

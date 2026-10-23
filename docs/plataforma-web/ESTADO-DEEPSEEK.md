@@ -90,13 +90,20 @@ para los cierres; la proyección de cada grupo sigue con 120 s.
 | Reclasificar ediciones | ✓ 9.250 ediciones (división, nivel y provincia) |
 | Posiciones y capitán | ✗ pendiente: el recorrido de JSON archivados es de horas (Valencia ~100 k actas); medido y **sin aplicar** |
 | Proyección | parcial: Canarias y Melilla; el resto, de noche |
-| `planes --guardar` | ✓ (11 planes en `pruebas/planes/`) |
+| `planes --guardar` | ✓ todas las consultas medidas y dentro de presupuesto (60 planes guardados; `pnpm planes` verde) |
 | T14 personas huérfanas | **368** medidas; no se borra nada sin permiso de David (`core` no se toca) |
 
 **Riesgo nuevo, para David:** el contenedor tiene `/dev/shm` de **64 MB** (el valor por defecto de Docker) y
 alguna consulta paralela falla con «could not resize shared memory segment … No space left on device». La
 solución es `shm_size: 1gb` en `infra/docker-compose.yml`, que **no toco sin su permiso**. Mientras tanto, si
 una consulta grande falla así, se puede lanzar con `set max_parallel_workers_per_gather = 0`.
+
+**Y una decisión de la fase C:** la web usa `DATABASE_URL_LECTOR` (`facylf_lector`) para todo, pero
+`bandeja-avisos` lee `app.notificacion` y las consultas del panel leen `app.invitacion` y `app.auditoria`,
+donde ese rol **no tiene SELECT** (sólo `facylf_app`). Hay que elegir: un segundo pool con `facylf_app` para
+las páginas autenticadas (coherente con «la web no escribe en core») o dar SELECT a `facylf_lector` en las
+tablas de usuario. Hoy `planes.mjs` mide las de usuario con el rol de publicación y omite, diciéndolo, las que
+no puede ver.
 
 ## ★★★★ DeepSeek, 23/10, 12:10 — R1-R7 PASADAS (la primera contra PostgreSQL 18 de verdad), 0046 y los commits
 

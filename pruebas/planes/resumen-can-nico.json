@@ -1,6 +1,6 @@
 {
   "consulta": "resumen-canónico",
-  "presupuestoMs": 20000,
+  "presupuestoMs": 100,
   "plan": "agregado",
   "forma": {
     "nodos": [
