@@ -1,0 +1,20 @@
+name: rendimiento
+# Cada lunes (y a mano): base de volumen inventada + EXPLAIN de todas las consultas de la web.
+# Falla si alguna consulta `indexado` se queda sin camino por índice o da error (RENDIMIENTO-BASE.md §1).
+on:
+  schedule: [{ cron: '17 3 * * 1' }]
+  workflow_dispatch:
+jobs:
+  volumen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: cd pruebas/sql && npm init -y >/dev/null && npm i --no-save --no-package-lock @electric-sql/pglite@0.5
+      - run: node pruebas/sql/volumen.mjs /tmp/facylf-volumen 14
+      - run: node --experimental-strip-types --no-warnings pruebas/sql/rendimiento.mjs /tmp/facylf-volumen
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: rendimiento, path: /tmp/facylf-rendimiento.json }

@@ -1,7 +1,10 @@
 name: test
 on: [push, pull_request]
+# Cada cambio pasa por cuatro comprobaciones independientes. Si una falla, el cambio no se despliega
+# (ver docs/plataforma-web/DESPLIEGUE-CONTINUO.md).
 jobs:
   test:
+    name: pruebas de la aplicación
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -10,3 +13,55 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  sql:
+    name: pruebas SQL (PostgreSQL embebido, m29-m45 y análisis)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # PGlite sólo para las pruebas: se instala junto a ellas, sin tocar el workspace de pnpm.
+      - run: cd pruebas/sql && npm init -y >/dev/null && npm i --no-save --no-package-lock @electric-sql/pglite@0.5
+      - name: m29 … m47
+        run: |
+          fallos=0
+          for m in 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 analisis; do
+            echo "::group::m$m"
+            f=pruebas/sql/m$m.mjs; [ -f "$f" ] || f=pruebas/sql/$m.mjs
+            node "$f" | tee /tmp/m$m.txt || fallos=$((fallos+1))
+            echo "::endgroup::"
+            grep -q "TODO OK" /tmp/m$m.txt || { echo "::error::m$m no terminó en TODO OK"; fallos=$((fallos+1)); }
+          done
+          exit $fallos
+
+  migraciones:
+    name: migraciones sobre PostgreSQL 18 real
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env: { POSTGRES_PASSWORD: prueba, POSTGRES_DB: facylf, POSTGRES_USER: facylf_admin }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U facylf_admin -d facylf" --health-interval 5s --health-timeout 5s --health-retries 20
+    env: { PGHOST: localhost, PGUSER: facylf_admin, PGPASSWORD: prueba, PGDATABASE: facylf }
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y -q postgresql-client
+      - name: aplicar 0001 … última, en orden, parando al primer error
+        run: |
+          for f in $(ls infra/migraciones/*.sql | sort); do
+            echo "→ $f"; psql -q -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - name: dos veces no rompe (todas las migraciones nuevas son idempotentes)
+        # Desde la 0023. Se probó 0001-0045 entero: las de 0001-0022 no son repetibles (sus `add constraint`
+        # sin `drop if exists` chocan) y no hace falta que lo sean: ya están aplicadas en la base real y no
+        # se vuelven a ejecutar. Las de la 0023 en adelante sí tienen que aguantar una segunda pasada.
+        run: |
+          for f in $(ls infra/migraciones/002[3-9]*.sql infra/migraciones/004*.sql 2>/dev/null | sort); do
+            echo "→ $f (2.ª pasada)"; psql -q -v ON_ERROR_STOP=1 -f "$f"
+          done
+      - name: humo
+        run: psql -v ON_ERROR_STOP=1 -c "select count(*) from ops.chequeos();" -c "select * from analytics.avisos_de_datos('madrid', null);"
