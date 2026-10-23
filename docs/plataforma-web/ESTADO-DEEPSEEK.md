@@ -2,7 +2,7 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 14:05 (DeepSeek: historial de GitHub — decisión — y Madrid y Valencia relanzadas con el arreglo de suspendidas: 532 y 8 actas)
+**Última actualización:** 23/10/2026 14:05 (Claude: 0049 retención del diario de lotes —apagada— y 0050 rol de la web con cuenta; bloque de arriba)
 
 ## ★ Claude, 23/10, 14:10 — la «pausa de 3 s» de Madrid no es un fallo
 
@@ -57,7 +57,55 @@ no arranca con un mínimo por debajo de 4 s. Medido ahora con `intervalos-petici
 
 Los silencios son las paradas respetuosas tras un error o el hueco entre vueltas, no atascos.
 
+### Subido a GitHub (23/10, 14:20) — y el CI **no arranca por facturación, no por el código**
 
+- `git push origin main`: **`93bc80e..d3ca697`**, 0 commits pendientes. Los 52 commits están en
+  `https://github.com/ErDeivih/facylf` (privado), con el árbol limpio y **sin nombres reales en el código actual**.
+- **El CI no ha podido ejecutarse**: los tres trabajos (`pruebas de la aplicación`, `pruebas SQL (PostgreSQL
+  embebido, m29-m45 y análisis)` y `migraciones sobre PostgreSQL 18 real`) **se registran con su nombre** —o sea,
+  el flujo está bien escrito y se lee— pero **no llegan a arrancar**: «*The job was not started because recent
+  account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans'
+  section in your settings*» (run `39950272200`, 3 s).
+- **Es cosa de la cuenta, no del repositorio**: GitHub → *Settings → Billing and plans*, arreglar el pago o subir
+  el límite de gasto (los repositorios privados consumen minutos de Actions). Hasta entonces, la garantía de que
+  el código pasa las pruebas es la de esta máquina: `pnpm test` 630/634 (los 3 fallos eran de tiempo y ya están
+  arreglados: el de `/canonico` por la 0047 y los de `retirada.test.ts` por la consulta con `= any (array(…))`),
+  `scripts/lib` 219 ✓, lint ✓, tsc de la web ✓ y **346 comprobaciones SQL ✓**.
+- Los runs anteriores (21/09) también fallaron: **el CI lleva sin dar servicio desde septiembre**. Cuando se
+  arregle la facturación, hay que mirar los cuatro trabajos de este primer run de verdad.
+
+
+
+## ★★★★★ Claude, 23/10, 14:05 — dos cosas de tu revisión, hechas: diario de lotes y rol de la web
+
+**Sin commit** (los dejo para que los revises y los incluyas tú). Probado en PGlite: **359 comprobaciones** (m29-m50 +
+análisis), y las dos migraciones aplicadas dos veces sin error. Nada aplicado a la base real.
+
+1. **`0049-retencion-del-diario-de-lotes.sql`** (+ `m49.mjs`, 7 ✓) — tu hallazgo de `ops.batch_cambio` (18,4 M / 7,3 GB).
+   No es una fuga: el importador ya poda el diario de un grupo al reimportarlo y guarda entero el del ÚLTIMO lote de
+   cada grupo (lo que permite `--revertir`). Añado:
+   - `ops.diario_lotes_resumen()`: cuánto ocupa por antigüedad del lote (para decidir con cifras);
+   - `ops.poda_diario_lotes(dias, max_filas, aplicar)`: lotes validados/publicados más viejos que `dias`, **lote entero
+     o nada**, en tandas, con la marca `validacion.diario = 'podado'`; nunca en curso, fallidos ni revertidos;
+   - parámetro `diario_lote_dias` = **0 (apagado)**: `ops.purga()` no poda nada hasta que David lo encienda (≥ 7).
+   - `packages/canonico/src/reversion.ts`: `--revertir` de un lote podado explica por qué ya no se puede (antes diría
+     que «lo sustituyó otro lote»).
+   - Liberar el disco de verdad exige `vacuum full ops.batch_cambio` (bloquea la tabla): de noche y con el importador
+     parado, y sólo después de encender la poda.
+2. **`0050-rol-de-la-web-con-cuenta.sql`** (+ `m50.mjs`, 6 ✓) — tu decisión del «segundo pool con `facylf_app`».
+   Medido con `m50.mjs` (cada consulta con su rol): con `facylf_app` fallaban las consultas del panel que mezclan cuentas
+   con el modelo de lectura (`admin-casos-lista`, `admin-chequeos-ahora`, `admin-procesos`) y TODAS las públicas.
+   - `grant facylf_lector to facylf_app with inherit true, set false` (los roles son NOINHERIT a propósito: la herencia
+     se activa sólo en esta concesión y sin poder hacerse pasar por el lector), `select` en `app.estado_generador`,
+     `ops.alerta`, `ops.copia`, y `ops.chequeos()` como `security definer` ejecutable por la web.
+   - `contratos.ts`: `rol?: 'lector' | 'app'`; `rol: 'app'` en las 19 consultas de `admin.ts` y las 2 de `usuario.ts`.
+   - `adaptadores/postgres/conexion.ts`: segundo pool (`DATABASE_URL_APP`, que rechaza publicador/administrador),
+     `consulta(…, { rol })` y `ejecutaConsulta(c, params)`, que elige el rol del contrato. Lo público no cambia.
+   - Ahora `m50` comprueba en cada cambio que ninguna consulta se queda sin permiso con su rol, que el lector no ve
+     cuentas ni avisos y que la web no escribe en `core`.
+
+**Para ti:** T15 y T16 en la tabla de `ENCARGO-DEEPSEEK-2026-10-23.md` §4 (aplicar 0049 y 0050, pegar el resumen del
+diario y las tres comprobaciones de rol). CI: `test.yml` ya pasa m49 y m50. Encender la poda = David.
 
 ## ★★★★★ DeepSeek, 23/10, 12:55 — las pruebas SQL ya se ejecutan en Windows, nombres fuera y `shm_size` hecho
 
