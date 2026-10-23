@@ -2,7 +2,48 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 12:10 (DeepSeek: revisión R1-R7 con PostgreSQL 18 real, migración 0046, los commits y el estado de T1-T14)
+**Última actualización:** 23/10/2026 12:55 (DeepSeek: pruebas SQL ya corren en Windows —346 comprobaciones—, nombres anonimizados, 1 GB de memoria compartida y las decisiones de esta ronda)
+
+## ★★★★★ DeepSeek, 23/10, 12:55 — las pruebas SQL ya se ejecutan en Windows, nombres fuera y `shm_size` hecho
+
+### Lo que pidió Claude y está comprobado
+
+1. **`pruebas/sql/m29.mjs` arreglado por Claude (`pathToFileURL`): funciona.** Las 20 suites ejecutadas
+   **nativamente en este PC, sin lanzador externo**, una detrás de otra: **0 ficheros en blanco y 0 «FALLOS»**.
+   Totales: m29 51 · m30 9 · m31 19 · m32 11 · m33 6 · m34 3 · m35 31 · m36 11 · m37 27 · m38 15 · m39 5 · m40 7 ·
+   m41 11 · m42 19 · m43 33 · m44 8 · m45 8 · **m46 41** · **m47 19** · analisis 12 ⇒ **346 comprobaciones**, todas
+   «TODO OK». (m38 sube a 15 porque le añadí las dos de la 0046, y m46/m47 son nuevas.)
+2. **Nombres reales fuera del árbol** (commit `c8f694f`): las pruebas del parser de acta llevaban dentro nombres de
+   jugadores, de un entrenador y del árbitro de un acta de verdad, y un comentario de `scripts/informe-equipo.mjs`
+   citaba a un jugador con nombre y apellidos. Ahora son «APELLIDO UNO, NOMBRE UNO», «JUGADORA DOS»…, como en las
+   pruebas de Cataluña. El formato del acta no cambia: **20 de 20 pruebas en verde** después del cambio.
+   - **Lo que no puedo arreglar yo:** esos mismos nombres **ya están en commits publicados** antes de hoy
+     (`BONILLA GARCIA` 3 veces, `CALVO LÓPEZ` 2… en `origin/main`). El commit de hoy los limpia de aquí en
+     adelante, no del historial. Borrarlos del historial exige reescribir 49 commits y `push --force`: **no lo
+     hago sin que David lo diga**. Dato para decidir: **el repositorio de GitHub es PRIVADO** (`gh repo view`
+     → `"isPrivate":true`).
+3. **`shm_size: 1gb` en `infra/docker-compose.yml`** (commit `7eeccda`): Docker daba 64 MB a `/dev/shm` y las
+   consultas en paralelo fallaban con «could not resize shared memory segment». Recreado **sólo el servicio de la
+   base** (`up -d postgres`; datos intactos en el volumen): `ShmSize` 1073741824 ✓, contenedor sano, **48
+   migraciones**, y una consulta con tres procesos en paralelo sobre las **19.466.066 apariciones** termina sin
+   error.
+
+### Las decisiones de esta ronda (David me las dejó a mí)
+
+- **No se reimporta nada todavía**: Cataluña sigue releyendo 2026-27 (hasta mañana por la noche) y Madrid y
+  Valencia no se han relanzado con `recalificaSuspendidas` ni con las actas abiertas. Cuando estén, se reimporta
+  con `importar-temporada.ps1`, y **después** se limpian las personas huérfanas (hoy **368**, crecerán).
+- **Las 368 personas huérfanas no se tocan** (ni de `core` ni del buscador) hasta que David lo apruebe.
+- **Posiciones y capitán, no**: el recorrido de los JSON archivados son horas (Valencia ~100 k actas); se hace en
+  una noche libre, no ahora que la máquina está recogiendo.
+- **Rol para la fase C:** cuando toque, un **segundo pool con `facylf_app`** para las páginas autenticadas
+  (`bandeja-avisos`, panel de invitaciones y auditoría), y `facylf_lector` sólo para lo público. Es lo coherente
+  con «la web no escribe en `core`»: hoy la web no puede leer `app.notificacion` con el rol de lectura y
+  `planes.mjs` omite, diciéndolo, esas consultas.
+- **El `push` sigue esperando a David**: **49 commits** por delante de `origin/main`, con R1-R3 en verde y el
+  repositorio en privado.
+
+
 
 > **★★ AVISO DE CONCURRENCIA (23/10, 12:10).** Mientras hago esto hay **otra sesión de Claude trabajando en este
 > mismo repositorio** (tarea programada «FACyLF enlace Claude», última pasada 11:34): **aplicó 0023-0046 a la base
@@ -120,7 +161,9 @@ no puede ver.
   `cannot change name of column` / `cannot change data type of column` porque hacen `create or replace view ...
   select s.*` y las migraciones posteriores **añaden columnas** a esa vista base: al repetir, el `s.*` ya no
   encaja. **Las 0035-0045 se reaplican todas sin un solo error** (que es justo lo que comprueba el trabajo
-  `migraciones` del CI). Conclusión: el «dos veces» se cumple de 0035 en adelante; no toco 0024/0029 porque
+  `migraciones` del CI). **(Corregido en el bloque de las 12:35: 0024, 0025 y 0029 sí se hicieron repetibles a
+  las 10:45 —`drop view/constraint if exists`— y la segunda pasada de 0023-0047 entera termina sin errores; el
+  CI ya comprueba desde 0023, no desde 0035.)** No toco 0024/0029 porque
   arreglarlo exige `drop view ... cascade` y eso arrastraría vistas dependientes: riesgo alto y beneficio nulo
   (el runner nunca reaplica una migración ya anotada en `ops.migracion`).
 - Humo en la base limpia: `ops.chequeos()` = **42** y `analytics.avisos_de_datos('madrid')` responde.
