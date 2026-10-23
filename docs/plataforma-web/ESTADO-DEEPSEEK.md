@@ -2,7 +2,40 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 14:50 (DeepSeek: poda del diario ENCENDIDA a 7 días, podado y compactado; T15 cerrada del todo)
+**Última actualización:** 23/10/2026 16:00 (DeepSeek: el servidor se apagó solo dos veces y nadie avisó; arreglada la guardia)
+
+## ★★★★★ DeepSeek, 23/10, 16:00 — el servidor se apagó a las 12:05 (y otra vez a las 14:07): qué pasó y qué queda
+
+**No fue una caída: se apagó la guardia de energía, a propósito y limpia.** Cronología del registro
+(`/var/log/facylf-guardia.log` y `facylf-temperatura.log`):
+
+| hora | qué |
+|---|---|
+| 10:33 | batería al 93 % **bajando** con el cargador puesto y carga 13: E0→E1 (−65 ‰ en 10 min) |
+| 10:43 / 10:54 / 11:04 | E2 (81 %) → E3 (72 %) → **E4** (64 %): se paran 15 recolectores, CyL sigue |
+| 12:05:58 | **E5: batería al 6 % → apagado limpio** (batería 6 %, «Discharging», cargador puesto) |
+| 14:06:30 | **el reloj de la placa la despierta** (¡por primera vez funciona el despertador!) con el 6 % |
+| 14:07:18 | **la guardia la vuelve a apagar un minuto después** ← defecto |
+| 14:07 → 15:38 | apagada; David la enciende a mano |
+| 15:38:40 | arranque en E2, batería 60 %, **modo conservación de Lenovo a 1** («Not charging») |
+
+**Causa de fondo:** el cargador de este portátil no sostiene 250 % de cuota con carga 13 (a 200 % y carga 9-10
+aguantó seis horas sin bajar). **Y nadie avisó a David** porque el canal de avisos al móvil sigue sin encender
+(TRASPASO T3): el vigía escribe `estado/vigia/alertas.log`, pero no hay ningún aviso que salga del PC. Los
+ficheros del servidor en `estado/vigia/` se quedaron congelados a las 12:03 y no lo dijo nadie.
+
+**Arreglado y desplegado en el servidor (commit `35e40d4`):**
+1. **E5 ya no se repite al despertar**: si la batería está al 6 % pero la máquina acaba de arrancar (< 15 min) y
+   el cargador está puesto, se pasa a **E4** (todo parado menos CyL) y se la deja cargar.
+2. **Modo conservación de Lenovo a 0 en cada pasada**: tras el apagón el EC lo volvió a poner a 1 y la batería se
+   quedaba en 60 % sin cargar. Ya está cargando (pulso de las 15:43: «batería 60 % **Charging**»).
+3. **E0 de 250 % a 200 %**: un 20 % más lento antes que tres horas apagado.
+
+**Lo que sigue en manos de David:** el cargador (uno genuino Lenovo más potente) y **encender el canal de avisos**
+al móvil, que es la razón de que esto no se supiera. Mientras tanto, comprobación manual del servidor cada vez que
+se toque algo de la flota.
+
+
 
 ## ★★★★★ DeepSeek, 23/10, 14:50 — el diario de lotes, podado y compactado (decisión de David)
 
