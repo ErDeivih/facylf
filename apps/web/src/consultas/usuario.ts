@@ -13,6 +13,7 @@ export type FilaAcceso = {
 /** «Mi panel»: los favoritos con su nombre actual, lo último y lo próximo. Parámetros: (1) user_id. */
 export const MIS_ACCESOS: Consulta<FilaAcceso> = {
   nombre: 'mis-accesos',
+  rol: 'app',
   descripcion: 'Favoritos del usuario con su enlace actual, último resultado y próximo partido.',
   plan: 'indexado',
   presupuestoMs: 150,
@@ -25,6 +26,7 @@ export type FilaAviso = { id: number; tipo: string; titulo: string; cuerpo: stri
 /** Bandeja de avisos. Parámetros: (1) user_id, (2) límite. */
 export const BANDEJA_AVISOS: Consulta<FilaAviso> = {
   nombre: 'bandeja-avisos',
+  rol: 'app',
   descripcion: 'Últimos avisos del usuario y cuántos tiene sin leer.',
   plan: 'indexado',
   presupuestoMs: 80,

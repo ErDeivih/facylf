@@ -20,6 +20,7 @@ export type FilaPanelResumen = {
 };
 export const PANEL_RESUMEN: Consulta<FilaPanelResumen> = {
   nombre: 'admin-panel-resumen',
+  rol: 'app',
   descripcion: 'Una fila con lo que el administrador mira al entrar: alertas, pendientes, casos, avisos, copias.',
   plan: 'agregado',
   presupuestoMs: 150,
@@ -39,6 +40,7 @@ export type FilaUsuarioAdmin = {
 /** Parámetros: (1) estado o null, (2) texto o null (busca en nombre e id), (3) límite. */
 export const USUARIOS_ADMIN: Consulta<FilaUsuarioAdmin> = {
   nombre: 'admin-usuarios',
+  rol: 'app',
   descripcion: 'Usuarios con estado, paquete, caducidad, permisos sueltos, favoritos y último acceso. Pendientes primero.',
   plan: 'agregado',
   presupuestoMs: 200,
@@ -67,6 +69,7 @@ export type FilaCuentasResumen = { pendientes: number; esperando_mas_de_3_dias: 
 /** Tarjeta «Cuentas» de la portada del panel. Sin parámetros. */
 export const CUENTAS_RESUMEN: Consulta<FilaCuentasResumen> = {
   nombre: 'admin-cuentas-resumen',
+  rol: 'app',
   descripcion: 'Resumen de cuentas: pendientes (y cuántos esperan más de 3 días), administradores sin doble verificación, cuentas frenadas, invitaciones vigentes, caducidades próximas, bloqueados y altas de la semana.',
   plan: 'agregado',
   presupuestoMs: 80,
@@ -88,6 +91,7 @@ export type FilaCaducidad = { user_id: string; nombre: string | null; paquete: s
 /** Usuarios activos cuyo paquete vence en los próximos N días (para renovar a tiempo). Parámetro: (1) días. */
 export const CADUCIDADES: Consulta<FilaCaducidad> = {
   nombre: 'admin-caducidades',
+  rol: 'app',
   descripcion: 'Usuarios activos cuyo paquete vence pronto, del más urgente al menos.',
   plan: 'agregado',
   presupuestoMs: 60,
@@ -107,6 +111,7 @@ export type FilaInvitacion = {
 /** Parámetros: (1) solo vigentes (boolean), (2) límite. */
 export const INVITACIONES_ADMIN: Consulta<FilaInvitacion> = {
   nombre: 'admin-invitaciones',
+  rol: 'app',
   descripcion: 'Códigos de invitación con usos, caducidad, si son personales y estado calculado (vigente, agotada, caducada, anulada).',
   plan: 'agregado',
   presupuestoMs: 80,
@@ -129,6 +134,7 @@ export type FilaAuditoria = { id: number; en: string; usuario: string; tabla: st
 /** Parámetros: (1) tabla o null, (2) usuario o null, (3) desde (timestamptz) o null, (4) límite. */
 export const AUDITORIA_ADMIN: Consulta<FilaAuditoria> = {
   nombre: 'admin-auditoria',
+  rol: 'app',
   descripcion: 'Cambios de administración, del más nuevo al más viejo, con sólo los campos que cambiaron.',
   plan: 'indexado',
   presupuestoMs: 150,
@@ -149,6 +155,7 @@ export const AUDITORIA_ADMIN: Consulta<FilaAuditoria> = {
 export type FilaCasoResumen = { codigo: string; titulo: string; severidad: string; tratamiento: string; abiertos: number; confirmados: number; descartados: number; resueltos_solos: number; ultima_vez: string | null };
 export const CASOS_RESUMEN: Consulta<FilaCasoResumen> = {
   nombre: 'admin-casos-resumen',
+  rol: 'app',
   descripcion: 'Casos de datos por tipo, graves primero, con lo que la plataforma hace con cada uno.',
   plan: 'agregado',
   presupuestoMs: 150,
@@ -168,6 +175,7 @@ export type FilaCaso = {
 /** Parámetros: (1) código o null, (2) estado o null (por defecto la web pasa 'abierto'), (3) federación o null, (4) límite. */
 export const CASOS_LISTA: Consulta<FilaCaso> = {
   nombre: 'admin-casos-lista',
+  rol: 'app',
   descripcion: 'Casos de datos uno a uno con enlace a lo afectado (partido, edición o persona).',
   plan: 'indexado',
   presupuestoMs: 200,
@@ -198,6 +206,7 @@ export type FilaCobertura = {
 /** Parámetros: (1) temporada (etiqueta, p. ej. '2025-26') o null = la más reciente de cada federación. */
 export const COBERTURA_FEDERACIONES: Consulta<FilaCobertura> = {
   nombre: 'cobertura-por-federacion',
+  rol: 'app',
   descripcion: 'Qué datos da cada federación (cambios, tarjetas, minuto de gol…), medido sobre lo importado.',
   plan: 'agregado',
   presupuestoMs: 250,
@@ -219,6 +228,7 @@ export type FilaChequeo = { nombre: string; area: string; estado: string; valor:
 /** Todos los chequeos ahora mismo, con la alerta abierta si la hay. Sin parámetros. Tarda lo que ops.chequeos(). */
 export const CHEQUEOS_AHORA: Consulta<FilaChequeo> = {
   nombre: 'admin-chequeos-ahora',
+  rol: 'app',
   descripcion: 'Estado de cada chequeo en este momento (no el último guardado) y su alerta abierta.',
   plan: 'agregado',
   presupuestoMs: 1500,
@@ -234,6 +244,7 @@ export type FilaAvisosDia = { dia: string; tipo: string; creados: number; leidos
 /** Parámetros: (1) días hacia atrás. */
 export const AVISOS_POR_DIA: Consulta<FilaAvisosDia> = {
   nombre: 'admin-avisos-por-dia',
+  rol: 'app',
   descripcion: 'Avisos generados por día y tipo, y cuántos se leyeron o salieron por push y correo.',
   plan: 'indexado',
   presupuestoMs: 300,
@@ -252,6 +263,7 @@ export const AVISOS_POR_DIA: Consulta<FilaAvisosDia> = {
 export type FilaEspacio = { codigo: string; pagina: string; posicion: string; formato: string; proveedor: string; activo: boolean; campanas_vigentes: number; impresiones_30d: number; vistas_30d: number; clics_30d: number; pct_visible_30d: number | null };
 export const ESPACIOS_ANUNCIO: Consulta<FilaEspacio> = {
   nombre: 'admin-espacios-anuncio',
+  rol: 'app',
   descripcion: 'Huecos de anuncio con proveedor, estado, campañas vigentes y rendimiento de 30 días (servidas, vistas, clics).',
   plan: 'agregado',
   presupuestoMs: 120,
@@ -272,6 +284,7 @@ export type FilaCampana = { id: number; patrocinador: string; titulo: string; es
 /** `ritmo`: servidas / las que tocarían por días transcurridos (1 = al día). `ritmo_estado`: 'al día', 'retrasada' (< 0,8 con más de un tercio de campaña), 'adelantada' o '—' (sin tope). */
 export const CAMPANAS_ANUNCIO: Consulta<FilaCampana> = {
   nombre: 'admin-campanas-anuncio',
+  rol: 'app',
   descripcion: 'Patrocinios directos con su estado, ritmo de entrega, rendimiento acumulado e importe.',
   plan: 'agregado',
   presupuestoMs: 120,
@@ -300,6 +313,7 @@ export type FilaInformeAnuncios = { espacio: string; campana_id: number; patroci
 /** Parámetros: (1) desde, (2) hasta (fechas 'YYYY-MM-DD'). Exportable a CSV para facturar a cada patrocinador. */
 export const INFORME_ANUNCIOS: Consulta<FilaInformeAnuncios> = {
   nombre: 'admin-informe-anuncios',
+  rol: 'app',
   descripcion: 'Informe de publicidad por hueco y campaña en un periodo: servidas, vistas, clics, % visible, CTR e ingresos (AdSense estimado).',
   plan: 'agregado',
   presupuestoMs: 150,
@@ -314,6 +328,7 @@ export type FilaAnunciosDia = { dia: string; impresiones: number; vistas: number
 /** Parámetros: (1) días hacia atrás. Serie para el gráfico del panel (días sin datos = 0: no hubo anuncios). */
 export const ANUNCIOS_POR_DIA: Consulta<FilaAnunciosDia> = {
   nombre: 'admin-anuncios-por-dia',
+  rol: 'app',
   descripcion: 'Serie diaria de publicidad: servidas, vistas, clics e ingresos estimados (patrocinios por CPM + AdSense estimado).',
   plan: 'agregado',
   presupuestoMs: 120,
@@ -334,6 +349,7 @@ export type FilaAccesoSensible = { user_id: string; nombre: string | null; capac
 /** Parámetros: (1) días hacia atrás. */
 export const ACCESOS_SENSIBLES: Consulta<FilaAccesoSensible> = {
   nombre: 'admin-accesos-sensibles',
+  rol: 'app',
   descripcion: 'Quién vio nombres de menores o exportó datos, cuántas veces y a cuántas fichas.',
   plan: 'indexado',
   presupuestoMs: 200,
@@ -350,6 +366,7 @@ export const ACCESOS_SENSIBLES: Consulta<FilaAccesoSensible> = {
 export type FilaProcesos = { proceso: string; ultima: string | null; detalle: string | null };
 export const PROCESOS: Consulta<FilaProcesos> = {
   nombre: 'admin-procesos',
+  rol: 'app',
   descripcion: 'Última vez que corrió cada proceso automático (proyector, avisos, copia, restauración, vigilancia).',
   plan: 'agregado',
   presupuestoMs: 200,
@@ -369,6 +386,7 @@ export type FilaUsoDia = { dia: string; vistas: number; usuarios: number; pct_ca
 /** Parámetros: (1) días. Una fila por día (también los días sin visitas, con 0). */
 export const USO_POR_DIA: Consulta<FilaUsoDia> = {
   nombre: 'admin-uso-por-dia',
+  rol: 'app',
   descripcion: 'Páginas vistas, usuarios, acierto de caché y tiempo medio por día; activos en 7 días.',
   plan: 'agregado',
   presupuestoMs: 100,
@@ -379,6 +397,7 @@ export type FilaUsoPantalla = { ruta: string; vistas: number; pct_cache: number 
 /** Parámetros: (1) días. Qué pantallas se usan, de más a menos. */
 export const USO_POR_PANTALLA: Consulta<FilaUsoPantalla> = {
   nombre: 'admin-uso-por-pantalla',
+  rol: 'app',
   descripcion: 'Qué pantallas se usan de verdad (y cuáles no), con acierto de caché y tiempo medio.',
   plan: 'agregado',
   presupuestoMs: 100,

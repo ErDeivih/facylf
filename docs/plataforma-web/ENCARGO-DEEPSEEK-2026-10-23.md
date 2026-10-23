@@ -226,6 +226,8 @@ Haz lo que puedas en este orden; lo que no, déjalo especificado en ESTADO-DEEPS
 | T5 | parcial | Despliegue al servidor ✓; reimportar Cataluña/Madrid/Valencia **después de T3**; historia de Cataluña |
 | T6 | **✓ hecha** | `0046-perfil-de-las-ocho-del-servidor.sql` + `pruebas/sql/m46.mjs` (41 ✓); en la base real, `avisos_de_datos('extremadura')` ya da `identidad_por_nombre` y **0 federaciones sin medir** |
 | T7-T14 | pendientes | Van detrás de T3/T4 (fase C, importador, árbitros, PDF, personas huérfanas) |
+| T15 | **nueva (Claude, 23/10 14:00)** · aplicar 0049 | Retención del diario de lotes (`ops.batch_cambio`, 18,4 M filas / 7,3 GB). Sólo añade funciones y un parámetro **apagado** (`diario_lote_dias` = 0): no borra nada. `pnpm db:migrar`, luego `select * from ops.diario_lotes_resumen()` y pega la tabla. **Encenderla lo decide David** (propuesta: 30 días). Terminado: aplicada y resumen pegado |
+| T16 | **nueva (Claude, 23/10 14:00)** · aplicar 0050 | Rol de la web con cuenta: `facylf_app` hereda la lectura pública (sin `set`), lee la vigilancia que enseña el panel y ejecuta `ops.chequeos()`. Contrato `rol: 'app'` en las 21 consultas de usuario y panel, y `ejecutaConsulta()` en `conexion.ts` (dos pools). `pnpm db:migrar`; comprobar con `psql` como `facylf_app`: `select count(*) from app.notificacion; select count(*) from core.match limit 1;` (los dos sin error) y que `insert into core.federation …` da *permission denied*. Terminado: eso, y `pnpm planes` sigue verde |
 
 **Si al revisar ves que falta algo que no está en esta tabla**, añádelo como T15, T16… con el mismo formato
 (qué, dónde, cuándo está terminado). Si es código de Claude claramente roto, arréglalo con sus pruebas; si es

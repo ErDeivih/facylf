@@ -136,7 +136,12 @@ export async function revierteLote(pool: PoolCanonico, batchId: number): Promise
         throw new Error(fila.validacion?.diario === 'omitido'
           ? `El lote ${batchId} se importó con --sin-diario: no guarda diario de cambios, así que no se puede revertir. `
             + 'Si hay que deshacerlo, vuelve a importar el grupo (la importación es idempotente) o retíralo por ámbito.'
-          : `El lote ${batchId} no tiene diario: no se puede revertir con exactitud (lo sustituyó un lote posterior del mismo ámbito).`);
+          : fila.validacion?.diario === 'podado'
+            // 0049: la retención del diario (ops.poda_diario_lotes) lo borró por antiguo. Se dice así, no como
+            // si lo hubiera sustituido otro lote.
+            ? `El lote ${batchId} ya no tiene diario: se podó por antigüedad (retención de ops.batch_cambio, migración 0049). `
+              + 'Para deshacerlo, retira el grupo por ámbito y vuelve a importarlo.'
+            : `El lote ${batchId} no tiene diario: no se puede revertir con exactitud (lo sustituyó un lote posterior del mismo ámbito).`);
       }
 
       let borradas = 0;

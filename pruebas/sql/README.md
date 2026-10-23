@@ -16,7 +16,7 @@ PostgreSQL en memoria, aplica todas las migraciones de `infra/migraciones` y mon
 | `m36.mjs` | 0036: ojeo precalculado (ventanas, puntuación por quinta, vista compatible, recálculo entero), etiquetas de caché | 11 |
 
 | `m37.mjs` | 0037: recorrido completo de un usuario — perfil y validaciones, preferencias, favoritos sin duplicados (misma línea desde dos temporadas, mismo club dos veces), reordenar, Mi panel, avisos leídos, push sólo https, exportar mis datos, baja (y el último administrador no puede) | 27 |
-| `m38.mjs` | 0038: perfil de las 24 fuentes, avisos de página según lo medido en cada competición (Cataluña antes y después de releer, Madrid por temporada), auditoría del perfil | 14 |
+| `m38.mjs` | 0038: perfil de las 24 fuentes, avisos de página según lo medido en cada competición (Cataluña antes y después de releer, Madrid por temporada), auditoría del perfil; las 8 del servidor (0046) | 15 |
 
 | `analisis.mjs` | consultas de `analisis.ts` (forma, rachas, casa/fuera, reparto de goles, rachas del grupo) con un caso de respuestas conocidas | 12 |
 
@@ -38,7 +38,11 @@ PostgreSQL en memoria, aplica todas las migraciones de `infra/migraciones` y mon
 
 | `m47.mjs` | 0047: recuentos del canónico en una fila (`ops.recuento_canonico`), recalculada por el proyector; cuadra con las tablas y sigue a los datos | 19 |
 
-Total: 345 comprobaciones.
+| `m49.mjs` | 0049: retención del diario de lotes (apagada por defecto; lote entero o nada; nunca lotes en curso, fallidos ni revertidos; marca «podado» para `--revertir`) | 7 |
+
+| `m50.mjs` | 0050: cada consulta de la web con su rol (lector para lo público, `facylf_app` para lo de una cuenta) sin permisos que falten; el lector no ve cuentas ni avisos; la web no escribe en `core` | 6 |
+
+Total: 359 comprobaciones.
 
 ## Banco de volumen y rendimiento
 

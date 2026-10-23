@@ -4,7 +4,10 @@ import pg from 'pg';
  * Adaptador PostgreSQL: la única frontera de la web con la base.
  *
  * Reglas que no se negocian:
- * - se lee con el rol `facylf_lector`, nunca con el publicador ni con el administrador;
+ * - lo público se lee con el rol `facylf_lector`, nunca con el publicador ni con el administrador;
+ * - lo de una cuenta (Mi panel, avisos, Mi cuenta, panel de administración: consultas con `rol: 'app'`) se lee
+ *   con `facylf_app` (DATABASE_URL_APP), que además puede leer lo público (0050) pero nunca escribe en `core`.
+ *   Sólo desde páginas con sesión: su resultado no se cachea entre usuarios;
  * - si no hay credenciales o el canónico no responde, la web lo **dice**: no rellena el hueco con
  *   datos de ejemplo ni con ceros, porque un cero se lee como «no pasó nada» y aquí significa
  *   «no lo sé»;
@@ -16,10 +19,19 @@ import pg from 'pg';
 export class CanonicoNoDisponible extends Error {}
 
 const URL_LECTOR = (process.env.DATABASE_URL_LECTOR ?? '').trim();
+const URL_APP = (process.env.DATABASE_URL_APP ?? '').trim();
 const ROL_CON_ESCRITURA = /facylf_(admin|publicador|migracion)/i;
 
+/** Con qué rol va una consulta (contratos.ts, `Consulta.rol`). */
+export type RolWeb = 'lector' | 'app';
+
 /** Motivo por el que la web no puede leer el canónico, o `null` si sí puede. */
-export function motivoSinCanonico(): string | null {
+export function motivoSinCanonico(rol: RolWeb = 'lector'): string | null {
+  if (rol === 'app') {
+    if (URL_APP.length === 0) return 'Falta DATABASE_URL_APP: las páginas con cuenta (Mi panel, avisos, administración) no pueden leer sus datos.';
+    if (ROL_CON_ESCRITURA.test(URL_APP)) return 'DATABASE_URL_APP apunta al publicador o al administrador. Las páginas con cuenta usan facylf_app.';
+    return null;
+  }
   if (URL_LECTOR.length === 0) {
     return 'Falta DATABASE_URL_LECTOR. Sin credenciales de lectura, esta página no puede enseñar nada: '
       + 'no se inventan datos para rellenarla.';
@@ -31,6 +43,7 @@ export function motivoSinCanonico(): string | null {
 }
 
 let pool: pg.Pool | null = null;
+let poolDeCuentas: pg.Pool | null = null;
 
 function poolLector(): pg.Pool {
   pool ??= new pg.Pool({
@@ -44,6 +57,20 @@ function poolLector(): pg.Pool {
   });
   return pool;
 }
+
+/** El de las páginas con cuenta: pocas conexiones (lo público, que es casi todo, va por el lector). */
+function poolApp(): pg.Pool {
+  poolDeCuentas ??= new pg.Pool({
+    connectionString: URL_APP,
+    max: 3,
+    application_name: 'facylf-web-cuentas',
+    statement_timeout: 5000,
+    idleTimeoutMillis: 30_000,
+  });
+  return poolDeCuentas;
+}
+
+const poolPara = (rol: RolWeb): pg.Pool => (rol === 'app' ? poolApp() : poolLector());
 
 /**
  * Traduce el fallo a algo que se le pueda enseñar a una persona, sin filtrar la cadena de conexión.
@@ -79,12 +106,13 @@ function resume(error: unknown, presupuestoMs: number): string {
 export async function consulta<T extends pg.QueryResultRow = pg.QueryResultRow>(
   sql: string,
   parametros: readonly unknown[] = [],
-  opciones: { presupuestoMs?: number } = {},
+  opciones: { presupuestoMs?: number; rol?: RolWeb } = {},
 ): Promise<T[]> {
-  const motivo = motivoSinCanonico();
+  const rol = opciones.rol ?? 'lector';
+  const motivo = motivoSinCanonico(rol);
   if (motivo) throw new CanonicoNoDisponible(motivo);
   const presupuesto = opciones.presupuestoMs ?? 0;
-  const cliente = presupuesto > 5000 ? await poolLector().connect() : null;
+  const cliente = presupuesto > 5000 ? await poolPara(rol).connect() : null;
   // El presupuesto que de verdad está en vigor: el declarado por la consulta si se abrió conexión propia para
   // ampliarlo, y si no el de la web (el `statement_timeout` del pool). Se usa para informar del fallo.
   const enVigor = cliente !== null ? Math.floor(presupuesto) : 5000;
@@ -96,7 +124,7 @@ export async function consulta<T extends pg.QueryResultRow = pg.QueryResultRow>(
       await cliente.query('commit');
       return rows;
     }
-    const { rows } = await poolLector().query<T>(sql, parametros as unknown[]);
+    const { rows } = await poolPara(rol).query<T>(sql, parametros as unknown[]);
     return rows;
   } catch (error) {
     if (cliente !== null) await cliente.query('rollback').catch(() => undefined);
@@ -143,9 +171,22 @@ export async function consultaEnUnaFoto<T extends pg.QueryResultRow = pg.QueryRe
   }
 }
 
-/** Cierra el pool. Lo usan las pruebas y el apagado ordenado. */
+/**
+ * Ejecuta una consulta del catálogo con SU rol (`Consulta.rol`, 0050): lo público con el lector y lo de una
+ * cuenta con `facylf_app`. Es la forma recomendada para las pantallas nuevas (fase C): así nadie puede pedir
+ * datos de usuario por la conexión pública ni al revés.
+ */
+export async function ejecutaConsulta<T extends pg.QueryResultRow = pg.QueryResultRow>(
+  c: { sql: string; presupuestoMs: number; rol?: RolWeb },
+  parametros: readonly unknown[] = [],
+): Promise<T[]> {
+  return consulta<T>(c.sql, parametros, { rol: c.rol ?? 'lector', presupuestoMs: c.presupuestoMs > 5000 ? c.presupuestoMs : undefined });
+}
+
+/** Cierra los pools. Lo usan las pruebas y el apagado ordenado. */
 export async function cierraCanonico(): Promise<void> {
-  const actual = pool;
+  const actuales = [pool, poolDeCuentas];
   pool = null;
-  await actual?.end();
+  poolDeCuentas = null;
+  await Promise.all(actuales.map((p) => p?.end()));
 }

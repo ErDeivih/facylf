@@ -1,0 +1,18 @@
+{
+  "consulta": "admin-chequeos-ahora",
+  "presupuestoMs": 1500,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Function Scan",
+      "Hash",
+      "Hash Join",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "alerta"
+    ],
+    "filas": 67
+  }
+}

@@ -22,6 +22,9 @@ services:
     mem_limit: 1g
     environment:
       DATABASE_URL_LECTOR: "${DATABASE_URL_LECTOR:?falta DATABASE_URL_LECTOR en docker/.env (rol facylf_lector)}"
+      # Páginas con cuenta (0050): rol facylf_app. Opcional a propósito: sin ella la web pública funciona y
+      # las páginas de cuenta dicen que les falta la conexión, en vez de romper el arranque.
+      DATABASE_URL_APP: "${DATABASE_URL_APP:-}"
       NEXT_TELEMETRY_DISABLED: "1"
       FACYLF_TEMPORADA_MINIMA: "${FACYLF_TEMPORADA_MINIMA:-}"
       # ── LAS FEDERACIONES QUE ESTA WEB NO ENSEÑA (24/09/2026) ─────────────────────────────────────────────

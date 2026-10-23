@@ -22,6 +22,12 @@ export type Consulta<Fila> = {
    *    página de diagnóstico a propósito. Lo comprueba `apps/web/test/planes.test.ts`.
    */
   plan: 'indexado' | 'agregado';
+  /**
+   * Con qué rol se ejecuta (0050). Por defecto `lector` (`facylf_lector`, todo lo público). `app` = datos de
+   * usuario o de administración (`app.*`): se ejecuta con `facylf_app` y sólo en páginas con sesión, nunca en
+   * una página pública ni cacheada entre usuarios. Lo comprueba `pruebas/sql/m50.mjs` (cada consulta con su rol).
+   */
+  rol?: 'lector' | 'app';
   /** Columnas que la consulta promete. La prueba falla si desaparece alguna. */
   columnas: readonly (keyof Fila & string)[];
   sql: string;
