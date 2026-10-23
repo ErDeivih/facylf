@@ -215,6 +215,18 @@ Haz lo que puedas en este orden; lo que no, déjalo especificado en ESTADO-DEEPS
 | T13 | Afinados (fotos para identidad, edad femenina, línea renombrada, reglamentos, exportación) | PLAN §6 | uno a uno, cuando A-D estén cerradas |
 | T14 | Personas huérfanas tras reimportar Cataluña (las identidades «sin código» viejas quedan sin apariciones y pueden salir en el buscador; TRASPASO §6.1). **Primero medir** (`select count(*) from core.person p where not exists (select 1 from core.appearance a where a.person_id = p.id) and not exists (select 1 from core.match_official o where o.person_id = p.id)`) y pegar la cifra; luego, con permiso de David, migración nueva que las quite de `analytics.search_entity` (el disparador de 0041/0045 limpia solo `search_palabra` y `search_par`). Nunca borrar personas de `core` sin David | TRASPASO §6.1 | el buscador no devuelve personas sin ningún partido |
 
+**Estado el 23/10 a las 12:10 (DeepSeek; detalle y salidas en `ESTADO-DEEPSEEK.md`, bloque del 23/10 12:10):**
+
+| # | Estado | Qué falta o dónde está |
+|---|---|---|
+| T1 | **✓ hecha** | R2 en PostgreSQL 18.6 real (0001-0045 desde cero, 0 errores; 0035-0045 reaplicadas sin error; 0024/0029 no son repetibles por `select s.*` y no se tocan: el runner nunca reaplica). R3: 285 ✓ de m29-m45+análisis, m46 41 ✓, banco 32.760 partidos/685.440 apariciones, «66 consultas · 0 a revisar». R1: `pnpm test` 630 bien / 3 mal **por tiempo** (1 es el recuento de `/canonico` que arregla la 0047 en curso; 2 son hooks de 90 s de `retirada.test.ts`), `scripts/lib` 219 ✓, lint y tsc de la web ✓. R5/R7 ✓. R4: sin barras invertidas en el SQL, permisos de `facylf_app` revisados |
+| T2 | **✓ once commits locales** | Sin `push` (lo decide David). Fuera a propósito: 0047, `m47.mjs`, `pruebas/sql/README.md` y `proyectar-lectura.mjs` (los está escribiendo otra sesión ahora mismo) y la evidencia `.txt/.json/.log/.html/.pdf` |
+| T3 | **en marcha por otra sesión** | 0023-0046 **ya aplicadas a la base real** (y la 0047 pendiente). Faltan unir clubes, reclasificar, posiciones, proyección nocturna, las 6 comprobaciones y `planes --guardar` |
+| T4 | pendiente | Necesita T3 |
+| T5 | parcial | Despliegue al servidor ✓; reimportar Cataluña/Madrid/Valencia **después de T3**; historia de Cataluña |
+| T6 | **✓ hecha** | `0046-perfil-de-las-ocho-del-servidor.sql` + `pruebas/sql/m46.mjs` (41 ✓); en la base real, `avisos_de_datos('extremadura')` ya da `identidad_por_nombre` y **0 federaciones sin medir** |
+| T7-T14 | pendientes | Van detrás de T3/T4 (fase C, importador, árbitros, PDF, personas huérfanas) |
+
 **Si al revisar ves que falta algo que no está en esta tabla**, añádelo como T15, T16… con el mismo formato
 (qué, dónde, cuándo está terminado). Si es código de Claude claramente roto, arréglalo con sus pruebas; si es
 una decisión de producto, pregunta a David.

@@ -2,7 +2,113 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 09:50 (Claude: ENCARGO-DEEPSEEK-2026-10-23.md — revisión, commits y plataforma; y TRASPASO-DEEPSEEK-2026-10-23.md — ingesta)
+**Última actualización:** 23/10/2026 12:10 (DeepSeek: revisión R1-R7 con PostgreSQL 18 real, migración 0046, los commits y el estado de T1-T14)
+
+> **★★ AVISO DE CONCURRENCIA (23/10, 12:10).** Mientras hago esto hay **otra sesión de Claude trabajando en este
+> mismo repositorio** (tarea programada «FACyLF enlace Claude», última pasada 11:34): **aplicó 0023-0046 a la base
+> real** y estaba escribiendo **0047-recuento-del-canonico.sql** y el cambio de `scripts/proyectar-lectura.mjs`
+> (el `/canonico` contaba 19,5 M de apariciones en cada visita y agotaba los 20 s). Por eso **la fase A está a
+> medias y en marcha**: no lances migraciones ni la proyección a ciegas; mira `estado/claude/` y `tmp/a3-*.log`
+> antes. Los commits son locales y no incluyen lo suyo a medias (0047, `m47.mjs`, README de `pruebas/sql` y
+> `proyectar-lectura.mjs` se quedan fuera a propósito hasta que esa sesión termine).
+
+## ★★★★ DeepSeek, 23/10, 12:10 — R1-R7 PASADAS (la primera contra PostgreSQL 18 de verdad), 0046 y los commits
+
+### R2 · Migraciones en un PostgreSQL 18 limpio, dos veces ✓ (lo que Claude no pudo hacer)
+
+`postgres:18` de este PC es **PostgreSQL 18.6** con `pg_stat_statements`, `pg_trgm` y `unaccent`. Base nueva
+`facylf_prueba` en el mismo contenedor (la de verdad no se tocó) y las 45 migraciones aplicadas en orden con
+`psql -v ON_ERROR_STOP=1`:
+
+- **Pasada 1: 45 ficheros, 0 errores, 46 s.** Incluye 0030/0035 (extensión y `pg_monitor`) y 0041/0045 (relleno de
+  los índices del buscador: rápido porque la base está vacía).
+- **Pasada 2: 16 ficheros con error, y ninguno de ellos importa para aplicar de verdad.** Son 0002-0012, 0016-0018,
+  **0024**, 0025 y **0029**: `relation ... already exists` (no llevan `if not exists`) y, en 0024 y 0029,
+  `cannot change name of column` / `cannot change data type of column` porque hacen `create or replace view ...
+  select s.*` y las migraciones posteriores **añaden columnas** a esa vista base: al repetir, el `s.*` ya no
+  encaja. **Las 0035-0045 se reaplican todas sin un solo error** (que es justo lo que comprueba el trabajo
+  `migraciones` del CI). Conclusión: el «dos veces» se cumple de 0035 en adelante; no toco 0024/0029 porque
+  arreglarlo exige `drop view ... cascade` y eso arrastraría vistas dependientes: riesgo alto y beneficio nulo
+  (el runner nunca reaplica una migración ya anotada en `ops.migracion`).
+- Humo en la base limpia: `ops.chequeos()` = **42** y `analytics.avisos_de_datos('madrid')` responde.
+
+### R3 · Pruebas SQL ✓ — y un aviso: **en Windows no se ejecutaban**
+
+Las `pruebas/sql/*.mjs` sólo arrancan si `import.meta.url === \`file://${process.argv[1]}\``, y en Windows
+`argv[1]` es `F:\...\m29.mjs`, no una URL: **el fichero se importa y no hace nada** (sale con código 0 y sin
+salida). Las he lanzado con un lanzador de `%TEMP%` que arregla `argv[1]` sin tocar el repositorio.
+
+- **m29 … m45 + analisis: 285 comprobaciones, todas «TODO OK», 0 rojas** (51+9+19+11+6+3+31+11+27+14+5+7+11+19+33+8+8+12).
+- **m46 (nueva, con 0046): 41 comprobaciones, TODO OK.**
+- **Banco de volumen:** `volumen.mjs F:\tmp\facylf-volumen 14` → 180 grupos, **32.760 partidos, 685.440
+  apariciones, 210.031 eventos, 33.060 personas**, 354 s, ~1,14 GB. Cuadra con lo que dijo Claude.
+- **Rendimiento:** `rendimiento.mjs` → **«66 consultas · 0 a revisar»** ✓ (todas dentro de presupuesto).
+- PGlite 0.5.11 instalado **fuera del repositorio** (`%TEMP%\pglite05`) y enlazado con una unión en
+  `node_modules/@electric-sql` (ignorado por Git).
+
+> **⚠ Lo que me cargué y repuse (para que no vuelva a pasar).** Mi primer bucle pasaba a cada prueba la ruta del
+> fichero como `argv[2]`; `volumen.mjs` usa `argv[2]` como **carpeta de salida** y hace `rmSync` de ella: borró su
+> propio fichero y creó una base de 1,26 GB en `pruebas/sql/volumen.mjs/`. Restaurado **byte a byte** desde
+> `tmp/sql-pruebas/volumen.mjs` (11.199 bytes, idéntico) y borrada la carpeta. **Regla nueva: a
+> `volumen.mjs`/`rendimiento.mjs` se les pasa SIEMPRE una carpeta de datos explícita, nunca su propio camino.**
+
+### R1 · Las pruebas de siempre ✓ con matices (los 3 fallos son de tiempo, no de datos)
+
+- `node --test scripts/lib/*.test.mjs` → **219 pruebas, 219 bien, 0 fallos**.
+- `pnpm lint` (`tsc -b` dominio+ingesta+canónico) → **verde**.
+- `pnpm --filter @facylf/web exec tsc --noEmit` → **verde**.
+- `pnpm test` → **630 bien, 3 mal, 1 omitida de 634 (1.270 s)**. Los 3 son **tiempos agotados con la base real
+  ocupada** (importador + 19 recolectores + mis pruebas): (1) `consultas.test.ts · el resumen…` supera el
+  presupuesto de 20 s **porque cuenta 19,5 M de apariciones** — es exactamente lo que arregla la 0047 que está
+  escribiendo la otra sesión; (2-3) `retirada.test.ts` agota los 90 s de *hook* (otros casos del mismo fichero
+  pasan en 79,6 s: están al límite). Al repetir esos dos ficheros solos: 33 bien y **1** fallo de 90 s. Ninguno es
+  de la entrega (retirada.test.ts viene de antes y no está modificado).
+
+### R5 · Scripts ✓ · R7 · CI ✓ · R4 · Lectura del código ✓ (lo comprobable sin releer 5.375 líneas)
+
+- `node --check` de los 10 scripts de la plataforma: **todos ok**.
+- `grep -n '\\' apps/web/src/consultas/*.ts` → **nada**: ninguna plantilla lleva barra invertida dentro del SQL.
+- Migraciones 0023-0046: **5.375 líneas**; `facylf_app` sólo recibe `select` sobre lo leído y escritura en `app.*`
+  (su esquema), `execute` de funciones y nada de escritura en `core`; `ver_menores_nombres` aparece en 6 sitios.
+- CI: copiados `test.yml` (cuatro trabajos) y `rendimiento.yml` a `.github/workflows/`; `ingesta.yml` intacto.
+
+### T6 · Las ocho federaciones del servidor ya no dicen «sin medir» ✓ (hecho entero)
+
+**`infra/migraciones/0046-perfil-de-las-ocho-del-servidor.sql`** (nueva): rellena `codigo_jugador`, `medido_en =
+'2026-10-23'` y la `nota` de Aragón (87 %), Asturias (100 %), Baleares (97 %), Cantabria (99 %), Castilla-La Mancha
+(100 %), Extremadura (**false**, 42 %), Galicia (**true**, 74 %) y Murcia (**false**, 35 %), con las cifras de
+`COBERTURA-FEDERACIONES.md` §2. **Lo que no se midió sigue NULL** (árbitros unidos, «convocados», posiciones,
+sistema, capitán, fotos): desconocido no es «no». Los avisos de cambios, tarjetas y minuto de gol no se tocan:
+salen de `analytics.edicion_capacidad`, que es lo medido por competición.
+Comprobado: **repetible** (dos veces en PostgreSQL 18 real, sin error), `pruebas/sql/m46.mjs` (**41 ✓**) y en la
+base de verdad `avisos_de_datos('extremadura')` = `identidad_por_nombre` y **0 federaciones sin medir**.
+Tuve que ajustar dos comprobaciones de `m38.mjs` (daban por hecho las 8 sin medir y que Aragón sólo decía
+«sin_medir»; ahora comprueban lo contrario y que los rasgos no medidos siguen NULL).
+
+### T2 · Los commits ✓ — once, locales, sin `push`
+
+`git log --oneline` (de abajo arriba): `543827d` .gitignore · `f9f4241` migraciones 0016-0022 + pruebas del
+canónico · `7626c55` **0023-0046 + `pruebas/sql`** · `85632c8` consultas de la web · `088d922` pantallas de la web
+· `94e2168` scripts de plataforma · `290b943` recolectores/ingesta/canónico (488 ficheros) · `f5f7f64`
+documentación · `3c5945b` CI · `6ad8cbc` configuración de las máquinas · `429d016` ignorar la evidencia de
+reconstrucción.
+
+Criterio que he aplicado (y por qué): **sólo código, migraciones, configuración y documentos**. Se quedan fuera
+—y está anotado— los `.txt/.json/.log/.html/.pdf` de evidencia (1.323 en `pruebas/reconstruccion/salidas/`, 408 en
+`canonico/`, 11 planes en `pruebas/planes/`, 54 fixtures de `scripts/multideporte/` con datos de otras webs), que
+además pueden llevar nombres. **No se ha subido nada a GitHub** (`git push` lo decide David; la regla de menores
+lo exige).
+
+### Lo que NO he hecho, y por qué
+
+| # | Estado | Motivo |
+|---|---|---|
+| T3 (fase A) | **a medias, y no por mí** | La otra sesión de Claude ya aplicó 0023-0046 a la base real y está con 0047. Faltan: unir clubes por letra de filial, reclasificar, posiciones, proyección nocturna completa, 6 comprobaciones de datos y `planes --guardar` |
+| T4 (fase B) | no empezada | Avisos al móvil, tareas programadas, copia/restauración de prueba, presupuesto en la base real. Necesita T3 |
+| T5 (ingesta) | **parcial**: despliegue al servidor ✓ y tareas viejas de Cataluña/CyL en marcha; reimportar Cataluña/Madrid/Valencia **después** de T3 y Cataluña historia pendientes | `TRASPASO-DEEPSEEK-2026-10-23.md` §2 (T4-T7) |
+| T7-T14 | no empezadas | Fase C (pantallas nuevas con Better Auth), importador (penaltis, árbitro, posición), árbitros separados, PDF, afinados y personas huérfanas. Requieren T3/T4 cerradas |
+
+
 
 > **GOAL vigente:** [`GOAL-DEEPSEEK.md`](GOAL-DEEPSEEK.md) — **Fase 3 (12/10/2026, tarde)**. Síguelo hasta cumplirlo. Antes, lee las «Revisión de Claude» de justo debajo, de la más nueva a la más vieja.
 
