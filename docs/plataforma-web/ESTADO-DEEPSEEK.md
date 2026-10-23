@@ -2,7 +2,39 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 12:55 (DeepSeek: pruebas SQL ya corren en Windows —346 comprobaciones—, nombres anonimizados, 1 GB de memoria compartida y las decisiones de esta ronda)
+**Última actualización:** 23/10/2026 14:05 (DeepSeek: historial de GitHub — decisión — y Madrid y Valencia relanzadas con el arreglo de suspendidas: 532 y 8 actas)
+
+## ★★★★ DeepSeek, 23/10, 14:05 — Madrid y Valencia relanzadas, y el historial se queda como está
+
+### Decisión sobre el historial de GitHub: **se queda como está**
+
+El repositorio es **privado** y el código actual ya está limpio (commit `c8f694f`). Los nombres reales sólo quedan
+en commits ya publicados. Reescribir 50 commits y hacer `push --force` sustituye lo publicado y puede salir mal; el
+riesgo es mayor que el beneficio. **Condición para revisarlo:** si el repositorio deja de ser privado o se comparte
+con alguien, se reescribe **antes**, con copia previa (`git bundle`) y avisando a quien tenga un clon.
+
+### Madrid y Valencia: relanzadas (sólo esas dos)
+
+Estaban colgadas de la sesión de ayer a las 22:53 y no usan Chrome, así que el relanzamiento por turnos no las
+tocaba. Como son **hijas del supervisor de la flota** (pid 30960), se relanzan solas al terminar: maté sus dos
+procesos y el supervisor las volvió a arrancar con el código nuevo, sin duplicar ningún worker.
+
+| | Valencia | Madrid |
+|---|---|---|
+| pid nuevo | 31584 (13:52:28) | 24752 (13:52:32) |
+| **suspendidas** | **· 532 actas** dejan de figurar como 0-0 (marcador nulo, «administrativa») | **· 8 actas** |
+| ritmo | 10-14 s por petición ✓ | 5-7 s por petición ✓ |
+| después | recogiendo con normalidad (índice de jornadas) | recogiendo actas con normalidad |
+| errores al arrancar | ninguno | ninguno |
+
+Sin duplicados (un proceso por federación) y el supervisor sigue anotando sus arranques en `worker-programado.log`.
+Con esto **ya se pueden reimportar** a la base principal cuando Cataluña acabe (mañana por la noche), no antes.
+
+Detalle a vigilar, sin tocar nada: en el arranque de Madrid se vio una pausa de **3 s** entre dos peticiones; su
+ritmo configurado es 5-7 s y el resto de pausas son de 5-7 s. Si se repite, mirarlo con
+`scripts/claude/intervalos-peticiones.mjs` (la regla es cero intervalos por debajo de 4 s).
+
+
 
 ## ★★★★★ DeepSeek, 23/10, 12:55 — las pruebas SQL ya se ejecutan en Windows, nombres fuera y `shm_size` hecho
 
@@ -77,6 +109,13 @@
 - Madrid y Valencia siguen con la sesión del 22/10 a las 22:53: aún no han corrido `recalificaSuspendidas` ni las actas abiertas releídas.
 - Reimportar después, con `importar-temporada.ps1` (traspaso §2 T5).
 - Las **368 personas huérfanas** de T14 crecerán tras reimportar Cataluña; se limpian juntas, con permiso de David.
+
+**13:50 — Madrid y Valencia siguen con la sesión del 22/10 a las 22:53** (más de 15 h). Al no usar Chrome, el
+supervisor no las recicla por turno, así que **no cargan el código nuevo** (actas abiertas y suspendidos) hasta que
+se relancen. **Tarea para DeepSeek:** relanzar sólo esas dos sin tocar las demás (p. ej. parar sus procesos `node
+scripts/recolector-madrid.mjs` / `recolector-valencia.mjs`; el supervisor los vuelve a arrancar).
+Al arrancar deben imprimir «· N actas de partidos suspendidos dejan de figurar como 0-0» (en Valencia, cientos) y
+ningún error. Después ya se puede hacer la T5 de Madrid y Valencia. Cataluña: 0 iconos desconocidos y 0 errores.
 
 **De acuerdo con:** `shm_size: 1gb` en `infra/docker-compose.yml` (lo decide David) y no aplicar posiciones/capitán hasta que haya noche libre.
 
