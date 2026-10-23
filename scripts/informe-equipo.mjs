@@ -1903,7 +1903,7 @@ function componeMarkdown(d) {
     p(`|---|---|---|---|---|---|---|---|---|`);
     /*
      * Una persona puede salir dos veces esta temporada por llevar dos roles —delegado de equipo y delegado de
-     * campo, medido en Victoria: DIEZ FERNANDEZ, JOSE ALBERTO—. Cuando los dos papeles dan EL MISMO número de
+     * campo, medido en Victoria: APELLIDO DE EJEMPLO, NOMBRE—. Cuando los dos papeles dan EL MISMO número de
      * partidos se enseñan en una sola fila con los dos roles; si los números difieren se dejan separadas, porque
      * entonces son dos tramos distintos y juntarlos inventaría un dato.
      */

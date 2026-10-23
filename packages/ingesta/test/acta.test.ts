@@ -5,22 +5,22 @@ const html = `
   <h2 class="ntype"><strong>5 - 2</strong></h2>
   <div class="font_widget1">Arandina C.F. "B"</div>
   <div class="font_widgetV">Burgos U.D. "B"</div>
-  <strong>Árbitro: </strong>CALVO LÓPEZ, NICOLÁS
+  <strong>Árbitro: </strong>ARBITRO UNO, NOMBRE CERO
 
   <h5><strong>Arandina C.F. "B"</strong></h5>
   <h5><strong>Titulares</strong></h5>
   <table class="table table-striped table-hover">
     <tr onclick="location.href='NFG_EstadisticasJugador?cod_primaria=3000328&jugador=91027&codacta=25963815'">
-      <td style="text-align:center">1</td><td class="font-responsive">BONILLA GARCIA, DIEGO ENRIQUE</td>
+      <td style="text-align:center">1</td><td class="font-responsive">APELLIDO UNO, NOMBRE UNO</td>
     </tr>
     <tr onclick="location.href='NFG_EstadisticasJugador?cod_primaria=3000328&jugador=91133&codacta=25963815'">
-      <td style="text-align:center">2</td><td class="font-responsive">ALONSO REDERO, ALVAR</td>
+      <td style="text-align:center">2</td><td class="font-responsive">APELLIDO DOS, NOMBRE DOS</td>
     </tr>
   </table>
   <h5><strong>Suplentes</strong></h5>
   <table class="table table-striped table-hover">
     <tr onclick="location.href='NFG_EstadisticasJugador?cod_primaria=3000328&jugador=999&codacta=25963815'">
-      <td style="text-align:center">13</td><td class="font-responsive">MARTINEZ VILAR, SAUL</td>
+      <td style="text-align:center">13</td><td class="font-responsive">APELLIDO TRES, NOMBRE TRES</td>
     </tr>
   </table>
 `;
@@ -32,14 +32,14 @@ describe('parser de acta', () => {
     expect(a.golesVisitante).toBe(2);
     expect(a.local).toBe('Arandina C.F. "B"');
     expect(a.visitante).toBe('Burgos U.D. "B"');
-    expect(a.arbitro).toBe('CALVO LÓPEZ, NICOLÁS');
+    expect(a.arbitro).toBe('ARBITRO UNO, NOMBRE CERO');
     expect(a.lineups.local.titulares).toHaveLength(2);
     expect(a.lineups.local.titulares[0]).toEqual({
-      dorsal: 1, nombre: 'BONILLA GARCIA, DIEGO ENRIQUE', codigoJugador: '91027',
+      dorsal: 1, nombre: 'APELLIDO UNO, NOMBRE UNO', codigoJugador: '91027',
     });
     expect(a.lineups.local.suplentes).toHaveLength(1);
-    expect(a.lineups.local.suplentes[0]?.nombre).toBe('MARTINEZ VILAR, SAUL');
-    expect(a.lineups.local.portero).toBe('BONILLA GARCIA, DIEGO ENRIQUE');
+    expect(a.lineups.local.suplentes[0]?.nombre).toBe('APELLIDO TRES, NOMBRE TRES');
+    expect(a.lineups.local.portero).toBe('APELLIDO UNO, NOMBRE UNO');
   });
 
   it('repara el mojibake latin-1/UTF-8 sin corromper el texto ya correcto', () => {
@@ -103,39 +103,39 @@ describe('parser de acta', () => {
     const a = parseaActa(`
       <h2 class="ntype"><strong>1 - 0</strong></h2>
       <div class="dashboard-stat"><div class="details"><div class="number">Goles</div><div class="desc">
-        <table><tr><td>1 - 0</td><td><span class="font-blue">(90'+2)</span> PÉREZ GARCÍA, MIGUEL</td></tr></table>
+        <table><tr><td>1 - 0</td><td><span class="font-blue">(90'+2)</span> APELLIDO CUATRO, MIGUEL</td></tr></table>
       </div></div></div>
       <div><h4>Cuerpo Técnico</h4>
-        <h5><strong>Entrenador: </strong><table><tr><td>foto</td><td>GÓMEZ LÓPEZ, ANA</td></tr></table></h5>
+        <h5><strong>Entrenador: </strong><table><tr><td>foto</td><td>APELLIDO CINCO, ANA</td></tr></table></h5>
         <h4>Sustituciones</h4><table>
-          <tr><td>16</td><td>RODRÍGUEZ DÍAZ, PABLO</td><td><i class="font-green-meadow"></i></td></tr>
-          <tr><td>7</td><td><span>(61')</span> SÁNCHEZ MARTÍN, LUIS</td><td><i class="font-red"></i></td></tr>
+          <tr><td>16</td><td>APELLIDO SEIS, PABLO</td><td><i class="font-green-meadow"></i></td></tr>
+          <tr><td>7</td><td><span>(61')</span> APELLIDO SIETE, LUIS</td><td><i class="font-red"></i></td></tr>
         </table>
-        <h4>Tarjetas</h4><table><tr><td><img src="tarj_roja.gif"></td><td><span>(75')</span> SÁNCHEZ MARTÍN, LUIS</td></tr></table>
+        <h4>Tarjetas</h4><table><tr><td><img src="tarj_roja.gif"></td><td><span>(75')</span> APELLIDO SIETE, LUIS</td></tr></table>
       </div>
     `);
     expect(a.goles).toEqual([{ minuto: 92, minutoBase: 90, minutoAnadido: 2,
-      jugador: 'PÉREZ GARCÍA, MIGUEL', tipo: 'normal', lado: 'local', ladoBeneficiado: 'local' }]);
-    expect(a.tecnicos).toEqual([{ lado: 'local', rol: 'Entrenador', nombre: 'GÓMEZ LÓPEZ, ANA' }]);
-    expect(a.cambios).toEqual([{ dorsalSaliente: 7, saliente: 'SÁNCHEZ MARTÍN, LUIS', minuto: 61,
+      jugador: 'APELLIDO CUATRO, MIGUEL', tipo: 'normal', lado: 'local', ladoBeneficiado: 'local' }]);
+    expect(a.tecnicos).toEqual([{ lado: 'local', rol: 'Entrenador', nombre: 'APELLIDO CINCO, ANA' }]);
+    expect(a.cambios).toEqual([{ dorsalSaliente: 7, saliente: 'APELLIDO SIETE, LUIS', minuto: 61,
       minutoBase: 61, minutoAnadido: null, dorsalEntrante: 16,
-      entrante: 'RODRÍGUEZ DÍAZ, PABLO', lado: 'local' }]);
+      entrante: 'APELLIDO SEIS, PABLO', lado: 'local' }]);
     expect(a.tarjetas).toEqual([{ tipo: 'roja', minuto: 75, minutoBase: 75,
-      minutoAnadido: null, jugador: 'SÁNCHEZ MARTÍN, LUIS', lado: 'local' }]);
+      minutoAnadido: null, jugador: 'APELLIDO SIETE, LUIS', lado: 'local' }]);
   });
 
   it('distingue penaltis, propia puerta y las dos formas de minuto añadido', () => {
     const a = parseaActa(`
       <div class="dashboard-stat"><div class="details"><div class="number">Goles</div><div class="desc"><table>
         <tr><td><a class="img lgol" title="Gol de penalti"></a></td>
-          <td><span>(45+2')</span> ANA MARTÍN</td></tr>
+          <td><span>(45+2')</span> JUGADORA UNO</td></tr>
         <tr><td><a class="img lgol" title="Gol en propia puerta"></a></td>
-          <td><span>(90'+3)</span> LUCÍA PÉREZ</td></tr>
+          <td><span>(90'+3)</span> JUGADORA DOS</td></tr>
       </table></div></div></div>
     `);
     expect(a.goles).toEqual([
-      { minuto: 47, minutoBase: 45, minutoAnadido: 2, jugador: 'ANA MARTÍN', tipo: 'penalti' },
-      { minuto: 93, minutoBase: 90, minutoAnadido: 3, jugador: 'LUCÍA PÉREZ', tipo: 'propia-puerta' },
+      { minuto: 47, minutoBase: 45, minutoAnadido: 2, jugador: 'JUGADORA UNO', tipo: 'penalti' },
+      { minuto: 93, minutoBase: 90, minutoAnadido: 3, jugador: 'JUGADORA DOS', tipo: 'propia-puerta' },
     ]);
   });
 
@@ -143,50 +143,50 @@ describe('parser de acta', () => {
     const a = parseaActa(`
       <div class="dashboard-stat"><div class="details"><div class="number">Goles</div><div class="desc"><table>
         <tr><td><a class="img lgol" title="Gol normal"></a> <i>1</i> - <i>0</i></td>
-          <td><span>(12')</span> ANA MARTÍN</td></tr>
+          <td><span>(12')</span> JUGADORA UNO</td></tr>
         <tr><td><a class="img lgol" title="Gol normal"></a> <i>1</i> - <i>1</i></td>
-          <td><span>(27')</span> BEA LÓPEZ</td></tr>
+          <td><span>(27')</span> JUGADORA TRES</td></tr>
         <tr><td><a class="img lgol" title="Gol en propia puerta"></a> <i>1</i> - <i>2</i></td>
-          <td><span>(44')</span> CARLA PÉREZ</td></tr>
+          <td><span>(44')</span> JUGADORA CUATRO</td></tr>
       </table></div></div></div>
     `);
     expect(a.goles.map((gol) => ({ jugador: gol.jugador, lado: gol.lado,
       ladoBeneficiado: gol.ladoBeneficiado }))).toEqual([
-      { jugador: 'ANA MARTÍN', lado: 'local', ladoBeneficiado: 'local' },
-      { jugador: 'BEA LÓPEZ', lado: 'visitante', ladoBeneficiado: 'visitante' },
-      { jugador: 'CARLA PÉREZ', lado: 'local', ladoBeneficiado: 'visitante' },
+      { jugador: 'JUGADORA UNO', lado: 'local', ladoBeneficiado: 'local' },
+      { jugador: 'JUGADORA TRES', lado: 'visitante', ladoBeneficiado: 'visitante' },
+      { jugador: 'JUGADORA CUATRO', lado: 'local', ladoBeneficiado: 'visitante' },
     ]);
   });
 
   it('limpia el marcador de minuto vacío y descarta una fila de gol sin jugador', () => {
     const a = parseaActa(`
       <div class="dashboard-stat"><div class="details"><div class="number">Goles</div><table>
-        <tr><td><a class="img lgol" title="Gol normal"></a> 1 - 0</td><td>(') ANA MARTÍN</td></tr>
+        <tr><td><a class="img lgol" title="Gol normal"></a> 1 - 0</td><td>(') JUGADORA UNO</td></tr>
         <tr><td><a class="img lgol" title="Gol normal"></a> 2 - 0</td><td>(')</td></tr>
       </table></div></div>
     `);
     expect(a.goles).toEqual([{ minuto: null, minutoBase: null, minutoAnadido: null,
-      jugador: 'ANA MARTÍN', tipo: 'normal', lado: 'local', ladoBeneficiado: 'local' }]);
+      jugador: 'JUGADORA UNO', tipo: 'normal', lado: 'local', ladoBeneficiado: 'local' }]);
   });
 
   it('trata el minuto federativo 999 como una incidencia sin minuto', () => {
     const a = parseaActa(`
       <h4>Tarjetas</h4><table>
-        <tr><td><img src="tarj_roja.gif"></td><td><span>(999')</span> ANA MARTÍN</td></tr>
+        <tr><td><img src="tarj_roja.gif"></td><td><span>(999')</span> JUGADORA UNO</td></tr>
       </table>
     `);
     expect(a.tarjetas).toEqual([{ tipo: 'roja', minuto: null, minutoBase: null,
-      minutoAnadido: null, jugador: 'ANA MARTÍN', lado: 'local' }]);
+      minutoAnadido: null, jugador: 'JUGADORA UNO', lado: 'local' }]);
   });
 
   it('no convierte una errata de minuto imposible en minutos jugados', () => {
     const a = parseaActa(`
       <h4>Sustituciones</h4><table>
         <tr><td>14</td><td>GONZÁLEZ, CHRISTIAN</td><td><i class="font-green-meadow"></i></td></tr>
-        <tr><td>18</td><td><span>(881')</span> RODRÍGUEZ, JAIME</td><td><i class="font-red"></i></td></tr>
+        <tr><td>18</td><td><span>(881')</span> APELLIDO CATORCE, NOMBRE SEIS</td><td><i class="font-red"></i></td></tr>
       </table>
     `);
-    expect(a.cambios).toEqual([{ dorsalSaliente: 18, saliente: 'RODRÍGUEZ, JAIME',
+    expect(a.cambios).toEqual([{ dorsalSaliente: 18, saliente: 'APELLIDO CATORCE, NOMBRE SEIS',
       minuto: null, minutoBase: null, minutoAnadido: null, dorsalEntrante: 14,
       entrante: 'GONZÁLEZ, CHRISTIAN', lado: 'local' }]);
   });
@@ -194,8 +194,8 @@ describe('parser de acta', () => {
   it('marca como doble amarilla la segunda amonestación del mismo jugador', () => {
     const a = parseaActa(`
       <h4>Tarjetas</h4><table>
-        <tr><td><img src="tarj_amar.gif"></td><td><span>(35')</span> ANA MARTÍN</td></tr>
-        <tr><td><img src="tarj_amar.gif"></td><td><span>(71')</span> ANA MARTÍN</td></tr>
+        <tr><td><img src="tarj_amar.gif"></td><td><span>(35')</span> JUGADORA UNO</td></tr>
+        <tr><td><img src="tarj_amar.gif"></td><td><span>(71')</span> JUGADORA UNO</td></tr>
       </table>
     `);
     expect(a.tarjetas.map((t) => t.tipo)).toEqual(['amarilla', 'doble-amarilla']);
@@ -205,15 +205,15 @@ describe('parser de acta', () => {
     const a = parseaActa(`
       <h2 class="ntype"><strong>1 - 0</strong></h2>
       <h4>Cuerpo Técnico</h4>
-      <strong>Entrenador: </strong><br><tr><td>foto</td><td>ROMERO GONZALEZ, SERGIO</td></tr><br>
+      <strong>Entrenador: </strong><br><tr><td>foto</td><td>APELLIDO OCHO, SERGIO</td></tr><br>
       <h4>Sustituciones</h4>
       <h4>Cuerpo Técnico</h4>
-      <strong>Delegado de Equipo: </strong><br><tr><td>foto</td><td>MIGUELEZ MORAN, TOMAS ANGEL</td></tr><br>
+      <strong>Delegado de Equipo: </strong><br><tr><td>foto</td><td>APELLIDO NUEVE, NOMBRE CINCO</td></tr><br>
       <h4>Sustituciones</h4>
     `);
     expect(a.tecnicos).toEqual([
-      { lado: 'local', rol: 'Entrenador', nombre: 'ROMERO GONZALEZ, SERGIO' },
-      { lado: 'visitante', rol: 'Delegado de Equipo', nombre: 'MIGUELEZ MORAN, TOMAS ANGEL' },
+      { lado: 'local', rol: 'Entrenador', nombre: 'APELLIDO OCHO, SERGIO' },
+      { lado: 'visitante', rol: 'Delegado de Equipo', nombre: 'APELLIDO NUEVE, NOMBRE CINCO' },
     ]);
   });
 
@@ -285,16 +285,16 @@ describe('parser de acta', () => {
   it('lee la variante canaria del árbitro y las alineaciones rotuladas en euskera', () => {
     const jugadores = (inicio: number, cantidad: number) => Array.from(
       { length: cantidad }, (_, i) => `<tr onclick="location.href='?jugador=${inicio + i}'">
-        <td>${i + 1}</td><td>JOKALARI ABIZENA, ${i + 1}</td></tr>`,
+        <td>${i + 1}</td><td>APELLIDO TRECE, ${i + 1}</td></tr>`,
     ).join('');
     const a = parseaActa(`
-      <strong>Árbitro/a Principal</strong>&nbsp;SUÁREZ CEBALLOS, GIOVANNI
+      <strong>Árbitro/a Principal</strong>&nbsp;APELLIDO DIEZ, GIOVANNI
       <h5>Titularrak</h5><table>${jugadores(100, 11)}</table>
       <h5>Ordezkoak</h5><table>${jugadores(200, 4)}</table>
       <h5>Titularrak</h5><table>${jugadores(300, 11)}</table>
       <h5>Ordezkoak</h5><table>${jugadores(400, 3)}</table>
     `);
-    expect(a.arbitro).toBe('SUÁREZ CEBALLOS, GIOVANNI');
+    expect(a.arbitro).toBe('APELLIDO DIEZ, GIOVANNI');
     expect(a.lineups.local.titulares).toHaveLength(11);
     expect(a.lineups.local.suplentes).toHaveLength(4);
     expect(a.lineups.visitante.titulares).toHaveLength(11);
@@ -311,11 +311,11 @@ describe('actas rotuladas en euskera (Euskadi y sus forales)', () => {
     <div class="font_widgetV">BARAKALDO CLUB DE FÚTBOL</div>
     <div class="details"><div class="number">Golak</div><div class="desc"><table class="table"><tbody>
       <tr><td nowrap=""><strong><a class="img lgolpp" title="Norberaren gola"><i></i></a> 0 - 1</strong></td>
-        <td class="font_responsive"><span class="font-blue">(30')</span> GARCIA MAILLO, SONIA </td></tr>
+        <td class="font_responsive"><span class="font-blue">(30')</span> APELLIDO ONCE, SONIA </td></tr>
       <tr><td nowrap=""><strong><a class="img lpenalti" title="Penaltiaren gola"><i></i></a> 0 - 2</strong></td>
-        <td class="font_responsive"><span class="font-blue">(35')</span> BARRERA IRIONDO, MARIA </td></tr>
+        <td class="font_responsive"><span class="font-blue">(35')</span> APELLIDO DOCE, MARIA </td></tr>
       <tr><td nowrap=""><strong><a class="img lgol" title="helburu normala"><i></i></a> 0 - 3</strong></td>
-        <td class="font_responsive"><span class="font-blue">(43')</span> BARRERA IRIONDO, MARIA </td></tr>
+        <td class="font_responsive"><span class="font-blue">(43')</span> APELLIDO DOCE, MARIA </td></tr>
     </tbody></table></div></div>
     <table><tbody>
       <tr><td align="center"><br> <strong>Futbol Zelaia:</strong> <a class="btn grey" href="NFG_VisCampos?Codigo_Campo=3603"> SAN MIGUEL </a></td></tr>
