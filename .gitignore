@@ -62,3 +62,24 @@ apps/web/test-results/
 # Volcado de la prueba de recuperación de un worker muerto: **149,6 MB**, por encima del límite de 100 MB por
 # fichero de GitHub. Se queda en el disco del PC como evidencia; el repositorio no lo necesita.
 pruebas/reconstruccion/prueba-3-worker-muerto.json
+
+# ── Los informes con datos de menores NO se versionan ───────────────────────────────────────────────────────
+# `informes/` guarda los informes de equipo que se piden a mano, y esos llevan nombres, dorsales y
+# estadísticas de personas que en su mayoría son **menores de edad** (`core.person.es_menor`). El invariante
+# del proyecto es que eso no se publica, y un `git add -A` lo subiría sin que nadie lo note. El informe se
+# regenera con `pnpm informe:juvenil`; lo que se comparte es el generador y sus consultas, no su salida.
+informes/
+
+# ── Material de trabajo de las máquinas: tampoco es fuente ───────────────────────────────────────────────────
+# Las carpetas `descargas-*` del PC son uniones de Windows al disco del servidor (decenas de GB). La regla con
+# barra (`descargas-*/`) ya las cubre mientras se vean como directorios; se ignoran también por su nombre para
+# cuando Windows las presenta como enlace y Git no las reconoce como carpeta.
+descargas-*
+# Traspasos entre máquinas, descartes y salidas sueltas de herramientas: se copian a mano cuando hacen falta y
+# no aportan nada al repositorio (comprobado: ningún fichero versionado empieza por estos nombres).
+_traspaso/
+_to_delete/
+output/
+tmp/
+.tmp-srv/
+packages/canonico/.tmp-*
