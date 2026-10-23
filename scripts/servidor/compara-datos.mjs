@@ -17,9 +17,15 @@
  *   node scripts/servidor/compara-datos.mjs
  *   node scripts/servidor/compara-datos.mjs --federaciones murcia,rioja
  */
-import { readdirSync, existsSync } from 'node:fs';
+import { readdirSync, existsSync, statSync, writeSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
+
+/*
+ * La salida va por `writeSync` y no por `console.log`: al ejecutar esto desde el arnés, la salida estándar es
+ * una tubería y Node la bufferiza, así que las líneas no se ven hasta el final y parece que se ha colgado.
+ */
+const escribe = (texto) => writeSync(1, `${texto}\n`);
 
 const argumentos = process.argv.slice(2);
 const arg = (n, d) => { const i = argumentos.indexOf(`--${n}`); return i >= 0 ? argumentos[i + 1] : d; };
@@ -45,8 +51,11 @@ function tamanoLocal(federacion) {
     for (const e of entradas) {
       const ruta = join(carpeta, e.name);
       if (EXCLUIR.some((re) => re.test(ruta))) continue;
-      if (e.isDirectory()) pila.push(ruta);
-      else if (e.isFile()) { ficheros += 1; total += e.size; }
+      if (e.isDirectory()) { pila.push(ruta); continue; }
+      if (!e.isFile()) continue;
+      // El tamaño hay que pedirlo con `statSync`: un `Dirent` NO lo trae (devolvía `undefined` y la columna
+      // salía como NaN en la primera prueba de este guion).
+      try { total += statSync(ruta).size; ficheros += 1; } catch { /* fichero que se fue mientras leíamos */ }
     }
   }
   return { bytes: total, ficheros };
@@ -73,29 +82,29 @@ let federaciones = readdirSync(RAIZ).filter((n) => n.startsWith('descargas-'))
 if (PEDIDAS.length) federaciones = federaciones.filter((f) => PEDIDAS.includes(f));
 federaciones.sort();
 
-console.log(`comparando el archivo de ${federaciones.length} federaciones · origen ${RAIZ} · destino ${SERVIDOR}:${DESTINO}\n`);
-console.log('  federación              PC (MB)   servidor (MB)      falta   veredicto');
+escribe(`comparando el archivo de ${federaciones.length} federaciones · origen ${RAIZ} · destino ${SERVIDOR}:${DESTINO}\n`);
+escribe('  federación              PC (MB)   servidor (MB)      falta   veredicto');
 
 const faltan = [];
 for (const f of federaciones) {
   const local = tamanoLocal(f);
   const remoto = await tamanoRemoto(f);
-  if (!local) { console.log(`  ${f.padEnd(22)} no existe en el PC`); continue; }
+  if (!local) { escribe(`  ${f.padEnd(22)} no existe en el PC`); continue; }
   const faltaBytes = remoto === null ? local.bytes : Math.max(0, local.bytes - remoto);
   const faltaMb = faltaBytes / 1024 ** 2;
   const veredicto = remoto === null ? 'NO HAY NADA EN EL SERVIDOR'
     : faltaMb <= 5 ? 'completo'
       : faltaMb / (local.bytes / 1024 ** 2) > 0.05 ? 'FALTA ARCHIVO' : 'casi completo';
-  console.log(`  ${f.padEnd(22)} ${mb(local.bytes).padStart(8)} ${mb(remoto).padStart(14)} ${mb(faltaBytes).padStart(10)}   ${veredicto}`);
+  escribe(`  ${f.padEnd(22)} ${mb(local.bytes).padStart(8)} ${mb(remoto).padStart(14)} ${mb(faltaBytes).padStart(10)}   ${veredicto}`);
   if (faltaMb > 5) faltan.push({ federacion: f, faltaMb: Number(faltaMb.toFixed(0)) });
 }
 
-console.log();
+escribe('');
 if (!faltan.length) {
-  console.log('no falta archivo en ninguna federación: el servidor tiene todo lo que tiene el PC');
+  escribe('no falta archivo en ninguna federación: el servidor tiene todo lo que tiene el PC');
 } else {
-  console.log(`falta archivo en ${faltan.length} federación(es):`);
-  for (const f of faltan) console.log(`  ${f.federacion.padEnd(22)} ${f.faltaMb} MB por copiar`);
-  console.log('\n  para copiarlo:  node scripts/servidor/copiar-datos.mjs --solo archivo --rehacer --federaciones '
+  escribe(`falta archivo en ${faltan.length} federación(es):`);
+  for (const f of faltan) escribe(`  ${f.federacion.padEnd(22)} ${f.faltaMb} MB por copiar`);
+  escribe('\n  para copiarlo:  node scripts/servidor/copiar-datos.mjs --solo archivo --rehacer --federaciones '
     + faltan.map((f) => f.federacion).join(','));
 }

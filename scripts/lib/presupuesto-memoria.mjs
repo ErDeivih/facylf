@@ -251,3 +251,37 @@ export function plazaAbandonada({ pid, host, miHost, procesoVivo: sigueVivo, ult
   if (!mismoContenedor) return { abandonada: false, motivo: `viva en el contenedor ${host} (comprobada por latido)` };
   return { abandonada: false, motivo: 'viva' };
 }
+
+/**
+ * ── LA FEDERACIÓN PRIORITARIA: UNA PLAZA RESERVADA ───────────────────────────────────────────────────
+ *
+ * Decisión de David (15/10/2026): Castilla y León es la primera que tiene que terminar, en el PC y en el
+ * servidor. Hasta ahora competía por las plazas como una más: con 5 plazas y 14 federaciones en el servidor,
+ * esperaba su turno y lo cedía como las demás.
+ *
+ * Ahora tiene una plaza RESERVADA (`slot-prioridad.lock`), que no se cede por turno. Para no abrir un navegador
+ * de más (el servidor se ha caído por sobrecarga), mientras esa plaza está ocupada las demás reparten UNA
+ * MENOS: el total de navegadores sigue siendo el del presupuesto. Si la prioritaria no está trabajando, su
+ * plaza vuelve al reparto general y nadie pierde nada.
+ */
+export const PLAZA_PRIORITARIA = 'slot-prioridad.lock';
+
+/** Cuántas plazas reparten las federaciones normales. Nunca menos de una. */
+export function plazasCompartidas({ plazas, prioritariaActiva = false } = {}) {
+  const p = Math.max(1, Math.floor(Number(plazas)) || 1);
+  return prioritariaActiva && p > 1 ? p - 1 : p;
+}
+
+/**
+ * ¿Tiene que soltar su plaza una federación normal porque la prioritaria acaba de entrar? Sólo la que ocupa
+ * una plaza que ya no está en el reparto (la última), y se comprueba entre trabajos, nunca a mitad de uno.
+ */
+export function cedePorPrioridad({ nombreSlot, plazas, prioritariaActiva = false } = {}) {
+  const m = /^slot-(\d+)\.lock$/.exec(String(nombreSlot ?? ''));
+  if (!prioritariaActiva || !m) return { ceder: false, motivo: 'sin prioritaria activa o plaza no numerada' };
+  const limite = plazasCompartidas({ plazas, prioritariaActiva });
+  const n = Number(m[1]);
+  return n > limite
+    ? { ceder: true, motivo: `la federación prioritaria ocupa su plaza reservada: se libera la plaza ${n} (quedan ${limite} compartidas)` }
+    : { ceder: false, motivo: `plaza ${n} dentro de las ${limite} compartidas` };
+}

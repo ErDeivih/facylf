@@ -23,10 +23,34 @@ export class Repositorio {
     private readonly cliente: ClienteCanonico,
     private readonly batchId: number,
     private readonly contadores: Contadores,
+    /**
+     * `false` = modo masivo: no se mantiene el diario de cambios de este lote.
+     *
+     * ── POR QUÉ EXISTE ────────────────────────────────────────────────────────────────────────────────
+     *
+     * El diario existe para que `--revertir` pueda deshacer un lote: por cada fila tocada se lee la fila
+     * anterior y se guarda entera. Es lo correcto para importar un grupo a mano y poder arrepentirse.
+     *
+     * Pero medido el 24/09/2026, con 242 grupos importados, `ops.batch_cambio` ocupaba **601 MB de una
+     * base de 1.196 MB**: la mitad del canónico era diario. Y cargar los 28.382 grupos que esperan en las
+     * colas habría sido decenas de gigas de diario que nadie va a revertir nunca — no se revierte un grupo
+     * de benjamines de 2016.
+     *
+     * Con `false`: no se leen las filas anteriores (una consulta menos por tanda), no se acumulan cambios en
+     * memoria y `persisteDiario()` no escribe nada. El lote sigue siendo UNA transacción: si algo falla, se
+     * revierte entero igual que antes. Lo único que se pierde es poder deshacerlo DESPUÉS con `--revertir`,
+     * así que el lote lo declara y `--revertir` se niega en vez de hacer como que revierte.
+     */
+    private readonly conDiario: boolean = true,
   ) {}
 
   get diario(): Cambio[] {
     return this.cambios;
+  }
+
+  /** ¿Este lote guarda diario? Lo declara quien lo cierra y lo consulta `--revertir`. */
+  get guardaDiario(): boolean {
+    return this.conDiario;
   }
 
   private cuenta(tabla: string, accion: 'insertadas' | 'actualizadas'): void {
@@ -129,7 +153,7 @@ export class Repositorio {
       // Filas que YA existían con esas claves naturales: son las que la reversión tendrá que
       // restaurar, así que sus valores anteriores se guardan en el diario.
       const previas = new Map<string, Valores>();
-      if (conflicto.every((c) => nombres.includes(c))) {
+      if (this.conDiario && conflicto.every((c) => nombres.includes(c))) {
         const parametrosPrevios: unknown[] = [];
         const tuplas = tanda.map((fila) => {
           const base = parametrosPrevios.length;
@@ -173,6 +197,7 @@ export class Repositorio {
         const fila = filasDevueltas[i]!;
         const id = Number(fila.id);
         ids.push(id);
+        if (!this.conDiario) { this.cuenta(tabla, fila.insertada ? 'insertadas' : 'actualizadas'); continue; }
         const valores = tanda[i]!.valores;
         const clave = claveDelDiario(tanda[i]!.clavePrimaria ?? conflicto, valores, id);
         if (fila.insertada) {
@@ -209,10 +234,9 @@ export class Repositorio {
     // y la del `update` desde detrás de las columnas que se escriben.
     const condicionSelect = columnasClave.map((c, i) => `${c} = $${i + 1}`).join(' and ');
     const condicionUpdate = columnasClave.map((c, i) => `${c} = $${nombres.length + i + 1}`).join(' and ');
-    const { rows: previas } = await this.cliente.query<Valores>(
-      `select * from ${tabla} where ${condicionSelect} limit 1`,
-      valoresClave,
-    );
+    const { rows: previas } = this.conDiario
+      ? await this.cliente.query<Valores>(`select * from ${tabla} where ${condicionSelect} limit 1`, valoresClave)
+      : { rows: [] as Valores[] };
     const asignaciones = nombres.map((c, i) => `${c} = $${i + 1}`).join(', ');
     try {
       await this.cliente.query(
@@ -223,7 +247,7 @@ export class Repositorio {
       throw new Error(`actualiza en ${tabla} (${columnasClave.join(', ')}): ${error instanceof Error ? error.message : String(error)}`);
     }
     this.cuenta(tabla, 'actualizadas');
-    this.cambios.push({ tabla, accion: 'update', clave, anterior: previas[0] ?? null });
+    if (this.conDiario) this.cambios.push({ tabla, accion: 'update', clave, anterior: previas[0] ?? null });
   }
 
   /**
@@ -244,12 +268,14 @@ export class Repositorio {
     const id = Number(rows[0]?.id);
     if (!Number.isFinite(id)) throw new Error(`inserta ${tabla}: la base no devolvió id`);
     this.cuenta(tabla, 'insertadas');
-    this.cambios.push({ tabla, accion: 'insert', clave: { id }, anterior: null });
+    if (this.conDiario) this.cambios.push({ tabla, accion: 'insert', clave: { id }, anterior: null });
     return id;
   }
 
   /** Escribe el diario del lote en `ops.batch_cambio` (una vez, al cerrar el lote). */
   async persisteDiario(): Promise<number> {
+    // En modo masivo no se escribe diario: ver el porqué en el constructor.
+    if (!this.conDiario) return 0;
     const tamano = 1000;
     let escritos = 0;
     for (let inicio = 0; inicio < this.cambios.length; inicio += tamano) {

@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import {mkdirSync,writeFileSync} from 'node:fs';
+import {Builder,By,until} from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome.js';
+
+const browser=await new Builder().forBrowser('chrome').setChromeOptions(new chrome.Options().addArguments('--headless=new','--window-size=1440,1000','--disable-gpu')).build();
+try{
+ const base='http://127.0.0.1:4180';
+ await browser.get(base+'/');
+ await browser.wait(until.elementLocated(By.id('texto')),20000);
+ await browser.findElement(By.id('texto')).sendKeys('Sergio de la Villa');
+ await browser.findElement(By.css('#form button[type="submit"]')).click();
+ await browser.wait(until.elementLocated(By.css('#person-results article a')),20000);
+ const hits=await browser.findElements(By.css('#person-results article'));
+ assert.equal(hits.length,1);
+ assert((await hits[0].getText()).includes('SERGIO DE LA VILLA MERINO'));
+ mkdirSync('tmp/informes-vivo',{recursive:true});
+ writeFileSync('tmp/informes-vivo/busqueda-persona.png',await browser.takeScreenshot(),'base64');
+ await hits[0].findElement(By.css('a')).click();
+ await browser.wait(until.elementLocated(By.css('main header h1')),20000);
+ assert((await browser.getCurrentUrl()).includes('/persona/17301'));
+ const profile=await browser.findElement(By.css('main')).getText();
+ assert(profile.includes('Unionistas de Salamanca'));
+ assert(profile.includes('2025-26'));
+ assert(profile.includes('Alineaciones del equipo'));
+ await browser.get(base+'/persona/124519');
+ assert((await browser.findElement(By.css('main')).getText()).includes('En el cuerpo técnico'));
+ assert((await browser.findElement(By.css('main')).getText()).includes('Otras fichas con el mismo nombre'));
+ await browser.get(base+'/persona/1054765');
+ assert((await browser.findElement(By.css('main')).getText()).includes('Como árbitro'));
+ await browser.get(base+'/equipo/17747?vista=matches');
+ await browser.wait(until.elementLocated(By.css('#matches .match details')),20000);
+ const item=await browser.findElement(By.css('#matches .match details'));
+ await item.findElement(By.css('summary')).click();
+ const match=await item.getText();
+ assert(match.includes('Acción'));
+ assert(match.includes('Equipo'));
+ assert((await browser.findElements(By.css('#matches .event-chip'))).length>0);
+ const minutes=await browser.executeScript(`return Array.from(document.querySelector('#matches .match details').querySelectorAll('tbody tr'),
+  row=>Number.parseInt(row.cells[0].textContent,10)).filter(Number.isFinite);`);
+ assert.deepEqual(minutes,[...minutes].sort((a,b)=>a-b));
+ await browser.executeScript('arguments[0].scrollIntoView({block:"center"})',await browser.findElement(By.css('#matches .event-chip')));
+ writeFileSync('tmp/informes-vivo/acta-legible.png',await browser.takeScreenshot(),'base64');
+ assert.equal((await browser.findElements(By.css('[data-tab="compare"],#compare,[data-compare]'))).length,0);
+ await browser.get(base+'/equipo/98326?vista=compare');
+ await browser.wait(until.elementLocated(By.css('#overview .barrow.combined')),20000);
+ assert.equal(await browser.findElement(By.id('overview')).isDisplayed(),true);
+ assert(!(await browser.getCurrentUrl()).includes('vista=compare'));
+ assert.deepEqual((await browser.manage().logs().get('browser')).filter(x=>x.level.name==='SEVERE'),[]);
+ console.log(JSON.stringify({nombre:1,perfilJugador:true,perfilTecnico:true,perfilArbitro:true,actaLegible:true,compararEliminado:true,erroresConsola:0}));
+}finally{await browser.quit();}

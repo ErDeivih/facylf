@@ -1,0 +1,6 @@
+[Unit]
+Description=facylf - guardia de bateria (baja el techo de CPU si la bateria cae)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/facylf-guardia-bateria

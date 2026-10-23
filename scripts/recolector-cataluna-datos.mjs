@@ -33,10 +33,12 @@ import chrome from 'selenium-webdriver/chrome.js';
 import {
   abreBase, basePrioridadCompeticion, encola, enTransaccion, etiquetaTemporada, guardaActaEstructura,
   guardaAtomico, guardaMetadato, leeArchivo, marcaTrabajo, pausaGlobalActiva, registraPeticion, rutaGrupo,
-  siguienteTrabajo, claveTrabajo, reactiva,
+  siguienteTrabajo, claveTrabajo, reactiva, anioInicioDeTemporada, leeMetadato,
 } from './lib/recolector-local.mjs';
 // El día civil de Madrid, compartido con el supervisor y la flota (antes estaba copiado en tres guiones).
 import { diaDeMadrid } from './lib/dia-madrid.mjs';
+// Espera creciente para calendarios sin publicar y promociones aplazadas a abril (aprobado el 30/09/2026).
+import { esperaSinPublicar, preparaRachaSinPublicar } from './lib/espera-publicacion.mjs';
 // Suelo de temporadas: sólo de 2023-24 en adelante. Ver `scripts/lib/temporada-minima.mjs`.
 import { TEMPORADA_MINIMA, sqlExcluyeTemporadasViejas } from './lib/temporada-minima.mjs';
 // Sin publicidad ni rastreadores: es la palanca de CPU y memoria más directa (ver el comentario del fichero).
@@ -45,7 +47,10 @@ import { banderasDeChrome } from './lib/banderas-chrome.mjs';
 import { RESERVA_GB } from './lib/presupuesto-memoria.mjs';
 // Qué hacer cuando la pestaña de clasificación no trae tabla (grupo sin jugar, calendario sin leer o maquetación).
 import { decideClasificacionSinTabla } from './lib/clasificacion-cataluna.mjs';
-import { interpretaCabeceraJornadaFcf } from './lib/calendario-cataluna.mjs';
+import { interpretaCabeceraJornadaFcf, jornadasTodasIguales, calendarioSinPartidos, calendarioIncompleto } from './lib/calendario-cataluna.mjs';
+import { interpretaActa, decideActaSinJugar, evaluaCalidad, fechaIsoDeFicha } from './lib/acta-cataluna.mjs';
+// Un calendario aplazado no se pide: es lo que corta el bucle del 02/10/2026, con su explicación entera.
+import { decideLecturaDeGrupo, textoDeEspera, esCaidaQueRecicla, esEsperaAgotada, esperaTrasFalloDeNavegador } from './lib/grupo-cataluna.mjs';
 
 const RAIZ = resolve(import.meta.dirname, '..');
 // Los datos de cada grupo viven bajo `recolector-local/`, igual que en el resto de federaciones: es
@@ -85,6 +90,10 @@ const FASES = {
 const TIPOS_GLOBALES = new Set(['catalogo_temporada']);
 const CARRIL_DESCUBRIMIENTO = -1_000_000_000;
 const CARRIL_CATALOGO = -2_000_000_000;
+// Relecturas que sólo ENRIQUECEN lo ya guardado (temporadas pasadas): detrás de todo lo demás (22/10/2026).
+const CARRIL_RELECTURA = 500_000_000;
+// Hasta aquí se leyeron las actas SIN tarjetas, cambios ni códigos (el código nuevo entró en la sesión de las 16:24).
+const CORTE_ACTAS_SIN_ICONOS = '2026-10-22T14:20:00.000Z';
 
 function argumento(nombre, defecto) {
   const i = process.argv.indexOf(`--${nombre}`);
@@ -215,14 +224,16 @@ function preparaCola(db, datos) {
   guardaMetadato(db, 'catalogo_volcado_en', ahoraIso());
   // Las prioridades se congelan al encolar, así que si se afina la categoría de una competición hay
   // que reescribirlas: se recalculan los trabajos que siguen vivos con el nombre actual.
-  const vivos = db.prepare(`select t.clave, t.tipo, t.temporada, c.nombre competicionNombre
+  const vivos = db.prepare(`select t.clave, t.tipo, t.temporada, t.prioridad, c.nombre competicionNombre
     from trabajos t left join competiciones c on c.temporada = t.temporada and c.codigo = t.competicion
     where t.estado in ('pendiente','bloqueado','en_curso')`).all();
   let reordenados = 0;
   enTransaccion(db, () => {
     const actualiza = db.prepare('update trabajos set prioridad=? where clave=? and prioridad<>?');
     for (const f of vivos) {
-      const nueva = prioridadPlaneada(f.tipo, f.competicionNombre, f.temporada);
+      // Una relectura (carril de relectura, ver `reencolaActasSinIconos`) se reordena DENTRO de su carril.
+      const carril = Number(f.prioridad) >= CARRIL_RELECTURA ? CARRIL_RELECTURA : 0;
+      const nueva = prioridadPlaneada(f.tipo, f.competicionNombre, f.temporada) + carril;
       if (Number(actualiza.run(nueva, f.clave, nueva).changes ?? 0)) reordenados += 1;
     }
   });
@@ -350,9 +361,23 @@ function opcionesChrome() {
   return op;
 }
 
-/** Espera a que la página deje de decir «Carregant dades…» y tenga contenido. */
+/**
+ * Banner de consentimiento de cookies (15/10/2026). En 81 calendarios de las últimas sesiones la página se quedó
+ * detrás del aviso («partners · MORE OPTIONS · DISAGREE · AGREE») y el calendario se daba por vacío durante 8
+ * días. Se pulsa RECHAZAR, que es lo que menos datos cede, y se sigue. Si no hay aviso, no hace nada.
+ */
+async function rechazaConsentimiento(driver) {
+  return driver.executeScript(`
+    const rechazo = /^(disagree|reject all|rebutja|rebutjar|rebutja-ho tot|rechazar|rechazar todo|no acepto|denegar)$/i;
+    const boton = [...document.querySelectorAll('button, [role="button"], a')]
+      .find((x) => rechazo.test((x.innerText || x.textContent || '').trim()));
+    if (boton) { boton.click(); return true; }
+    return false;`).catch(() => false);
+}
+
+/** Espera a que la página deje de decir «Carregant dades…» y tenga contenido (y quita el aviso de cookies). */
 async function esperaDatos(driver, ms = 40000) {
-  await driver.wait(async () => Boolean(await driver.executeScript(`
+  await driver.wait(async () => (await rechazaConsentimiento(driver), true) && Boolean(await driver.executeScript(`
     const principal = document.querySelector('main') || document.body;
     const texto = principal.innerText || '';
     return !/Carregant dades/i.test(texto) && texto.trim().length > 400;`)), ms);
@@ -370,51 +395,205 @@ const EXTRAE_CALENDARIO = `
   const principal = document.querySelector('main') || document.body;
   const cabeceras = [...principal.querySelectorAll('span,div,h3,h4')]
     .filter((e) => e.children.length === 0 && interpretaCabecera(e.textContent));
+  /*
+   * ── PRIMERO, LOS DATOS QUE LA PÁGINA YA TIENE: SIN CLICS (21/10/2026) ────────────────────────────────
+   *
+   * Desplegar jornada a jornada fallaba en el PC ~1 de cada 3 grupos aunque se esperase al clic (los clics se
+   * pierden con la máquina cargada; medido con «diagnostica-calendario-cataluna.mjs», petición 174). Pero
+   * desplegar NO pide nada a la web: el calendario ENTERO ya está en la página, en las props del componente de
+   * React que pinta las jornadas (voltes → jornadas[] → matches[], con el código de acta, los dos equipos
+   * con su código de club, el marcador y la fecha de la jornada). Se lee de ahí.
+   *
+   * Comprobado: en el grupo 54854177 (2025-26, 240 partidos) lo leído así es IDÉNTICO byte a byte (SHA-256 de
+   * las 240 filas ordenadas) a lo que sacó el extractor de clics cuando funcionó; y en el 58161857 coincide con
+   * las 8 filas de la jornada desplegada. Si la página cambia y no aparece «voltes», se sigue por los clics.
+   */
+  const desdeReact = (() => {
+    try {
+      const cabecera = cabeceras[0];
+      const clave = cabecera && Object.keys(cabecera).find((k) => k.startsWith('__reactFiber'));
+      if (!clave) return null;
+      let fibra = cabecera[clave];
+      for (let i = 0; fibra && i < 80 && !(fibra.memoizedProps && Array.isArray(fibra.memoizedProps.voltes)); i += 1) {
+        fibra = fibra.return;
+      }
+      const voltes = fibra && fibra.memoizedProps && fibra.memoizedProps.voltes;
+      if (!Array.isArray(voltes)) return null;
+      const nombre = (t) => (t && typeof t.name === 'string' && t.name.trim() ? t.name.trim() : null);
+      const club = (t) => (t && t.clubId != null && String(t.clubId) !== '' ? String(t.clubId) : null);
+      const gol = (x) => (typeof x === 'number' ? x : (x != null && /^\\d+$/.test(String(x)) ? Number(x) : null));
+      /*
+       * La fecha, primero de la CABECERA de la jornada («JORNADA 1 2025-09-20», como el método de clics) y sólo si
+       * no la trae, de la prop. Medido en el PC el 21/10: la prop no venía como texto y 187 calendarios se
+       * guardaron sin fecha → 0 actas encoladas. Una fecha que falta no se inventa: se queda en null.
+       */
+      // Acepta AAAA-MM-DD y también DD/MM/AAAA o DD-MM-AAAA (en el PC, con la web en catalán, no venía en ISO).
+      const aIso = (texto) => {
+        const t = String(texto ?? '');
+        const iso = t.match(/(\\d{4})-(\\d{2})-(\\d{2})/);
+        if (iso) return iso[1] + '-' + iso[2] + '-' + iso[3];
+        const dma = t.match(/(?:^|\\D)(\\d{1,2})[\\/.-](\\d{1,2})[\\/.-](\\d{4})(?!\\d)/);
+        if (dma) return dma[3] + '-' + dma[2].padStart(2, '0') + '-' + dma[1].padStart(2, '0');
+        return null;
+      };
+      const fechaDeCabecera = new Map(cabeceras.map((c) => {
+        const fila = c.closest('div[class*="cursor-pointer"]') || c.parentElement;
+        return [interpretaCabecera(c.textContent).numero, aIso(c.textContent) ?? aIso(fila && fila.textContent)];
+      }));
+      const fechaDeProp = (d) => {
+        if (typeof d === 'string') return aIso(d);
+        if (d && typeof d.toISOString === 'function') { try { return d.toISOString().slice(0, 10); } catch { return null; } }
+        if (typeof d === 'number' && Number.isFinite(d)) return new Date(d).toISOString().slice(0, 10);
+        return null;
+      };
+      /*
+       * 22/10/2026 — Cada partido trae además «isClosed» (acta cerrada) y «status»: un texto («Acta Tancada»,
+       * «SUSPÈS») o, si aún no se ha jugado, un elemento de React con SU fecha y hora («29/10/2026», «20:30»).
+       * Es la fecha de verdad del partido (la de la jornada es la del fin de semana): con ella el acta no se pide
+       * antes de jugarse. Se guarda también el estado, para poder medirlo.
+       */
+      const textoDe = (n) => (typeof n === 'string' || typeof n === 'number' ? String(n)
+        : Array.isArray(n) ? n.map(textoDe).join(' ') : (n && n.props ? textoDe(n.props.children) : ''));
+      const lista = voltes.flatMap((v) => (v && Array.isArray(v.jornadas) ? v.jornadas : [])).map((j) => ({
+        numero: Number(j.number),
+        fecha: fechaDeCabecera.get(Number(j.number)) ?? fechaDeProp(j.date ?? j.fecha ?? j.data),
+        partidos: (Array.isArray(j.matches) ? j.matches : []).map((m) => ({
+          local: nombre(m.teamA),
+          codigoLocal: club(m.teamA),
+          visitante: nombre(m.teamB),
+          codigoVisitante: club(m.teamB),
+          golesLocal: gol(m.scoreA),
+          golesVisitante: gol(m.scoreB),
+          codacta: m.id != null && String(m.id) !== '' ? String(m.id) : null,
+          ...(() => {
+            const estado = textoDe(m.status).replace(/\s+/g, ' ').trim();
+            const hora = estado.match(/(?:^|\D)(\d{1,2}):(\d{2})(?!\d)/);
+            return {
+              cerrada: typeof m.isClosed === 'boolean' ? m.isClosed : null,
+              estado: estado ? estado.slice(0, 60) : null,
+              fecha: aIso(estado),
+              hora: hora ? hora[1].padStart(2, '0') + ':' + hora[2] : null,
+            };
+          })(),
+        })).filter((p) => p.local && p.visitante),
+      }));
+      const numeros = lista.map((j) => j.numero);
+      // Sólo vale si es coherente: números de jornada válidos y sin repetir, y la misma cantidad que cabeceras.
+      if (!lista.length || numeros.some((n) => !Number.isInteger(n) || n < 1)) return null;
+      if (new Set(numeros).size !== numeros.length || lista.length !== cabeceras.length) return null;
+      return lista;
+    } catch {
+      return null;
+    }
+  })();
+  if (desdeReact && desdeReact.some((j) => j.partidos.length)) return desdeReact;
   const salida = [];
+  /*
+   * ── ESPERAR A QUE EL CLIC HAGA EFECTO, NO 400 ms A CIEGAS (20/10/2026) ───────────────────────────────
+   *
+   * La página de la FCF es Next.js: llega pintada desde el servidor con la ÚLTIMA jornada desplegada y los
+   * clics no hacen nada hasta que React se engancha. En el PC, con varias plazas de Chrome a la vez, eso
+   * tarda: los clics caían antes, la espera fija de 400 ms terminaba, y 29 de 30 jornadas salían vacías.
+   * Medido en la cola: 1.335 de 1.550 grupos de 2025-26 guardados así. En un navegador sin carga el mismo
+   * código lee las 30 (240 actas distintas en el grupo 54492383; el bloque aparece a los ~25 ms del clic).
+   *
+   * Ahora: si la jornada ya está desplegada se lee sin pulsar (pulsar la cerraría); si no, se pulsa y se
+   * mira cada 100 ms si ha aparecido SU bloque, y si no aparece se vuelve a pulsar (el primer clic pudo
+   * perderse antes de la hidratación). Las esperas se cuentan, no se miden con el reloj, y tienen tope
+   * total para no pasar del límite de guion de Selenium (120 s).
+   */
+  let hidratada = false;
+  let esperado = 0;
+  const TOPE_ESPERA_MS = 45000;
   for (const cabecera of cabeceras) {
     const interpretada = interpretaCabecera(cabecera.textContent);
     const numero = interpretada.numero;
     const cabeceraFila = cabecera.closest('div[class*="cursor-pointer"]') || cabecera.parentElement;
     const fecha = interpretada.fecha ?? (cabeceraFila.innerText.match(/\\d{4}-\\d{2}-\\d{2}/) || [])[0] ?? null;
-    cabeceraFila.click();
-    await dormir(400);
-    let bloque = cabecera.parentElement;
-    while (bloque && bloque !== document.body
-           && bloque.querySelectorAll('a[href*="/ca/competicio/acta/"]').length === 0
-           && bloque.querySelectorAll('span[title]').length < 2) bloque = bloque.parentElement;
-    if (!bloque) { salida.push({ numero, fecha, partidos: [] }); continue; }
-    const enlaces = [...bloque.querySelectorAll('a[href*="/ca/competicio/acta/"]')];
-    const filas = [];
-    const contenedores = new Set();
-    for (const enlace of enlaces) {
-      const fila = enlace.parentElement;
-      contenedores.add(fila.parentElement);
-      filas.push({ fila, codacta: (enlace.getAttribute('href').match(/(\\d+)\\s*$/) || [])[1] ?? null });
-    }
-    for (const contenedor of contenedores) {
-      for (const hija of contenedor.children) {
-        if (filas.some((f) => f.fila === hija)) continue;
-        if (hija.querySelectorAll('span[title]').length >= 2) filas.push({ fila: hija, codacta: null });
+    /*
+     * ── EL BLOQUE DE ESTA JORNADA, Y NO EL DE LA JORNADA QUE ESTÉ ABIERTA ─────────────────────────────
+     *
+     * Antes se subía por el DOM hasta el primer bloque que tuviera enlaces de acta o dos nombres, sin mirar
+     * de quién era ese bloque. Como la página mantiene una sola jornada desplegada, en cuanto el clic no
+     * abría la jornada pedida —o tardaba más que los 400 ms de espera— la subida terminaba en el bloque de
+     * la jornada que SÍ estaba abierta, y esa jornada se devolvía como si fuera la pedida. Resultado: las 30
+     * jornadas con las mismas 8 parejas. Medido el 24/09/2026: 186 de los 447 grupos catalanes del canónico
+     * (42 %) quedaron así, y el defecto estaba ya en la cola, no en el importador.
+     *
+     * Ahora la subida se corta antes de entrar en un bloque que contenga la cabecera de OTRA jornada: a
+     * partir de ahí el bloque ya no es suyo. Si no se encuentra un bloque propio, la jornada se devuelve
+     * vacía —que es un dato honesto: «no he podido leer esta jornada»— en vez de con las parejas de otra.
+     */
+    const esAjena = (nodo) => cabeceras.some((c) => c !== cabecera && nodo.contains(c));
+    const tieneFilas = (nodo) => nodo.querySelectorAll('a[href*="/ca/competicio/acta/"]').length > 0
+      || nodo.querySelectorAll('span[title]').length >= 2;
+    /** Las filas de partido de un bloque, con su código de acta cuando la web lo enlaza. */
+    const partidosDe = (bloque) => {
+      const enlaces = [...bloque.querySelectorAll('a[href*="/ca/competicio/acta/"]')];
+      const filas = [];
+      const contenedores = new Set();
+      for (const enlace of enlaces) {
+        const fila = enlace.parentElement;
+        contenedores.add(fila.parentElement);
+        filas.push({ fila, codacta: (enlace.getAttribute('href').match(/(\\d+)\\s*$/) || [])[1] ?? null });
       }
+      for (const contenedor of contenedores) {
+        for (const hija of contenedor.children) {
+          if (filas.some((f) => f.fila === hija)) continue;
+          if (hija.querySelectorAll('span[title]').length >= 2) filas.push({ fila: hija, codacta: null });
+        }
+      }
+      return filas.map(({ fila, codacta }) => {
+        const nombres = [...fila.querySelectorAll('span[title]')].map((s) => s.getAttribute('title').trim());
+        // Cada equipo lleva su enlace de club: de ahí sale el código que usa la web para enlazarlos.
+        const clubs = [...fila.querySelectorAll('a[href*="/ca/clubs/"]')]
+          .map((a) => (a.getAttribute('href').match(/\\/ca\\/clubs\\/(\\d+)/) || [])[1] ?? null);
+        const texto = (fila.innerText || '').replace(/\\s+/g, ' ').trim();
+        const marcador = texto.match(/(\\d+)\\s*-\\s*(\\d+)/);
+        return {
+          local: nombres[0] ?? null,
+          codigoLocal: clubs[0] ?? null,
+          visitante: nombres.length > 1 ? nombres[nombres.length - 1] : null,
+          codigoVisitante: clubs[1] ?? null,
+          golesLocal: marcador ? Number(marcador[1]) : null,
+          golesVisitante: marcador ? Number(marcador[2]) : null,
+          codacta,
+        };
+      }).filter((p) => p.local && p.visitante);
+    };
+    const buscaBloque = () => {
+      for (let candidato = cabeceraFila.parentElement;
+        candidato && candidato !== document.body;
+        candidato = candidato.parentElement) {
+        if (esAjena(candidato)) return null;
+        if (tieneFilas(candidato)) return candidato;
+      }
+      return null;
+    };
+    let bloque = buscaBloque();
+    if (!bloque) {
+      const clics = 2;
+      const pasos = hidratada ? 12 : 30;
+      for (let clic = 0; clic < clics && !bloque && esperado < TOPE_ESPERA_MS; clic += 1) {
+        cabeceraFila.click();
+        for (let paso = 0; paso < pasos && !bloque; paso += 1) {
+          await dormir(100);
+          esperado += 100;
+          bloque = buscaBloque();
+        }
+      }
+      if (bloque) hidratada = true;
     }
-    const partidos = filas.map(({ fila, codacta }) => {
-      const nombres = [...fila.querySelectorAll('span[title]')].map((s) => s.getAttribute('title').trim());
-      // Cada equipo lleva su enlace de club: de ahí sale el código que usa la web para enlazarlos.
-      const clubs = [...fila.querySelectorAll('a[href*="/ca/clubs/"]')]
-        .map((a) => (a.getAttribute('href').match(/\\/ca\\/clubs\\/(\\d+)/) || [])[1] ?? null);
-      const texto = (fila.innerText || '').replace(/\\s+/g, ' ').trim();
-      const marcador = texto.match(/(\\d+)\\s*-\\s*(\\d+)/);
-      return {
-        local: nombres[0] ?? null,
-        codigoLocal: clubs[0] ?? null,
-        visitante: nombres.length > 1 ? nombres[nombres.length - 1] : null,
-        codigoVisitante: clubs[1] ?? null,
-        golesLocal: marcador ? Number(marcador[1]) : null,
-        golesVisitante: marcador ? Number(marcador[2]) : null,
-        codacta,
-      };
-    }).filter((p) => p.local && p.visitante);
-    salida.push({ numero, fecha, partidos });
+    /*
+     * Si no hay bloque propio, la jornada se devuelve VACÍA. Es lo honesto: «esta jornada no la he podido
+     * leer». No se recurre a una lectura sin límite como plan B, y el motivo importa: desde aquí no se puede
+     * distinguir «la jornada todavía no tiene partidos publicados» de «la página no la ha desplegado y sus
+     * filas no están en ninguna parte». Las dos se ven igual —ninguna fila propia—, así que un plan B que
+     * leyera el bloque compartido marcaría como sospechosa CADA jornada futura de CADA grupo, que es
+     * muchísimo peor que no leerla. La decisión se toma fuera, mirando el calendario entero: si NINGUNA
+     * jornada del grupo trae partidos, es que la lectura ha fallado, y eso sí se ve.
+     */
+    salida.push({ numero, fecha, partidos: bloque ? partidosDe(bloque) : [] });
   }
   return salida;`;
 
@@ -467,9 +646,45 @@ const EXTRAE_ACTA = `
       const dorsal = fila.querySelector('span.absolute') ? (fila.querySelector('span.absolute').innerText || '').trim() : null;
       const nombre = fila.querySelector('span.truncate') ? fila.querySelector('span.truncate').innerText.trim() : null;
       const posicion = fila.querySelector('[title]') ? fila.querySelector('[title]').getAttribute('title') : null;
+      /*
+       * 22/10/2026 — EL CÓDIGO DEL JUGADOR Y LOS EVENTOS DE CADA FILA.
+       * La FCF no tiene secciones de tarjetas ni de cambios: los pinta como ICONOS junto al minuto en la fila de
+       * cada jugador (amarilla = rectángulo #FFEB3B, roja = rectángulo #F30000, sale = flecha roja «M4 12H20»,
+       * entra = flecha azul «M20 12H4», gol = balón). Hasta hoy sólo se guardaba el minuto y se perdía el tipo:
+       * Cataluña tenía 0 % de tarjetas y de cambios. Y el componente del nombre lleva en sus props de React el
+       * jugador entero ({id, dorsal, titular, capitan, portero}): de ahí sale el código, que faltaba (0 %).
+       */
+      let jugador = null;
+      const elNombre = fila.querySelector('span.truncate');
+      if (elNombre) {
+        const clave = Object.keys(elNombre).find((k) => k.startsWith('__reactFiber'));
+        let fibra = clave ? elNombre[clave] : null;
+        for (let i = 0; fibra && i < 6 && !jugador; i += 1, fibra = fibra.return) {
+          const p = fibra.memoizedProps;
+          if (p && p.player && typeof p.player === 'object') {
+            jugador = { id: p.player.id != null ? String(p.player.id) : null, titular: p.player.titular ?? null,
+              capitan: p.player.capitan ?? null, portero: p.player.portero ?? null };
+          }
+        }
+      }
+      const eventos = [...fila.querySelectorAll('span')]
+        .filter((sp) => /^\\d+\\s*['’]$/.test((sp.textContent || '').trim()))
+        .map((sp) => {
+          const icono = sp.nextElementSibling;
+          const html = icono ? icono.outerHTML : '';
+          let tipo = 'desconocido';
+          if (/FFEB3B/i.test(html)) tipo = 'amarilla';
+          else if (/M4 12H20/.test(html)) tipo = 'sale';
+          else if (/M20 12H4/.test(html)) tipo = 'entra';
+          else if (/<circle/i.test(html)) tipo = 'gol';
+          else if (/bg-\\[#(F30000|E50011|FF0000)\\]/i.test(html)) tipo = 'roja';
+          const ev = { minuto: Number(((sp.textContent || '').match(/\\d+/) || [])[0]), tipo };
+          if (tipo === 'desconocido') ev.firma = html.replace(/\\s+/g, ' ').slice(0, 240);
+          return ev;
+        });
       return {
         texto: (fila.innerText || '').replace(/\\s+/g, ' ').trim(),
-        dorsal, nombre, posicion, imagenes, spans, minutos,
+        dorsal, nombre, posicion, imagenes, spans, minutos, jugador, eventos,
       };
     }).filter((f) => f.texto);
     return { titulo: h.textContent.trim(), filas };
@@ -479,175 +694,27 @@ const EXTRAE_ACTA = `
   // El bloque «Detalls de l'acta» trae la fecha, la hora y el campo exactos del partido, que es más
   // de lo que da el calendario (allí sólo hay la fecha de la jornada).
   const toma = (etiqueta) => {
-    const m = textoPrincipal.match(new RegExp(etiqueta + '\\\\s*:?\\\\s*([^\\\\n]+)', 'i'));
+    const m = textoPrincipal.match(new RegExp(etiqueta + '[ \\\\t]*:?[ \\\\t]*([^\\\\n]+)', 'i'));
     return m ? m[1].trim() : null;
   };
+  // 22/10/2026 — El estado de la ficha («Pendent», «Acta Tancada»…) va entre el nombre del local y el marcador.
+  // Con «Pendent» el partido aún no se ha jugado: el recolector no la da por hecha (ver decideActaSinJugar).
+  const hojas = [...principal.querySelectorAll('*')].filter((e) => e.children.length === 0)
+    .map((e) => (e.textContent || '').trim()).filter(Boolean);
+  const iDetalls = hojas.findIndex((t) => /^detalls de l.acta$/i.test(t));
+  const estado = iDetalls >= 0 ? (hojas.slice(iDetalls + 1, iDetalls + 6)
+    .find((t) => /^(pendent|acta\\s|ajornat|aplaçat|susp|en joc|descans|finalitzat)/i.test(t)) ?? null) : null;
   return {
     titulo, url: location.href, secciones,
     marcador: marcador ? [Number(marcador[1]), Number(marcador[2])] : null,
     detalles: {
-      fecha: toma('DATA'), hora: toma('HORA'), estadio: toma('ESTADI'),
+      // Con los dos puntos y SIN saltar de línea: en la ficha de un descanso «Estadi:» va vacío y el valor se tomaba
+      // de la línea siguiente (la leyenda: «E»): 824 partidos con campo «E».
+      estado, fecha: toma('DATA:'), hora: toma('HORA:'), estadio: toma('ESTADI:'),
       competicion: toma('COMPETICIÓ'), jornada: toma('JORNADA'),
     },
   };`;
 
-/** Roles del cuerpo técnico tal como los escribe la FCF (leídos de su propio diccionario).
- *
- *  Van de más largo a más corto porque hay roles de dos palabras («DELEGAT CAMP») y cortar por la
- *  primera palabra dejaba el nombre a medias o el rol con un apellido dentro. */
-const ROLES_TECNICOS = [
-  'ENCARREGAT / DA MATERIAL O ALTRES', 'PREPARADOR FÍSIC, MERGE O A.T.S', 'ENTRENADOR/A AUXILIAR',
-  'DELEGAT CAMP', 'DELEGAT EQUIP', 'COORDINADOR/A', 'PREPARADOR FÍSIC', 'ENTRENADOR/A', 'ENTRENADOR',
-  'E.PORTERS', 'E. PORTERS', 'A.T.S.', 'AUXILIAR', 'MONITOR', 'DELEGAT',
-].sort((a, b) => b.length - a.length);
-
-function parteTecnico(texto) {
-  const limpio = String(texto ?? '').replace(/\s+/g, ' ').trim();
-  const mayusculas = limpio.toUpperCase();
-  for (const rol of ROLES_TECNICOS) {
-    if (mayusculas.startsWith(rol)) {
-      return { rol, nombre: limpio.slice(rol.length).trim() };
-    }
-  }
-  const palabras = limpio.split(' ');
-  return { rol: (palabras[0] ?? '').toUpperCase(), nombre: palabras.slice(1).join(' ') };
-}
-
-/** Interpreta la ficha leída y la lleva a la estructura común del proyecto. */
-function interpretaActa(acta, equipos) {
-  const seccion = (patron, indice = 0) => {
-    const encontradas = acta.secciones.filter((s) => patron.test(s.titulo));
-    return encontradas[indice] ?? null;
-  };
-  const [local, visitante] = equipos;
-  const lineups = {
-    local: { titulares: [], suplentes: [], portero: null },
-    visitante: { titulares: [], suplentes: [], portero: null },
-  };
-  const tecnicos = [];
-  const goles = [];
-  const tarjetas = [];
-  const cambios = [];
-
-  // Los bloques de cada equipo van seguidos y en el mismo orden que el marcador: primero el local.
-  const TRIADAS = [['alineacions', 'suplents', 'equip tècnic'], ['alineacions', 'suplents', 'equip tècnic']];
-  const usadas = new Set();
-  for (const [indiceLado, lado] of ['local', 'visitante'].entries()) {
-    for (const [posicion, nombreSeccion] of TRIADAS[indiceLado].entries()) {
-      const bloque = acta.secciones.find((s, i) => !usadas.has(i) && s.titulo.toLowerCase().includes(nombreSeccion)
-        && (posicion > 0 || s.filas.some((f) => f.nombre)));
-      if (!bloque) continue;
-      usadas.add(acta.secciones.indexOf(bloque));
-      if (nombreSeccion.startsWith('alineacions') || nombreSeccion.startsWith('suplents')) {
-        const destino = nombreSeccion.startsWith('alineacions') ? 'titulares' : 'suplentes';
-        for (const fila of bloque.filas) {
-          if (!fila.nombre) continue;
-          const jugador = {
-            codigoJugador: null,
-            nombre: fila.nombre,
-            dorsal: fila.dorsal ? Number(String(fila.dorsal).replace(/\D+/g, '')) || null : null,
-          };
-          lineups[lado][destino].push(jugador);
-          if (fila.posicion && /porter/i.test(fila.posicion) && !lineups[lado].portero) {
-            lineups[lado].portero = fila.nombre;
-          }
-        }
-      } else {
-        for (const fila of bloque.filas) {
-          const texto = fila.texto.replace(/\s+/g, ' ').trim();
-          const { rol, nombre } = parteTecnico(texto);
-          if (nombre) tecnicos.push({ lado, rol, nombre });
-        }
-      }
-    }
-  }
-
-  // Con las alineaciones ya leídas, el nombre del jugador resuelve de qué lado es cada evento: es
-  // más fiable que el escudo, que a veces no aparece o no coincide letra a letra.
-  const normaliza = (valor) => String(valor ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]/g, '');
-  const ladoPorNombre = (nombre) => {
-    const clave = normaliza(nombre);
-    if (!clave) return null;
-    for (const lado of ['local', 'visitante']) {
-      const plantilla = [...lineups[lado].titulares, ...lineups[lado].suplentes];
-      if (plantilla.some((j) => normaliza(j.nombre) === clave)) return lado;
-    }
-    return null;
-  };
-
-  // Goles: cada fila es «1 - 0 NOMBRE (42') GOL NORMAL (EQUIPO)». El lado sale del marcador
-  // acumulado (sube el número del equipo que marca) y, si no cuadra, del nombre del jugador.
-  //
-  // Cuando el partido acaba sin goles, la sección NO viene vacía: trae una fila de relleno («No hi ha
-  // gols registrats»). Si se toma por un gol se inventa un goleador con nombre de frase, así que se
-  // descartan las filas sin marcador al principio ni minuto.
-  const TIPOS_GOL = { 'GOL NORMAL': 'normal', 'GOL PENAL': 'penalti', 'GOL PENALTI': 'penalti', 'GOL EN PRÒPIA': 'propia-puerta' };
-  const RELLENO = /no\s+hi\s+ha|no\s+hay|sense\s+(?:gols|dades)|cap\s+gol|sin\s+datos|no\s+disponible/i;
-  let marcadorPrevio = [0, 0];
-  const limpia = (texto) => texto.replace(/^\d+\s*-\s*\d+\s*/, '').split('(')[0]
-    .replace(/\d+['’].*$/, '').trim();
-  for (const fila of seccion(/^gols$/i)?.filas ?? []) {
-    const texto = fila.texto.replace(/\s+/g, ' ').trim();
-    if (RELLENO.test(texto)) continue;
-    const marcador = texto.match(/^(\d+)\s*-\s*(\d+)/);
-    if (!marcador) continue;
-    const jugador = limpia(texto);
-    if (!jugador) continue;
-    let lado = null;
-    {
-      const localAhora = Number(marcador[1]);
-      const visitanteAhora = Number(marcador[2]);
-      if (localAhora > marcadorPrevio[0] && visitanteAhora === marcadorPrevio[1]) lado = 'local';
-      else if (visitanteAhora > marcadorPrevio[1] && localAhora === marcadorPrevio[0]) lado = 'visitante';
-      else if (localAhora > marcadorPrevio[0]) lado = 'local';
-      else if (visitanteAhora > marcadorPrevio[1]) lado = 'visitante';
-      marcadorPrevio = [localAhora, visitanteAhora];
-    }
-    lado ??= ladoPorNombre(jugador)
-      ?? (fila.imagenes.includes(visitante) && visitante ? 'visitante' : 'local');
-    const minuto = (fila.minutos[0] ?? '').replace(/[^0-9]/g, '');
-    const tipo = Object.keys(TIPOS_GOL).find((clave) => texto.toUpperCase().includes(clave)) ?? 'normal';
-    goles.push({ jugador, lado, minuto: minuto ? Number(minuto) : null, tipo: TIPOS_GOL[tipo] ?? 'normal' });
-  }
-  const TIPOS_TARJETA = [[/GROGUES/i, 'amarilla'], [/DOBLES/i, 'roja'], [/VERMELLES/i, 'roja']];
-  for (const [patron, tipo] of TIPOS_TARJETA) {
-    for (const fila of seccion(patron)?.filas ?? []) {
-      const texto = fila.texto.replace(/\s+/g, ' ').trim();
-      const jugador = limpia(texto);
-      if (!jugador) continue;
-      const minuto = (fila.minutos[0] ?? '').replace(/[^0-9]/g, '');
-      const lado = ladoPorNombre(jugador) ?? (fila.imagenes.includes(visitante) && visitante ? 'visitante' : 'local');
-      tarjetas.push({ jugador, lado, minuto: minuto ? Number(minuto) : null, tipo });
-    }
-  }
-  // Cambios: se emparejan las listas de «entra al camp» y «surt del camp» del mismo lado por orden.
-  for (const lado of ['local', 'visitante']) {
-    const filasDe = (patron) => (seccion(patron)?.filas ?? []).filter((f) => {
-      const quien = limpia(f.texto.replace(/\s+/g, ' ').trim());
-      return (ladoPorNombre(quien) ?? (f.imagenes.includes(visitante) && visitante ? 'visitante' : 'local')) === lado;
-    });
-    const entran = filasDe(/ENTRA AL CAMP/i);
-    const salen = filasDe(/SURT DEL CAMP/i);
-    for (const [i, sale] of salen.entries()) {
-      const entra = entran[i];
-      if (!entra) break;
-      cambios.push({
-        lado,
-        saliente: limpia(sale.texto.replace(/\s+/g, ' ').trim()),
-        entrante: limpia(entra.texto.replace(/\s+/g, ' ').trim()),
-        minuto: Number((entra.minutos[0] ?? sale.minutos[0] ?? '').replace(/[^0-9]/g, '')) || null,
-      });
-    }
-  }
-
-  const arbitros = (seccion(/^àrbitres$/i)?.filas ?? []).map((f) => f.texto);
-  return {
-    parseada: { lineups, tecnicos, goles, tarjetas, cambios, golesLocal: acta.marcador?.[0] ?? null,
-      golesVisitante: acta.marcador?.[1] ?? null },
-    arbitros,
-  };
-}
 
 /** Lee el calendario de un grupo, guarda jornadas y partidos y encola las actas ya jugadas. */
 async function capturaGrupo(driver, db, trabajo, ritmo) {
@@ -715,6 +782,8 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
     return { detalle: 'página cargada' };
   });
 
+  // El aviso de cookies tapa el calendario (81 calendarios «sin jornadas» por él): se rechaza antes de leer.
+  if (await rechazaConsentimiento(driver)) await new Promise((r) => setTimeout(r, 1500));
   let jornadas = await driver.executeScript(EXTRAE_CALENDARIO);
 
   if (!jornadas.length) {
@@ -751,6 +820,53 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
     throw new ErrorFuente(`el calendario no muestra ninguna jornada${pista}`, false, true);
   }
 
+  /*
+   * ── Y QUE NO SEAN TODAS LA MISMA JORNADA, NI TODAS VACÍAS ────────────────────────────────────────────
+   *
+   * Comprobar que hay jornadas no basta: el defecto caro era tenerlas todas con las mismas parejas. Estas
+   * dos comprobaciones convierten una corrupción silenciosa —186 de los 447 grupos catalanes del canónico,
+   * 42 %, con las 30 jornadas iguales— en un error visible.
+   */
+  if (calendarioSinPartidos(jornadas)) {
+    throw new ErrorFuente(`el calendario trae ${jornadas.length} jornadas y ningún partido: la federación `
+      + 'todavía no ha publicado los emparejamientos, o la página no los ha desplegado', false, true);
+  }
+  if (jornadasTodasIguales(jornadas)) {
+    // Una segunda oportunidad dentro de la misma visita: casi siempre es que el clic no desplegó la jornada.
+    await new Promise((r) => setTimeout(r, 1200));
+    const segunda = await driver.executeScript(EXTRAE_CALENDARIO);
+    if (jornadasTodasIguales(segunda)) {
+      const parejas = (jornadas[0]?.partidos ?? []).length;
+      throw new ErrorFuente(`el calendario devuelve la misma jornada en todas: ${jornadas.length} jornadas `
+        + `con las mismas ${parejas} parejas. No se guarda, porque un calendario así es falso`, false, false);
+    }
+    jornadas = segunda;
+  }
+
+  /*
+   * ── Y QUE NO FALTEN JORNADAS YA JUGADAS (20/10/2026) ────────────────────────────────────────────────
+   *
+   * El defecto que quedaba: la última jornada llena y las demás vacías (ver `calendarioIncompleto`). Se da
+   * una segunda lectura en la misma visita; si sigue incompleto, NO se guarda (guardarlo borraría los
+   * partidos que la cola ya tiene de esas jornadas) y se reintenta más tarde. Al tercer intento se guarda
+   * lo que haya: las jornadas vacías no tocan lo que ya estaba en la cola (ver el guardado).
+   */
+  const hoyCalendario = new Date().toISOString().slice(0, 10);
+  let huecos = calendarioIncompleto(jornadas, hoyCalendario);
+  if (huecos.incompleto) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const otra = await driver.executeScript(EXTRAE_CALENDARIO);
+    const huecosOtra = calendarioIncompleto(otra, hoyCalendario);
+    if (huecosOtra.vacias < huecos.vacias && !jornadasTodasIguales(otra) && !calendarioSinPartidos(otra)) {
+      jornadas = otra;
+      huecos = huecosOtra;
+    }
+    if (huecos.incompleto && Number(trabajo.intentos ?? 0) < 2) {
+      throw new ErrorFuente(`calendario incompleto: ${huecos.vacias} de ${huecos.jugadas} jornadas ya jugadas `
+        + 'vienen sin partidos (la página no las desplegó). No se guarda; se reintenta', false, false);
+    }
+  }
+
   const nombreComp = db.prepare('select nombre from competiciones where temporada=? and codigo=?')
     .get(trabajo.temporada, trabajo.competicion)?.nombre ?? '';
   const menores = /juvenil|cadet|infantil|alev|benjam|prebenjam|debutant|iniciacio|querubi/i.test(nombreComp) ? 1 : 0;
@@ -768,16 +884,29 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
         comprobada_en=excluded.comprobada_en`)
         .run(trabajo.temporada, trabajo.competicion, trabajo.grupo, jornada.numero, jornada.fecha,
           join(carpeta, 'calendario.json'), guardado.hash, ahoraIso());
+      // Una jornada que viene VACÍA no borra lo que la cola ya tenía de ella: vacía casi siempre es «no se
+      // pudo desplegar», no «no hay partidos» (20/10/2026: así se perdían los partidos reconstruidos).
+      if (!jornada.partidos?.length) continue;
+      // Lo que de cada partido sólo da su ACTA (día y hora exactos, campo, árbitros) no está en el calendario: al
+      // releerlo se borraba y el acta, ya hecha, no se vuelve a pedir (22/10/2026). Se guarda antes y se repone.
+      const previos = new Map(db.prepare(`select codigo_acta, fecha, hora, campo, campo_codigo, arbitro from partidos
+        where temporada=? and competicion=? and grupo=? and jornada=? and codigo_acta is not null and codigo_acta <> ''`)
+        .all(trabajo.temporada, trabajo.competicion, trabajo.grupo, jornada.numero).map((r) => [r.codigo_acta, r]));
       db.prepare(`delete from partidos where temporada=? and competicion=? and grupo=? and jornada=?`)
         .run(trabajo.temporada, trabajo.competicion, trabajo.grupo, jornada.numero);
       jornada.partidos.forEach((partido, orden) => {
+        // La fecha y la hora PROPIAS del partido (si la página las da: partidos aún sin jugar) mandan sobre la
+        // de la jornada, que es la del fin de semana (ver «status» en EXTRAE_CALENDARIO, 22/10/2026).
+        const previo = partido.codacta ? previos.get(partido.codacta) : null;
+        const fechaPartido = partido.fecha ?? previo?.fecha ?? jornada.fecha;
         db.prepare(`insert into partidos(temporada,competicion,grupo,jornada,orden,codigo_acta,
           equipo_local_codigo,equipo_visitante_codigo,local,visitante,goles_local,goles_visitante,
-          fecha,actualizado_en) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+          fecha,hora,campo,campo_codigo,arbitro,actualizado_en) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
           .run(trabajo.temporada, trabajo.competicion, trabajo.grupo, jornada.numero, orden,
             partido.codacta ?? null, partido.codigoLocal ?? null, partido.codigoVisitante ?? null,
             partido.local, partido.visitante, partido.golesLocal, partido.golesVisitante,
-            jornada.fecha, ahoraIso());
+            fechaPartido, partido.hora ?? previo?.hora ?? null, previo?.campo ?? null, previo?.campo_codigo ?? null,
+            previo?.arbitro ?? null, ahoraIso());
         partidos += 1;
         for (const [lado, codigo] of [['local', partido.codigoLocal], ['visitante', partido.codigoVisitante]]) {
           if (!codigo) continue;
@@ -788,7 +917,9 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
         }
         // Sólo se encola el acta de jornadas ya disputadas: el portal enlaza «VEURE ACTA» incluso en
         // partidos futuros, y pedir esas fichas sería gastar peticiones en actas vacías.
-        if (partido.codacta && jornada.fecha && jornada.fecha <= hoy) {
+        // Y el acta de un DESCANSO (la FCF le da código; su ficha es «TBD - equipo», «Pendent», vacía) no se pide:
+        // eran ~19.300 fichas vacías entre 2025-26 y 2026-27 (unas 60 h de recolector).
+        if (partido.codacta && fechaPartido && fechaPartido <= hoy && !esDescanso(partido)) {
           db.prepare(`insert into actas(codigo,temporada,competicion,grupo,jornada,menores,estado)
             values(?,?,?,?,?,?,'pendiente') on conflict(temporada,competicion,grupo,jornada,codigo)
             do update set menores=excluded.menores`)
@@ -804,7 +935,9 @@ async function capturaGrupo(driver, db, trabajo, ritmo) {
     db.prepare(`update grupos set jornadas=?,jornadas_comprobadas_en=? where temporada=? and competicion=? and codigo=?`)
       .run(jornadas.length, ahoraIso(), trabajo.temporada, trabajo.competicion, trabajo.grupo);
   });
-  return `calendario: ${jornadas.length} jornadas, ${partidos} partidos, ${encoladas} actas encoladas`;
+  const aviso = huecos.incompleto ? ` (guardado INCOMPLETO al ${Number(trabajo.intentos ?? 0) + 1}º intento: `
+    + `${huecos.vacias} jornadas jugadas vacías)` : '';
+  return `calendario: ${jornadas.length} jornadas, ${partidos} partidos, ${encoladas} actas encoladas${aviso}`;
 }
 
 /**
@@ -902,8 +1035,25 @@ async function capturaClasificacion(driver, db, trabajo, ritmo) {
   urlClasificacion.searchParams.set('tab', 'classificacio');
   const tabla = await ritmo.pide(trabajo, urlClasificacion.toString(), async () => {
     await driver.get(urlClasificacion.toString());
-    await esperaDatos(driver);
-    const datos = await esperaTablaClasificacion(driver);
+    /*
+     * Si la página no termina de cargar, esto NO es una caída de Chrome: es que esa clasificación no está
+     * publicada, o tarda más de lo que se le concede. Antes el «Wait timed out» salía de aquí y el bucle lo
+     * confundía con un navegador muerto: cerraba la sesión y abría otro Chrome 20 s después, para volver al
+     * mismo grupo. Medido el 03/10/2026: 724 fallos de navegador y 6 aciertos en 24 h, con seis grupos
+     * repitiéndose hasta 136 veces.
+     *
+     * Así que se sigue por el camino que YA existe para «la pestaña no trae tabla», que sabe distinguir «sin
+     * publicar» de «formato» y aplaza con la escalera de espera.
+     */
+    let datos = null;
+    try {
+      await esperaDatos(driver);
+      datos = await esperaTablaClasificacion(driver);
+    } catch (error) {
+      const mensaje = error instanceof Error ? error.message : String(error);
+      if (!esEsperaAgotada(mensaje)) throw error;
+      console.warn(`  ◷ la clasificación no terminó de cargar en 40 s: se decide con lo que hay.`);
+    }
     if (!datos) {
       /*
        * La pestaña no trae tabla. Antes se lanzaba un error de formato y, a los tres intentos, el trabajo quedaba
@@ -938,36 +1088,6 @@ async function capturaClasificacion(driver, db, trabajo, ritmo) {
   return `clasificación: ${filas.length} filas (${guardado.bytes} B)${aviso}`;
 }
 
-/**
- * Calidad de la interpretación: se compara con dos datos independientes que publica la propia ficha.
- *
- *  El marcador del cabecero y la lista de goles vienen del mismo origen, así que cuando no cuadran es
- *  que la web no dice lo mismo en los dos sitios. Ocurre de verdad: la ficha 3783726 (L'HOSPITALET
- *  2-1 ESPANYOL) lista goles para un 1-2, probablemente porque el marcador se ajustó después por una
- *  alineación indebida. No se corrige nada por nuestra cuenta: se guarda el marcador oficial con la
- *  incidencia anotada para que se vea en el visor y lo revise una persona.
- */
-function evaluaCalidad(parseada) {
-  const incidencias = [];
-  if (parseada.golesLocal !== null && parseada.golesVisitante !== null) {
-    const propios = { local: 0, visitante: 0 };
-    for (const gol of parseada.goles ?? []) {
-      // Un gol en propia puerta cuenta para el rival, que es como se refleja en el marcador.
-      const lado = gol.tipo === 'propia-puerta' ? (gol.lado === 'local' ? 'visitante' : 'local') : gol.lado;
-      if (lado === 'local' || lado === 'visitante') propios[lado] += 1;
-    }
-    if (!(parseada.goles ?? []).length && (parseada.golesLocal || parseada.golesVisitante)) {
-      incidencias.push('sin_goles_leidos');
-    } else if (propios.local !== parseada.golesLocal || propios.visitante !== parseada.golesVisitante) {
-      incidencias.push(`goles_no_cuadran:${propios.local}-${propios.visitante}`);
-    }
-  }
-  const titulares = (parseada.lineups?.local?.titulares?.length ?? 0)
-    + (parseada.lineups?.visitante?.titulares?.length ?? 0);
-  if (titulares === 0) incidencias.push('sin_alineaciones');
-  else if (titulares !== 22) incidencias.push(`titulares:${titulares}`);
-  return { calidad: incidencias.length ? 'revisar' : 'correcta', incidencias };
-}
 
 /** La ficha escribe la fecha como «20.09.2025» y la hora como «15.00H». */
 function fechaDeFicha(valor) {
@@ -983,6 +1103,23 @@ function horaDeFicha(valor) {
   const hora = Number(m[1]);
   if (hora > 23) return null;
   return `${String(hora).padStart(2, '0')}:${m[2]}`;
+}
+
+/** Fila de descanso del calendario: un lado es «Descans» (o «Descansa») y no tiene código de club. */
+function esDescanso(partido) {
+  const libre = (nombre, codigo) => /^descans/i.test(String(nombre ?? '').trim()) && !codigo;
+  return libre(partido.local, partido.codigoLocal) || libre(partido.visitante, partido.codigoVisitante);
+}
+
+/** Fecha, hora y campo del partido según la ficha (el calendario sólo da la fecha de la jornada). */
+function apuntaDetallesDelPartido(db, trabajo, detalles = {}) {
+  const fecha = fechaDeFicha(detalles?.fecha);
+  const hora = horaDeFicha(detalles?.hora);
+  const campo = detalles?.estadio && String(detalles.estadio).trim().length > 2 ? String(detalles.estadio).trim() : null;
+  if (!(fecha || hora || campo)) return;
+  db.prepare(`update partidos set fecha=coalesce(?,fecha), hora=coalesce(?,hora), campo=coalesce(?,campo)
+    where temporada=? and competicion=? and grupo=? and jornada=? and codigo_acta=?`)
+    .run(fecha, hora, campo, trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
 }
 
 /** Lee una ficha de acta y la guarda con la misma estructura que las demás federaciones. */
@@ -1004,6 +1141,34 @@ async function capturaActa(driver, db, trabajo, ritmo) {
   const equipos = leida.datos.titulo.replace(/^Acta:\s*/i, '').split(/\s+vs\s+/i)
     .map((s) => s.replace(/\s*\|\s*.*$/, '').trim());
   const { parseada, arbitros } = interpretaActa(leida.datos, equipos);
+  // ¿Partido aún sin jugar? (ver decideActaSinJugar en lib/acta-cataluna.mjs). Entonces NO se da por hecha:
+  // se apuntan su día, hora y campo (eso ya vale) y se vuelve a pedir el día siguiente al partido.
+  const titularesLeidos = parseada.lineups.local.titulares.length + parseada.lineups.visitante.titulares.length;
+  // Una RELECTURA que viene sin alineaciones no borra las que ya había (22/10/2026): la FCF vacía con el tiempo
+  // datos de algunas categorías (menores de temporadas cerradas) y releer para enriquecer no puede empobrecer.
+  if (titularesLeidos === 0 && acta.estado === 'hecha') {
+    const previos = db.prepare(`select count(*) n from participaciones where temporada=? and competicion=? and grupo=?
+      and jornada=? and acta=? and condicion='titulares'`)
+      .get(trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta)?.n ?? 0;
+    if (previos > 0) {
+      db.prepare(`update actas set comprobada_en=? where temporada=? and competicion=? and grupo=? and jornada=? and codigo=?`)
+        .run(ahoraIso(), trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
+      return `acta ${trabajo.acta}: la relectura viene sin alineaciones; se conserva lo guardado (${previos} titulares)`;
+    }
+  }
+  const temporadaActual = db.prepare('select max(cast(codigo as integer)) c from temporadas').get()?.c;
+  const sinJugar = decideActaSinJugar({
+    estado: leida.datos.detalles?.estado ?? null, marcador: leida.datos.marcador ?? null,
+    fecha: fechaIsoDeFicha(leida.datos.detalles?.fecha), titulares: titularesLeidos,
+    temporadaEnCurso: temporadaActual != null && Number(trabajo.temporada) === Number(temporadaActual),
+    hoy: diaDeMadrid(), equipos,
+  });
+  if (sinJugar) {
+    apuntaDetallesDelPartido(db, trabajo, leida.datos.detalles);
+    db.prepare(`update actas set estado='pendiente' where temporada=? and competicion=? and grupo=? and jornada=?
+      and codigo=? and estado='hecha'`).run(trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
+    throw Object.assign(new ErrorFuente(`acta ${trabajo.acta}: ${sinJugar.motivo}`), { hasta: sinJugar.hasta });
+  }
   const carpeta = rutaGrupo(CARPETA, trabajo.temporada, trabajo.competicion, trabajo.grupo);
   const ruta = join(carpeta, acta.menores ? 'actas-menores' : 'actas-adultos', `acta-${trabajo.acta}.json`);
   const guardado = guardaAtomico(ruta, JSON.stringify({ origen: 'acta-fcf', equipos, ...leida.datos }, null, 2), db, 'acta');
@@ -1014,22 +1179,15 @@ async function capturaActa(driver, db, trabajo, ritmo) {
     .run(ruta, guardado.hash, JSON.stringify(parseada), ahoraIso(), VERSION_PARSER,
       calidad.calidad, JSON.stringify(calidad.incidencias),
       trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
-  if (arbitros.length) {
+  // «SENSE ÀRBITRES ASSIGNATS» no es un árbitro: es que no hay (se guardaba como nombre: 2.755 partidos).
+  const arbitrosReales = arbitros.filter((a) => !/^sense\s+[àa]rbitres/i.test(String(a).trim()));
+  if (arbitrosReales.length) {
     db.prepare(`update partidos set arbitro=? where temporada=? and competicion=? and grupo=? and jornada=? and codigo_acta=?`)
-      .run(arbitros.join(' / '), trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
+      .run(arbitrosReales.join(' / '), trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta);
   }
   // Del bloque de detalles de la ficha se completan fecha, hora y campo del partido: el calendario
   // sólo da la fecha de la jornada, así que esto es lo que pone a cada partido en su día y su campo.
-  const detalles = leida.datos.detalles ?? {};
-  const fecha = fechaDeFicha(detalles.fecha);
-  const hora = horaDeFicha(detalles.hora);
-  const campo = detalles.estadio ? String(detalles.estadio).trim() : null;
-  if (fecha || hora || campo) {
-    db.prepare(`update partidos set fecha=coalesce(?,fecha), hora=coalesce(?,hora), campo=coalesce(?,campo)
-      where temporada=? and competicion=? and grupo=? and jornada=? and codigo_acta=?`)
-      .run(fecha, hora, campo, trabajo.temporada, trabajo.competicion, trabajo.grupo,
-        trabajo.jornada, trabajo.acta);
-  }
+  apuntaDetallesDelPartido(db, trabajo, leida.datos.detalles);
   if (parseada.golesLocal !== null || parseada.golesVisitante !== null) {
     db.prepare(`update partidos set goles_local=coalesce(?,goles_local), goles_visitante=coalesce(?,goles_visitante)
       where temporada=? and competicion=? and grupo=? and jornada=? and codigo_acta=?`)
@@ -1037,8 +1195,17 @@ async function capturaActa(driver, db, trabajo, ritmo) {
         trabajo.grupo, trabajo.jornada, trabajo.acta);
   }
   const titulares = parseada.lineups.local.titulares.length + parseada.lineups.visitante.titulares.length;
+  // Observabilidad de lo que trae cada ficha (22/10/2026): tarjetas, cambios y códigos salen de los iconos y de
+  // las props de React; si la FCF cambia la maqueta, esto cae a 0 y en el log se ve enseguida. Un icono que no
+  // se reconoce queda guardado con su «firma» en el JSON de la ficha para poder clasificarlo después.
+  const plantilla = ['local', 'visitante'].flatMap((l) => [...parseada.lineups[l].titulares, ...parseada.lineups[l].suplentes]);
+  const conCodigo = plantilla.filter((j) => j.codigoJugador).length;
+  const desconocidos = (leida.datos.secciones ?? []).flatMap((s) => s.filas ?? [])
+    .flatMap((f) => f.eventos ?? []).filter((e) => e.tipo === 'desconocido').length;
   return `acta ${trabajo.acta}: ${parseada.golesLocal ?? '?'}-${parseada.golesVisitante ?? '?'}, ` +
-    `${titulares} titulares, ${resumen.jugadores} jugadores, ${resumen.eventos} eventos, ${resumen.tecnicos} técnicos`;
+    `${titulares} titulares, ${resumen.jugadores} jugadores (${conCodigo} con código), ${resumen.eventos} eventos ` +
+    `(${parseada.tarjetas.length} tarjetas, ${parseada.cambios.length} cambios${desconocidos ? `, ${desconocidos} ICONOS DESCONOCIDOS` : ''}), ` +
+    `${resumen.tecnicos} técnicos`;
 }
 
 /**
@@ -1076,6 +1243,28 @@ function reparaActas(db, limite = 200) {
   return { procesadas, fallidas, primerFallo };
 }
 
+/** «Hecho» y, de paso, la racha de calendario sin publicar vuelve a cero (ver lib/espera-publicacion.mjs). */
+function marcaHecho(db, clave) {
+  marcaTrabajo(db, clave, 'hecho');
+  db.prepare('update trabajos set sin_publicar_seguidos=0 where clave=? and sin_publicar_seguidos<>0').run(clave);
+}
+
+/** Cuándo volver a mirar un grupo sin publicar: escalera 48 h → 4 d → 8 d → 14 d; promociones al 1 de abril. */
+function aplazaSinPublicar(db, clave) {
+  const fila = db.prepare(`select t.temporada, t.sin_publicar_seguidos racha, c.nombre
+    from trabajos t left join competiciones c on c.temporada=t.temporada and c.codigo=t.competicion
+    where t.clave=?`).get(clave) ?? {};
+  const actual = db.prepare('select max(cast(codigo as integer)) codigo from temporadas').get()?.codigo;
+  const racha = Number(fila.racha ?? 0) + 1;
+  db.prepare('update trabajos set sin_publicar_seguidos=? where clave=?').run(racha, clave);
+  return esperaSinPublicar({
+    racha,
+    esTemporadaActual: actual != null && Number(fila.temporada) === Number(actual),
+    anioInicio: fila.temporada != null ? anioInicioDeTemporada(fila.temporada) : null,
+    nombreCompeticion: fila.nombre ?? null,
+  });
+}
+
 /** Recorre la cola: un grupo se resuelve entero con una sola carga de página. */
 async function ejecutar(db) {
   const maximo = Math.max(1, Number(argumento('max', config('ritmo.maxActasSesion', 30))));
@@ -1088,6 +1277,41 @@ async function ejecutar(db) {
       `${repasoInicial.clasificaciones} clasificaciones reactivadas sin repetir actas completas.`);
   }
   db.exec("update trabajos set estado='pendiente' where estado='en_curso'");
+  /*
+   * ── LO QUE ESTABA HACIENDO QUE CATALUÑA NO BAJARA NI UN ACTA (medido el 02/10/2026) ──────────────────
+   *
+   * De la cola salía la clasificación de un grupo, y al abrirlo se leía TAMBIÉN su calendario. Para decidir si
+   * lo leía sólo se miraba que no estuviera `hecho` ni `cancelado`: **no se miraba si estaba aplazado**. Así
+   * que se volvía a pedir un calendario citado para abril, contestaba «sin publicar», el aplazamiento se
+   * apuntaba al calendario (de ahí las rachas de 230) y la clasificación que había salido de la cola se
+   * quedaba en `en_curso`.
+   *
+   * Como el selector sólo elige `pendiente` y `bloqueado`, esa clasificación no volvía a salir… hasta que la
+   * línea de arriba devolvía los `en_curso` a `pendiente` al arrancar la sesión siguiente. Y vuelta a empezar,
+   * gastando el cupo: 4.685 actas el 25/09 y 25-40 al día desde el 26/09, con 3.177 actas disponibles sin
+   * tocarse.
+   *
+   * Esta pasada corta el bucle de raíz, y ANTES de abrir el navegador: las clasificaciones cuyo calendario ya
+   * está aplazado se aplazan a la MISMA fecha sin pedir nada a la web. Es una operación de cola, no de red, y
+   * por eso no cuenta para el cupo de la sesión ni consume una sola petición.
+   */
+  const gruposAplazados = db.prepare(`
+    update trabajos set estado='pendiente', actualizado_en=?,
+      siguiente_intento=(select c.siguiente_intento from trabajos c
+        where c.tipo='calendario' and c.temporada=trabajos.temporada and c.competicion=trabajos.competicion
+          and c.grupo=trabajos.grupo),
+      ultimo_error='aplazado: el calendario de este grupo se vuelve a mirar en la misma fecha'
+    where tipo='clasificacion' and estado in ('pendiente','bloqueado')
+      and exists (select 1 from trabajos c
+        where c.tipo='calendario' and c.temporada=trabajos.temporada and c.competicion=trabajos.competicion
+          and c.grupo=trabajos.grupo and c.estado not in ('hecho','cancelado')
+          and c.siguiente_intento is not null and c.siguiente_intento > ?)
+      and (siguiente_intento is null or siguiente_intento <= ?)
+  `).run(ahoraIso(), ahoraIso(), ahoraIso());
+  if (gruposAplazados.changes) {
+    console.log(`  · ${gruposAplazados.changes} clasificaciones aplazadas a la fecha de su calendario ` +
+      'sin pedir nada a la web (su grupo todavía no tiene calendario publicado).');
+  }
   // `solo` sirve para probar una fase concreta (por ejemplo, las actas) sin tocar el resto.
   const tiposSoportados = "'calendario','clasificacion','acta'";
   const siguiente = () => (solo
@@ -1195,10 +1419,21 @@ async function ejecutar(db) {
           const vivo = (t) => t && t.estado !== 'hecho' && t.estado !== 'cancelado';
           const partes = [];
           const calendario = deGrupo('calendario');
+          /*
+           * Y aquí la guarda, para lo que la pasada de antes no puede cubrir: un calendario que se aplaza
+           * DURANTE esta misma sesión (porque acaba de fallar) ya no se vuelve a pedir en los grupos
+           * siguientes. Sin esto, el bucle seguiría, sólo que más despacio. Ver `lib/grupo-cataluna.mjs`.
+           */
+          const decision = decideLecturaDeGrupo({ clave: trabajo.clave, calendario });
+          if (decision.accion === 'aplazar') {
+            marcaTrabajo(db, trabajo.clave, 'pendiente', decision.motivo, decision.hasta.toISOString());
+            console.log(`  ◷ ${decision.motivo}: el grupo espera ${textoDeEspera(decision.hasta)}.`);
+            continue;
+          }
           if (vivo(calendario)) {
             trabajoActivo = calendario;
             partes.push(await capturaGrupo(driver, db, { ...calendario, url: calendario.url ?? url }, ritmo));
-            marcaTrabajo(db, calendario.clave, 'hecho');
+            marcaHecho(db, calendario.clave);
           }
           const clasificacion = deGrupo('clasificacion');
           if (vivo(clasificacion)) {
@@ -1206,7 +1441,7 @@ async function ejecutar(db) {
             try {
               partes.push(await capturaClasificacion(driver, db,
                 { ...clasificacion, url: clasificacion.url ?? url }, ritmo));
-              marcaTrabajo(db, clasificacion.clave, 'hecho');
+              marcaHecho(db, clasificacion.clave);
             } catch (error) {
               const aviso = error instanceof Error ? error.message : String(error);
               // Si no se consiguió nada más, el fallo es de este trabajo y cuenta como tal.
@@ -1222,7 +1457,7 @@ async function ejecutar(db) {
         // Los trabajos de grupo se marcan individualmente justo después de completar cada parte.
         // Marcar aquí el trabajo que abrió el grupo hacía que una clasificación fallida pudiera
         // quedar como hecha si el calendario sí se había leído.
-        if (trabajo.tipo === 'acta') marcaTrabajo(db, trabajo.clave, 'hecho');
+        if (trabajo.tipo === 'acta') marcaHecho(db, trabajo.clave);
         console.log(`  ✓ ${detalle}`);
         hechos += 1;
         fallosSeguidos = 0;
@@ -1237,12 +1472,53 @@ async function ejecutar(db) {
       } catch (error) {
         const mensaje = error instanceof Error ? error.message : String(error);
         const trabajoFallido = trabajoActivo ?? trabajo;
-        if (/invalid session id|session deleted|chrome not reachable|not connected to devtools|disconnected|timed out receiving message from renderer|wait timed out|script timeout/i.test(mensaje)) {
+        /*
+         * ── EL TRABAJO QUE SALIÓ DE LA COLA NO PUEDE QUEDARSE HUÉRFAO (medido el 02/10/2026) ──────────────
+         *
+         * Al abrir un grupo se leen el calendario Y la clasificación, así que el que falla (`trabajoActivo`)
+         * suele NO ser el que salió de la cola. Todas las ramas de abajo devuelven el que falló a `pendiente`,
+         * pero el de la cola se quedaba en `en_curso` — y el selector sólo elige `pendiente` y `bloqueado`, así
+         * que no se volvía a coger nunca. Medido: 173 trabajos huérfanos en Cataluña, siempre los mismos
+         * grupos, con la sesión gastando su cupo en dar vueltas sobre ellos sin bajar una sola acta.
+         *
+         * Se suelta aquí, antes de las ramas, para que valga también cuando la rama corta la sesión (Chrome
+         * caído, bloqueo). La espera corta es deliberada: la fecha buena la pone, en cuanto se sepa, el
+         * aplazamiento del trabajo que sí falló.
+         */
+        if (trabajoFallido.clave !== trabajo.clave) {
+          marcaTrabajo(db, trabajo.clave, 'pendiente', mensaje,
+            new Date(Date.now() + 6 * 3_600_000).toISOString());
+        }
+        /*
+         * ── UN «WAIT TIMED OUT» NO ES UN CHROME CAÍDO (medido el 03/10/2026) ────────────────────────────
+         *
+         * Aquí entraban juntos los errores de sesión de verdad y los tiempos agotados de una página lenta, y
+         * todos acababan igual: trabajo a la cola para dentro de 5 minutos, sesión cerrada y Chrome nuevo 20 s
+         * después. Con una página que no carga en 40 s, eso es un bucle perfecto: 724 «fallos de navegador» y
+         * 6 aciertos en 24 h, seis grupos repitiéndose hasta 136 veces, y el PC abriendo y cerrando Chrome
+         * unas 50 veces por hora sin sacar nada. Y como este camino NO sumaba intento, la espera nunca subía.
+         *
+         * Así que se pregunta al navegador si sigue vivo antes de tirar la sesión: si responde, el fallo es de
+         * la página y sigue por el camino normal (con su intento y su escalera). Si no responde, es una caída
+         * de verdad y se recicla como siempre.
+         */
+        let navegadorVivo = true;
+        if (esEsperaAgotada(mensaje)) {
+          navegadorVivo = await driver.executeScript('return 1').then(() => true, () => false);
+          if (navegadorVivo) {
+            console.warn('  · la página no cargó, pero el navegador responde: no se recicla la sesión.');
+          }
+        }
+        if (esCaidaQueRecicla(mensaje, { navegadorVivo })) {
           db.prepare(`update peticiones set resultado='error_navegador',detalle=? where id=(
             select id from peticiones where trabajo=? order by id desc limit 1)`).run(mensaje, trabajo.clave);
-          db.prepare(`update trabajos set estado='pendiente',siguiente_intento=?,ultimo_error=?,actualizado_en=?
-            where clave=?`).run(new Date(Date.now() + 5 * 60_000).toISOString(), mensaje, ahoraIso(), trabajoFallido.clave);
-          console.warn('  ↻ Chrome dejó de responder; se recicla la sesión y la tarea vuelve a la cola.');
+          // El intento SE CUENTA: sin esto la espera no sube nunca y el mismo trabajo se repite cada cinco
+          // minutos para siempre. Al tercero, 24 h como los demás errores.
+          const intentosNavegador = Number(trabajoFallido.intentos ?? 0) + 1;
+          marcaTrabajo(db, trabajoFallido.clave, 'pendiente', mensaje,
+            new Date(Date.now() + esperaTrasFalloDeNavegador(intentosNavegador)).toISOString());
+          console.warn(`  ↻ Chrome dejó de responder; se recicla la sesión y la tarea vuelve a la cola ` +
+            `(${intentosNavegador}º intento).`);
           break;
         }
         const intentos = Number(trabajoFallido.intentos ?? 0) + 1;
@@ -1250,13 +1526,31 @@ async function ejecutar(db) {
           db.prepare(`update peticiones set resultado='sin_publicar',detalle=? where id=(
             select id from peticiones where trabajo=? order by id desc limit 1)`).run(mensaje, trabajoFallido.clave);
         }
+        if (error?.hasta) {
+          // Partido sin jugar todavía: no es un fallo ni suma intento; vuelve el día que toca.
+          db.prepare(`update trabajos set estado='pendiente', ultimo_error=?, siguiente_intento=?, actualizado_en=?
+            where clave=?`).run(mensaje, error.hasta, ahoraIso(), trabajoFallido.clave);
+          db.prepare(`update peticiones set resultado='sin_jugar',detalle=? where id=(
+            select id from peticiones where trabajo=? order by id desc limit 1)`).run(mensaje, trabajoFallido.clave);
+          console.log(`  ◷ ${mensaje}`);
+          hechos += 1;
+          continue;
+        }
         if (error?.bloqueo) {
           marcaTrabajo(db, trabajoFallido.clave, 'bloqueado', mensaje, new Date(Date.now() + 24 * 60 * 60_000).toISOString());
           console.error(`  ⛔ ${mensaje}: se para y se reintenta mañana.`);
           break;
         }
-        if (error?.publicacion || intentos < 3) {
-          const horas = error?.publicacion ? 48 : intentos === 1 ? 6 : 24;
+        if (error?.publicacion) {
+          // Antes: 48 h para siempre, y la temporada nueva (que va primero en la cola) ahogaba las actas.
+          const espera = aplazaSinPublicar(db, trabajoFallido.clave);
+          marcaTrabajo(db, trabajoFallido.clave, 'pendiente', mensaje, espera.hasta.toISOString());
+          console.warn(`  ◷ ${mensaje.slice(0, 120)}: se vuelve a mirar ${espera.texto}.`);
+          hechos += 1;
+          continue;
+        }
+        if (intentos < 3) {
+          const horas = intentos === 1 ? 6 : 24;
           marcaTrabajo(db, trabajoFallido.clave, 'pendiente', mensaje, new Date(Date.now() + horas * 3_600_000).toISOString());
           console.warn(`  ◷ ${mensaje}: se reintenta en ${horas} h.`);
           hechos += 1;
@@ -1275,6 +1569,384 @@ async function ejecutar(db) {
 }
 
 const db = abreBase(BASE_DATOS);
+{
+  const racha = preparaRachaSinPublicar(db);
+  if (racha.creada) {
+    console.log(`  · Espera creciente activada: ${racha.sembrados} grupos que ya llevaban tiempo sin publicar ` +
+      'continúan la escalera donde les corresponde (no repiten otra vuelta de 48 h).');
+  }
+}
+
+/**
+ * ── CALENDARIOS CON TODAS LAS JORNADAS IGUALES, LEÍDOS ANTES DEL ARREGLO (15/10/2026) ────────────────────────
+ *
+ * El defecto de «todas las jornadas iguales» se detecta desde finales de septiembre, pero los calendarios que
+ * se leyeron ANTES siguen en la cola con las mismas parejas copiadas en cada jornada: en 2025-26, 294 grupos y
+ * 28.729 filas de `partidos` para sólo ~14.300 actas distintas. Esos grupos no pueden entrar bien en el
+ * canónico. Se vuelve a leer su calendario (una petición por grupo); al guardarlo, `partidos` se reescribe por
+ * jornada y las copias desaparecen solas. Si la web sigue devolviéndolo mal, se vuelve a intentar como mucho una
+ * vez por semana.
+ */
+function reactivaCalendariosRepetidos(db) {
+  // Como mucho una vez por semana. No vale mirar `trabajos.actualizado_en`: `encola` lo toca en cada `preparar`.
+  const haceUnaSemana = new Date(Date.now() - 7 * 24 * 60 * 60_000).toISOString();
+  const ultima = leeMetadato(db, 'calendarios_repetidos_reactivados_en');
+  if (ultima && ultima > haceUnaSemana) return { grupos: 0, reactivados: 0 };
+  const grupos = db.prepare(`select temporada, competicion, grupo from partidos
+    where codigo_acta is not null and codigo_acta <> ''
+    group by temporada, competicion, grupo having count(*) >= 2 * count(distinct codigo_acta)`).all();
+  let reactivados = 0;
+  enTransaccion(db, () => {
+    const actualiza = db.prepare(`update trabajos set estado='pendiente', siguiente_intento=null, intentos=0,
+        ultimo_error='calendario con las jornadas repetidas (leído antes del arreglo): se vuelve a leer',
+        actualizado_en=?
+      where clave=? and estado in ('hecho','cancelado')`);
+    for (const g of grupos) {
+      const clave = claveTrabajo('calendario', { temporada: g.temporada, competicion: g.competicion, grupo: g.grupo });
+      reactivados += Number(actualiza.run(ahoraIso(), clave).changes ?? 0);
+    }
+    guardaMetadato(db, 'calendarios_repetidos_reactivados_en', ahoraIso());
+  });
+  return { grupos: grupos.length, reactivados };
+}
+
+/**
+ * ── CALENDARIOS CON JORNADAS YA JUGADAS SIN PARTIDOS (20/10/2026) ──────────────────────────────────────
+ *
+ * `reactivaCalendariosRepetidos` busca copias, pero después de la limpieza del 25/09 ya no quedan copias:
+ * quedan grupos con UNA jornada (la que venía desplegada) y el resto sin partidos. Se detectan comparando
+ * las jornadas con fecha ya pasada (tabla `jornadas`) con las que tienen partidos, y se vuelven a leer con
+ * el extractor que espera al clic. Como mucho una vez por semana; si la relectura vuelve incompleta, el
+ * trabajo se queda en reintento (no en «hecho»), así que no entra en bucle.
+ */
+function reactivaCalendariosIncompletos(db) {
+  const haceUnaSemana = new Date(Date.now() - 7 * 24 * 60 * 60_000).toISOString();
+  const ultima = leeMetadato(db, 'calendarios_incompletos_reactivados_en');
+  if (ultima && ultima > haceUnaSemana) return { grupos: 0, reactivados: 0 };
+  const hoy = new Date().toISOString().slice(0, 10);
+  const grupos = db.prepare(`with jug as (
+      select temporada, competicion, grupo, count(*) n from jornadas
+      where fecha is not null and substr(fecha, 1, 10) <= ? group by 1, 2, 3
+    ), conp as (
+      select temporada, competicion, grupo, count(distinct jornada) n from partidos group by 1, 2, 3
+    )
+    select jug.temporada, jug.competicion, jug.grupo from jug
+    left join conp on conp.temporada = jug.temporada and conp.competicion = jug.competicion and conp.grupo = jug.grupo
+    where jug.n - coalesce(conp.n, 0) >= 2 and jug.n - coalesce(conp.n, 0) > jug.n * 0.1`).all(hoy);
+  let reactivados = 0;
+  enTransaccion(db, () => {
+    const actualiza = db.prepare(`update trabajos set estado='pendiente', siguiente_intento=null, intentos=0,
+        ultimo_error='calendario con jornadas ya jugadas sin partidos (la página no las desplegó): se vuelve a leer',
+        actualizado_en=?
+      where clave=? and estado in ('hecho','cancelado')`);
+    for (const g of grupos) {
+      const clave = claveTrabajo('calendario', { temporada: g.temporada, competicion: g.competicion, grupo: g.grupo });
+      reactivados += Number(actualiza.run(ahoraIso(), clave).changes ?? 0);
+    }
+    guardaMetadato(db, 'calendarios_incompletos_reactivados_en', ahoraIso());
+  });
+  return { grupos: grupos.length, reactivados };
+}
+
+/**
+ * ── COMPETICIONES DE TEMPORADAS CERRADAS CUYAS ACTAS LA FCF YA NO PUBLICA (22/10/2026) ───────────────────────
+ *
+ * Medido con `scripts/vigia-colas.mjs` (regla «calidad_actas»): en 2025-26 la FCF sirve las actas de base
+ * (cadetes, infantiles…) VACÍAS —sin alineaciones y «No hi ha gols registrats» con un 10-0 en el marcador—,
+ * mientras que las mismas categorías de 2026-27 vienen completas: al cerrar la temporada borra los datos de los
+ * menores. Y las nacionales (Primera y Segona Federació, División de Honor Juvenil) nunca traen datos: son de
+ * la RFEF. Pedirlas es gastar peticiones: CADET PRIMERA DIVISIÓ S16 tenía 156 actas vacías, ninguna con datos y
+ * 3.985 pendientes; en total ~10.500 actas pendientes así.
+ *
+ * Igual que `cierraCompeticionesSinDatos` de las PNFG: en una temporada CERRADA, si una competición ya tiene al
+ * menos 20 actas hechas y vacías y NINGUNA con datos, el resto se cierra como `sin_datos` sin pedirlo, con el
+ * motivo escrito. Basta una con datos para que siga. Una vez al día.
+ */
+function cierraCompeticionesSinDatosCataluna(db) {
+  const haceUnDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const ultima = leeMetadato(db, 'competiciones_sin_datos_revisadas_en');
+  if (ultima && ultima > haceUnDia) return { competiciones: 0, actas: 0 };
+  guardaMetadato(db, 'competiciones_sin_datos_revisadas_en', ahoraIso());
+  const actual = db.prepare('select max(cast(codigo as integer)) c from temporadas').get()?.c;
+  if (actual == null) return { competiciones: 0, actas: 0 };
+  const vacia = `(estado='hecha' and coalesce(incidencias,'') like '%sin_alineaciones%' and coalesce(incidencias,'') like '%sin_goles_leidos%')`;
+  const candidatas = db.prepare(`select temporada, competicion, sum(${vacia}) vacias,
+      sum(estado='hecha' and not ${vacia}) conDatos, sum(estado='pendiente') pendientes
+    from actas where cast(temporada as integer) < ? group by temporada, competicion
+    having conDatos = 0 and vacias >= 20 and pendientes > 0`).all(actual);
+  let actas = 0;
+  enTransaccion(db, () => {
+    for (const c of candidatas) {
+      const motivo = `la FCF no publica datos de esta competición en una temporada cerrada: ${c.vacias} actas vacías y ninguna con datos; el resto no se pide`;
+      actas += Number(db.prepare(`update actas set estado='sin_datos', incidencias=?, comprobada_en=?
+        where temporada=? and competicion=? and estado='pendiente'`).run(JSON.stringify([motivo]), ahoraIso(), c.temporada, c.competicion).changes ?? 0);
+      db.prepare(`update trabajos set estado='cancelado', ultimo_error=?, actualizado_en=?
+        where tipo='acta' and temporada=? and competicion=? and estado in ('pendiente','bloqueado')`).run(motivo, ahoraIso(), c.temporada, c.competicion);
+    }
+  });
+  return { competiciones: candidatas.length, actas };
+}
+
+/**
+ * ── ACTAS CANCELADAS COMO «COPIA» QUE RESULTAN SER DE VERDAD (21/10/2026) ──────────────────────────────────
+ *
+ * La limpieza del 25/09 canceló ~125.000 trabajos de acta por ser copias del defecto de la jornada repetida.
+ * Al releer los calendarios, un código puede aparecer AHORA en su jornada de verdad con la misma clave que se
+ * canceló, y `encola` no revive un trabajo cancelado: esa acta no se descargaría nunca. Aquí se reviven sólo
+ * los que (a) tienen hoy su partido en esa jornada con ese código y (b) no tienen el acta hecha en ninguna
+ * jornada de la temporada. Medido hoy: 3.390 candidatos y 0 por revivir (todas sus actas ya están); la guarda
+ * es para después de releer. Barato: un conjunto en memoria, sin cruzar tablas sin índice.
+ */
+function reactivaActasCopiaVerdaderas(db) {
+  const hechas = new Set(db.prepare(`select temporada||'|'||codigo k from actas where estado <> 'pendiente'`).all().map((r) => r.k));
+  const candidatos = db.prepare(`select t.clave, t.temporada, t.acta from trabajos t
+    where t.tipo='acta' and t.estado='cancelado' and t.ultimo_error like 'el código de acta ya está en la cola en su jornada%'
+      and exists (select 1 from partidos p where p.temporada=t.temporada and p.competicion=t.competicion
+        and p.grupo=t.grupo and p.jornada=t.jornada and p.codigo_acta=t.acta)`).all()
+    .filter((c) => !hechas.has(`${c.temporada}|${c.acta}`));
+  if (!candidatos.length) return 0;
+  enTransaccion(db, () => {
+    const revive = db.prepare(`update trabajos set estado='pendiente', intentos=0, siguiente_intento=null,
+        ultimo_error='era una copia, pero el calendario releído la pone en esta jornada y el acta no está: se descarga',
+        actualizado_en=? where clave=? and estado='cancelado'`);
+    for (const c of candidatos) revive.run(ahoraIso(), c.clave);
+  });
+  return candidatos.length;
+}
+
+/**
+ * ── RELEER LAS ACTAS GUARDADAS SIN TARJETAS, CAMBIOS NI CÓDIGOS (22/10/2026) ───────────────────────────────
+ *
+ * Todo lo leído antes del 22/10 (16:24) tiene alineaciones y goles, pero ni tarjetas, ni cambios, ni código de
+ * jugador: la ficha los pinta con iconos que no se leían, y el JSON guardado tampoco los tiene. Sólo se recuperan
+ * volviendo a pedir la ficha. Se hace UNA vez (marca en `metadatos`) y sólo con las actas que tienen alineaciones:
+ *   · temporada EN CURSO: con su prioridad normal (es lo que se consulta: ~12.000 actas, unos dos días);
+ *   · temporada anterior: en el carril de relectura, DETRÁS de todo lo pendiente (no frena lo nuevo).
+ * El acta sigue «hecha» mientras tanto (sus datos siguen visibles) y, si la relectura viniera sin alineaciones,
+ * se conserva lo guardado (ver `capturaActa`). Reversible: son trabajos `pendiente` con su motivo escrito.
+ */
+function reencolaActasSinIconos(db) {
+  if (leeMetadato(db, 'actas_sin_iconos_reencoladas_en')) return { actual: 0, anterior: 0 };
+  const actual = db.prepare('select max(cast(codigo as integer)) c from temporadas').get()?.c;
+  if (actual == null) return { actual: 0, anterior: 0 };
+  const filas = db.prepare(`select a.temporada, a.competicion, a.grupo, a.jornada, a.codigo acta, coalesce(co.nombre,'') nombre
+    from actas a left join competiciones co on co.temporada=a.temporada and co.codigo=a.competicion
+    where a.estado='hecha' and a.comprobada_en < ? and cast(a.temporada as integer) >= ?
+      and coalesce(a.incidencias,'') not like '%sin_alineaciones%'`).all(CORTE_ACTAS_SIN_ICONOS, Number(actual) - 1);
+  const cuenta = { actual: 0, anterior: 0 };
+  enTransaccion(db, () => {
+    const vuelve = db.prepare(`update trabajos set estado='pendiente', intentos=0, siguiente_intento=null, prioridad=?,
+        ultimo_error='relectura: el acta se guardó sin tarjetas, cambios ni códigos de jugador', actualizado_en=?
+      where clave=? and estado='hecho'`);
+    for (const f of filas) {
+      const enCurso = Number(f.temporada) === Number(actual);
+      const prioridad = prioridadPlaneada('acta', f.nombre, f.temporada) + (enCurso ? 0 : CARRIL_RELECTURA);
+      const cambios = Number(vuelve.run(prioridad, ahoraIso(), claveTrabajo('acta', f)).changes ?? 0);
+      if (cambios) cuenta[enCurso ? 'actual' : 'anterior'] += 1;
+    }
+    guardaMetadato(db, 'actas_sin_iconos_reencoladas_en', ahoraIso());
+  });
+  return cuenta;
+}
+
+/**
+ * ── LAS ACTAS DE LOS DESCANSOS NO SE PIDEN (22/10/2026) ──────────────────────────────────────────────────
+ *
+ * La FCF da código de acta también a la fila «Descans» del calendario (el equipo que libra). Su ficha es «TBD -
+ * equipo», «Pendent» y vacía, siempre. Medido el 21/10: 19.299 descansos con código entre 2025-26 y 2026-27,
+ * 11.528 actas de ésas en cola (~35 h de recolector) y 1.724 ya pedidas. Ya no se encolan (ver `esDescanso`);
+ * aquí se retiran las que esperaban, con el motivo escrito. Se recorre desde los descansos (pocos) y cada trabajo
+ * se busca por su clave: barato en cada `preparar`. Reversible: basta devolver esos trabajos a `pendiente`.
+ */
+function retiraActasDeDescansos(db) {
+  const descansos = db.prepare(`select temporada, competicion, grupo, jornada, codigo_acta acta from partidos
+    where codigo_acta is not null and codigo_acta <> ''
+      and ((local like 'Descans%' and equipo_local_codigo is null) or (visitante like 'Descans%' and equipo_visitante_codigo is null))`).all();
+  const motivo = 'descanso: la FCF da código de acta al equipo que libra, pero su ficha va siempre vacía; no se pide';
+  let retiradas = 0;
+  enTransaccion(db, () => {
+    const trabajo = db.prepare(`update trabajos set estado='cancelado', ultimo_error=?, actualizado_en=?
+      where clave=? and estado in ('pendiente','bloqueado')`);
+    const acta = db.prepare(`update actas set estado='sin_datos', incidencias=? where temporada=? and competicion=?
+      and grupo=? and jornada=? and codigo=? and estado='pendiente'`);
+    for (const d of descansos) {
+      const clave = claveTrabajo('acta', d);
+      retiradas += Number(trabajo.run(motivo, ahoraIso(), clave).changes ?? 0);
+      acta.run(JSON.stringify(['descanso']), d.temporada, d.competicion, d.grupo, d.jornada, d.acta);
+    }
+  });
+  return retiradas;
+}
+
+/**
+ * ── DÍA, HORA, CAMPO Y ÁRBITROS PERDIDOS AL RELEER CALENDARIOS (22/10/2026) ───────────────────────────────
+ *
+ * Releer un calendario borraba y volvía a escribir los partidos de cada jornada, y con ellos lo que sólo da el
+ * acta (hora, campo, árbitros, día exacto). Ya no pasa (se reponen al releer), pero lo perdido hasta hoy era
+ * ~8.300 partidos con acta leída y sin campo ni árbitro. Se recupera SIN PEDIR NADA: del JSON de la ficha que
+ * está en disco. Por tandas de 2.000 actas en cada `preparar`, con un cursor (la clave de la última revisada)
+ * para no repetir; al acabar, queda apuntado y no vuelve a mirar.
+ */
+function reponDetallesDesdeFichas(db, tanda = 2000) {
+  if (leeMetadato(db, 'detalles_repuestos_en')) return { revisadas: 0, repuestas: 0 };
+  const cursor = leeMetadato(db, 'detalles_repuestos_cursor') ?? '';
+  const filas = db.prepare(`select a.temporada, a.competicion, a.grupo, a.jornada, a.codigo acta, a.archivo
+    from actas a join partidos p on p.temporada=a.temporada and p.competicion=a.competicion and p.grupo=a.grupo
+      and p.jornada=a.jornada and p.codigo_acta=a.codigo
+    where a.estado='hecha' and a.archivo is not null and p.campo is null
+      and (a.temporada||'|'||a.competicion||'|'||a.grupo||'|'||printf('%04d', a.jornada)||'|'||a.codigo) > ?
+    order by a.temporada, a.competicion, a.grupo, a.jornada, a.codigo limit ?`).all(cursor, tanda);
+  if (!filas.length) {
+    guardaMetadato(db, 'detalles_repuestos_en', ahoraIso());
+    return { revisadas: 0, repuestas: 0 };
+  }
+  let repuestas = 0;
+  enTransaccion(db, () => {
+    for (const f of filas) {
+      try {
+        const doc = JSON.parse((leeArchivo(f.archivo) ?? Buffer.from('{}')).toString('utf8').replace(/^\uFEFF/, ''));
+        if (!doc.detalles && !doc.secciones) continue;
+        apuntaDetallesDelPartido(db, f, doc.detalles);
+        const equipos = (doc.equipos ?? []).map((n) => String(n).replace(/\s*\|\s*.*$/, '').trim());
+        const { arbitros } = interpretaActa({ secciones: doc.secciones ?? [], marcador: doc.marcador ?? null }, equipos);
+        const reales = arbitros.filter((a) => !/^sense\s+[àa]rbitres/i.test(String(a).trim()));
+        if (reales.length) {
+          db.prepare(`update partidos set arbitro=coalesce(arbitro, ?) where temporada=? and competicion=? and grupo=?
+            and jornada=? and codigo_acta=?`).run(reales.join(' / '), f.temporada, f.competicion, f.grupo, f.jornada, f.acta);
+        }
+        repuestas += 1;
+      } catch { /* ficha ilegible: se deja como está */ }
+    }
+    const u = filas[filas.length - 1];
+    guardaMetadato(db, 'detalles_repuestos_cursor',
+      `${u.temporada}|${u.competicion}|${u.grupo}|${String(u.jornada).padStart(4, '0')}|${u.acta}`);
+  });
+  return { revisadas: filas.length, repuestas };
+}
+
+/**
+ * ── «TITULARES: 14» NO ES UN DEFECTO: ES FÚTBOL 7 (22/10/2026) ─────────────────────────────────────────────
+ *
+ * `evaluaCalidad` exigía 22 titulares, y el fútbol 7 (14), el 8 (16) y el sala (10) quedaban «a revisar»: en la
+ * 2026-27, 4.100 de las 10.100 actas «revisar». Ya está corregido para lo que se lea; esto corrige UNA VEZ lo ya
+ * guardado, contando los titulares de cada lado en `participaciones` (por clave primaria). Si los dos lados
+ * alinean lo mismo y es una modalidad conocida, se quita esa incidencia (y si no queda ninguna, «correcta»).
+ */
+function recalificaTitularesPorModalidad(db) {
+  if (leeMetadato(db, 'calidad_por_modalidad_aplicada_en')) return 0;
+  const filas = db.prepare(`select temporada, competicion, grupo, jornada, codigo, incidencias from actas
+    where estado='hecha' and incidencias like '%"titulares:%'`).all();
+  const cuenta = db.prepare(`select sum(lado='local') l, sum(lado='visitante') v from participaciones
+    where temporada=? and competicion=? and grupo=? and jornada=? and acta=? and condicion='titulares'`);
+  const actualiza = db.prepare(`update actas set calidad=?, incidencias=? where temporada=? and competicion=?
+    and grupo=? and jornada=? and codigo=?`);
+  let corregidas = 0;
+  enTransaccion(db, () => {
+    for (const f of filas) {
+      const c = cuenta.get(f.temporada, f.competicion, f.grupo, f.jornada, f.codigo);
+      if (!(c && c.l === c.v && [5, 7, 8, 9, 11].includes(Number(c.l)))) continue;
+      let incidencias = [];
+      try { incidencias = JSON.parse(f.incidencias); } catch { continue; }
+      const quedan = incidencias.filter((i) => !String(i).startsWith('titulares:'));
+      actualiza.run(quedan.length ? 'revisar' : 'correcta', JSON.stringify(quedan),
+        f.temporada, f.competicion, f.grupo, f.jornada, f.codigo);
+      corregidas += 1;
+    }
+    guardaMetadato(db, 'calidad_por_modalidad_aplicada_en', ahoraIso());
+  });
+  return corregidas;
+}
+
+/**
+ * ── ACTAS DADAS POR HECHAS ANTES DE JUGARSE EL PARTIDO (22/10/2026) ───────────────────────────────────────
+ *
+ * Hasta hoy, una ficha con «Pendent» (partido aún sin jugar, ver decideActaSinJugar) se guardaba como hecha y
+ * vacía, y no se volvía a pedir. Aquí se devuelven a la cola las de la temporada EN CURSO que (a) están hechas
+ * «sin alineaciones» y (b) se leyeron el día del partido o antes, según la fecha que hoy tiene el partido (la
+ * propia ficha la corrigió al leerla). Vuelven para el día siguiente al partido (o ya, si fue antes). Medido el
+ * 21/10 en la copia de la cola: ~1.650 actas. Idempotente: al volver a `pendiente` ya no cumplen (a), y tras
+ * releerlas después del partido ya no cumplen (b). Sólo usa claves primarias: barato en cada `preparar`.
+ */
+function reactivaActasLeidasAntesDeJugarse(db) {
+  const actual = db.prepare('select max(cast(codigo as integer)) c from temporadas').get()?.c;
+  if (actual == null) return 0;
+  const candidatas = db.prepare(`select a.temporada, a.competicion, a.grupo, a.jornada, a.codigo acta,
+      coalesce(p.fecha, j.fecha) fecha, coalesce(co.nombre, '') nombre
+    from actas a
+    left join competiciones co on co.temporada=a.temporada and co.codigo=a.competicion
+    join partidos p on p.temporada=a.temporada and p.competicion=a.competicion and p.grupo=a.grupo
+      and p.jornada=a.jornada and p.codigo_acta=a.codigo
+    left join jornadas j on j.temporada=a.temporada and j.competicion=a.competicion and j.grupo=a.grupo and j.numero=a.jornada
+    where a.temporada=? and a.estado='hecha' and coalesce(a.incidencias,'') like '%sin_alineaciones%'
+      and a.comprobada_en is not null and coalesce(p.fecha, j.fecha) is not null
+      and substr(a.comprobada_en,1,10) <= substr(coalesce(p.fecha, j.fecha),1,10)`).all(String(actual));
+  if (!candidatas.length) return 0;
+  const ahora = Date.now();
+  enTransaccion(db, () => {
+    const aPendiente = db.prepare(`update actas set estado='pendiente' where temporada=? and competicion=? and grupo=?
+      and jornada=? and codigo=? and estado='hecha'`);
+    const vuelve = db.prepare(`update trabajos set estado='pendiente', intentos=0, siguiente_intento=?,
+        ultimo_error='el acta se leyó antes de jugarse el partido: se vuelve a pedir después', actualizado_en=?
+      where clave=? and estado in ('hecho','cancelado','pendiente')`);
+    for (const c of candidatas) {
+      const datos = { temporada: c.temporada, competicion: c.competicion, grupo: c.grupo, jornada: c.jornada, acta: c.acta };
+      const diaSiguiente = Date.parse(`${String(c.fecha).slice(0, 10)}T06:00:00Z`) + 24 * 60 * 60_000;
+      const hasta = new Date(Math.max(ahora, Number.isFinite(diaSiguiente) ? diaSiguiente : ahora)).toISOString();
+      aPendiente.run(c.temporada, c.competicion, c.grupo, c.jornada, c.acta);
+      const clave = encola(db, 'acta', datos, prioridadPlaneada('acta', c.nombre, c.temporada));
+      vuelve.run(hasta, ahoraIso(), clave);
+    }
+  });
+  return candidatas.length;
+}
+
+/**
+ * ── ACTAS DE PARTIDOS YA JUGADOS QUE NUNCA SE ENCOLARON (15/10/2026) ─────────────────────────────────────
+ *
+ * El calendario sólo encola el acta de las jornadas YA disputadas el día en que se lee. Pero cada calendario se
+ * lee una vez: lo que era futuro ese día no se volvía a mirar, y esas actas no entraban nunca en la cola.
+ *
+ * Esto lo arregla sin pedir nada a la web: busca en la propia cola los partidos con código de acta, fecha ya
+ * pasada y sin fila en `actas`, y los encola igual que lo haría el calendario (mismos menores, misma prioridad).
+ *
+ * OJO, medido después: de esas 41.646 filas sólo hay **14.293 códigos distintos**. Las otras ~27.000 son COPIAS
+ * del defecto de «todas las jornadas iguales»: el mismo código repetido en cada jornada del grupo. Por eso sólo
+ * se recupera un código que (a) no tenga acta en ninguna jornada de su temporada y (b) aparezca en UNA sola fila
+ * de `partidos`: si aparece en varias, no se sabe cuál es su jornada de verdad y no se adivina.
+ */
+function encolaActasYaJugadas(db) {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const filas = db.prepare(`with unicos as (
+      select temporada, codigo_acta from partidos where codigo_acta is not null and codigo_acta <> ''
+      group by temporada, codigo_acta having count(*) = 1
+    ), con_acta as (select distinct temporada, codigo from actas)
+    select p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta, coalesce(c.nombre, '') nombre
+    from partidos p
+    join unicos u on u.temporada = p.temporada and u.codigo_acta = p.codigo_acta
+    left join con_acta ca on ca.temporada = p.temporada and ca.codigo = p.codigo_acta
+    left join jornadas j on j.temporada=p.temporada and j.competicion=p.competicion and j.grupo=p.grupo
+      and j.numero=p.jornada
+    left join competiciones c on c.temporada=p.temporada and c.codigo=p.competicion
+    where ca.codigo is null
+      and not ((p.local like 'Descans%' and p.equipo_local_codigo is null)
+        or (p.visitante like 'Descans%' and p.equipo_visitante_codigo is null))
+      and coalesce(p.fecha, j.fecha) is not null and substr(coalesce(p.fecha, j.fecha), 1, 10) <= ?`).all(hoy);
+  if (!filas.length) return 0;
+  enTransaccion(db, () => {
+    const inserta = db.prepare(`insert into actas(codigo,temporada,competicion,grupo,jornada,menores,estado)
+      values(?,?,?,?,?,?,'pendiente') on conflict(temporada,competicion,grupo,jornada,codigo)
+      do update set menores=excluded.menores`);
+    for (const f of filas) {
+      const menores = /juvenil|cadet|infantil|alev|benjam|prebenjam|debutant|iniciacio|querubi/i.test(f.nombre) ? 1 : 0;
+      inserta.run(f.codigo_acta, f.temporada, f.competicion, f.grupo, f.jornada, menores);
+      encola(db, 'acta', {
+        temporada: f.temporada, competicion: f.competicion, grupo: f.grupo, jornada: f.jornada, acta: f.codigo_acta,
+      }, prioridadPlaneada('acta', f.nombre, f.temporada));
+    }
+  });
+  return filas.length;
+}
+
 try {
   if (comando === 'preparar') {
     const r = preparaCola(db, leeCatalogo());
@@ -1287,6 +1959,47 @@ try {
     const c = resumenCola(db);
     console.log(`Cola: ${c.total} trabajos (${c.pendiente} pendientes).`);
     if (r.reordenados) console.log(`  · ${r.reordenados} trabajos reordenados según la categoría actual.`);
+    const repetidos = reactivaCalendariosRepetidos(db);
+    if (repetidos.reactivados) {
+      console.log(`  · ${repetidos.reactivados} calendarios con las jornadas repetidas vuelven a leerse ` +
+        `(${repetidos.grupos} grupos afectados).`);
+    }
+    const incompletos = reactivaCalendariosIncompletos(db);
+    if (incompletos.reactivados) {
+      console.log(`  · ${incompletos.reactivados} calendarios con jornadas ya jugadas sin partidos vuelven a leerse ` +
+        `(${incompletos.grupos} grupos afectados).`);
+    }
+    // 21/10/2026: 187 calendarios releídos se guardaron con la fecha de partido vacía (ver la lectura desde React).
+    // La jornada sí la conserva; se copia al partido para que el importador y `encolaActasYaJugadas` la vean.
+    const conFecha = db.prepare(`update partidos set fecha = (select j.fecha from jornadas j where j.temporada=partidos.temporada
+        and j.competicion=partidos.competicion and j.grupo=partidos.grupo and j.numero=partidos.jornada)
+      where fecha is null and exists (select 1 from jornadas j where j.temporada=partidos.temporada
+        and j.competicion=partidos.competicion and j.grupo=partidos.grupo and j.numero=partidos.jornada and j.fecha is not null)`).run();
+    if (conFecha.changes) console.log(`  · ${conFecha.changes} partidos sin fecha toman la de su jornada.`);
+    const sinDatos = cierraCompeticionesSinDatosCataluna(db);
+    if (sinDatos.actas) console.log(`  · ${sinDatos.competiciones} competiciones de temporadas cerradas sin datos en la web: ${sinDatos.actas} actas no se piden.`);
+    const revividas = reactivaActasCopiaVerdaderas(db);
+    if (revividas) console.log(`  · ${revividas} actas canceladas como copia que el calendario releído confirma: vuelven a la cola.`);
+    const repuestos = reponDetallesDesdeFichas(db);
+    if (repuestos.revisadas) console.log(`  · ${repuestos.repuestas} de ${repuestos.revisadas} partidos recuperan día, hora, campo y árbitros desde la ficha guardada.`);
+    // Lo que no es un dato: «SENSE ÀRBITRES ASSIGNATS» como árbitro y «E» como campo (la ficha de un descanso).
+    const limpios = db.prepare(`update partidos set arbitro=null where arbitro like 'SENSE %RBITRES%'`).run().changes
+      + db.prepare(`update partidos set campo=null where campo='E'`).run().changes;
+    if (limpios) console.log(`  · ${limpios} árbitros o campos que no lo eran («SENSE ÀRBITRES ASSIGNATS», «E») se vacían.`);
+    const recalificadas = recalificaTitularesPorModalidad(db);
+    if (recalificadas) console.log(`  · ${recalificadas} actas de fútbol 7/8/sala dejan de estar «a revisar» por tener menos de 22 titulares.`);
+    const antesDeJugarse = reactivaActasLeidasAntesDeJugarse(db);
+    if (antesDeJugarse) console.log(`  · ${antesDeJugarse} actas leídas antes de jugarse el partido: vuelven a la cola para después del partido.`);
+    // Después de devolver las leídas antes de tiempo: entre ellas hay descansos, que aquí salen.
+    const descansos = retiraActasDeDescansos(db);
+    if (descansos) console.log(`  · ${descansos} actas de descansos («Descans», sin equipo) salen de la cola: su ficha va siempre vacía.`);
+    const sinIconos = reencolaActasSinIconos(db);
+    if (sinIconos.actual || sinIconos.anterior) {
+      console.log(`  · Relectura de actas guardadas sin tarjetas/cambios/códigos: ${sinIconos.actual} de la temporada en curso ` +
+        `(prioridad normal) y ${sinIconos.anterior} de la anterior (detrás de todo lo pendiente).`);
+    }
+    const recuperadas = encolaActasYaJugadas(db);
+    if (recuperadas) console.log(`  · ${recuperadas} actas de partidos ya jugados que nunca se habían encolado: a la cola.`);
   } else if (comando === 'arrancar') {
     await ejecutar(db);
   } else if (comando === 'reparar') {

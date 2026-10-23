@@ -7,6 +7,7 @@ import type { Repositorio } from '../destino/repositorio.js';
 import type { FilaCompeticion, FilaGrupo, FilaJornada } from '../origen/cola.js';
 import {
   ambitoDesdeNombre, categoriaDesdeNombre, generoDesdeNombre, modalidadDesdeNombre, fechaIso,
+  divisionDesdeNombre, provinciaDesdeNombre,
 } from '../origen/vocabularios.js';
 import { contextoDe, type Normalizador } from './contexto.js';
 
@@ -72,7 +73,11 @@ export async function resuelveEdicion(
   const modalidad = modalidadDesdeNombre(nombre);
   const genero = generoDesdeNombre(nombre);
   const categoria = categoriaDesdeNombre(nombre);
+  const division = divisionDesdeNombre(nombre);
   const confianza = Math.min(ambito.confianza, 1) * 0.5 + categoria.confianza * 0.5;
+  // La columna `division` llega con la migración 0025. Si el código se despliega antes que la migración,
+  // el importador sigue funcionando sin ella en vez de pararse.
+  const conDivision = await tieneColumnaDivision(cliente);
   const id = await repo.upsert(
     'core.competition_edition',
     {
@@ -85,8 +90,9 @@ export async function resuelveEdicion(
       modalidad: modalidad.modalidad,
       genero: genero.genero,
       categoria: categoria.categoria,
-      provincia: null,
-      nivel: null,
+      provincia: provinciaDesdeNombre(nombre),
+      nivel: division.nivel,
+      ...(conDivision ? { division: division.division } : {}),
       estado: estadoEdicion(entrada.fechas),
       classification_confidence: Number(confianza.toFixed(2)),
       data_version: 1,
@@ -96,6 +102,16 @@ export async function resuelveEdicion(
   await registraRef(repo, { federacionId, entityType: 'competition_edition', externalId: competicion.codigo, contextKey, canonicalId: id });
   if (existente === null) await normalizador.normaliza(nombre);
   return id;
+}
+
+let columnaDivision: Promise<boolean> | null = null;
+/** ¿Existe `core.competition_edition.division` (migración 0025)? Se pregunta una vez por proceso. */
+function tieneColumnaDivision(cliente: ClienteCanonico): Promise<boolean> {
+  columnaDivision ??= cliente.query<{ ok: boolean }>(
+    `select exists (select 1 from information_schema.columns
+                     where table_schema = 'core' and table_name = 'competition_edition' and column_name = 'division') as ok`,
+  ).then((r) => Boolean(r.rows[0]?.ok)).catch(() => false);
+  return columnaDivision;
 }
 
 export async function resuelveGrupo(

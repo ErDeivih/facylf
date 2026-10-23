@@ -27,6 +27,10 @@ $accion = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\wscript.exe
 $alEntrar = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
 $alEntrar.Delay = 'PT3M'
 $cadaDia = New-ScheduledTaskTrigger -Daily -At 06:05
+# Red de seguridad cada 30 min (16/10/2026): la noche del 15/10 el supervisor murio hacia las 21:09 sin dejar
+# rastro y la flota estuvo parada 12 h hasta el siguiente inicio de sesion. Con MultipleInstances IgnoreNew, si
+# el supervisor sigue vivo este disparador no hace nada; si murio, lo levanta en media hora como mucho.
+$cadaMediaHora = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(2) -RepetitionInterval (New-TimeSpan -Minutes 30) -RepetitionDuration (New-TimeSpan -Days 3650)
 
 $ajustes = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
     -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable `
@@ -35,7 +39,7 @@ $ajustes.IdleSettings.StopOnIdleEnd = $false
 
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
 
-Register-ScheduledTask -TaskName 'FACyLF flota' -Action $accion -Trigger @($alEntrar, $cadaDia) `
+Register-ScheduledTask -TaskName 'FACyLF flota' -Action $accion -Trigger @($alEntrar, $cadaDia, $cadaMediaHora) `
     -Settings $ajustes -Principal $principal -Force `
     -Description 'Supervisor unico de la flota: mantiene las 19 federaciones desde un solo proceso Node (sustituye a las 19 tareas de recolector).' | Out-Null
 

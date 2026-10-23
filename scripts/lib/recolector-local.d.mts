@@ -63,4 +63,5 @@ export function extraeGrupos(html: string): Array<{ codigo: string; nombre: stri
 export function inspeccionaActa(html: string): { jugadores: number };
 export function inspeccionaPagina(html: string, tipo: string): { ok: boolean; bloqueo?: boolean; motivo?: string };
 export function urlJornada(temporada: string, competicion: string, grupo: string, jornada: number): string;
+export function urlEnPortal(url: string | null, base: string): { url?: string | null; rehecha?: boolean; hostAnterior?: string; error?: string };
 export function urlClasificacion(temporada: string, competicion: string, grupo: string, jornada: number): string;

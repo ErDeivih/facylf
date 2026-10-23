@@ -4,6 +4,7 @@
  *
  *   pnpm importar --federacion castilla-y-leon --grupo <codigo> [--temporada 2025-26]
  *   pnpm importar --federacion castilla-y-leon --temporada 2025-26        # todos sus grupos
+ *   pnpm importar --federacion castilla-y-leon --temporada 2025-26 --continuar   # sin detenerse por un grupo roto
  *   pnpm importar --federacion castilla-y-leon --grupo <codigo> --seco    # no escribe; informa
  *   pnpm importar --estado --federacion castilla-y-leon                   # lotes y cobertura
  *   pnpm importar --revertir <batch_id>
@@ -39,6 +40,10 @@ type Argumentos = {
   grupo?: string;
   seco: boolean;
   estado: boolean;
+  /** No detener la importación cuando un grupo falla: anotarlo y seguir. Ver `OpcionesLote.continuar`. */
+  continuar: boolean;
+  /** Carga masiva sin diario de cambios: el lote no se podrá revertir después. Ver `OpcionesLote.diario`. */
+  sinDiario: boolean;
   revertir?: number;
   /** Ruta de un lote de RETIRADA preparado. Sin `--aplicar` sólo se informa de lo que haría. */
   retirar?: string;
@@ -46,13 +51,15 @@ type Argumentos = {
 };
 
 function leeArgumentos(argumentos: string[]): Argumentos {
-  const salida: Argumentos = { seco: false, estado: false, aplicar: false };
+  const salida: Argumentos = { seco: false, estado: false, aplicar: false, continuar: false, sinDiario: false };
   for (let i = 0; i < argumentos.length; i += 1) {
     const actual = argumentos[i]!;
     if (actual === '--federacion') salida.federacion = argumentos[++i];
     else if (actual === '--temporada') salida.temporada = argumentos[++i];
     else if (actual === '--grupo') salida.grupo = argumentos[++i];
     else if (actual === '--seco') salida.seco = true;
+    else if (actual === '--continuar') salida.continuar = true;
+    else if (actual === '--sin-diario') salida.sinDiario = true;
     else if (actual === '--estado') salida.estado = true;
     else if (actual === '--revertir') salida.revertir = Number(argumentos[++i]);
     else if (actual === '--retirar') salida.retirar = argumentos[++i];
@@ -74,6 +81,8 @@ function leeLoteDeRetirada(ruta: string): SolicitudRetirada[] {
     lotes?: Array<{
       federacion: string; temporada?: string; competicion?: string; grupo?: string;
       nombre_del_hueco?: string; aplicable?: boolean; impedimentos?: string[];
+      /** Motivo del lote. Si no viene, se usa el de las inscripciones de descanso, que fue el primer caso. */
+      motivo?: string;
       cierre?: Array<{ tabla: string; filas: Array<Record<string, unknown>> }>;
     }>;
   };
@@ -91,7 +100,8 @@ function leeLoteDeRetirada(ruta: string): SolicitudRetirada[] {
     }
     return {
       federacion: lote.federacion,
-      motivo: `inscripción fantasma de descanso «${lote.nombre_del_hueco ?? '?'}» retirada del canónico`,
+      motivo: lote.motivo?.trim()
+        || `inscripción fantasma de descanso «${lote.nombre_del_hueco ?? '?'}» retirada del canónico`,
       temporada: lote.temporada, competicion: lote.competicion, grupo: lote.grupo,
       filas,
     };
@@ -234,6 +244,8 @@ async function principal(): Promise<void> {
       temporada: opciones.temporada,
       grupo: opciones.grupo,
       seco: opciones.seco,
+      continuar: opciones.continuar,
+      diario: !opciones.sinDiario,
     });
     if (informes.length === 0) {
       console.log('No hay grupos con datos que importar en ese ámbito.');
@@ -243,15 +255,29 @@ async function principal(): Promise<void> {
     let actualizadas = 0;
     let rechazadas = 0;
     let correctos = 0;
+    const fallidos: InformeGrupo[] = [];
     for (const informe of informes) {
+      if (informe.error !== undefined) { fallidos.push(informe); continue; }
       imprimeInforme(informe);
       for (const cuenta of Object.values(informe.contadores)) { insertadas += cuenta.insertadas; actualizadas += cuenta.actualizadas; }
       rechazadas += informe.rechazadas.length;
       if (informe.validacion.ok) correctos += 1;
     }
-    console.log(`\nRESUMEN: ${informes.length} grupo(s) · ${insertadas} filas insertadas · ${actualizadas} actualizadas · `
-      + `${rechazadas} rechazadas · validación correcta en ${correctos}/${informes.length}${opciones.seco ? ' · MODO SECO (nada escrito)' : ''}`);
-    if (correctos !== informes.length) process.exit(1);
+    console.log(`\nRESUMEN: ${informes.length - fallidos.length} grupo(s) · ${insertadas} filas insertadas · ${actualizadas} actualizadas · `
+      + `${rechazadas} rechazadas · validación correcta en ${correctos}/${informes.length - fallidos.length}${opciones.seco ? ' · MODO SECO (nada escrito)' : ''}`);
+    if (fallidos.length > 0) {
+      /*
+       * Los que no entraron salen SIEMPRE y al final, cada uno con su motivo. Con `--continuar` la
+       * importación sigue, pero un grupo que no ha entrado es cobertura que falta: esconderlo sería
+       * exactamente el tipo de silencio que este proyecto no se permite.
+       */
+      console.log(`\nGRUPOS QUE NO HAN ENTRADO (${fallidos.length}):`);
+      for (const f of fallidos) {
+        console.log(`  ✗ t${f.etiquetaTemporada} c${f.competicion} g${f.grupo}: ${f.error}`);
+      }
+      if (!opciones.continuar) process.exit(1);
+    }
+    if (opciones.continuar ? correctos === 0 : correctos !== informes.length) process.exit(1);
   } finally {
     await pool.end();
   }

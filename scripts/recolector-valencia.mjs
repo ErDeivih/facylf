@@ -50,6 +50,7 @@ import { diaDeMadrid } from './lib/dia-madrid.mjs';
 import { TEMPORADA_MINIMA, sqlExcluyeTemporadasViejas } from './lib/temporada-minima.mjs';
 import { separaDescansos, decideFilasDeJornada } from './lib/filas-descanso-isquad.mjs';
 import { decideActaSinDatos } from './lib/acta-sin-datos.mjs';
+import { decideActaAbierta } from './lib/acta-abierta.mjs';
 
 const RAIZ = resolve(import.meta.dirname, '..');
 const FEDERACION = argumento('federacion', 'valencia');
@@ -190,6 +191,15 @@ class ActaSinDatos extends ErrorFuente {
 // no puede quedar meses medio descubierta detrás de sus jornadas y actas.
 const CARRIL_DESCUBRIMIENTO = -1_000_000_000;
 const CARRIL_CATALOGO = -2_000_000_000;
+// Carril de la temporada en curso (11/10/2026): mismo criterio que `recolector-local.mjs` (ver allí la medida).
+// Todo el trabajo de la temporada actual va antes que el histórico; al no quedar nada vencido, vuelve solo al histórico.
+const CARRIL_EN_CURSO = -1_500_000_000;
+function codigoTemporadaEnCurso(ahora = new Date()) {
+  const forzada = Number(process.env.FACYLF_TEMPORADA_EN_CURSO);
+  if (Number.isFinite(forzada) && forzada > 0) return forzada;
+  const anio = ahora.getUTCFullYear();
+  return (ahora.getUTCMonth() >= 6 ? anio : anio - 1) - 2004;
+}
 const FASES = {
   catalogo_temporada: { fase: 1, sub: 0 },
   grupos: { fase: 1, sub: 0 },
@@ -226,7 +236,17 @@ function prioridadPlaneada(tipo, nombreCompeticion, temporada = null) {
   const antiguedad = Number.isFinite(codigoTemporada) ? Math.max(0, 100 - codigoTemporada) : 100;
   const orden = base * 1_000_000 + antiguedad * 10_000 + fase.fase * 1_000 + fase.sub * 100;
   if (tipo === 'catalogo_temporada') return CARRIL_CATALOGO + orden;
-  return tipo === 'grupos' ? CARRIL_DESCUBRIMIENTO + orden : orden;
+  if (Number.isFinite(codigoTemporada) && codigoTemporada >= codigoTemporadaEnCurso()) return CARRIL_EN_CURSO + orden;
+  /*
+   * El índice de jornadas también va por el carril de descubrimiento (05/10/2026). Antes sólo `grupos`: el índice
+   * competía con las actas por la prioridad de su competición, y esa cifra (categoría × 1.000.000) pesa más que la
+   * temporada y que la fase. Resultado medido: los grupos de las competiciones «de segunda» (provinciales, base,
+   * sala) se quedaban SIN LEER sus jornadas durante semanas, mientras se servían actas de temporadas viejas de
+   * las competiciones «de primera». En CyL 2025-26, 108 de 301 grupos (1ª Provincial Juvenil y Aficionados de
+   * Valladolid, León, Burgos, El Bierzo…) llevaban pendientes desde el 07/09; en Andalucía 1.001 de 1.856; en
+   * Madrid 2024-25, 1.060 de 1.201. Un índice es UNA petición por grupo y es lo que hace visible la liga entera.
+   */
+  return (tipo === 'grupos' || tipo === 'indice_jornadas') ? CARRIL_DESCUBRIMIENTO + orden : orden;
 }
 
 /**
@@ -258,6 +278,62 @@ function repriorizaPlan(db) {
     throw error;
   }
   return cambiados;
+}
+
+/**
+ * Actas de partidos SUSPENDIDOS guardadas como un 0-0 sin jugadores (antes del 23/10/2026). Una vez: se miran las
+ * hechas «sin alineaciones», y si su JSON dice `suspendido: 1`, el marcador pasa a nulo y la calidad a
+ * «administrativa» con la incidencia `partido_suspendido`. No pide nada a la web.
+ */
+function recalificaSuspendidas(db) {
+  if (leeMetadato(db, 'actas_suspendidas_recalificadas_en')) return 0;
+  const filas = db.prepare(`select temporada, competicion, grupo, jornada, codigo, archivo, datos from actas
+    where estado='hecha' and archivo is not null and coalesce(incidencias,'') like '%sin_alineaciones%'`).all();
+  let cambiadas = 0;
+  enTransaccion(db, () => {
+    const actualiza = db.prepare(`update actas set datos=?, calidad='administrativa', incidencias=? where temporada=?
+      and competicion=? and grupo=? and jornada=? and codigo=?`);
+    for (const f of filas) {
+      let ficha = null;
+      try { ficha = JSON.parse((leeArchivo(f.archivo) ?? readFileSync(f.archivo)).toString('utf8').replace(/^\uFEFF/, '')); } catch { continue; }
+      if (texto(ficha?.suspendido) !== '1') continue;
+      let datos = {};
+      try { datos = JSON.parse(f.datos ?? '{}') ?? {}; } catch { datos = {}; }
+      datos.golesLocal = null; datos.golesVisitante = null;
+      actualiza.run(JSON.stringify(datos), JSON.stringify(['partido_suspendido']), f.temporada, f.competicion, f.grupo, f.jornada, f.codigo);
+      cambiadas += 1;
+    }
+    guardaMetadato(db, 'actas_suspendidas_recalificadas_en', ahoraIso());
+  });
+  return cambiadas;
+}
+
+/**
+ * Actas de la temporada en curso que se dieron por hechas con el acta todavía ABIERTA (ver lib/acta-abierta.mjs):
+ * se vuelven a pedir. Una vez (marca en `metadatos`). Primero un filtro barato (leídas el día del partido o antes)
+ * y luego el JSON guardado de cada una, que dice si `acta_cerrada` era «0». Medido el 22/10 en Madrid: 64.
+ */
+function reabreActasLeidasAbiertas(db) {
+  if (leeMetadato(db, 'actas_abiertas_reabiertas_en')) return 0;
+  const actual = texto(db.prepare('select max(cast(codigo as integer)) codigo from temporadas').get()?.codigo);
+  if (!actual) return 0;
+  const candidatas = db.prepare(`select a.temporada, a.competicion, a.grupo, a.jornada, a.codigo acta, a.archivo
+    from actas a join partidos p on p.temporada=a.temporada and p.competicion=a.competicion and p.grupo=a.grupo
+      and p.jornada=a.jornada and p.codigo_acta=a.codigo
+    where a.temporada=? and a.estado='hecha' and a.archivo is not null and a.comprobada_en is not null
+      and substr(a.comprobada_en,1,10) <= substr(p.fecha,1,10)`).all(actual);
+  let reabiertas = 0;
+  const motivo = 'el acta se leyó todavía abierta (sin cerrar o en juego): se vuelve a pedir';
+  for (const c of candidatas) {
+    let ficha = null;
+    try { ficha = JSON.parse((leeArchivo(c.archivo) ?? readFileSync(c.archivo)).toString('utf8').replace(/^\uFEFF/, '')); } catch { continue; }
+    if (String(ficha?.acta_cerrada ?? '').trim() !== '0' || String(ficha?.suspendido ?? '').trim() === '1') continue;
+    const r = db.prepare(`update trabajos set estado='pendiente', intentos=0, siguiente_intento=null, ultimo_error=?,
+      actualizado_en=? where clave=? and estado='hecho'`).run(motivo, ahoraIso(), claveTrabajo('acta', c));
+    reabiertas += Number(r.changes ?? 0);
+  }
+  guardaMetadato(db, 'actas_abiertas_reabiertas_en', ahoraIso());
+  return reabiertas;
 }
 
 /** Recupera clasificaciones de la temporada vigente que una versión anterior dio por terminadas
@@ -440,10 +516,81 @@ let ROBOTS = { disponible: false, reglas: [] };
  * La fuente marca `estado` y `sesion_ok`; si no son 1, la respuesta no es válida y se trata como
  * error en vez de guardar datos a medias.
  */
-async function pideJson(ritmo, db, trabajo, ruta) {
+/*
+ * ── LA FICHA DE PÁGINA DE LA FFCV (decisión de David, 20/10/2026) ──────────────────────────────────────────────
+ *
+ * Desde el 06/10 la API de ffcv.es sólo contesta si la petición trae la «ficha de página» que la propia página
+ * pública pone en `<meta name="ffcv-pt">` y que su guion añade como cabecera `X-FFCV-Page-Token`, junto con la
+ * cookie de sesión `ffcv_sid` (petición 166). Sin ella: 403 INVALID_PAGE_TOKEN.
+ *
+ * David decide seguir el mismo camino que sigue cualquier visitante: abrir la página pública, leer su ficha y
+ * enviarla en las consultas, uno a uno y despacio. Lo que NO cambia, y es la línea que no se cruza:
+ *   · el agente sigue siendo FacylfBot con su contacto (no nos hacemos pasar por un navegador);
+ *   · ritmo de 10-14 s entre peticiones (la página también cuenta como petición), una a la vez;
+ *   · nunca se pide el enlace-trampa `/competiciones/api/__hpt__/` ni nada que no sea la API de datos;
+ *   · si con ficha válida la web vuelve a negar (403/429), es una negativa contra NOSOTROS: se para 30 días.
+ * La ficha se renueva al cumplir 20 min o cuando la web dice que ya no vale (una sola vez por petición).
+ */
+let SESION_FFCV = null;            // { ficha, cookie, desde }
+const VIDA_SESION_FFCV_MS = 20 * 60_000;
+
+function cookieDeRespuesta(respuesta) {
+  const lista = typeof respuesta.headers.getSetCookie === 'function'
+    ? respuesta.headers.getSetCookie() : [respuesta.headers.get('set-cookie') ?? ''];
+  for (const c of lista) {
+    const m = /(?:^|,\s*)ffcv_sid=([^;]+)/.exec(c ?? '');
+    if (m) return m[1];
+  }
+  return null;
+}
+
+async function abreSesionFfcv(ritmo, db, trabajo) {
+  const url = new URL(`${PORTAL}/`);
+  await ritmo.antes();
+  const inicio = Date.now();
+  const iniciadaEn = new Date(inicio).toISOString();
+  let respuesta;
+  try {
+    respuesta = await fetch(url, {
+      headers: { Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.1', 'User-Agent': identidad() },
+      signal: AbortSignal.timeout(45_000),
+    });
+  } catch (error) {
+    registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs: Date.now() - inicio,
+      resultado: 'error', detalle: `página para la ficha: ${error instanceof Error ? error.message : String(error)}` });
+    throw error;
+  }
+  const html = await respuesta.text();
+  const duracionMs = Date.now() - inicio;
+  const ficha = /<meta[^>]+name=["']ffcv-pt["'][^>]+content=["']([0-9a-f]{16,})["']/i.exec(html)?.[1]
+    ?? /<meta[^>]+content=["']([0-9a-f]{16,})["'][^>]+name=["']ffcv-pt["']/i.exec(html)?.[1] ?? null;
+  const cookie = cookieDeRespuesta(respuesta);
+  registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs,
+    resultado: respuesta.ok && ficha ? 'ok' : 'error',
+    detalle: `página para la ficha: HTTP ${respuesta.status}${ficha ? '' : ' sin ficha'}${cookie ? '' : ' sin cookie'}` });
+  if ([401, 403, 429, 451].includes(respuesta.status)) {
+    throw new ErrorFuente(`HTTP ${respuesta.status} en la página pública de competiciones`, true);
+  }
+  if (!respuesta.ok || !ficha) {
+    throw new ErrorFuente(`la página pública no trae la ficha de página (HTTP ${respuesta.status})`, false, false, 1);
+  }
+  SESION_FFCV = { ficha, cookie, desde: Date.now() };
+  return SESION_FFCV;
+}
+
+async function pideJson(ritmo, db, trabajo, ruta, { vacioEsperable = false, renovada = false } = {}) {
   const url = new URL(ruta, `${PORTAL}/`);
   if (!rutaPermitida(url.pathname, ROBOTS)) {
     throw new ErrorFuente(`robots.txt no permite consultar ${url.pathname} con un agente genérico`);
+  }
+  if (/__hpt__/i.test(url.pathname)) throw new ErrorFuente('ruta-trampa para robots: no se pide nunca');
+  const cabeceras = { Accept: 'application/json,text/plain;q=0.9,*/*;q=0.1', 'User-Agent': identidad() };
+  if (!ES_MADRID) {
+    if (!SESION_FFCV || Date.now() - SESION_FFCV.desde > VIDA_SESION_FFCV_MS) await abreSesionFfcv(ritmo, db, trabajo);
+    cabeceras['X-FFCV-Page-Token'] = SESION_FFCV.ficha;
+    cabeceras['X-Requested-With'] = 'XMLHttpRequest';
+    cabeceras.Referer = `${PORTAL}/`;
+    if (SESION_FFCV.cookie) cabeceras.Cookie = `ffcv_sid=${SESION_FFCV.cookie}`;
   }
   await ritmo.antes();
   const inicio = Date.now();
@@ -451,10 +598,7 @@ async function pideJson(ritmo, db, trabajo, ruta) {
   let respuesta;
   try {
     respuesta = await fetch(url, {
-      headers: {
-        Accept: 'application/json,text/plain;q=0.9,*/*;q=0.1',
-        'User-Agent': identidad(),
-      },
+      headers: cabeceras,
       signal: AbortSignal.timeout(45_000),
     });
   } catch (error) {
@@ -464,6 +608,10 @@ async function pideJson(ritmo, db, trabajo, ruta) {
   }
   const cuerpo = await respuesta.text();
   const duracionMs = Date.now() - inicio;
+  if (!ES_MADRID && SESION_FFCV) {
+    const nueva = cookieDeRespuesta(respuesta);
+    if (nueva) SESION_FFCV.cookie = nueva;
+  }
 
   // Barrera real: la web nos frena de forma explícita. Son los códigos en los que la negativa es
   // una decisión sobre QUIÉN pedimos (sin autorización, prohibido, demasiadas peticiones).
@@ -474,9 +622,31 @@ async function pideJson(ritmo, db, trabajo, ruta) {
   // momentáneo del servidor. Un 503 se trata como sobrecarga: intento fallido, reintento escalonado
   // y una pausa corta de una hora, que respeta la señal sin congelar la federación un día.
   if ([401, 403, 429, 451].includes(respuesta.status)) {
+    /*
+     * ── BLOQUEO DECLARADO POR LA WEB (20/10/2026) ──────────────────────────────────────────────────────────
+     *
+     * Desde el 06/10 la FFCV exige a su API una «ficha de página» (`X-FFCV-Page-Token`, la meta `ffcv-pt` de la
+     * página, ligada a la cookie `ffcv_sid`) y ha puesto un enlace-trampa para robots (`/competiciones/api/__hpt__/`).
+     * Sin ficha contesta 403 con `x-ffcv-reason-code: INVALID_PAGE_TOKEN` y `{"error":"blocked"}` (petición 165).
+     * Es una medida deliberada contra el acceso automático a su API: imitar la ficha sería saltarse el bloqueo, y
+     * eso no se hace. Se para la federación 30 días (no un sondeo diario que la web ve como insistencia) y se
+     * guarda el motivo para que se vea. Se reabre a mano si la FFCV da permiso o cambia su política.
+     */
+    const motivoDeclarado = respuesta.headers.get('x-ffcv-reason-code');
+    if (!ES_MADRID && motivoDeclarado === 'INVALID_PAGE_TOKEN' && !renovada) {
+      registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs,
+        resultado: 'error', detalle: `HTTP ${respuesta.status} ${motivoDeclarado}: se renueva la ficha de página` });
+      SESION_FFCV = null;
+      return pideJson(ritmo, db, trabajo, ruta, { vacioEsperable, renovada: true });
+    }
     registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs,
-      resultado: 'bloqueo', detalle: `HTTP ${respuesta.status}` });
-    throw new ErrorFuente(`HTTP ${respuesta.status} en ${url.pathname}`, true);
+      resultado: 'bloqueo', detalle: `HTTP ${respuesta.status}${motivoDeclarado ? ` ${motivoDeclarado}` : ''}` });
+    const error = new ErrorFuente(`HTTP ${respuesta.status} en ${url.pathname}${motivoDeclarado ? ` (${motivoDeclarado})` : ''}`, true);
+    if (motivoDeclarado) {
+      error.motivoDeclarado = motivoDeclarado;
+      error.peticionId = respuesta.headers.get('x-ffcv-request-id');
+    }
+    throw error;
   }
   if (respuesta.status >= 500 && respuesta.status <= 599) {
     registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs,
@@ -494,6 +664,16 @@ async function pideJson(ritmo, db, trabajo, ruta) {
     throw new ErrorFuente('barrera o límite detectado', true);
   }
 
+  // Respuesta legítimamente vacía (12/10/2026). La API de RFFM contesta `null` (4 B) a una
+  // clasificación o a unos resultados de una jornada que todavía no existe. Eso no es un fallo de la
+  // fuente: es «no hay nada aquí». Tratarlo como error sumaba al contador de fallos seguidos y dejó a
+  // Madrid en pausa preventiva a 10 peticiones/hora con 647 trabajos vencidos. Sólo se acepta donde
+  // la llamada lo pide (`vacioEsperable`); en el resto sigue siendo un error con su motivo.
+  if (vacioEsperable && /^(null|\[\]|\{\}|""|)$/.test(cuerpo.trim())) {
+    registraPeticion(db, { trabajo: trabajo.clave, url: url.href, iniciadaEn, duracionMs,
+      resultado: 'ok', detalle: `${cuerpo.length} B vacío` });
+    return {};
+  }
   let datos = null;
   try { datos = JSON.parse(cuerpo); } catch { /* respuesta no JSON */ }
   if (datos === null) {
@@ -988,10 +1168,15 @@ function interpretaFicha(ficha) {
     `${t.tipo}|${sinAcentos(t.jugador)}|${t.lado ?? ''}|${t.minuto ?? ''}`, t,
   ])).values()];
 
+  // Partido SUSPENDIDO (23/10/2026): la ficha trae «0-0» y ningún jugador, y se guardaba como si hubiera
+  // acabado 0-0 (Valencia 2026-27: cientos de partidos de fútbol sala base). Un suspendido no tiene resultado.
+  const suspendido = texto(ficha.suspendido) === '1';
+  if (suspendido) incidencias.push('partido_suspendido');
   return {
     parseada: {
       local: texto(ficha.equipo_local), visitante: texto(ficha.equipo_visitante),
-      golesLocal: entero(ficha.goles_local), golesVisitante: entero(ficha.goles_visitante),
+      golesLocal: suspendido ? null : entero(ficha.goles_local),
+      golesVisitante: suspendido ? null : entero(ficha.goles_visitante),
       lineups, tecnicos, goles, tarjetas: tarjetasUnicas, cambios,
     },
     arbitros,
@@ -1008,6 +1193,11 @@ function interpretaFicha(ficha) {
  */
 function evaluaCalidad(parseada, incidencias) {
   const lista = [...incidencias];
+  // Un partido suspendido sin jugadores no es un acta mala: es un hecho administrativo (no se jugó).
+  const titularesSusp = parseada.lineups.local.titulares.length + parseada.lineups.visitante.titulares.length;
+  if (lista.includes('partido_suspendido') && titularesSusp === 0) {
+    return { calidad: 'administrativa', incidencias: ['partido_suspendido'] };
+  }
   if (parseada.golesLocal == null || parseada.golesVisitante == null) lista.push('sin_marcador');
   const titulares = parseada.lineups.local.titulares.length + parseada.lineups.visitante.titulares.length;
   const convocados = (parseada.lineups.local.convocados?.length ?? 0)
@@ -1028,6 +1218,8 @@ function evaluaCalidad(parseada, incidencias) {
   return { calidad: unicas.length ? 'revisar' : 'correcta', incidencias: unicas };
 }
 
+/** Cuenta de actas por reparar, calculada una vez por sesión (ver el mantenimiento cada 25 trabajos). */
+let actasDesactualizadasEnSesion = null;
 function cuentaActasDesactualizadas(db) {
   return db.prepare(`select count(*) n from actas where estado='hecha' and archivo is not null
     and coalesce(version_parser,0)<?`).get(VERSION_PARSER).n;
@@ -1132,7 +1324,11 @@ async function procesa(ritmo, db, trabajo) {
   }
 
   if (trabajo.tipo === 'indice_jornadas') {
-    const datos = await pideJson(ritmo, db, trabajo, rutaIndiceJornadas(trabajo.grupo));
+    // `vacioEsperable` (15/10/2026): la API de RFFM contesta `null` (4 B) al índice de un grupo sin jornadas.
+    // Tratarlo como «sin JSON» lo contaba como fallo sistémico: cinco seguidos y la federación entera se paraba
+    // UNA HORA (en Madrid, 48 pausas así en dos días; es lo que la dejaba en ~80 peticiones/hora). Ahora llega
+    // como lista vacía y sigue el camino de abajo: reintento y, si persiste, grupo ausente, sin pausar a nadie.
+    const datos = await pideJson(ritmo, db, trabajo, rutaIndiceJornadas(trabajo.grupo), { vacioEsperable: true });
     const jornadas = datos.jornadas ?? [];
     // Un grupo puede devolver la lista vacía de forma transitoria: se comprobó el 11/09/2026 con seis
     // grupos que respondieron vacío y, al reintentarlos, tres devolvieron sus jornadas. Por eso NO se
@@ -1179,8 +1375,9 @@ async function procesa(ritmo, db, trabajo) {
         grupo: trabajo.grupo, jornada: numeroJornada,
       }, prioridadPlaneada('jornada', nombreComp, trabajo.temporada));
       if (fecha && fecha >= hoy) {
-        const manana = new Date(`${fecha}T06:00:00.000Z`);
-        manana.setUTCDate(manana.getUTCDate() + 1);
+        // La misma noche del partido (21:00 UTC), no a las 06:00 del día siguiente (11/10/2026). Lo que aún no
+        // esté publicado lo recoge el repaso de jornadas recientes de cada sesión.
+        const manana = new Date(`${fecha}T21:00:00.000Z`);
         db.prepare('update trabajos set siguiente_intento=? where clave=? and estado=\'pendiente\'')
           .run(manana.toISOString(), clave);
         aplazadas += 1;
@@ -1201,9 +1398,15 @@ async function procesa(ritmo, db, trabajo) {
   }
 
   if (trabajo.tipo === 'clasificacion') {
-    const ultima = db.prepare(`select max(numero) n from jornadas where temporada=? and competicion=? and grupo=?`)
-      .get(trabajo.temporada, trabajo.competicion, trabajo.grupo)?.n ?? 1;
-    const datos = await pideJson(ritmo, db, trabajo, rutaClasificacion(trabajo.grupo, ultima));
+    // La última jornada YA JUGADA, no la última del calendario (12/10/2026): en la temporada en curso
+    // pedir la clasificación de la jornada 34 en octubre devolvía `null` y contaba como fallo.
+    const hoyIso = new Date().toISOString().slice(0, 10);
+    const ultima = db.prepare(`select max(numero) n from jornadas where temporada=? and competicion=? and grupo=?
+        and (fecha is null or substr(fecha,1,10) <= ?)`)
+      .get(trabajo.temporada, trabajo.competicion, trabajo.grupo, hoyIso)?.n
+      ?? db.prepare(`select max(numero) n from jornadas where temporada=? and competicion=? and grupo=?`)
+        .get(trabajo.temporada, trabajo.competicion, trabajo.grupo)?.n ?? 1;
+    const datos = await pideJson(ritmo, db, trabajo, rutaClasificacion(trabajo.grupo, ultima), { vacioEsperable: true });
     const filas = (datos.clasificacion ?? []).map((f) => ({
       posicion: entero(f.posicion) ?? 0,
       equipoCodigo: texto(f.codequipo) || null,
@@ -1228,7 +1431,7 @@ async function procesa(ritmo, db, trabajo) {
   }
 
   if (trabajo.tipo === 'jornada') {
-    const datos = await pideJson(ritmo, db, trabajo, rutaResultados(trabajo.grupo, trabajo.jornada));
+    const datos = await pideJson(ritmo, db, trabajo, rutaResultados(trabajo.grupo, trabajo.jornada), { vacioEsperable: true });
     const partidos = normalizaPartidos(datos.partidos ?? []);
     // Una jornada de descanso NO es una jornada sin publicar. En los grupos de número impar de
     // equipos, la API devuelve una fila cuyo equipo es «Descansa» (código -1) y sin resultado; y en
@@ -1341,7 +1544,22 @@ async function procesa(ritmo, db, trabajo) {
     const sinContenidoDeportivo = parseada.golesLocal == null && parseada.golesVisitante == null &&
       jugadores === 0 && parseada.goles.length === 0 && parseada.tarjetas.length === 0 &&
       parseada.cambios.length === 0;
-    if (sinContenidoDeportivo) {
+    // Acta todavía ABIERTA (partido en juego o sin cerrar): no se da por hecha (ver lib/acta-abierta.mjs).
+    const abierta = decideActaAbierta({
+      actaCerrada: ficha.acta_cerrada, enJuego: ficha.partido_en_juego, suspendido: ficha.suspendido,
+      temporada: trabajo.temporada,
+      temporadaActual: Number(db.prepare('select max(cast(codigo as integer)) codigo from temporadas').get()?.codigo),
+      fechaPartido: /^\d{4}-\d{2}-\d{2}$/.test(fechaPartido) ? fechaPartido : null, hoy: fechaLocal(),
+    });
+    if (abierta) {
+      db.prepare(`update actas set archivo=?,hash=?,incidencias=?,comprobada_en=? where temporada=?
+        and competicion=? and grupo=? and jornada=? and codigo=? and estado<>'hecha'`).run(
+        ruta, guardado.hash, JSON.stringify([abierta.motivo]), ahoraIso(),
+        trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta,
+      );
+      throw new PendientePublicacion(abierta.motivo, abierta.dias);
+    }
+    if (sinContenidoDeportivo && !incidencias.includes('partido_suspendido')) {
       // iSquad crea la ficha antes de publicar el acta. La respuesta JSON es válida, pero darla por
       // terminada publicaría un partido sin marcador ni jugadores. El fichero queda archivado y la
       // cola vuelve a comprobarlo dentro de dos días.
@@ -1502,6 +1720,10 @@ async function ejecutar(db) {
     console.log(`Mantenimiento local iSquad: ${reparacion.procesadas} actas reparadas, ` +
       `${reparacion.fallidas} fallidas.`);
   }
+  const suspendidas = recalificaSuspendidas(db);
+  if (suspendidas) console.log(`  · ${suspendidas} actas de partidos suspendidos dejan de figurar como 0-0 (marcador nulo, «administrativa»).`);
+  const actasAbiertas = reabreActasLeidasAbiertas(db);
+  if (actasAbiertas) console.log(`  · ${actasAbiertas} actas leídas con el acta todavía abierta: vuelven a la cola.`);
   const reabiertas = reabreClasificacionesVaciasActuales(db);
   if (reabiertas) {
     console.log(`  · ${reabiertas} clasificaciones vacías de la temporada vigente aplazadas para revisión.`);
@@ -1541,6 +1763,39 @@ async function ejecutar(db) {
   const ritmo = new Ritmo(db);
   let hechos = 0;
   let fallosSeguidos = 0;
+  /*
+   * ── LOS FALLOS DE RED NO SON FALLOS DE LA FEDERACIÓN ───────────────────────────────────────────────────
+   *
+   * Aquí abajo, en la pausa preventiva, ya está escrita la lección de este mismo caso: «Madrid encadenó cinco
+   * `The operation was aborted due to timeout` y se quedó parada SEIS horas teniendo 30.000 trabajos
+   * disponibles». Se bajó la pausa de seis horas a una, pero la CAUSA siguió igual: un tiempo de espera
+   * agotado contaba como fallo de la federación. Medido el 24/09/2026 en Valencia: cinco sesiones de cinco
+   * terminaron en pausa global, 18.812 s (5,2 h de cada 24) sin recolectar, y la última perdió una sesión
+   * que ya había recogido 1.244 actas por cinco `fetch failed` seguidos —que es un fallo de red nuestro
+   * (resolución de nombres o conexión cortada), no un rechazo del portal—.
+   *
+   * Un `fetch failed` o un tiempo agotado pertenecen a ESA dirección, y con la máquina a tope muchas veces
+   * son de casa. Llevan su propio contador y un umbral mucho más alto, para que la federación siga con sus
+   * miles de actas y una caída REAL del portal se siga detectando igual.
+   */
+  let fallosDeRed = 0;
+  /*
+   * ── Y LA CUENTA POR COMPETICIÓN, QUE ES LA QUE EVITA LA PAUSA INÚTIL (24/09/2026) ────────────────────────
+   *
+   * Medido en Madrid: el plan sirve actas de la MISMA competición una detrás de otra, así que cuando una
+   * competición entera agota el tiempo (`acta|19|17145791|…`) se encadenan decenas de fallos de red seguidos y
+   * la federación acaba en la pausa de una hora **teniendo miles de actas buenas esperando detrás**. Ese mismo
+   * día Madrid llegó a los 30 fallos seguidos y se paró.
+   *
+   * Es el problema que ya tenía Cataluña con los calendarios y la misma solución: apartar lo que NO se puede
+   * leer para que pase lo que SÍ. La diferencia es que aquí se aparta ESA competición, no el tipo de trabajo
+   * entero: las actas son el producto, y de otras competiciones se leen perfectamente.
+   */
+  const fallosDeRedPorCompeticion = new Map();
+  /** Fallos de red seguidos sobre la MISMA competición antes de apartarla. */
+  const FALLOS_RED_POR_COMPETICION = 4;
+  /** Cuánto se aparta. Corto a propósito: la competición puede volver a responder en un rato. */
+  const HORAS_APARTAR_COMPETICION = 3;
   while (hechos < max) {
     const trabajo = siguienteTrabajoFiltrado(db, solo);
     if (!trabajo) break;
@@ -1553,8 +1808,17 @@ async function ejecutar(db) {
       console.log(`  ✓ ${detalle}`);
       hechos += 1;
       fallosSeguidos = 0;
-      if (hechos % 25 === 0 && cuentaActasDesactualizadas(db) > 0) {
+      fallosDeRed = 0;
+      // Y si esa competición acaba de responder bien, se le borra la cuenta de fallos de red.
+      fallosDeRedPorCompeticion.delete(trabajo.competicion);
+      // Antes se CONTABAN las actas desactualizadas cada 25 trabajos, y ese `count(*)` recorre la tabla `actas`
+      // entera (con el JSON de cada una): en las colas de 1,5-2 GB eran 2-4 minutos parado cada 25 trabajos
+      // (medido el 16/10/2026: CyL y Madrid con un silencio así cada 5-8 min). Ahora se cuenta UNA vez por sesión
+      // y luego se descuenta lo reparado: las actas nuevas ya se guardan con el parser actual.
+      if (hechos % 25 === 0 && actasDesactualizadasEnSesion === null) actasDesactualizadasEnSesion = cuentaActasDesactualizadas(db);
+      if (hechos % 25 === 0 && actasDesactualizadasEnSesion > 0) {
         const mantenimiento = reparaActasDesactualizadas(db, 5);
+        actasDesactualizadasEnSesion = Math.max(0, actasDesactualizadasEnSesion - 5);
         console.log(`  · mantenimiento local iSquad: ${mantenimiento.procesadas} actas actualizadas` +
           (mantenimiento.fallidas ? `, ${mantenimiento.fallidas} pendientes de revisar` : '') + '.');
       }
@@ -1628,11 +1892,47 @@ async function ejecutar(db) {
       const intentos = Number(trabajo.intentos ?? 0) + 1;
       anotaUltimaPeticion(db, trabajo, bloqueo ? 'bloqueo' : error?.esperable ? 'sin_publicar' : 'error', mensaje);
 
+      if (bloqueo && error?.motivoDeclarado) {
+        const hasta = establecePausaGlobal(db, 30 * 24, `${mensaje}: bloqueo declarado por la web; no se insiste`, trabajo);
+        guardaMetadato(db, 'bloqueo_declarado', `${error.motivoDeclarado}|${new Date().toISOString()}|${error.peticionId ?? ''}`);
+        marcaTrabajo(db, trabajo.clave, 'pendiente', mensaje, hasta);
+        console.error(`  ⛔ ${mensaje}. La web declara el bloqueo (${error.motivoDeclarado}): pausa de 30 días hasta ${hasta}. `
+          + 'Se reabre a mano si hay permiso (borrar los metadatos pausa_global_hasta y bloqueo_declarado).');
+        break;
+      }
       if (bloqueo) {
-        const siguienteFecha = new Date(Date.now() + 24 * 60 * 60_000).toISOString();
+        /*
+         * ── UNA NEGATIVA DE LA WEB SE RESPETA DONDE SE DA (16/10/2026) ──────────────────────────────────────
+         *
+         * Valencia lleva desde el 06/10 parada: la web contesta 403 a `clasificaciones_ajax.php`, la pausa de 24 h
+         * vence, el primer trabajo que se coge es otra clasificación, otro 403 y otras 24 h. Nunca se llegaba a
+         * saber si el resto (jornadas, actas) seguía abierto.
+         *
+         * Ahora la primera negativa sobre un TIPO de página se respeta dejando de pedir ESE tipo durante 7 días, y
+         * se sigue con lo demás al mismo ritmo. No es esquivar el bloqueo: es no volver a pedir lo que la web ha
+         * dicho que no da. Si la web niega también otro tipo distinto, entonces la negativa es contra nosotros y
+         * se para TODO 24 h, como antes.
+         */
+        const ahoraMs = Date.now();
+        const vetado = String(leeMetadato(db, 'tipo_vetado_por_bloqueo') ?? '');
+        const [tipoVetado, hastaVeto] = vetado.split('|');
+        const vetoVigente = tipoVetado && hastaVeto && Date.parse(hastaVeto) > ahoraMs;
+        if (!vetoVigente || tipoVetado === trabajo.tipo) {
+          const hastaNuevo = new Date(ahoraMs + 7 * 24 * 60 * 60_000).toISOString();
+          guardaMetadato(db, 'tipo_vetado_por_bloqueo', `${trabajo.tipo}|${hastaNuevo}`);
+          const aplazados = db.prepare(`update trabajos set estado='pendiente', siguiente_intento=?,
+              ultimo_error=? where tipo=? and estado in ('pendiente','bloqueado')`)
+            .run(hastaNuevo, `la web niega este tipo de página (${mensaje}); no se pide hasta ${hastaNuevo.slice(0, 10)}`,
+              trabajo.tipo).changes;
+          console.error(`  ⛔ ${mensaje}. La web niega las páginas de tipo «${trabajo.tipo}»: no se piden en 7 días `
+            + `(${aplazados} trabajos aplazados) y se sigue con lo demás.`);
+          continue;
+        }
+        const siguienteFecha = new Date(ahoraMs + 24 * 60 * 60_000).toISOString();
         marcaTrabajo(db, trabajo.clave, 'bloqueado', mensaje, siguienteFecha);
         const hasta = establecePausaGlobal(db, 24, mensaje, trabajo);
-        console.error(`  ⛔ ${mensaje}. Pausa global preventiva hasta ${hasta}.`);
+        console.error(`  ⛔ ${mensaje}. La web niega también «${trabajo.tipo}» (ya negaba «${tipoVetado}»): `
+          + `pausa global hasta ${hasta}.`);
         break;
       }
 
@@ -1650,8 +1950,43 @@ async function ejecutar(db) {
 
       // Los vacíos esperables de un grupo se gestionan individualmente. Mantenerlos fuera del
       // contador global permite que el worker continúe con los miles de grupos válidos.
-      if (!error?.esperable) fallosSeguidos += 1;
-      if (intentos >= 3) {
+      //
+      // Igual que los vacíos, los fallos de RED o de CARGA van aparte: no cuentan como fallos de la
+      // federación (ver `fallosDeRed` y la pausa de abajo). `fetch failed` es el error de la pila de red de
+      // Node cuando no puede resolver o conectar; «aborted due to timeout» es un `AbortSignal.timeout`
+      // agotado, es decir una página que no llegó a tiempo.
+      const falloDeRed = /fetch failed|aborted due to timeout|timed out|timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|ENOTFOUND|socket hang up|other side closed|network|net::ERR/i.test(mensaje);
+      if (!error?.esperable) {
+        if (falloDeRed) fallosDeRed += 1;
+        else fallosSeguidos += 1;
+      }
+
+      /*
+       * ── APARTAR LA COMPETICIÓN QUE NO RESPONDE, EN VEZ DE PARAR LA FEDERACIÓN ───────────────────────────
+       *
+       * Se cuenta por competición y, al llegar al tope, se le pone fecha a TODO lo que le queda pendiente: no se
+       * borra ni se cancela nada, y vuelve solo. Así el recolector pasa a otra competición en vez de encadenar
+       * fallos hasta la pausa de una hora, que es lo que medía Madrid: 30 fallos seguidos de una sola
+       * competición paraban toda la federación teniendo miles de actas buenas disponibles.
+       */
+      if (falloDeRed) {
+        const cuantos = (fallosDeRedPorCompeticion.get(trabajo.competicion) ?? 0) + 1;
+        fallosDeRedPorCompeticion.set(trabajo.competicion, cuantos);
+        if (cuantos >= FALLOS_RED_POR_COMPETICION) {
+          const hasta = new Date(Date.now() + HORAS_APARTAR_COMPETICION * 60 * 60_000).toISOString();
+          const apartados = db.prepare(`update trabajos set siguiente_intento=?, actualizado_en=?
+            where temporada=? and competicion=? and estado in ('pendiente','bloqueado')
+              and (siguiente_intento is null or siguiente_intento < ?)`)
+            .run(hasta, ahoraIso(), trabajo.temporada, trabajo.competicion, hasta);
+          fallosDeRedPorCompeticion.delete(trabajo.competicion);
+          console.warn(`  ⏸ La competición ${trabajo.competicion} lleva ${cuantos} fallos de red seguidos: se aparta`
+            + ` ${HORAS_APARTAR_COMPETICION} h (${Number(apartados.changes ?? 0)} trabajos) para que pasen otras.`);
+        }
+      } else {
+        // Un fallo que NO es de red dice que la competición responde: se le borra la cuenta.
+        fallosDeRedPorCompeticion.delete(trabajo.competicion);
+      }
+      if (intentos >= 3 && !falloDeRed) {
         marcaTrabajo(db, trabajo.clave, 'cancelado', mensaje, null);
         console.warn(`  ✗ ${mensaje}. Se descarta tras ${intentos} intentos (no es un bloqueo).`);
         // Si lo que se descarta es el índice de jornadas de un grupo, el grupo no tiene nada que
@@ -1666,7 +2001,8 @@ async function ejecutar(db) {
               db.prepare(`update grupos set estado='ausente_web',comprobado_en=?
                 where temporada=? and competicion=? and codigo=?`)
                 .run(ahoraIso(), trabajo.temporada, trabajo.competicion, trabajo.grupo);
-              db.prepare(`update trabajos set estado='cancelado',actualizado_en=?
+              db.prepare(`update trabajos set estado='cancelado',actualizado_en=?,
+                ultimo_error='grupo sin jornadas tras varios intentos (ausente_web)' || coalesce(' · último error: ' || ultimo_error, '')
                 where temporada=? and competicion=? and grupo=? and estado in ('pendiente','bloqueado')`)
                 .run(ahoraIso(), trabajo.temporada, trabajo.competicion, trabajo.grupo);
               db.prepare(`insert into eventos(creado_en,nivel,tipo,detalle) values(?,?,?,?)`)
@@ -1680,9 +2016,18 @@ async function ejecutar(db) {
         const horas = intentos === 1 ? 2 : 24;
         const siguienteFecha = new Date(Date.now() + horas * 60 * 60_000).toISOString();
         marcaTrabajo(db, trabajo.clave, 'pendiente', mensaje, siguienteFecha);
-        console.warn(`  ! ${mensaje}. Se reintentará después de ${siguienteFecha}.`);
+        /*
+         * UN FALLO DE RED NO GASTA INTENTOS. Tres intentos repartidos en días significan «ahí no hay
+         * contenido», y por eso el tercero cancela el trabajo. Si lo que pasó es que NUESTRA red no llegó a
+         * tiempo, esa conclusión es falsa: el trabajo se queda pendiente y sigue su escalera de espera
+         * (2 h, luego 24 h) sin declarar nada sobre la fuente. Es el mismo criterio con el que
+         * `scripts/reparar-descartes-transitorios.mjs` tuvo que devolver a la cola, a mano, los descartes
+         * cuyo último error era un tiempo de espera agotado.
+         */
+        if (falloDeRed) db.prepare(`update trabajos set intentos=0 where clave=?`).run(trabajo.clave);
+        console.warn(`  ! ${mensaje}. Se reintentará después de ${siguienteFecha}${falloDeRed ? ' (fallo de red: no cuenta como intento)' : ''}.`);
       }
-      if (!error?.esperable && fallosSeguidos >= 5) {
+      if (!error?.esperable && (fallosSeguidos >= 5 || fallosDeRed >= 30)) {
         // UNA HORA, NO SEIS. Es la misma lección que se aplicó hoy en `recolector-local.mjs`: la pausa
         // preventiva existe para no insistirle a una web que va mal, no para castigar media jornada a una
         // federación por un fallo que muchas veces es de casa. Medido el 17/09/2026: al matar por error los
@@ -1690,8 +2035,9 @@ async function ejecutar(db) {
         // quedó parada SEIS horas (hasta las 02:12) teniendo 30.000 trabajos disponibles. Con una hora el
         // respiro sigue siendo el mismo y el coste de equivocarse, seis veces menor. Si el problema
         // persiste, la pausa se vuelve a poner sola.
-        const hasta = establecePausaGlobal(db, 1, `${fallosSeguidos} fallos seguidos: ${mensaje}`, trabajo);
-        console.error(`  Pausa global preventiva hasta ${hasta} por fallos repetidos.`);
+        const motivo = fallosDeRed >= 30 ? `${fallosDeRed} fallos de red seguidos` : `${fallosSeguidos} fallos seguidos`;
+        const hasta = establecePausaGlobal(db, 1, `${motivo}: ${mensaje}`, trabajo);
+        console.error(`  Pausa global preventiva hasta ${hasta} por ${motivo}.`);
         break;
       }
       continue;

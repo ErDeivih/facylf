@@ -23,9 +23,10 @@
  * `core.standing_snapshot`, separadas por `origen` (`oficial` / `reconstruida`), y ese `origen` forma
  * parte de la clave primaria.
  */
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { parseaClasificacionHtml, type ClasificacionOficialHtml } from '@facylf/ingesta';
+import { cuentaTablasDeClasificacion, parseaClasificacionHtml, type ClasificacionOficialHtml } from '@facylf/ingesta';
+import { esFilaDeDescanso } from './origen/cola.js';
 import type { ClienteCanonico } from './destino/pool.js';
 import type { Repositorio } from './destino/repositorio.js';
 import {
@@ -49,6 +50,14 @@ export type ResumenOficial = {
   sinResolver: number;
   /** Filas resueltas por nombre de club, sin la letra de equipo: la fuente publica «A» donde la cola dice «B». */
   resueltasPorClub: number;
+  /**
+   * Filas que NO estaban en el catálogo del grupo y se han resuelto por el CÓDIGO que la propia tabla publica,
+   * creando la inscripción como hace el camino del calendario (v. `resuelvePorCodigoPublicado`).
+   *
+   * Y filas que no se han escrito porque no son un equipo sino el bloque de descanso de la fuente.
+   */
+  resueltasPorCodigoPublicado: number;
+  filasDeDescanso: number;
   /** Equipos cuya puntuación publicada está por debajo de la que dan sus resultados: ajuste de la federación. */
   ajustes: Array<{ equipo: string; publicado: number; deResultados: number; sancion: number }>;
   /** Fichero de la otra maqueta que también estaba archivado, si lo había. */
@@ -73,7 +82,7 @@ export type CatalogoEquipos = {
   porClub: Map<string, number>;
 };
 
-export type ViaResolucion = 'codigo' | 'nombre' | 'club';
+export type ViaResolucion = 'codigo' | 'nombre' | 'club' | 'codigo-publicado';
 
 /**
  * Resuelve un equipo publicado a una inscripción DEL GRUPO.
@@ -123,8 +132,106 @@ export function rutaClasificacionOficial(
   return null;
 }
 
-export async function importaClasificacionOficial(
-  cliente: ClienteCanonico,
+/**
+ * POR QUÉ NO ESTÁ LA TABLA OFICIAL DE UN GRUPO, dicho con el MISMO lector que la importa.
+ *
+ * Es la respuesta que necesita quien consulta: `ops.coverage_checkpoint.tabla_oficial_estado` guarda uno de
+ * estos seis valores, y cada uno apunta a un sitio distinto (v. migración `0020`).
+ *
+ *   'importada'    · está en el canónico.
+ *   'rechazada'    · se archivó y el validador la descarta (posiciones con huecos, puntos imposibles, valores
+ *                    no enteros): es la federación la que la publica mal.
+ *   'sin_archivar' · no hay archivo: la federación no la publica, o el recolector no la ha bajado.
+ *   'sin_filas'    · hay archivo y no trae filas de clasificación.
+ *   'ilegible'     · hay archivo, trae TABLA, y el lector de hoy no saca ni una fila: es un hueco NUESTRO.
+ *   'sin_corte'    · se lee bien, pero no hay jornada completa a la que colgar la foto.
+ *
+ * El caso que obligó a separarlas: baleares, galicia y euskadi archivan la clasificación con otra maqueta
+ * (`NFG_VisClasificacion` del marco «nova2») y `parseaClasificacionHtml` devuelve cero filas en las 448 de
+ * baleares. Llamarlo «sin_archivar» era falso y «rechazada» también.
+ */
+export type EstadoTablaOficial =
+  | 'importada' | 'rechazada' | 'sin_archivar' | 'sin_filas' | 'ilegible' | 'sin_corte';
+
+/** Los estados que se pueden decidir MIRANDO EL ARCHIVO, sin importar nada. */
+export type EstadoDelArchivo = 'rechazada' | 'sin_archivar' | 'sin_filas' | 'ilegible' | 'legible';
+
+/**
+ * La fecha del archivo (su `mtime`), la más reciente de las dos maquetas. `null` si no hay archivo.
+ *
+ * Es lo que permite distinguir «este archivo no lo he mirado» de «este archivo ya lo miré y no se puede
+ * usar»: sin eso, el plan del importador volvía a pedir los mismos 1.394 grupos en cada pasada (medido el
+ * 25/09/2026, v. migración 0021).
+ */
+export function mtimeDelArchivo(datos: {
+  raizCola: string; temporada: { codigo: string; etiqueta: string }; competicion: string; grupo: string;
+}): Date | null {
+  const rutas = [
+    rutaClasificacionOficial(datos.raizCola, datos.temporada, datos.competicion, datos.grupo),
+    rutaClasificacionJson(datos.raizCola, datos.temporada, datos.competicion, datos.grupo),
+  ].filter((r): r is string => r !== null);
+  let ultima: Date | null = null;
+  for (const ruta of rutas) {
+    try {
+      const suya = statSync(ruta).mtime;
+      if (ultima === null || suya > ultima) ultima = suya;
+    } catch { /* un archivo que desaparece entre la lista y el stat no invalida el resto */ }
+  }
+  return ultima;
+}
+
+export function diagnosticaTablaOficial(datos: {
+  raizCola: string; temporada: { codigo: string; etiqueta: string }; competicion: string; grupo: string;
+}): { estado: EstadoDelArchivo; filasHtml: number; filasJson: number; motivo: string } {
+  const contexto = `c${datos.competicion} g${datos.grupo}`;
+  const rutaHtml = rutaClasificacionOficial(datos.raizCola, datos.temporada, datos.competicion, datos.grupo);
+  const rutaJson = rutaClasificacionJson(datos.raizCola, datos.temporada, datos.competicion, datos.grupo);
+  if (rutaHtml === null && rutaJson === null) {
+    return { estado: 'sin_archivar', filasHtml: 0, filasJson: 0, motivo: 'no hay clasificación archivada' };
+  }
+  let filasHtml = 0;
+  let filasJson = 0;
+  let textoHtml = '';
+  if (rutaHtml !== null) {
+    try {
+      textoHtml = leeTexto(rutaHtml);
+      filasHtml = parseaClasificacionHtml(textoHtml).length;
+    } catch (error) {
+      return { estado: 'ilegible', filasHtml: 0, filasJson: 0,
+        motivo: `el lector de HTML lanza: ${error instanceof Error ? error.message : String(error)}` };
+    }
+  }
+  if (rutaJson !== null) {
+    try {
+      filasJson = leeClasificacionJson(leeTexto(rutaJson), contexto).length;
+    } catch (error) {
+      // Un JSON que no pasa las validaciones es una tabla publicada mal, y se dice con su motivo.
+      return { estado: 'rechazada', filasHtml, filasJson: 0,
+        motivo: error instanceof Error ? error.message : String(error) };
+    }
+  }
+  if (filasHtml > 0 || filasJson > 0) {
+    return { estado: 'legible', filasHtml, filasJson, motivo: 'el archivo trae filas y se lee' };
+  }
+  /*
+   * Ni una fila por ninguno de los dos lectores. Aquí está la diferencia que importa, y son TRES casos:
+   *
+   *   · el archivo NO trae ninguna tabla de clasificación (sólo resultados, o una página de otra vista): la
+   *     federación aún no la publicaba, o el recolector guardó otra cosa. No hay nada que leer;
+   *   · el archivo trae tabla y el lector de hoy no saca filas: el problema es del lector;
+   *   · no hay HTML (sólo un JSON vacío): tampoco hay nada.
+   *
+   * Medido el 25/09/2026: contar «¿tiene alguna <table>?» no distinguía los dos primeros casos, porque la
+   * tabla de RESULTADOS también es una `<table>`. Euskadi 2014-15 (comp 2837, grupo 513242) se contaba como
+   * «el lector no la sabe leer» cuando el archivo no trae clasificación ninguna.
+   */
+  const traeTablaDeClasificacion = textoHtml !== '' && cuentaTablasDeClasificacion(textoHtml) > 0;
+  return traeTablaDeClasificacion
+    ? { estado: 'ilegible', filasHtml, filasJson, motivo: 'el archivo trae tabla de clasificación y el lector no saca filas' }
+    : { estado: 'sin_filas', filasHtml, filasJson, motivo: 'el archivo no trae tabla de clasificación' };
+}
+
+export async function importaClasificacionOficial(  cliente: ClienteCanonico,
   repo: Repositorio,
   datos: {
     raizCola: string;
@@ -142,6 +249,26 @@ export async function importaClasificacionOficial(
      * «ARGENTONA, C.F. A» y el calendario dice «ARGENTONA, C.F. B».
      */
     normalizaVarios: (textos: string[]) => Promise<Map<string, string>>;
+    /**
+     * ── LA TABLA OFICIAL PUBLICA EL CÓDIGO DE SUS EQUIPOS: SE RESUELVE POR ÉL ─────────────────────────────
+     *
+     * Por qué existe esto. El catálogo del grupo se monta con los equipos que HAN JUGADO (las citas del
+     * calendario y del acta), y la tabla oficial lista a TODOS los inscritos. Al principio de temporada —o en
+     * un grupo donde alguien todavía no ha jugado— media tabla no está en el catálogo, y el resolutor
+     * descartaba la tabla ENTERA: correcto (no se escribe media tabla), pero el dato se perdía. Medido el
+     * 26/09/2026: **1.358 grupos** rechazados por esto, con 4.595 avisos, en quince federaciones (Madrid,
+     * Valencia, Aragón y Cataluña son los que más).
+     *
+     * Y no hacía falta perderlo: cada fila trae el código federativo de su equipo —el JSON en `equipoCodigo`,
+     * el HTML en el enlace `codequipo=`—, y un código federativo es identidad fuerte dentro de su federación y
+     * su ámbito. Con él la inscripción se BUSCA O SE CREA igual que en el camino del calendario, en vez de
+     * exigir que ya esté en el catálogo.
+     *
+     * Quien la implementa recibe la fila y devuelve la inscripción, o `null`. Se llama SÓLO cuando las tres
+     * vías de `resuelveEquipoOficial` han fallado y la fila publica un código, así que no cambia nada de lo
+     * que ya se resolvía: una fila sin código sigue descartando la tabla, como hasta hoy.
+     */
+    resuelvePorCodigoPublicado?: (fila: { equipo: string; equipoCodigo: string }) => Promise<number | null>;
     /** Puntos de la reconstruida por inscripción, para contrastar. */
     reconstruida: Map<number, number>;
     /**
@@ -151,6 +278,18 @@ export async function importaClasificacionOficial(
      * dice que no se compara.
      */
     comparar: boolean;
+    /**
+     * ── ¿LA JORNADA DE CORTE ESTÁ COMPLETA? (decisión del 27/09/2026, migración 0022) ─────────────────────
+     *
+     * Antes, sin jornada completa no se escribía NADA: colgar la foto de una jornada incompleta sería hacerla
+     * pasar por «la tabla de J30» cuando es la de otro día. La negativa era razonable, pero se llevaba por
+     * delante **1.404 grupos** con el archivo legible y los equipos resueltos.
+     *
+     * Desde ahora la tabla se escribe igual —anclada a la última jornada que exista— y lo que cambia es que
+     * **la salvedad viaja con la foto**: el lote la guarda en `ops.coverage_checkpoint.tabla_oficial_corte_completo`
+     * (lo ve el rol de lectura) y aquí se registra el aviso. Un dato sin su fecha se lee como si la tuviera.
+     */
+    corteCompleto: boolean;
   },
 ): Promise<ResumenOficial | null> {
   const contexto = `${datos.federacion} c${datos.competicion} g${datos.grupo}`;
@@ -189,10 +328,35 @@ export async function importaClasificacionOficial(
     cotejada = true;
   }
 
-  const filas = deHtml.length > 0 ? deHtml : deJson;
+  const filasPublicadas = deHtml.length > 0 ? deHtml : deJson;
   const fuente: FuenteOficial = deHtml.length > 0 ? 'pnfg-html' : 'json';
   const ruta = (fuente === 'pnfg-html' ? rutaHtml : rutaJson)!;
   const rutaAlternativa = fuente === 'pnfg-html' ? rutaJson : rutaHtml;
+
+  /*
+   * ── EL BLOQUE DE DESCANSO NO ES UN EQUIPO, Y LA TABLA OFICIAL LO PUBLICA COMO UNO MÁS ──────────────────
+   *
+   * La fuente da de alta un pseudo-equipo para la jornada de descanso y le asigna código: medido el
+   * 26/09/2026 en el grupo 5199185 de Aragón, la tabla publica la fila «DESCANSA» con `codequipo=5199186` y 0
+   * puntos. Reconocerlo no es un detalle de limpieza: con el resolutor por código (v.
+   * `resuelvePorCodigoPublicado`) esa fila se resolvería como cualquier otra y crearía una INSCRIPCIÓN
+   * FANTASMA con su fila en la tabla, que es exactamente lo que `retirada.ts` documenta haber tenido que
+   * retirar después («un pseudo-equipo que era el bloque de descanso»). Se aparta ANTES de resolver, con la
+   * MISMA regla que usa la cola para no meterlo en el catálogo de equipos del grupo
+   * (`esFilaDeDescanso`, la palabra entera y declarada por la maqueta: `C.D. DESCANSO` es un club).
+   *
+   * Y se cuenta: la fila apartada se declara en el aviso de la importación, no desaparece en silencio.
+   */
+  const filasDeDescanso = filasPublicadas.filter((f) => esFilaDeDescanso(f.equipo));
+  const filas = filasPublicadas.filter((f) => !esFilaDeDescanso(f.equipo));
+  if (filas.length === 0) {
+    await registraAviso(cliente, datos.batchId, 'clasificacion_oficial_solo_descansos', {
+      federacion: datos.federacion, grupo: datos.grupo, fuente, ruta,
+      filas_publicadas: filasPublicadas.length,
+      motivo: 'la tabla archivada sólo trae el bloque de descanso: no hay clasificación que escribir',
+    });
+    return null;
+  }
 
   /* --- resolución contra el catálogo DEL GRUPO ---
      Va ANTES de comprobar la jornada de corte a propósito: que la tabla no se pueda anclar es un
@@ -202,7 +366,26 @@ export async function importaClasificacionOficial(
   // son formas que pueden no haber aparecido nunca en el calendario.
   const normalizadosOficiales = await datos.normalizaVarios(filas.map((f) => f.equipo));
   const normalizaOficial = (texto: string): string => normalizadosOficiales.get(texto) ?? texto;
-  const resueltas = filas.map((fila) => resuelveEquipoOficial(fila, datos.catalogo, normalizaOficial));
+  /*
+   * La resolución va en orden de evidencia, y el último escalón es el código publicado: código del catálogo,
+   * literal exacto, nombre de club sin la letra… y sólo si los tres fallan, la inscripción por el código que
+   * publica la propia tabla. Se recorre fila a fila porque el último escalón es asíncrono.
+   */
+  const resueltas: Array<{ teamEntryId: number; via: ViaResolucion } | null> = [];
+  for (const fila of filas) {
+    const directa = resuelveEquipoOficial(fila, datos.catalogo, normalizaOficial);
+    if (directa !== null) {
+      resueltas.push(directa);
+      continue;
+    }
+    const codigo = String(fila.equipoCodigo ?? '').trim();
+    if (codigo === '' || datos.resuelvePorCodigoPublicado === undefined) {
+      resueltas.push(null);
+      continue;
+    }
+    const porCodigoPublicado = await datos.resuelvePorCodigoPublicado({ equipo: fila.equipo, equipoCodigo: codigo });
+    resueltas.push(porCodigoPublicado === null ? null : { teamEntryId: porCodigoPublicado, via: 'codigo-publicado' });
+  }
   const sinResolver = resueltas.filter((r) => r === null).length;
   if (sinResolver > 0) {
     // Media tabla oficial no sirve para nada y además engañaría. Y no se resuelve por parecido: se
@@ -215,6 +398,7 @@ export async function importaClasificacionOficial(
   }
   const entradas = resueltas.map((r) => r!.teamEntryId);
   const resueltasPorClub = resueltas.filter((r) => r!.via === 'club').length;
+  const resueltasPorCodigoPublicado = resueltas.filter((r) => r!.via === 'codigo-publicado').length;
 
   // Un mismo equipo dos veces en la tabla oficial es una tabla rota, aunque los nombres difieran.
   const duplicadas = entradas.filter((id, i) => entradas.indexOf(id) !== i);
@@ -225,9 +409,9 @@ export async function importaClasificacionOficial(
     );
   }
 
-  // La tabla oficial necesita una jornada del canónico a la que colgarse: es la última jornada
-  // COMPLETA reconstruida, o sea una fecha que hemos verificado. Sin ella no se escribe nada, en vez
-  // de colgarla de una jornada cualquiera y hacer pasar por «la tabla de J30» la foto de otro día.
+  // La tabla oficial necesita una jornada del canónico a la que colgarse: la última que exista del grupo. Si
+  // está COMPLETA es una foto verificada; si no, la tabla es igual de buena —es la que publica la federación—
+  // pero su fecha de corte no está confirmada, y eso se declara (v. `corteCompleto` y la migración 0022).
   if (datos.matchdayId === null) {
     await registraAviso(cliente, datos.batchId, 'clasificacion_oficial_sin_jornada_de_corte', {
       federacion: datos.federacion, grupo: datos.grupo, fuente, ruta,
@@ -304,14 +488,33 @@ export async function importaClasificacionOficial(
     resueltas_por_codigo: resueltas.filter((r) => r!.via === 'codigo').length,
     resueltas_por_nombre: resueltas.filter((r) => r!.via === 'nombre').length,
     resueltas_por_club: resueltasPorClub,
+    resueltas_por_codigo_publicado: resueltasPorCodigoPublicado,
+    filas_de_descanso: filasDeDescanso.length,
     jornada_de_corte: datos.matchdayId,
+    corte_completo: datos.corteCompleto,
     comparada: datos.comparar,
     ajustes: ajustes.length,
   });
 
+  /*
+   * Y cuando la foto va colgada de una jornada que NO está completa, se dice aparte y con nombre propio: es la
+   * clase de cosa que dentro de tres meses nadie recuerda haber decidido. El lote lo deja además en la cobertura
+   * (`tabla_oficial_corte_completo`), que es lo que ve el rol de lectura.
+   */
+  if (!datos.corteCompleto) {
+    await registraAviso(cliente, datos.batchId, 'clasificacion_oficial_anclada_a_jornada_incompleta', {
+      federacion: datos.federacion, grupo: datos.grupo, fuente, ruta,
+      jornada_de_corte: datos.matchdayId,
+      filas: filas.length,
+      motivo: 'la federación publica la tabla y el canónico no tiene ninguna jornada completa: se ancla a la '
+        + 'última jornada existente, que NO está confirmada, y la salvedad queda en la cobertura',
+    });
+  }
+
   return {
     ruta, fuente, filas: filas.length, comparada: datos.comparar, diferencias, sinResolver: 0,
-    resueltasPorClub, ajustes, rutaAlternativa, cotejadaConLaOtra: cotejada,
+    resueltasPorClub, resueltasPorCodigoPublicado, filasDeDescanso: filasDeDescanso.length,
+    ajustes, rutaAlternativa, cotejadaConLaOtra: cotejada,
   };
 }
 

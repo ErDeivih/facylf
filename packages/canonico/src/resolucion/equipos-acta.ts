@@ -27,6 +27,8 @@
  * - **fuga**: el calendario trae el `local` verdadero como `visitante` delante de un equipo que
  *   **no juega ningún otro partido de esa jornada** (el que descansaba). Sin esa comprobación no se
  *   corrige: un equipo que sí juega otro partido de la misma jornada no puede ser un fantasma.
+ * - **escritura**: los dos hablan de las MISMAS inscripciones y escriben el nombre distinto. No hay nada
+ *   que corregir —la pareja ya es la buena— pero tampoco se calla: queda registrado como incidencia.
  *
  * Cualquier otro desacuerdo (**otro**, ni siquiera comparten un equipo) no se puede resolver aquí:
  * no se toca nada y quien llama tiene que detener el lote. Adivinar qué partido describe el acta
@@ -37,7 +39,7 @@
 
 export type ParejaEquipos = { local: string; visitante: string };
 
-export type FormaDiscrepancia = 'fuga' | 'invertido' | 'otro';
+export type FormaDiscrepancia = 'fuga' | 'invertido' | 'escritura' | 'otro';
 
 export type DiscrepanciaEquipos = {
   forma: FormaDiscrepancia;
@@ -148,8 +150,26 @@ export function reconciliaEquiposDelPartido(entrada: EntradaReconciliacion): Dec
     return { ...sinCambios, actaSinResolver: true };
   }
 
+  /*
+   * ── LA IDENTIDAD MANDA SOBRE LA LETRA ────────────────────────────────────────────────────────────────
+   *
+   * Si las dos formas resuelven a las MISMAS inscripciones, la diferencia de escritura no es una
+   * contradicción sobre quién jugó. Medido el 25/09/2026 en el grupo 21876096 de Ceuta, que es «ALEVÍN
+   * FEMENINO F7»: el calendario publica «Foso Ceuta "F"» (la F es de Femenino) y el acta escribe «Foso
+   * Ceuta». Los dos resuelven a la misma inscripción, pero la comparación era de LETRAS y el grupo entero
+   * se quedaba bloqueado con «el acta no se corresponde con la fila del calendario».
+   */
+  const calLocalClave = entrada.calendario.localClave;
+  const calVisitanteClave = entrada.calendario.visitanteClave;
+  const mismoPar = calLocalClave !== null && calVisitanteClave !== null
+    && claveActaLocal === calLocalClave && claveActaVisitante === calVisitanteClave;
+  const parInvertido = calLocalClave !== null && calVisitanteClave !== null
+    && claveActaLocal === calVisitanteClave && claveActaVisitante === calLocalClave;
+
   let forma: FormaDiscrepancia;
-  if (calVisitante === actaLocal && calLocal === actaVisitante) {
+  if (mismoPar) {
+    forma = 'escritura';
+  } else if (parInvertido || (calVisitante === actaLocal && calLocal === actaVisitante)) {
     forma = 'invertido';
   } else if (calVisitante === actaLocal && calLocal !== actaLocal && calLocal !== actaVisitante
              && !entrada.localFantasmaJuegaOtroPartido) {
@@ -172,6 +192,8 @@ export function reconciliaEquiposDelPartido(entrada: EntradaReconciliacion): Dec
     visitante: claveActaVisitante,
     discrepancia,
     actaSinResolver: false,
-    reparado: true,
+    // «escritura» no repara nada: las dos formas son la misma inscripción, así que la pareja del calendario
+    // ya es la buena y no hay que reescribir el partido.
+    reparado: forma !== 'escritura',
   };
 }

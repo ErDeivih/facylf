@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { repartePlazas, cabeOtroNavegador, tocaReciclar, decideEsperaDePlaza, decideTurnoDePlaza, plazaAbandonada, COSTE_POR_RECOLECTOR_GB, RESERVA_GB, TURNO_PLAZA_MIN, SIN_LATIDO_MS } from '../../../scripts/lib/presupuesto-memoria.mjs';
+import { repartePlazas, cabeOtroNavegador, tocaReciclar, decideEsperaDePlaza, decideTurnoDePlaza, plazaAbandonada, plazasCompartidas, cedePorPrioridad, PLAZA_PRIORITARIA, COSTE_POR_RECOLECTOR_GB, RESERVA_GB, TURNO_PLAZA_MIN, SIN_LATIDO_MS } from '../../../scripts/lib/presupuesto-memoria.mjs';
 
 /**
  * El gobernador de memoria: cuántos recolectores pueden tener navegador a la vez.
@@ -307,5 +307,24 @@ describe('plazaAbandonada: sólo se libera la plaza de quien no está', () => {
     });
     expect(muerta.abandonada).toBe(true);
     expect(muerta.motivo).toMatch(/ya no existe/);
+  });
+});
+
+describe('la federación prioritaria (Castilla y León) tiene plaza reservada sin abrir navegadores de más', () => {
+  it('mientras la prioritaria trabaja, las demás reparten una plaza menos', () => {
+    expect(plazasCompartidas({ plazas: 5, prioritariaActiva: true })).toBe(4);
+    expect(plazasCompartidas({ plazas: 5, prioritariaActiva: false })).toBe(5);
+  });
+  it('nunca se queda nadie sin plaza: con una sola, se comparte', () => {
+    expect(plazasCompartidas({ plazas: 1, prioritariaActiva: true })).toBe(1);
+    expect(plazasCompartidas({ plazas: 0 })).toBe(1);
+  });
+  it('cuando entra la prioritaria, suelta la plaza sólo quien ocupa la que sobra', () => {
+    expect(cedePorPrioridad({ nombreSlot: 'slot-5.lock', plazas: 5, prioritariaActiva: true }).ceder).toBe(true);
+    expect(cedePorPrioridad({ nombreSlot: 'slot-4.lock', plazas: 5, prioritariaActiva: true }).ceder).toBe(false);
+  });
+  it('sin prioritaria activa nadie cede, y la plaza reservada no cuenta como numerada', () => {
+    expect(cedePorPrioridad({ nombreSlot: 'slot-5.lock', plazas: 5, prioritariaActiva: false }).ceder).toBe(false);
+    expect(cedePorPrioridad({ nombreSlot: PLAZA_PRIORITARIA, plazas: 5, prioritariaActiva: true }).ceder).toBe(false);
   });
 });

@@ -52,6 +52,17 @@ export function contextoNominal(rolNormalizado: string, etiquetaTemporada: strin
   return `rol=${rolNormalizado};temporada=${etiquetaTemporada};ambito=${ambito}:${id};nombre=${nombreNormalizado}`;
 }
 
+/**
+ * Ámbito de una persona del cuerpo técnico sin código. Con el lado del acta conocido, su EQUIPO; sin
+ * él, la EDICIÓN — y declarado como edición. Antes se escribía `ambito=equipo:<id de la edición>`:
+ * mezclaba dos espacios de identificadores, así que un técnico sin lado en la edición 123 y otro
+ * homónimo, con el mismo rol y la misma temporada, del equipo 123 compartían contexto y se fundían en
+ * una sola persona. Es exactamente la fusión silenciosa que ADR-0011 prohíbe.
+ */
+export function ambitoNominalTecnico(teamEntryId: number | null, edicionId: number): { ambito: 'edicion' | 'equipo'; id: number } {
+  return teamEntryId !== null ? { ambito: 'equipo', id: teamEntryId } : { ambito: 'edicion', id: edicionId };
+}
+
 /* ---------- federación y temporada ---------- */
 
 export async function resuelveFederacion(cliente: ClienteCanonico, repo: Repositorio, fuente: FuenteFederacion): Promise<number> {
@@ -68,6 +79,23 @@ export async function resuelveFederacion(cliente: ClienteCanonico, repo: Reposit
 export async function resuelveTemporada(cliente: ClienteCanonico, repo: Repositorio, temporada: FilaTemporada): Promise<number> {
   const etiqueta = temporada.etiqueta.trim();
   const anioInicio = Number(etiqueta.slice(0, 4));
+  /*
+   * ── SE BUSCA PRIMERO, IGUAL QUE LA FEDERACIÓN (medido el 25/09/2026) ──────────────────────────────────
+   *
+   * `core.season.id` es un `smallint` con identidad, máximo 32767, y esta función se llama una vez por
+   * grupo importado. Con el `upsert` a secas —un `insert ... on conflict (etiqueta) do update`, que CONSUME
+   * un `nextval` aunque acabe en conflicto— la secuencia se agotó con 25 temporadas de verdad y 3.750
+   * grupos fallaron con «nextval: reached maximum value of sequence season_id_seq».
+   */
+  const { rows } = await cliente.query<{ id: number }>('select id from core.season where etiqueta = $1', [etiqueta]);
+  if (rows[0] !== undefined) {
+    await cliente.query(
+      `update core.season set anio_inicio = $2, orden = $3
+        where id = $1 and (anio_inicio, orden) is distinct from ($2, $3)`,
+      [rows[0].id, anioInicio, anioInicio],
+    );
+    return Number(rows[0].id);
+  }
   return repo.upsert(
     'core.season',
     { etiqueta, anio_inicio: anioInicio, orden: anioInicio },

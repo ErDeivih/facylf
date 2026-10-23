@@ -23,9 +23,9 @@ import { configuracionFlotaLocal } from './configuracion-flota.mjs';
 
 test('el plan cubre las 19 federaciones y ninguna se repite', () => {
   const plan = planDeFederaciones();
-  assert.equal(plan.length, 19);
+  assert.equal(plan.length, 24);
   const nombres = plan.map((e) => e.federacion);
-  assert.equal(new Set(nombres).size, 19, 'ninguna federación puede aparecer dos veces');
+  assert.equal(new Set(nombres).size, 24, 'ninguna federación puede aparecer dos veces');
 
   const esperadas = [
     ...FEDERACIONES_PNFG, FEDERACION_SIN_PERFIL, 'madrid', 'valencia', 'cataluna',
@@ -35,17 +35,17 @@ test('el plan cubre las 19 federaciones y ninguna se repite', () => {
 
 test('las federaciones que ya recolecta el servidor quedan fuera del plan del PC', () => {
   // Sin exclusiones, están todas.
-  assert.equal(planDeFederaciones().length, 19);
+  assert.equal(planDeFederaciones().length, 24);
 
   // Excluyendo una, esa no se lanza en el PC y las demás siguen (el traspaso es de una en una).
   const conUna = planDeFederaciones({ excluidas: ['melilla'] });
-  assert.equal(conUna.length, 18);
+  assert.equal(conUna.length, 23);
   assert.equal(conUna.some((e) => e.federacion === 'melilla'), false);
   assert.equal(conUna.some((e) => e.federacion === 'murcia'), true);
 
   // Excluyendo varias y con espacios, igual de bien.
   const conVarias = planDeFederaciones({ excluidas: [' melilla ', 'madrid', 'cataluna'] });
-  assert.equal(conVarias.length, 16);
+  assert.equal(conVarias.length, 21);
   for (const fuera of ['melilla', 'madrid', 'cataluna']) {
     assert.equal(conVarias.some((e) => e.federacion === fuera), false, `${fuera} no debería estar`);
   }
@@ -54,7 +54,7 @@ test('las federaciones que ya recolecta el servidor quedan fuera del plan del PC
   const todas = [...FEDERACIONES_PNFG, FEDERACION_SIN_PERFIL, 'madrid', 'valencia', 'cataluna'];
   assert.equal(planDeFederaciones({ excluidas: todas }).length, 0);
   // Una lista vacía o con basura no excluye a nadie por accidente.
-  assert.equal(planDeFederaciones({ excluidas: ['', '  '] }).length, 19);
+  assert.equal(planDeFederaciones({ excluidas: ['', '  '] }).length, 24);
 });
 
 test('cada federación sabe con qué guion y con qué argumentos se lanza', () => {
@@ -227,4 +227,13 @@ test('la configuración de la flota incluye el modo headless que declara entorno
   assert.equal(config.turnoMin, 20);
   assert.equal(config.chromeHeadless, '1');
   assert.equal(config.origen, 'entorno-flota.ps1');
+});
+
+test('el suelo de temporadas llega a los hijos (11/10/2026: sin él trabajaban con 2023-24)', () => {
+  const entorno = entornoParaHijos({ memoriaGb: 4.5, reservaGb: 1, turnoMin: 20, chromeHeadless: '1',
+    topeNavegadorMb: null, temporadaMinima: '2010-11' }, {});
+  assert.equal(entorno.FACYLF_TEMPORADA_MINIMA, '2010-11');
+  const sinSuelo = entornoParaHijos({ memoriaGb: 4.5, reservaGb: 1, turnoMin: 20, chromeHeadless: null,
+    topeNavegadorMb: null, temporadaMinima: null }, {});
+  assert.equal('FACYLF_TEMPORADA_MINIMA' in sinSuelo, false);
 });

@@ -33,6 +33,16 @@ const RAIZ = process.env.FACYLF_RAIZ ?? '/app';
 const [, , FEDERACION, TIPO, HORAS_ARG, ...resto] = process.argv;
 const HORAS = Number(HORAS_ARG ?? 6);
 const APLICAR = resto.includes('--aplicar');
+/*
+ * `--incluir-sin-intentos` aparta TAMBIÉN los que nunca se han intentado.
+ *
+ * Por defecto no se tocan —un trabajo sin intentar podría funcionar—, pero hay un caso en el que sí hay que
+ * incluirlos: cuando el fallo es de TODA la clase de trabajo, no de unos cuantos. En Cataluña (23/09/2026) los
+ * 277 primeros se apartaron y el recolector pasó a los siguientes, que fallaban exactamente igual: la pestaña
+ * del calendario no se pulsaba, y eso afecta a todos. Con esta opción se aparta la clase entera para que pase
+ * lo que sí se puede hacer.
+ */
+const INCLUIR_SIN_INTENTOS = resto.includes('--incluir-sin-intentos');
 
 if (!FEDERACION || !TIPO) {
   console.error('uso: aparta-trabajos-atascados.mjs <federación> <tipo> [horas] [--aplicar]');
@@ -52,11 +62,12 @@ const hasta = new Date(ahora.getTime() + HORAS * 3600_000).toISOString();
 const db = new DatabaseSync(ruta, { timeout: 120_000 });
 
 // Sólo se tocan los que YA HAN FALLADO alguna vez (`intentos >= 1`) y están disponibles AHORA. Un trabajo que
-// nunca se ha intentado no se aparta: podría funcionar.
+// nunca se ha intentado no se aparta: podría funcionar — salvo con `--incluir-sin-intentos`, para cuando el
+// fallo es de toda la clase de trabajo.
 const candidatos = db.prepare(`select clave, intentos, coalesce(ultimo_error,'') error from trabajos
   where tipo = ? and estado in ('pendiente','bloqueado')
     and (siguiente_intento is null or siguiente_intento <= ?)
-    and intentos >= 1`).all(TIPO, ahoraIso);
+    ${INCLUIR_SIN_INTENTOS ? '' : 'and intentos >= 1'}`).all(TIPO, ahoraIso);
 
 console.log(`══ ${FEDERACION} · trabajos «${TIPO}» atascados ══\n`);
 console.log(`  disponibles ahora y con algún intento previo: ${candidatos.length}`);

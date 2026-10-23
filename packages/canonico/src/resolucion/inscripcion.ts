@@ -239,10 +239,60 @@ export type CatalogoInscripciones = {
   porClave: Map<string, InscripcionDeGrupo>;
   /** Nombres normalizados que no resuelven por tener dos candidatos o dos códigos. */
   ambiguos: Set<string>;
+  /**
+   * Nombre normalizado SIN el sufijo de equipo → claves de los equipos del grupo que sí lo llevan.
+   * Es lo que permite unir «ARO, C.E.» (lo que escribe el acta) con «ARO, C.E. A» (lo que publica el
+   * calendario con su código). Si hay más de una clave, no se elige: `A` y `B` son equipos distintos.
+   */
+  porSinSufijoDeEquipo: Map<string, string[]>;
+  /**
+   * Claves que se han fusionado en otra: `contexto:aro c e` → `5081`. Quien tenga una referencia contextual
+   * apuntando a la clave vieja tiene que repuntarla con esto, o resolverá a una inscripción que ya no existe.
+   */
+  equivalencias: Map<string, string>;
 };
 
 /** La clave de una inscripción sin código: la referencia contextual misma. */
 export const claveContextual = (normalizado: string) => `contexto:${normalizado}`;
+
+/**
+ * Abreviaturas de tipo de club que terminan en una letra suelta.
+ *
+ * ── POR QUÉ ESTÁ VACÍA, HABIENDO SIDO UNA LISTA ────────────────────────────────────────────────────────
+ *
+ * Nació para que «REAL MADRID C.F.» no perdiera la «F» y se uniera al equipo «REAL MADRID C». El problema
+ * es que en el naming catalán el tipo de club va DELANTE de la letra del equipo —«GIMNASTIC TARRAGONA, C. A»
+ * es el club «C.» con el equipo «A»—, y con el guardián puesto esa pareja no se fusionaba: medido el
+ * 25/09/2026, **181 parejas partidas en 96 grupos** de Cataluña, cada una con su partido colgado de una
+ * identidad y la de código a cero.
+ *
+ * La evidencia medida (181 casos reales, y el «F» de Femenino del grupo de Ceuta) pesa más que el caso
+ * hipotético que el guardián protegía, y que además exigiría que la fuente escribiera «REAL MADRID C» para
+ * el equipo C, cosa que no hace: escribe «REAL MADRID C.F. C». La protección de verdad es la UNICIDAD: con
+ * «EUROPA, C.E. A» y «EUROPA, C.E. B» en el grupo, «EUROPA, C.E.» no se resuelve.
+ */
+const ABREVIATURAS_DE_CLUB: ReadonlySet<string> = new Set();
+
+/**
+ * El nombre normalizado al que se le ha quitado el sufijo de equipo, o `null` si no lo lleva.
+ *
+ * «aro c e a» → «aro c e» · «barcelona f c b» → «barcelona f c» · «foso ceuta f» → «foso ceuta» ·
+ * «real madrid c f» → `null` (la «f» completa «c f», que es C.F.) · «racing blanenc f c» → `null`.
+ *
+ * El sufijo es UNA letra final. Cualquier letra, no sólo la A: medido el 25/09/2026 en el grupo de Ceuta
+ * 21876096, que es «ALEVÍN FEMENINO F7» y donde TODOS los equipos llevan una «F» de Femenino que el acta no
+ * escribe —«Foso Ceuta F» frente a «Foso Ceuta»—. Con el alfabeto limitado a A–D ese grupo se quedaba
+ * bloqueado con «el acta no se corresponde con la fila del calendario».
+ *
+ * Lo que impide que la regla se pase de lista es el guardián de abreviaturas, no el alfabeto.
+ */
+export function sinSufijoDeEquipo(normalizado: string): string | null {
+  const m = /^(.*\S)\s([a-z])$/.exec(normalizado);
+  if (m === null) return null;
+  const anterior = /(\S+)\s+[a-z]$/.exec(normalizado)?.[1] ?? '';
+  if (ABREVIATURAS_DE_CLUB.has(`${anterior} ${m[2]!}`)) return null;
+  return m[1]!;
+}
 
 /**
  * Decide las inscripciones del grupo a partir de los candidatos.
@@ -278,6 +328,42 @@ export function construyeCatalogoInscripciones(entrada: {
   }
 
   const porNormalizado = new Map<string, string>();
+
+  /*
+   * ── PERO CADA CÓDIGO ES UN EQUIPO, Y EL PARTIDO PUBLICa EL SUYO ───────────────────────────────────────
+   *
+   * Que el NOMBRE sea ambiguo no quiere decir que los códigos lo sean: cada uno identifica a un equipo
+   * distinto, y el partido trae el suyo escrito. Descartar el candidato entero —que es lo que se hacía— se
+   * llevaba por delante los dos códigos y el grupo no entraba. Medido el 25/09/2026: «C.D. Nuestra Señora de
+   * Belén» aparece con los códigos 14730 y 16964 en el catálogo de la temporada, y varios grupos de Castilla
+   * y León y de Andalucía fallaban con «el código … no está en el catálogo de este grupo».
+   *
+   * Se crea una inscripción por código para que `porCodigo` los tenga, y el nombre NO se mapea: resolver por
+   * nombre sigue negándose, que es la regla que impide unir dos plantillas.
+   */
+  for (const candidato of entrada.candidatos) {
+    if (candidato.codigos.length <= 1) continue;
+    for (const codigo of candidato.codigos) {
+      const previa = porClave.get(codigo);
+      if (previa === undefined) {
+        porClave.set(codigo, {
+          clave: codigo,
+          codigoExterno: codigo,
+          referenciaContextual: null,
+          metodo: 'codigo-externo',
+          nombre: candidato.limpio,
+          normalizado: candidato.normalizado,
+          procedencias: [...candidato.procedencias],
+          alias: [...candidato.alias],
+          marcadoresEstado: [...candidato.marcadoresEstado],
+        });
+        continue;
+      }
+      // El mismo código citado por otra vía con el mismo nombre: se acumula, no se duplica.
+      for (const literal of candidato.alias) if (!previa.alias.includes(literal)) previa.alias.push(literal);
+      for (const p of candidato.procedencias) if (!previa.procedencias.includes(p)) previa.procedencias.push(p);
+    }
+  }
 
   for (const candidato of entrada.candidatos) {
     if (ambiguos.has(candidato.normalizado)) continue;
@@ -321,11 +407,84 @@ export function construyeCatalogoInscripciones(entrada: {
     const prioridadNueva = Math.min(...candidato.procedencias.map((p) => ORDEN_NOMBRE.indexOf(p)));
     if (prioridadNueva < prioridadPrevia) previa.nombre = candidato.limpio;
   }
-  for (const inscripcion of porClave.values()) {
-    if (inscripcion.codigoExterno !== null) porCodigo.set(inscripcion.codigoExterno, inscripcion.clave);
+
+  /*
+   * ── UN NOMBRE SIN EL SUFIJO DE EQUIPO ES LA MISMA INSCRIPCIÓN ─────────────────────────────────────────
+   *
+   * El grupo puede citar al mismo equipo de dos formas: con el sufijo y su código —lo que publica el
+   * calendario: «QUART, U.E. A», código 5081— y sin el sufijo —lo que escribe el acta: «QUART, U.E.»—. Si
+   * las dos formas acaban en inscripciones distintas, el partido se cuelga de una y el equipo real se queda
+   * con cero partidos: medido el 25/09/2026 en 23 grupos de Cataluña, 263 parejas.
+   *
+   * Se fusionan en la del CÓDIGO, que es la identidad establecida, y el otro literal queda como alias. Las
+   * condiciones son estrechas a propósito:
+   *
+   *  · sólo se fusiona el candidato SIN código: si las dos formas traen código son dos equipos distintos (el
+   *    A y el B del mismo club) y unirlos contaminaría las dos plantillas;
+   *  · hace falta que el candidato con sufijo sea ÚNICO: con «EUROPA, C.E. A» y «EUROPA, C.E. B» en el
+   *    grupo, «EUROPA, C.E.» no se resuelve;
+   *  · y el nombre se queda el de la identidad establecida, no el de la cita nueva: es lo que mantiene
+   *    estable el equipo-temporada, que se identifica por (club, temporada, nombre).
+   */
+  const equivalencias = new Map<string, string>();
+  const baseConSufijo = new Map<string, string[]>();
+  for (const [normalizado, clave] of porNormalizado) {
+    const base = sinSufijoDeEquipo(normalizado);
+    if (base === null) continue;
+    const inscripcion = porClave.get(clave);
+    if (inscripcion === undefined || inscripcion.codigoExterno === null) continue;
+    const claves = baseConSufijo.get(base) ?? [];
+    if (!claves.includes(clave)) claves.push(clave);
+    baseConSufijo.set(base, claves);
+  }
+  for (const [normalizado, clave] of [...porNormalizado]) {
+    const sinCodigo = porClave.get(clave);
+    if (sinCodigo === undefined || sinCodigo.codigoExterno !== null) continue;
+    const hermanas = baseConSufijo.get(normalizado) ?? [];
+    if (hermanas.length !== 1) continue;
+    const destino = porClave.get(hermanas[0]!);
+    if (destino === undefined || destino === sinCodigo) continue;
+    for (const literal of [sinCodigo.nombre, ...sinCodigo.alias]) {
+      if (!destino.alias.includes(literal)) destino.alias.push(literal);
+      if (!destino.procedencias.includes('acta') && sinCodigo.procedencias.includes('acta')) destino.procedencias.push('acta');
+    }
+    porClave.delete(clave);
+    porNormalizado.set(normalizado, destino.clave);
+    equivalencias.set(clave, destino.clave);
   }
 
-  return { porCodigo, porNormalizado, porClave, ambiguos };
+  for (const inscripcion of porClave.values()) {
+    if (inscripcion.codigoExterno !== null) porCodigo.set(inscripcion.codigoExterno, inscripcion.clave);
+    /*
+     * Y la equivalencia de toda inscripción que NACIÓ contextual y hoy tiene código: conserva su referencia
+     * contextual —eso es lo que hace auditable la vinculación—, así que quien tenga esa referencia guardada
+     * tiene que resolver a la clave del código. Sin esto, resolver por la referencia devolvía
+     * `contexto:<nombre>`, una inscripción que ya no existe, y el lote se caía con «no se ha podido persistir».
+     */
+    if (inscripcion.referenciaContextual !== null) {
+      const contextual = claveContextual(inscripcion.referenciaContextual);
+      if (contextual !== inscripcion.clave) equivalencias.set(contextual, inscripcion.clave);
+    }
+  }
+
+  /*
+   * Y el índice por nombre SIN sufijo de equipo. Medido el 25/09/2026 en el canónico: tras reparar el
+   * calendario de 23 grupos de Cataluña desde las actas, la misma pareja quedó con DOS identidades —
+   * «QUART, U.E. A» (por código, con 10 inscripciones y compartida con otras competiciones) y
+   * «QUART, U.E.» (por nombre, con 1 partido)—. El acta escribe el nombre sin el sufijo y el calendario lo
+   * escribe con él, así que las dos formas se resolvían por separado y la historia del equipo se partía en
+   * dos. El índice no elige: sólo dice a qué equipos del grupo les falta el sufijo.
+   */
+  const porSinSufijoDeEquipo = new Map<string, string[]>();
+  for (const [normalizado, clave] of porNormalizado) {
+    const base = sinSufijoDeEquipo(normalizado);
+    if (base === null) continue;
+    const claves = porSinSufijoDeEquipo.get(base) ?? [];
+    if (!claves.includes(clave)) claves.push(clave);
+    porSinSufijoDeEquipo.set(base, claves);
+  }
+
+  return { porCodigo, porNormalizado, porClave, ambiguos, porSinSufijoDeEquipo, equivalencias };
 }
 
 export type ViaInscripcion =
@@ -333,6 +492,7 @@ export type ViaInscripcion =
   | 'codigo-del-catalogo-del-grupo'
   | 'referencia-contextual-existente'
   | 'nombre-limpio-unico'
+  | 'nombre-sin-sufijo-de-equipo'
   | 'sin-resolver';
 
 export type ResolucionInscripcion = {
@@ -362,6 +522,9 @@ export type ResolucionInscripcion = {
  * 2. **referencia contextual ya existente** — si esa inscripción ya se creó antes, se devuelve la misma.
  *    Es lo que hace que la segunda importación no cree una inscripción nueva;
  * 3. **nombre limpio normalizado con un único candidato**;
+ * 3.b **el nombre sin el sufijo de equipo**, cuando en el grupo hay UN solo equipo con ese sufijo: el acta
+ *    escribe «ARO, C.E.» y el calendario «ARO, C.E. A», y sin este paso la misma pareja acaba con dos
+ *    identidades (una con el partido y otra sin él).
  * 4. **sin resolver** — y entonces el partido no se importa.
  */
 export function resuelveInscripcion(datos: {
@@ -422,6 +585,33 @@ export function resuelveInscripcion(datos: {
         evidencia: conCodigo === null
           ? `«${base.limpio}» es el único equipo del grupo con ese nombre limpio y el grupo no publica códigos`
           : `«${base.limpio}» es el único equipo del grupo con ese nombre y el grupo publica su código ${conCodigo}`,
+      };
+    }
+  }
+
+  /*
+   * 3.b El nombre SIN el sufijo de equipo, cuando en el grupo hay UN solo equipo con ese sufijo.
+   *
+   * El acta de la FCF escribe «ARO, C.E.» y su calendario «ARO, C.E. A»: son el mismo equipo, y sin este
+   * paso cada uno creaba su equipo-temporada. Con dos candidatos (`A` y `B`) NO se elige —elegir mal uniría
+   * dos plantillas y no se notaría—, y si el nombre exacto ya existe en el grupo tampoco se llega aquí,
+   * porque el paso 3 lo resuelve antes.
+   */
+  if (base.normalizado !== '' && !datos.catalogo.ambiguos.has(base.normalizado)) {
+    const candidatas = datos.catalogo.porSinSufijoDeEquipo.get(base.normalizado) ?? [];
+    if (candidatas.length === 1) {
+      const clave = candidatas[0]!;
+      const inscripcion = datos.catalogo.porClave.get(clave);
+      const conCodigo = inscripcion?.codigoExterno ?? null;
+      return {
+        ...base,
+        codigoExterno: conCodigo,
+        referenciaContextual: conCodigo === null ? inscripcion?.normalizado ?? null : null,
+        clave,
+        metodo: conCodigo === null ? 'referencia-contextual' : 'codigo-externo',
+        via: 'nombre-sin-sufijo-de-equipo',
+        evidencia: `«${base.limpio}» es el nombre sin el sufijo de equipo de «${inscripcion?.nombre ?? clave}», `
+          + `el único equipo del grupo que encaja${conCodigo === null ? '' : ` (código ${conCodigo})`}`,
       };
     }
   }

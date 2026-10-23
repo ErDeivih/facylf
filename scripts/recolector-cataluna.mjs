@@ -45,6 +45,32 @@ function leeCatalogo() {
   return JSON.parse(readFileSync(CATALOGO, 'utf8').replace(/^\uFEFF/, ''));
 }
 
+/**
+ * ── HASTA QUÉ AÑO DEBE LLEGAR EL HISTORIAL, SEGÚN LA PROPIA FEDERACIÓN (08/10/2026) ──────────────────────
+ *
+ * El 08/10/2026 se descubrió que Cataluña llevaba **dos temporadas** en el catálogo (2025-26 y 2026-27)
+ * cuando su configuración declara `alcance.desdeAnio: 2015`: le faltaban DIEZ temporadas enteras, y su
+ * recolector de datos parecía «parado» porque sólo puede recoger lo que el catálogo tiene.
+ *
+ * La causa era una condición de este mismo fichero: `descubreTemporadas` sólo se llamaba
+ * `if (!datos.temporadas.length)` — es decir, **si el catálogo estaba VACÍO**. Como ya tenía dos, la función
+ * no se ejecutaba nunca. El resto de pasos sí corrían, así que el descubridor parecía trabajar (refinaba
+ * competiciones y grupos cada vez) y nadie notó que el historial no se tocaba jamás.
+ *
+ * Se lee del fichero de configuración de la federación, no de una constante escrita aquí: si mañana se cambia
+ * el alcance, el descubrimiento lo sigue sin tocar código.
+ */
+function anioMinimoConfigurado() {
+  try {
+    const ruta = join(RAIZ, 'recolector.cataluna.config.json');
+    if (!existsSync(ruta)) return 0;
+    return Number(JSON.parse(readFileSync(ruta, 'utf8')).alcance?.desdeAnio) || 0;
+  } catch {
+    /* Sin configuración legible se responde 0, que significa «no sé»: y ante la duda, no se cambia nada. */
+    return 0;
+  }
+}
+
 function guardaCatalogo(datos) {
   datos.actualizadoEn = new Date().toISOString();
   const temporal = `${CATALOGO}.tmp-${process.pid}`;
@@ -182,10 +208,89 @@ function parametro(url, nombre) {
   return new URL(url).searchParams.get(nombre);
 }
 
+/**
+ * ── EL AVISO DE COOKIES TAPA EL SELECTOR (diagnosticado el 08/10/2026) ───────────────────────────────────
+ *
+ * La FCF muestra su aviso de consentimiento en cada página —lo vi en pantalla en la primera investigación de
+ * Cataluña: `{"botones":["partners","MORE OPTIONS","DISAGREE","AGREE","CA","ACCEDIR",…]}`—. Entonces se
+ * concluyó que «la página carga bien», y era verdad a medias: **carga, pero el aviso se queda encima**.
+ *
+ * La firma del clic interceptado está medida: el botón de la temporada **existe** (por eso `abreLista` entra a
+ * su rama de reintento y no al `continue`), **se pulsa**, y **la lista no se despliega** — tres reintentos de
+ * 45 s y la sesión muere con `Wait timed out after 45112ms`. Y el catálogo no se actualiza desde el 12/09.
+ *
+ * Se pulsa SÓLO el botón de aceptar, y sólo si está. **No se toca `MORE OPTIONS` ni `partners`**: configurar
+ * consentimientos ajenos a ciegas no es asunto de este recolector. Si algún día cambia el texto del botón, se
+ * verá en el registro como «no se encontró», no como un fallo silencioso.
+ */
+async function aceptaConsentimiento(driver) {
+  /*
+   * ── EL AVISO APARECE TARDE, Y HAY QUE ESPERARLO (medido el 08/10/2026) ────────────────────────────────
+   *
+   * La primera versión de esto miraba los botones UNA vez, justo después de `driver.get`. **Y no encontraba
+   * nada**: el aviso de Quantcast (`qc-cmp-cleanslate`) se pinta **con retraso**, así que en ese instante
+   * todavía no está. Después aparece y **tapa todos los botones del selector**.
+   *
+   * Lo dice el diagnóstico `scripts/diagnostica-selector-cataluna.mjs`, con la posición de cada botón y quién
+   * lo tapa:
+   *
+   *   [19] «2026-27» visible pos(85,687)  ← TAPADO POR DIV.qc-cmp-cleanslate css-1ij9nli
+   *   [3]  «AGREE»   visible pos(918,662)
+   *
+   * El botón de la temporada existe, está visible… **y el clic no le llega**. Por eso los 81 `<li>` de la
+   * página no cambiaban en 50 segundos: no es que la lista tardara, es que nadie pulsaba nada.
+   *
+   * Así que se espera hasta 25 s a que el aviso aparezca y se cierra en cuanto esté: desde el 16/10/2026 con
+   * `DISAGREE` (rechazar) si existe, y si no con aceptar. `MORE OPTIONS` y `partners` no se tocan.
+   */
+  // 16/10/2026: primero se RECHAZA (lo que menos datos cede, y lo mismo que ya hace `recolector-cataluna-datos.mjs`);
+  // si el aviso no tiene botón de rechazo, se acepta como antes, porque sin cerrarlo no se puede pulsar nada.
+  const TEXTO_ACEPTAR = ['DISAGREE', 'REJECT ALL', 'REBUTJA', 'REBUTJAR', 'RECHAZAR', 'AGREE', 'ACCEPT', 'ACCEPTAR', 'ACCEPTA', 'ACCEPTAR-HO', 'ACEPTO'];
+  for (let intento = 1; intento <= 12; intento++) {
+    try {
+      const pulsado = await driver.executeScript(`
+        const textos = arguments[0];
+        const botones = [...document.querySelectorAll('button')];
+        const b = textos.map((t) => botones.find((x) => (x.innerText || '').trim().toUpperCase() === t)).find(Boolean);
+        if (!b) return '';
+        b.click();
+        return (b.innerText || '').trim();`, TEXTO_ACEPTAR);
+      if (pulsado) {
+        console.log(`  · aviso de cookies cerrado («${pulsado}») tras ${intento} comprobación(es): ` +
+          'sin esto, la capa tapa todos los botones del selector.');
+        await duerme(1500); // que la capa termine de desaparecer antes de tocar nada más
+        return true;
+      }
+    } catch { /* se reintenta: el aviso puede estar justo pintándose */ }
+    await duerme(2000);
+  }
+  console.log('  · no se encontró botón de aceptar cookies en 25 s: se sigue igual (puede que no haya aviso).');
+  return false;
+}
+
 async function navega(driver, url) {
   console.log(`→ ${url}`);
   await driver.get(url);
-  await driver.wait(until.titleContains('Competicions'), 45000);
+  // ANTES de esperar el título y los selectores: mientras el aviso esté encima, todo clic se lo come él.
+  await aceptaConsentimiento(driver);
+  /*
+   * ── UN TÍTULO LENTO NO ES UNA PÁGINA ROTA (arreglado el 08/10/2026) ──────────────────────────────────
+   *
+   * Antes esto era `await driver.wait(until.titleContains('Competicions'), 45000)` a secas: si el título no
+   * llegaba en 45 s, **lanzaba y mataba la sesión de descubrimiento entera**. Medido ese día: dos reintentos de
+   * «la lista de 2026-27 aún no está disponible» y después `Wait timed out after 45112ms`, con el
+   * descubrimiento del historial a cero.
+   *
+   * Es la MISMA trampa que ya se corrigió en `recolector-cataluna-datos.mjs`: confundir «la página va lenta»
+   * con «el navegador se ha caído». Y la respuesta es la misma: no se tira la sesión por un título. **Lo que
+   * decide si la página sirve es si aparecen sus selectores**, y eso se comprueba en la línea siguiente — que
+   * sigue lanzando si de verdad no hay nada con lo que trabajar.
+   */
+  try {
+    await driver.wait(until.titleContains('Competicions'), 45000);
+  } catch {
+    console.log('  · el título tardó más de 45 s; se sigue con la página tal y como esté.');
+  }
   await esperaSelector(driver, 'button');
   await pausa();
 }
@@ -414,7 +519,28 @@ async function main() {
   const driver = await new Builder().forBrowser('chrome').setChromeOptions(opcionesChrome()).build();
   try {
     await driver.manage().setTimeouts({ pageLoad: 60000, script: 30000 });
-    if (!datos.temporadas.length && quedan()) await descubreTemporadas(driver, datos, consume);
+    /*
+     * ── EL HISTORIAL NO SE DESCUBRÍA NUNCA (arreglado el 08/10/2026) ─────────────────────────────────────
+     *
+     * Antes: `if (!datos.temporadas.length)`. Es decir, sólo se buscaban temporadas con el catálogo VACÍO.
+     * Con dos ya dentro, la condición era falsa para siempre y **las diez temporadas anteriores no se buscaban
+     * jamás** — mientras el resto de pasos sí corrían y el descubridor parecía funcionar. Cataluña se quedó en
+     * 2 temporadas teniendo que llegar a 2015.
+     *
+     * Ahora también se busca **si al catálogo le falta historial** respecto al `desdeAnio` que declara la
+     * federación. Es aditivo: con el catálogo completo, `faltaHistorial` es falso y no cambia nada.
+     */
+    const anioMinimo = anioMinimoConfigurado();
+    const anios = datos.temporadas
+      .map((t) => Number(String(t.nombre ?? '').slice(0, 4)))
+      .filter(Number.isFinite);
+    const masAntigua = anios.length ? Math.min(...anios) : null;
+    const faltaHistorial = anioMinimo > 0 && (masAntigua === null || masAntigua > anioMinimo);
+    if (faltaHistorial) {
+      console.log(`  · el catálogo llega hasta ${masAntigua ?? '—'} y la federación declara desde ${anioMinimo}: ` +
+        'se buscan las temporadas que faltan.');
+    }
+    if ((!datos.temporadas.length || faltaHistorial) && quedan()) await descubreTemporadas(driver, datos, consume);
     if (quedan()) await descubreDisciplinas(driver, datos, consume, quedan);
     if (quedan()) await catalogaCompeticiones(driver, datos, consume, quedan);
     if (quedan()) await resuelveCompeticiones(driver, datos, consume, quedan);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -13,6 +13,7 @@ import {
   seleccionaMuestrasCompeticion, siguienteTrabajo, validaPagina,
 } from './recolector-local.mjs';
 import { aplazaTemporadasViejas, reactivaTemporadasViejas } from './temporada-minima.mjs';
+import { cargaTemporadasAsignadas } from './temporadas-asignadas.mjs';
 
 /** Marca de tiempo como la que usa la cola, para no depender del reloj del test. */
 const ahoraIso = () => new Date().toISOString();
@@ -89,6 +90,25 @@ test('las actas de categorías de menores quedan bloqueadas por defecto', () => 
   assert.equal(esCompeticionDeMenores('Campeonato Regional Zagalín'), true);
   assert.equal(esCompeticionDeMenores('Liga de Iniciación'), true);
   assert.equal(esCompeticionDeMenores('1ª División Provincial de Aficionados'), false);
+});
+
+/*
+ * Regresión del 24/09/2026: en valenciano y catalán la categoría NO lleva la «n» final («Aleví», «Benjamí»),
+ * y la regla la exigía. Medido: «Segona FFCV Aleví 2n. any València» tiene 3.249 actas y todas estaban marcadas
+ * como de adultos, mientras «Segona FFCV Juvenil» se marcaba bien. Son fichas de niños de 8 a 12 años.
+ */
+test('reconoce las categorías de base escritas sin la «n» final (valenciano y catalán)', () => {
+  assert.equal(esCompeticionDeMenores('Segona FFCV Aleví 2n. any València'), true);
+  assert.equal(esCompeticionDeMenores('Segona FFCV Benjamí 1r. any Alacant'), true);
+  assert.equal(esCompeticionDeMenores('Segona FFCV Prebenjamí 2n. any València'), true);
+  assert.equal(esCompeticionDeMenores('Primera FFCV Infantil'), true);
+  // El plural de algunas federaciones también entra.
+  assert.equal(esCompeticionDeMenores('Lliga Alevins'), true);
+  assert.equal(esCompeticionDeMenores('Lliga Benjamins'), true);
+  // Y sigue sin confundirse con categorías de adultos.
+  assert.equal(esCompeticionDeMenores('Segona FFCV Juvenil'), true);
+  assert.equal(esCompeticionDeMenores('Segona FFCV Aficionats'), false);
+  assert.equal(esCompeticionDeMenores('Lliga Primera Regional'), false);
 });
 
 test('prioriza Tercera RFEF y ascensos sin confundirlos con terceras provinciales', () => {
@@ -233,6 +253,44 @@ test('prepara sólo las temporadas que se van a trabajar y separa las competicio
   assert.equal(resumen(db).grupos, 2);
   assert.equal(db.prepare('select estado from grupos limit 1').get().estado, 'candidato');
   db.close();
+});
+
+test('una temporada asignada a mano crece aunque esté por debajo del suelo', () => {
+  // Medido el 29/09/2026: asignar la 2015-16 no servía de nada. La asignación se aceptaba, `reactiva` le
+  // levantaba el aplazamiento al año 2099 y `siguienteTrabajo` la dejaba pasar, pero **ni el catálogo la
+  // registraba ni `encola` creaba trabajo suyo**: la asignación sólo podía VACIAR lo que ya hubiera. Las seis
+  // temporadas de 2015-16 a 2020-21 estaban así en las dos máquinas, con 28.000 trabajos aplazados y sin forma
+  // de crecer, y el recolector contestaba «ningún trabajo disponible» sin ningún error que lo explicara.
+  const carpeta = mkdtempSync(join(tmpdir(), 'facylf-asignadas-'));
+  const archivo = join(carpeta, 'temporadas-asignadas.txt');
+  try {
+    const db = abreBase(':memory:');
+    // Se carga como lo carga el recolector: desde el fichero que va junto a la cola. El comentario con comas
+    // está a propósito: ya costó un fallo que las comas de los comentarios entraran como temporadas.
+    writeFileSync(archivo, '# lo asignado manda sobre el suelo, con comas, y no se cuela\n2015-16\n');
+    cargaTemporadasAsignadas(archivo);
+
+    // La temporada se registra y su trabajo se crea de verdad: catálogo + competición.
+    assert.deepEqual(preparaDesdeCatalogo(db, { '11': [{ codCompeticion: '2316', nombre: 'histórica' }] }, 2015),
+      { temporadas: 1, competiciones: 1 });
+    assert.equal(db.prepare("select etiqueta from temporadas where codigo='11'").get().etiqueta, '2015-16');
+    assert.equal(db.prepare("select count(*) n from trabajos where temporada='11'").get().n, 2);
+
+    // Y `encola` directo también, aunque la cola todavía no conociera la temporada.
+    encola(db, 'jornada', { temporada: '11', competicion: '2316', grupo: '8652', jornada: 1 }, 13, 'https://example.test/j1');
+    assert.equal(db.prepare("select count(*) n from trabajos where temporada='11'").get().n, 3);
+
+    // Lo de siempre NO cambia: una temporada vieja que nadie ha asignado sigue sin encolarse ni registrarse.
+    assert.deepEqual(preparaDesdeCatalogo(db, { '16': [{ codCompeticion: '2316', nombre: 'no asignada' }] }, 2015),
+      { temporadas: 0, competiciones: 0 });
+    assert.equal(db.prepare("select count(*) n from trabajos where temporada='16'").get().n, 0);
+    db.close();
+  } finally {
+    // La asignación es estado del módulo: si no se retira, contamina las pruebas siguientes.
+    writeFileSync(archivo, '');
+    cargaTemporadasAsignadas(archivo);
+    rmSync(carpeta, { recursive: true, force: true });
+  }
 });
 
 test('actas y trabajos no dependen de que un código sea global', () => {
@@ -421,4 +479,34 @@ test('a igual prioridad elige la temporada reciente y completa antes sus actas',
     { temporada: '22', tipo: 'jornada' },
   );
   db.close();
+});
+
+test('una tabla que envuelve bloques widget no es un partido aunque sume dos enlaces de equipo (La Rioja, ligas nacionales)', () => {
+  // La Riojana sólo enlaza a SUS equipos; a los rivales de 2ª B los pinta como «Descansa». Con dos riojanos en el
+  // grupo, la tabla exterior juntaba los dos enlaces y salía un «S.D. Logroñés - U.D. Logroñés» en cada jornada.
+  const bloque = (izq, der) => `<tr><td><table width="100%"><tbody><tr>
+    <td class="td_widget"><div class="font_widgetL"><h4>${izq}</h4></div></td>
+    <td><span class="wid2_resultado_cerrada ntype"><i class="fa-solid">0</i></span> - <span class="wid2_resultado_cerrada ntype"><i class="fa-solid">0</i></span></td>
+    <td class="td_widget"><div class="font_widgetV"><h4>${der}</h4></div></td>
+  </tr></tbody></table></td></tr>`;
+  const html = `<html><body><table class="table">${[
+    bloque('&nbsp;&nbsp;Descansa', '<a href="NFG_VisEquipos?cod_primaria=1000119&Codigo_Equipo=334811"> S.D. LOGROÑES </a>'),
+    bloque('&nbsp;&nbsp;Descansa', '&nbsp;&nbsp;Descansa'),
+    bloque('<a href="NFG_VisEquipos?cod_primaria=1000119&Codigo_Equipo=334800"> U.D. LOGROÑES </a>', '&nbsp;&nbsp;Descansa'),
+  ].join('')}</table></body></html>`;
+  const partidos = extraePartidos(html);
+  assert.equal(partidos.some((p) => /LOGROÑES/.test(p.local) && /LOGROÑES/.test(p.visitante)), false);
+});
+
+test('urlEnPortal: una URL de la web de CyL en otra federación se rehace con su portal (21/10/2026)', async () => {
+  const { urlEnPortal } = await import('./recolector-local.mjs');
+  const base = 'https://www.futgal.es/pnfg/NPcd';
+  const mala = 'https://www.rfcylf.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=26991111&CodGrupo=26991119&CodTemporada=22&CodJornada=3';
+  const r = urlEnPortal(mala, base);
+  assert.equal(r.rehecha, true);
+  assert.equal(r.hostAnterior, 'www.rfcylf.es');
+  assert.equal(r.url, 'https://www.futgal.es/pnfg/NPcd/NFG_CmpJornada?cod_primaria=1000120&CodCompeticion=26991111&CodGrupo=26991119&CodTemporada=22&CodJornada=3');
+  assert.deepEqual(urlEnPortal('https://www.futgal.es/pnfg/NPcd/NFG_X?a=1', base), { url: 'https://www.futgal.es/pnfg/NPcd/NFG_X?a=1', rehecha: false });
+  assert.ok(urlEnPortal('https://otra.web/algo', base).error);
+  assert.deepEqual(urlEnPortal(null, base), { url: null, rehecha: false });
 });

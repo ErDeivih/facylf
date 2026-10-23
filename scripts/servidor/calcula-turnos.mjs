@@ -88,6 +88,8 @@ console.log(`reparto del turno de plaza · ${datos.length} federaciones · ${tot
 console.log(`  turno de una federación media: ${REPARTO_MIN} min · topes: ${MINIMO}-${MAXIMO} min`);
 console.log(`  cuota de procesador: ${CPU_MIN} (la que casi ha terminado) a ${CPU_MAX} (la más grande)\n`);
 console.log('  federación            pendientes   % del total   turno    cpu');
+const PRIORITARIA = process.env.FACYLF_PRIORITARIA_FED ?? 'federacion';
+const CPU_PRIORITARIA = 1.0;
 const turnos = {};
 const cuotas = {};
 for (const dato of datos.sort((a, b) => b.pendientes - a.pendientes)) {
@@ -96,7 +98,10 @@ for (const dato of datos.sort((a, b) => b.pendientes - a.pendientes)) {
   turnos[dato.federacion] = turno;
   // La cuota se ancla al MISMO eje que el turno: la que más turno tiene es la que más núcleo puede usar.
   const escala = MAXIMO > MINIMO ? (turno - MINIMO) / (MAXIMO - MINIMO) : 0;
-  const cpu = Number((CPU_MIN + (CPU_MAX - CPU_MIN) * escala).toFixed(2));
+  let cpu = Number((CPU_MIN + (CPU_MAX - CPU_MIN) * escala).toFixed(2));
+  // Castilla y León es la prioridad (David, 15/10/2026): tiene plaza de navegador reservada (no depende del
+  // turno) y la cuota de procesador más alta, sea cual sea lo que le quede.
+  if (dato.federacion === PRIORITARIA) cpu = Math.max(cpu, CPU_PRIORITARIA);
   cuotas[dato.federacion] = cpu;
   console.log(`  ${dato.federacion.padEnd(20)} ${String(dato.pendientes).padStart(10)} `
     + `${((dato.pendientes / total) * 100).toFixed(1).padStart(11)} % ${String(turno).padStart(7)} min `

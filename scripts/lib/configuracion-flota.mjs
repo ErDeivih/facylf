@@ -16,6 +16,7 @@ export function configuracionFlotaLocal(raiz) {
   let headlessArchivo = null;
   let topeArchivo = null;
   let excluirArchivo = null;
+  let sueloArchivo = null;
   const ruta = join(raiz, 'scripts', 'entorno-flota.ps1');
   if (process.platform === 'win32' && existsSync(ruta)) {
     const texto = readFileSync(ruta, 'utf8');
@@ -26,6 +27,7 @@ export function configuracionFlotaLocal(raiz) {
     headlessArchivo = valor('FACYLF_CHROME_HEADLESS');
     topeArchivo = valor('FACYLF_TOPE_NAVEGADOR_MB');
     excluirArchivo = valor('FACYLF_EXCLUIR');
+    sueloArchivo = valor('FACYLF_TEMPORADA_MINIMA');
   }
   return {
     memoriaGb: Number(process.env.FACYLF_MEMORIA_GB ?? memoriaArchivo ?? 10),
@@ -52,6 +54,15 @@ export function configuracionFlotaLocal(raiz) {
      */
     excluidas: String(process.env.FACYLF_EXCLUIR ?? excluirArchivo ?? '')
       .split(',').map((f) => f.trim()).filter(Boolean),
+    /*
+     * ── EL SUELO DE TEMPORADAS (11/10/2026) ───────────────────────────────────────────────────────────────
+     *
+     * `entorno-flota.ps1` declara `FACYLF_TEMPORADA_MINIMA = '2010-11'`, pero el supervisor único sólo pasaba a
+     * los hijos las variables de esta lista, y ésa no estaba. Resultado medido el 11/10/2026: en el PC todos los
+     * recolectores trabajaban con el 2023-24 por defecto («Plan local preparado: 4 temporadas» en Andalucía) y
+     * el histórico de Andalucía, Madrid, Valencia y la parte no asignada de CyL no se servía, sin ningún error.
+     */
+    temporadaMinima: process.env.FACYLF_TEMPORADA_MINIMA ?? sueloArchivo ?? null,
     origen: process.env.FACYLF_MEMORIA_GB ? 'entorno' : (memoriaArchivo ? 'entorno-flota.ps1' : 'predeterminado'),
   };
 }

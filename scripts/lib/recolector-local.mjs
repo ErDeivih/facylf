@@ -13,6 +13,11 @@ import { numeroOfuscadoHtml } from '../../packages/ingesta/dist/src/parsers/ofus
 import {
   TEMPORADA_MINIMA, esTemporadaDeTrabajo, esTemporadaDeTrabajoDeLaCola, sqlExcluyeTemporadasViejas,
 } from './temporada-minima.mjs';
+// Reparto de una federación por temporadas entre dos máquinas (ver el módulo): sin asignación no cambia nada.
+import {
+  sqlSoloTemporadasAsignadas, parametrosSoloTemporadas, cargaTemporadasAsignadas, hayTemporadasAsignadas,
+  reactivaTemporadasAsignadas, esTemporadaAsignada, esTemporadaAsignadaDeLaCola,
+} from './temporadas-asignadas.mjs';
 // El día civil de Madrid, en un solo sitio: lo usan el recolector (cupo diario), el supervisor y la flota.
 import { diaDeMadrid } from './dia-madrid.mjs';
 // El cupo diario se cuenta con la misma consulta que usa el supervisor y la flota (una sola definición).
@@ -30,6 +35,23 @@ export function setPerfil(p) {
   return PERFIL;
 }
 export function perfil() { return PERFIL; }
+
+/**
+ * Pone una URL de trabajo en el portal `base` (21/10/2026: la pasada del fin de semana dejó URLs de la web de CyL
+ * en otras federaciones). Devuelve `{ url, rehecha, hostAnterior }` o `{ error }` si no se puede rehacer (no es
+ * una ruta PNFG): en ese caso NO se pide.
+ */
+export function urlEnPortal(url, base) {
+  if (!url) return { url, rehecha: false };
+  let u;
+  try { u = new URL(url); } catch { return { url, rehecha: false }; }
+  const propio = new URL(base);
+  if (u.host === propio.host) return { url, rehecha: false };
+  if (!/\/pnfg\/NPcd/i.test(u.pathname)) {
+    return { error: `URL de otro portal (${u.host}) que no se puede rehacer para ${propio.host}: no se pide` };
+  }
+  return { url: `${base.replace(/\/+$/, '')}${u.pathname.replace(/^.*\/pnfg\/NPcd/i, '')}${u.search}`, rehecha: true, hostAnterior: u.host };
+}
 
 export let URL_BASE = PERFIL_CYL.base;
 export let URL_RESULTADOS = `${PERFIL_CYL.base}/NFG_CmpJornada?cod_primaria=${PERFIL_CYL.codPrimaria}`;
@@ -52,9 +74,24 @@ export function etiquetaTemporada(codigo) {
   return `${inicio}-${String(inicio + 1).slice(-2)}`;
 }
 
-/** Clasificación deliberadamente conservadora: ante la duda no se descarga el acta. */
+/**
+ * Clasificación deliberadamente conservadora: ante la duda no se descarga el acta.
+ *
+ * ── LA «N» FINAL QUE FALTABA (fallo medido el 24/09/2026) ────────────────────────────────────────────────
+ *
+ * La primera versión exigía la «n» final: `alev[ií]n`, `benjam[ií]n`. En castellano eso acierta («Alevín»),
+ * pero **en valenciano y catalán la palabra es «Aleví» y «Benjamí», sin n**. Consecuencia medida: las
+ * competiciones «Segona FFCV Aleví 2n. any València» y «Segona FFCV Benjamí 1r. any Alacant» —3.249 y 3.033
+ * actas cada una— quedaron marcadas como de ADULTOS mientras «Segona FFCV Juvenil» se marcaba bien.
+ *
+ * No es un detalle menor: los invariantes del proyecto prohíben publicar nombres de menores y la protección se
+ * aplica según esta marca, así que miles de fichas de niños de 8 a 12 años estaban tratándose como adultas.
+ *
+ * Ahora la «n» es OPCIONAL (`n?`) y también lo es la «s» del plural, que aparece en algunas federaciones
+ * («Alevins», «Benjamins»). No se relaja nada más: se sigue exigiendo la raíz completa de la categoría.
+ */
 export function esCompeticionDeMenores(nombre) {
-  return /juvenil|xuvenil|cadete|infantil|alev[ií]n|benjam[ií]n|benxam[ií]n|prebenjam[ií]n|prebenxam[ií]n|zagal[ií]n|debutante|iniciaci[oó]n|chupet[ií]n|biber[oó]n|sub[- ]?\d+/i.test(nombre);
+  return /juvenil|xuvenil|cadete|infantil|alev[ií]n?s?|benjam[ií]n?s?|benxam[ií]n?s?|prebenjam[ií]n?s?|prebenxam[ií]n?s?|zagal[ií]n?s?|debutante|iniciaci[oó]n|chupet[ií]n?s?|biber[oó]n?s?|sub[- ]?\d+/i.test(nombre);
 }
 
 /** Orden funcional de las competiciones. Un número menor se procesa antes. */
@@ -156,7 +193,26 @@ export function urlActa(acta) {
 
 export function abreBase(ruta) {
   mkdirSync(dirname(ruta), { recursive: true });
+  /*
+   * ── LA ASIGNACIÓN DE TEMPORADAS DE ESTA FEDERACIÓN (24/09/2026) ────────────────────────────────────────
+   *
+   * Se lee del fichero que está JUNTO A LA COLA (`temporadas-asignadas.txt`), no del entorno: la asignación es
+   * por federación y el entorno es de la máquina, así que una variable global restringiría también a las demás
+   * federaciones de ese PC —sin dar ningún error, que es lo peligroso—. Si no hay fichero, no hay reparto y el
+   * recolector se comporta como siempre. Se lee al abrir la cola, que es una vez por sesión.
+   */
+  cargaTemporadasAsignadas(join(dirname(ruta), 'temporadas-asignadas.txt'));
   const db = new DatabaseSync(ruta);
+  /*
+   * Y se LEVANTA EL APLAZAMIENTO del trabajo de esas temporadas, si lo tenían. Sin esto, asignar una temporada
+   * antigua no serviría de nada: el suelo la había fechado en el año 2099 y el recolector diría «ningún trabajo
+   * disponible» sin ningún error. Se hace aquí, al abrir la cola (una vez por sesión), y sólo con las temporadas
+   * asignadas; el resto sigue aplazado como estaba.
+   */
+  const reactivados = reactivaTemporadasAsignadas(db);
+  if (reactivados) {
+    console.log(`Temporadas asignadas: se han reactivado ${reactivados} trabajos que el suelo tenía aplazados.`);
+  }
   /*
    * ── SINCRONIZACION DEL DISCO EN CADA CONFIRMACION (medido el 23/09/2026) ──────────────────────────────
    *
@@ -560,7 +616,13 @@ export function encola(db, tipo, datos, prioridad, url = null) {
   const clave = claveTrabajo(tipo, datos);
   // Suelo de temporadas: por debajo de la mínima no se crea trabajo. Las temporadas ya recogidas
   // siguen en su sitio, aplazadas, para cuando se retome el histórico.
-  if (!esTemporadaDeTrabajoDeLaCola(db, datos.temporada)) return clave;
+  //
+  // La segunda mitad de la condición es la que faltaba (29/09/2026): una temporada asignada a mano en
+  // `temporadas-asignadas.txt` es una decisión explícita y tiene que poder CRECER, no sólo vaciarse. Sin esto,
+  // asignar la 2015-16 dejaba al recolector sin nada que hacer y sin ningún error que lo explicara.
+  if (!esTemporadaDeTrabajoDeLaCola(db, datos.temporada) && !esTemporadaAsignadaDeLaCola(db, datos.temporada)) {
+    return clave;
+  }
   db.prepare(`
     insert into trabajos(
       clave, tipo, temporada, competicion, grupo, jornada, acta, url,
@@ -707,6 +769,9 @@ export function guardaActaEstructura(db, referencia, acta, parseada) {
 
 /** ¿Esta temporada entra en el plan? Dos suelos: el histórico del catálogo y el suelo de trabajo. */
 function temporadaEnElPlan(temporada, desdeAnio) {
+  // Y una excepción, por encima de los dos suelos: lo que se ha asignado a mano (ver `encola`). El suelo del
+  // catálogo (`desdeAnio`, hoy 2015) también bloqueaba la 2014-15 y la 2013-14 aunque estuvieran asignadas.
+  if (esTemporadaAsignada(etiquetaTemporada(temporada))) return true;
   return anioInicioDeTemporada(temporada) >= desdeAnio
     && esTemporadaDeTrabajo(etiquetaTemporada(temporada));
 }
@@ -764,15 +829,39 @@ export function preparaGruposDesdeCatalogo(db, porTemporada, desdeAnio = 2015) {
 }
 
 export function siguienteTrabajo(db) {
+  /*
+   * ── SI HAY TEMPORADAS ASIGNADAS, MANDAN ELLAS (24/09/2026) ──────────────────────────────────────────────
+   *
+   * El suelo de temporadas (`TEMPORADA_MINIMA`, hoy 2023-24) existe para no recoger historia por accidente: es
+   * un valor por defecto. Pero cuando alguien asigna una temporada EXPLÍCITAMENTE en `temporadas-asignadas.txt`,
+   * eso es una decisión y no un descuido. Si se pidiera la 2022-23 y el suelo la siguiera excluyendo, el
+   * recolector se quedaría **sin trabajo y sin ningún aviso** — el peor fallo posible aquí, porque parece que
+   * funciona.
+   *
+   * Así que la asignación SUSTITUYE al suelo. Sin asignación, el suelo sigue mandando exactamente igual que
+   * siempre.
+   *
+   * Y ojo con los parámetros: las dos condiciones llevan sus propios `?` y NO son intercambiables (el suelo lleva
+   * la etiqueta mínima; la asignación, una lista de etiquetas). Por eso se construyen juntos, fragmento y
+   * valores, en vez de pasar siempre los mismos y confiar en que cuadren.
+   */
+  const conAsignacion = hayTemporadasAsignadas();
+  const filtroTemporadas = conAsignacion
+    ? sqlSoloTemporadasAsignadas('trabajos')
+    : sqlExcluyeTemporadasViejas('trabajos');
+  const parametros = conAsignacion
+    ? [ahoraIso(), ...parametrosSoloTemporadas()]
+    : [ahoraIso(), TEMPORADA_MINIMA];
+
   return db.prepare(`
     select * from trabajos
     where estado in ('pendiente', 'bloqueado')
       and (siguiente_intento is null or siguiente_intento <= ?)
-      and ${sqlExcluyeTemporadasViejas('trabajos')}
+      and ${filtroTemporadas}
     order by prioridad, coalesce(cast(temporada as integer), -1) desc,
       case when tipo='acta' then 0 else 1 end, creado_en
     limit 1
-  `).get(ahoraIso(), TEMPORADA_MINIMA);
+  `).get(...parametros);
 }
 
 export function marcaTrabajo(db, clave, estado, error = null, siguiente = null) {
@@ -1195,6 +1284,13 @@ export function extraePartidos(html) {
   for (const tabla of raiz.querySelectorAll('table')) {
     const enlaces = tabla.querySelectorAll('a[href*="NFG_VisEquipos"]');
     if (enlaces.length !== 2) continue;
+    // Una tabla que ENVUELVE bloques de partido (maqueta widget: una tabla por partido, con sus dos
+    // huecos .font_widgetL/.font_widgetV) no es un partido, aunque entre todos sus bloques sume justo
+    // dos enlaces de equipo. Pasaba en La Rioja con las ligas nacionales (2ª B, 3ª...): la federación
+    // sólo enlaza a SUS equipos y pinta a todos los rivales como «Descansa». Con dos equipos riojanos
+    // en el grupo, la tabla exterior tenía dos enlaces y se inventaba un «S.D. Logroñés - U.D. Logroñés»
+    // en cada jornada: 15 grupos con un único partido repetido 22-38 veces (petición 151, 16/10/2026).
+    if (tabla.querySelectorAll('table').some((d) => d.querySelector('.font_widgetL') && d.querySelector('.font_widgetV'))) continue;
     const local = texto(enlaces[0]);
     const visitante = texto(enlaces[1]);
     const codLocal = parametro(enlaces[0].getAttribute('href') ?? '', 'Codigo_Equipo') ??
@@ -1352,6 +1448,11 @@ export function validaPagina(tipo, html) {
  *  leyéndose: `leeArchivo` busca el fichero normal y, si no está, su versión `.gz`.
  */
 export function guardaAtomico(ruta, contenido, db, tipo, umbral = 8192) {
+  // Una ruta de Windows (`F:\\…`) en Linux NO es absoluta: se crearía un fichero con ese nombre literal en el
+  // directorio de trabajo. Pasó el 16/10/2026 en el contenedor de CyL con rutas traspasadas del PC. Mejor un error.
+  if (process.platform !== 'win32' && /^[A-Za-z]:[\\/]/.test(String(ruta))) {
+    throw new Error(`ruta de Windows en Linux, no se escribe: ${ruta}`);
+  }
   mkdirSync(dirname(ruta), { recursive: true });
   const bytes = Buffer.isBuffer(contenido) ? contenido : Buffer.from(contenido, 'utf8');
   const hash = createHash('sha256').update(bytes).digest('hex');

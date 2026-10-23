@@ -1,35 +1,18 @@
-#!/usr/bin/env bash
-# ¿De dónde sale una carga de 130 con 4 núcleos? La carga cuenta procesos EJECUTANDO y BLOQUEADOS, así que
-# hay que separarlos: si manda «D» (espera de E/S) el problema es el disco aunque el procesador esté al 100 %;
-# si manda «R» (listos para ejecutar) es contención de procesador pura, y con 4 núcleos al 100 % eso significa
-# que hay mucha cola y poco que rascar sin quitar trabajo.
-#
-# SÓLO LEE.
-set -uo pipefail
-
-echo '── carga y reparto de estados ──'
-echo "  load: $(cut -d' ' -f1-3 /proc/loadavg)"
-total=$(ls /proc | grep -c '^[0-9]')
-echo "  procesos vivos: $total"
-for estado in R D S T Z; do
-  n=$(grep -l "^State:.*\b$estado" /proc/[0-9]*/status 2>/dev/null | wc -l)
-  etiqueta=''
-  case "$estado" in
-    R) etiqueta='ejecutando o listo' ;;
-    D) etiqueta='BLOQUEADO en E/S (disco)' ;;
-    S) etiqueta='dormido' ;;
-    T) etiqueta='parado' ;;
-    Z) etiqueta='zombi' ;;
-  esac
-  printf '  %s  %6s   %s\n' "$estado" "$n" "$etiqueta"
-done
+#!/bin/bash
+# Diagnóstico del load alto tras la recuperación: ¿CPU o espera de E/S? ¿Cuántos procesos y de qué tipo?
+echo "=== ESTADOS DE PROCESO (R=ejecutando, D=espera E/S, S=dormido, Z=zombi) ==="
+ps -eo stat --no-headers 2>/dev/null | cut -c1 | sort | uniq -c | sort -rn | head -6
 echo
-
-echo '── quién tiene más procesos ──'
-ps -eo comm --no-headers 2>/dev/null | sort | uniq -c | sort -rn | head -8 | sed 's/^/  /'
+echo "=== COLA DE EJECUCION Y E/S (r=ejecutando, b=bloqueados, wa=iowait) ==="
+vmstat 1 3 2>/dev/null | tail -3
 echo
-
-echo '── memoria y swap ──'
-free -m | sed 's/^/  /'
+echo "=== TOP 8 POR CPU ==="
+top -bn2 -d 2 2>/dev/null | awk '/^top -/{n++} n==2' | sed -n '7,16p' | cut -c1-105
 echo
-echo '  Si el swap está en uso alto, además de ir lleno se está paginando: eso multiplica la carga.'
+echo "=== CUANTOS NAVEGADORES Y CUANTOS NODE ==="
+echo -n "procesos chrome: "; pgrep -c chrome 2>/dev/null || echo 0
+echo -n "procesos node:   "; pgrep -c node 2>/dev/null || echo 0
+echo -n "procesos containerd-shim: "; pgrep -c containerd-shim 2>/dev/null || echo 0
+echo
+echo "=== CONTENEDORES ARRIBA (con paciencia) ==="
+timeout 240 docker ps --format '{{.Names}}' 2>/dev/null | wc -l

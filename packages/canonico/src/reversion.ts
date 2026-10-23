@@ -119,8 +119,8 @@ export async function revierteLote(pool: PoolCanonico, batchId: number): Promise
   const cliente = await pool.connect();
   try {
     return await enTransaccion(cliente, async () => {
-      const { rows: lote } = await cliente.query<{ id: string; estado: string; federation_id: number }>(
-        'select id, estado, federation_id from ops.batch where id = $1 for update',
+      const { rows: lote } = await cliente.query<{ id: string; estado: string; federation_id: number; validacion: { diario?: string } | null }>(
+        'select id, estado, federation_id, validacion from ops.batch where id = $1 for update',
         [batchId],
       );
       const fila = lote[0];
@@ -131,7 +131,12 @@ export async function revierteLote(pool: PoolCanonico, batchId: number): Promise
         [batchId],
       );
       if (cambios.length === 0 && fila.estado !== 'revertido') {
-        throw new Error(`El lote ${batchId} no tiene diario: no se puede revertir con exactitud (lo sustituyó un lote posterior del mismo ámbito).`);
+        // Se distingue el motivo. Un lote cargado con `--sin-diario` NUNCA tuvo diario, y decir que «lo
+        // sustituyó un lote posterior» sería mentir sobre por qué no se puede revertir.
+        throw new Error(fila.validacion?.diario === 'omitido'
+          ? `El lote ${batchId} se importó con --sin-diario: no guarda diario de cambios, así que no se puede revertir. `
+            + 'Si hay que deshacerlo, vuelve a importar el grupo (la importación es idempotente) o retíralo por ámbito.'
+          : `El lote ${batchId} no tiene diario: no se puede revertir con exactitud (lo sustituyó un lote posterior del mismo ámbito).`);
       }
 
       let borradas = 0;

@@ -38,6 +38,23 @@ const NTFY = process.env.FACYLF_NTFY ?? 'http://127.0.0.1:8085/facylf';
 const KUMA = process.env.FACYLF_KUMA_PUSH ?? '';
 const SLICE_GB = Number(process.env.FACYLF_SLICE_GB ?? 10);
 
+/*
+ * ── LAS FEDERACIONES QUE ESTE SERVIDOR NO RECOGE NO SE VIGILAN (25/09/2026) ─────────────────────────────
+ *
+ * `FACYLF_EXCLUIR` es la MISMA variable que usan el compose de los recolectores y la web para decir «de estas
+ * no me ocupo yo»: valencia, madrid y cataluna las recoge el PC, así que en el servidor están paradas a
+ * propósito (`Exited (0)`).
+ *
+ * El monitor no la miraba, y por eso llevaba desde el 24/09 avisando de lo que no es una avería: en
+ * `estado/alertas-estado.json` aparecían `atascada:cataluna`, `atascada:madrid` y `atascada:valencia` con la
+ * misma fecha de inicio que el día anterior. Una alerta que suena siempre deja de ser una alerta —es la misma
+ * razón por la que se subió el techo de memoria de 10 a 14 GB—, y encima tapa las de verdad.
+ *
+ * Se excluyen de la lista de federaciones: no se vigilan, no cuentan en los avisos y no salen en el JSON.
+ */
+const EXCLUIDAS = new Set(String(process.env.FACYLF_EXCLUIR ?? '')
+  .split(',').map((n) => n.trim().toLowerCase()).filter(Boolean));
+
 const argumentos = process.argv.slice(2);
 const arg = (n, d) => { const i = argumentos.indexOf(`--${n}`); return i >= 0 ? argumentos[i + 1] : d; };
 const unaVez = argumentos.includes('--una-vez');
@@ -202,6 +219,7 @@ function leeFederaciones(desde, { completas = new Set(), cache = {} } = {}) {
 
   for (const dir of directorios) {
     const federacion = dir.replace('descargas-', '');
+    if (EXCLUIDAS.has(federacion.toLowerCase())) continue; // la recoge otra flota: aquí no se vigila
     const carpeta = join(RAIZ, dir, 'recolector-local');
     const baseDatos = join(carpeta, 'cola-v2.sqlite');
     if (!existsSync(baseDatos)) continue;

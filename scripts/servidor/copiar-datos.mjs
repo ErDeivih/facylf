@@ -195,22 +195,21 @@ async function main() {
     }
 
     /*
-     * ── Y NO SE COPIA CON EL RECOLECTOR DENTRO ──────────────────────────────────────────────────────────
+     * ── LA COLA NO SE COPIA CON EL RECOLECTOR DENTRO ────────────────────────────────────────────────────
      *
      * `scp` no renombra el fichero: lo abre y lo reescribe. Con el recolector dentro, éste ve cambiarle las
      * páginas debajo mientras su `-wal` describe la base vieja, y la cola queda ilegible. Pasó con Madrid,
      * Murcia y Valencia (22/09/2026), las tres en bucle de caída con «database disk image is malformed».
+     *
+     * OJO: esto bloquea SÓLO la cola. El árbol del archivo (los `.gz` de cada acta) sí se puede copiar con el
+     * recolector en marcha —el `tar` los excluye de la cola y de los registros—, y hace falta copiarlo: el
+     * importador LEE esos ficheros como fuente (`Fuente pnfg-html: …/clasificacion.html.gz`), así que sin ellos
+     * no puede importar las federaciones traspasadas.
      */
     const enMarcha = (await ssh(
       `docker ps --filter name=facylf-${federacion}-1 --format '{{.Names}}'`,
     )).salida.includes(`facylf-${federacion}-1`);
     const decision = decisionDeCopia({ contenedorEnMarcha: enMarcha, forzar: FORZAR });
-    if (!decision.copiar) {
-      console.log(`\n── ${federacion}\n   SE SALTA: ${decision.motivo}`);
-      console.log(`   para pararlo:  ssh ${SERVIDOR} 'docker stop facylf-${federacion}-1'`);
-      resumen.push({ federacion, saltada: true, motivo: decision.motivo });
-      continue;
-    }
 
     const empezado = Date.now();
     console.log(`\n── ${federacion}`);
@@ -226,6 +225,13 @@ async function main() {
           : '   copiando el arbol (cola y perfil excluidos)... ');
         const arbol = await copiaArbol(federacion, { ficheros });
         console.log(arbol.error ? `con avisos: ${arbol.error.slice(0, 160)}` : 'hecho');
+      }
+
+      if (!decision.copiar) {
+        console.log(`   cola NO copiada: ${decision.motivo}`);
+        console.log(`   para copiarla:  ssh ${SERVIDOR} 'docker stop facylf-${federacion}-1' y repite`);
+        resumen.push({ federacion, arbol: true, colaSaltada: true, motivo: decision.motivo });
+        continue;
       }
 
       process.stdout.write('   instantanea de la cola y envio... ');
@@ -293,6 +299,10 @@ async function main() {
   for (const r of resumen) {
     if (r.saltada) { console.log(`  ${r.federacion.padEnd(20)} ya estaba (usa --rehacer para repetir)`); continue; }
     if (r.fallo) { console.log(`  ${r.federacion.padEnd(20)} FALLO: ${r.fallo}`); fallos += 1; continue; }
+    if (r.colaSaltada) {
+      console.log(`  ${r.federacion.padEnd(20)} árbol copiado · COLA NO (el recolector está en marcha)`);
+      continue;
+    }
     totalMb += r.colaMb ?? 0;
     totalPendientes += r.pendientes ?? 0;
     console.log(`  ${r.federacion.padEnd(20)} cola ${String(r.colaMb).padStart(6)} MB · ${String(r.segundos).padStart(5)} s · `

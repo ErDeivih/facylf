@@ -1,7 +1,8 @@
 /**
  * Club, equipo-temporada e inscripción en un grupo.
  *
- * Regla 7 del encargo: el club se deriva SÓLO quitando el sufijo de letra entrecomillada final.
+ * Regla 7 del encargo: el club se deriva SÓLO quitando la letra de filial del final (entre comillas, o suelta
+ * según la fuente: ver `clubDesdeNombreEquipo`).
  * Ninguna otra transformación, y ninguna consolidación automática de dos denominaciones.
  *
  * ## Inscripción CON código e inscripción SIN código
@@ -29,6 +30,17 @@ import { clubDesdeNombreEquipo } from '../origen/vocabularios.js';
 import { contextoDe, type Normalizador } from './contexto.js';
 import { registraRef } from './catalogo.js';
 import { externalIdContextual, type InscripcionDeGrupo } from './inscripcion.js';
+
+const adaptadores = new Map<number, Promise<boolean>>();
+/** La FCF pone siempre la letra del filial suelta al final: ahí cuenta de la A a la H (ver la regla 7). */
+function letraSueltaSiempre(cliente: ClienteCanonico, federacionId: number): Promise<boolean> {
+  if (!adaptadores.has(federacionId)) {
+    adaptadores.set(federacionId, cliente.query<{ adaptador: string }>(
+      'select adaptador from core.federation where id = $1', [federacionId],
+    ).then((r) => r.rows[0]?.adaptador === 'fcf'));
+  }
+  return adaptadores.get(federacionId)!;
+}
 
 export type EntradaInscripcion = {
   federacionId: number;
@@ -66,7 +78,7 @@ export async function resuelveEquipo(
 ): Promise<InscripcionPersistida> {
   const { federacionId, seasonId, inscripcion } = entrada;
   const nombreEquipo = inscripcion.nombre.trim();
-  const nombreClub = clubDesdeNombreEquipo(nombreEquipo);
+  const nombreClub = clubDesdeNombreEquipo(nombreEquipo, { letraSueltaSiempre: await letraSueltaSiempre(cliente, federacionId) });
   const clubNorm = await normalizador.normaliza(nombreClub);
 
   // El club se busca por su clave natural normalizada; si no está, se crea.
@@ -86,7 +98,47 @@ export async function resuelveEquipo(
     );
   }
 
-  const teamSeasonId = await repo.upsert(
+  /*
+   * ── EL CÓDIGO ES IDENTIDAD FUERTE: SI EL GRUPO YA TIENE ESE CÓDIGO, SE REUTILIZA SU EQUIPO-TEMPORADA ──
+   *
+   * El equipo-temporada se identifica por (club, temporada, NOMBRE), y el nombre puede cambiar de una
+   * importación a otra —«PALAMOS CLUB DE FUTBOL A» hoy, «PALAMOS CLUB DE FUTBOL» mañana—. Sin esta consulta,
+   * el nombre nuevo creaba un equipo-temporada nuevo y su inscripción chocaba con el índice único
+   * (grupo, código) que ya tenía la vieja: «duplicate key value violates unique constraint
+   * team_entry_grupo_codigo_uq». Medido el 25/09/2026 en tres grupos de Cataluña.
+   *
+   * Un código federativo es la identidad que publica la fuente, así que manda sobre la ortografía del día.
+   */
+  let teamSeasonId: number | undefined;
+  if (inscripcion.codigoExterno !== null) {
+    const { rows } = await cliente.query<{ team_season_id: string }>(
+      `select team_season_id from core.team_entry
+        where phase_group_id = $1 and codigo_externo = $2
+        order by id limit 1`,
+      [entrada.phaseGroupId, inscripcion.codigoExterno],
+    );
+    if (rows[0] !== undefined) teamSeasonId = Number(rows[0].team_season_id);
+  }
+  /*
+   * ── Y LO MISMO CON LA REFERENCIA CONTEXTUAL (13/10/2026) ──────────────────────────────────────────────
+   *
+   * Un equipo sin código se identifica en su grupo por su nombre NORMALIZADO (`referencia_contextual`), pero
+   * el equipo-temporada se busca por el nombre LITERAL. Si la fuente cambia la ortografía sin cambiar el
+   * nombre normalizado (un punto, una tilde, mayúsculas), el literal nuevo creaba otro equipo-temporada y su
+   * inscripción chocaba con la que ya tenía esa referencia: «duplicate key value violates unique constraint
+   * team_entry_referencia_contextual_uq». Medido en Rioja 2026-27, grupos 21959333 y 21959335.
+   * La referencia es la identidad que ya estableció el grupo: manda sobre la ortografía del día.
+   */
+  if (teamSeasonId === undefined && inscripcion.referenciaContextual !== null) {
+    const { rows } = await cliente.query<{ team_season_id: string }>(
+      `select team_season_id from core.team_entry
+        where phase_group_id = $1 and referencia_contextual = $2
+        order by id limit 1`,
+      [entrada.phaseGroupId, inscripcion.referenciaContextual],
+    );
+    if (rows[0] !== undefined) teamSeasonId = Number(rows[0].team_season_id);
+  }
+  teamSeasonId ??= await repo.upsert(
     'core.team_season',
     {
       club_id: clubId,

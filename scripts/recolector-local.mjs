@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
   repartePlazas, cabeOtroNavegador, tocaReciclar, decideEsperaDePlaza,
   decideTurnoDePlaza, plazaAbandonada, RESERVA_GB, TURNO_PLAZA_MIN,
+  PLAZA_PRIORITARIA, plazasCompartidas, cedePorPrioridad,
 } from './lib/presupuesto-memoria.mjs';
 import { freemem, hostname, totalmem } from 'node:os';
 import { Builder, By, until } from 'selenium-webdriver';
@@ -21,10 +22,17 @@ import {
   marcaTrabajo, peticionesHoy, preparaDesdeCatalogo, preparaGruposDesdeCatalogo,
   reactiva, registraPeticion, resumen, seleccionaMuestrasCompeticion,
   rutaGrupo, rutaJsonDeArchivo, siguienteTrabajo, ultimaPeticion, urlActa, urlCalendario,
-  urlClasificacion, urlGrupos, urlJornada, validaPagina, setPerfil,
+  urlClasificacion, urlGrupos, urlJornada, validaPagina, setPerfil, perfil as perfilActivo, urlEnPortal,
 } from './lib/recolector-local.mjs';
+// El reparto por temporadas entre el PC y el servidor: lo necesitan tanto el plan como la reparación de actas
+// sin trabajo, que sólo debe tocar las temporadas asignadas a ESTA máquina.
+import {
+  hayTemporadasAsignadas, sqlSoloTemporadasAsignadas, parametrosSoloTemporadas,
+} from './lib/temporadas-asignadas.mjs';
 // El día civil de Madrid, compartido con el supervisor y la flota (antes estaba copiado en tres guiones).
 import { diaDeMadrid } from './lib/dia-madrid.mjs';
+// El suelo de temporadas acordado (`FACYLF_TEMPORADA_MINIMA`): también fija desde qué año se prepara el plan.
+import { TEMPORADA_MINIMA } from './lib/temporada-minima.mjs';
 // Parser de actas (TypeScript) compilado a `packages/ingesta/dist`. Es el mismo que usa la
 // ingesta (una sola fuente de verdad). Requiere `pnpm --filter @facylf/ingesta build` (o `pnpm
 // build`) para existir, ya que `dist/` no se guarda en git.
@@ -45,6 +53,10 @@ let CONFIGURACION = join(RAIZ, 'recolector.config.json');
 let PERFIL_NOMBRE = 'castilla-leon';
 const comando = process.argv[2] ?? 'estado';
 const CARPETA_SLOTS_CHROME = join(RAIZ, '.estado-workers', 'slots-chrome');
+// Castilla y León es la prioridad del proyecto (David, 15/10/2026): plaza de navegador RESERVADA que no se cede
+// por turno, y mientras la usa las demás reparten una plaza menos (ver `PLAZA_PRIORITARIA`). Es una función
+// porque el perfil se lee después (`--perfil`). `FACYLF_PRIORITARIA=1` permite dar la prioridad a otra.
+const esPrioritaria = () => PERFIL_NOMBRE === 'castilla-leon' || process.env.FACYLF_PRIORITARIA === '1';
 // Un navegador por federación PNFG. En este equipo de 32 GB caben los 14
 // perfiles genéricos con margen; Castilla y León conserva además su plaza
 // reservada para que la prioridad del proyecto no dependa de la cola general.
@@ -103,9 +115,13 @@ const TURNO_PLAZA_MS = Number(process.env.FACYLF_TURNO_PLAZA_MIN) > 0
  * Tope de espera de plaza de navegador: agotado, la sesión sale limpia en vez de quedarse en bucle.
  * Configurable con `FACYLF_TOPE_ESPERA_MS` para poder PROBAR el bloqueo sin esperar quince minutos.
  */
+// 3 h (antes 15 min): en el servidor hay 5 plazas para 14 federaciones y los turnos son de 2-8 h. Con 15 min casi
+// nadie llegaba a su turno: salía, se relanzaba y su ficha de espera NUEVA lo mandaba al final de la cola, así que
+// volvía a perder (medido el 15/10/2026: aragón 7 arranques, asturias 6, CLM 5, y Asturias 16 h sin una petición).
+// Esperar en la cola cuesta casi nada y conserva el puesto; cada relanzamiento abre la cola y el catálogo otra vez.
 const TOPE_ESPERA_NAVEGADOR_MS = Number(process.env.FACYLF_TOPE_ESPERA_MS) > 0
   ? Number(process.env.FACYLF_TOPE_ESPERA_MS)
-  : 15 * 60_000;
+  : 180 * 60_000;
 
 /**
  * Tope de memoria del navegador de un worker: a partir de aquí se recicla aunque no toque por trabajos.
@@ -279,7 +295,48 @@ async function adquiereSlotChrome(db) {
       memoriaGb: Number(process.env.FACYLF_MEMORIA_GB),
       memoriaTotalGb: totalmem() / 1024 ** 3,
     });
-    const slots = Array.from({ length: reparto.plazas }, (_, i) => `slot-${i + 1}.lock`);
+    const todas = Array.from({ length: reparto.plazas }, (_, i) => `slot-${i + 1}.lock`);
+    /*
+     * ── LA PLAZA RESERVADA DE LA PRIORITARIA ───────────────────────────────────────────────────────────
+     *
+     * Se limpia como las demás si su dueño ya no está. La prioritaria la toma en cuanto hay aire en la máquina,
+     * sin esperar turno ni cola; las demás reparten entonces una plaza menos, así que el total de navegadores
+     * no sube.
+     */
+    const rutaPrioritaria = join(CARPETA_SLOTS_CHROME, PLAZA_PRIORITARIA);
+    if (existsSync(rutaPrioritaria)) {
+      try {
+        const [pid, host] = fichaDePlaza(rutaPrioritaria);
+        const estado = plazaAbandonada({
+          pid, host, miHost: MI_CONTENEDOR,
+          procesoVivo: procesoVivo(pid), ultimoLatidoMs: statSync(rutaPrioritaria).mtimeMs, ahoraMs: Date.now(),
+        });
+        if (estado.abandonada) {
+          rmSync(rutaPrioritaria, { force: true });
+          console.log(`  · plaza reservada liberada (${estado.motivo}).`);
+        }
+      } catch { rmSync(rutaPrioritaria, { force: true }); }
+    }
+    if (esPrioritaria()) {
+      const aire = cabeOtroNavegador({
+        plazas: 1, ocupadas: 0, memoriaLibreGb: memoriaLibreDelEntorno().gb, reservaGb: RESERVA_AIRE_GB,
+        // La prioritaria se conforma con 1 GB libre en la máquina aunque la reserva general sea mayor: la reserva
+        // grande es para que las DEMÁS se aparten cuando David necesita memoria, no para frenar a CyL.
+        memoriaDeLaMaquinaGb: freemem() / 1024 ** 3, reservaDeLaMaquinaGb: Math.min(RESERVA_MAQUINA_GB, 1),
+      });
+      if (aire.cabe) {
+        try {
+          const fd = openSync(rutaPrioritaria, 'wx');
+          writeFileSync(fd, `${process.pid} ${MI_CONTENEDOR}`); closeSync(fd);
+          rmSync(miFicha, { force: true });
+          console.log(`  · plaza reservada de la federación prioritaria (${PLAZA_PRIORITARIA}).`);
+          return { ruta: rutaPrioritaria, desde: Date.now(), nombre: PLAZA_PRIORITARIA };
+        } catch (error) {
+          if (error?.code !== 'EEXIST') throw error;
+        }
+      }
+    }
+    const slots = todas.slice(0, plazasCompartidas({ plazas: reparto.plazas, prioritariaActiva: existsSync(rutaPrioritaria) }));
     /*
      * ── LIMPIAR PLAZAS NO PUEDE DEPENDER DE TENER RAM ─────────────────────────────────────────────────
      *
@@ -299,7 +356,7 @@ async function adquiereSlotChrome(db) {
      */
     const primerSlotLibre = slots.filter((s) => !existsSync(join(CARPETA_SLOTS_CHROME, s)));
     const ocupadas = slots.length - primerSlotLibre.length;
-    for (const nombreSlot of slots) {
+    for (const nombreSlot of todas) {
       const ruta = join(CARPETA_SLOTS_CHROME, nombreSlot);
       if (!existsSync(ruta)) continue;
       try {
@@ -315,8 +372,8 @@ async function adquiereSlotChrome(db) {
       } catch { rmSync(ruta, { force: true }); }
     }
     const hueco = cabeOtroNavegador({
-      plazas: reparto.plazas,
-      ocupadas: slots.filter((s) => existsSync(join(CARPETA_SLOTS_CHROME, s))).length,
+      plazas: slots.length,
+      ocupadas: todas.filter((s) => existsSync(join(CARPETA_SLOTS_CHROME, s))).length,
       memoriaLibreGb: memoriaLibreDelEntorno().gb,
       reservaGb: RESERVA_AIRE_GB,
       // La del sistema, no la del contenedor: si el servidor tiene otras cosas, se les deja su sitio.
@@ -482,12 +539,28 @@ const config = existsSync(CONFIGURACION) ? leeJson(CONFIGURACION) : {};
  * Se ejecuta en cada reciclado preventivo y al terminar la sesión. El coste es de un par de segundos cada
  * diez trabajos, y el silencio de las pausas ya lo absorbe.
  */
+/**
+ * Dónde vive el perfil de Chrome de este worker.
+ *
+ * Por defecto, junto a la cola (`<federación>/recolector-local/perfil-chrome`). En el servidor eso es el disco
+ * DURO de `/srv/data` (un WD de 2,5" a 5.400 rpm): medido el 09/10/2026, ese disco estaba ocupado al 87 % con sólo
+ * 77 lecturas y 49 escrituras por segundo, la presión de E/S del sistema al 94-98 % y la carga en 45 con cuatro
+ * núcleos. Cada navegación escribe en el perfil (Cookies, History, Preferences… son SQLite y LevelDB con fsync),
+ * y nueve navegadores a la vez sobre ese disco lo saturan. `FACYLF_DIR_PERFILES_CHROME` lo lleva a otra carpeta
+ * (en el servidor, el SSD): `<dir>/<carpeta de la federación>/perfil-chrome`. El perfil no guarda nada que haya
+ * que conservar: perderlo sólo cuesta volver a aceptar el aviso de cookies.
+ */
+function rutaPerfilChrome() {
+  const dir = process.env.FACYLF_DIR_PERFILES_CHROME;
+  return dir ? join(dir, basename(dirname(CARPETA)), 'perfil-chrome') : join(CARPETA, 'perfil-chrome');
+}
+
 function mideNavegadorDeEstePerfil() {
   if (process.platform !== 'win32') return null;
   try {
     const ruta = join(import.meta.dirname, 'medir-navegador-perfil.ps1');
     const ps = process.env.SystemRoot ? join(process.env.SystemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe') : 'powershell.exe';
-    const r = spawnSync(ps, ['-NoProfile', '-File', ruta, join(CARPETA, 'perfil-chrome')], { encoding: 'utf8', timeout: 30000 });
+    const r = spawnSync(ps, ['-NoProfile', '-File', ruta, rutaPerfilChrome()], { encoding: 'utf8', timeout: 30000 });
     const mb = Number(String(r.stdout ?? '').trim().split(/\s+/).pop().replace(',', '.'));
     return Number.isFinite(mb) && mb > 0 ? mb : null;
   } catch { return null; }
@@ -495,7 +568,7 @@ function mideNavegadorDeEstePerfil() {
 
 function limpiaChromeHuerfanoDeEstePerfil() {
   if (process.platform !== 'win32') return;
-  const perfil = join(CARPETA, 'perfil-chrome');
+  const perfil = rutaPerfilChrome();
   try {
     const guion = [
       `$todos = Get-CimInstance Win32_Process -Filter "Name='chrome.exe'"`,
@@ -634,7 +707,16 @@ function opcionesChrome() {
     throw new Error('Falta el contacto real (identidad.contacto) en recolector.config.json.');
   }
   const identidad = urlBot ? `FacylfBot/1.0 (+${urlBot}; ${contacto})` : `FacylfBot/1.0 (contacto: ${contacto})`;
-  const perfil = join(CARPETA, 'perfil-chrome');
+  const perfil = rutaPerfilChrome();
+  // Con el perfil fuera de la carpeta de la cola (FACYLF_DIR_PERFILES_CHROME), la limpieza de `entrada-recolector.sh`
+  // —que vive en la imagen y mira la ruta de siempre— no lo alcanza: un `SingletonLock` huérfano de un contenedor
+  // parado de golpe impediría abrir Chrome. Un worker por federación: si existe, es de una sesión muerta.
+  if (process.env.FACYLF_DIR_PERFILES_CHROME && process.platform !== 'win32') {
+    mkdirSync(perfil, { recursive: true });
+    for (const f of ['SingletonLock', 'SingletonSocket', 'SingletonCookie']) {
+      try { rmSync(join(perfil, f), { force: true }); } catch { /* no estaba */ }
+    }
+  }
   const op = new chrome.Options();
   /*
    * ── SIN PANTALLA CUANDO NO HAY PANTALLA ──────────────────────────────────────────────────────────────
@@ -705,6 +787,30 @@ function permiteActasMenores() {
 // el orden por importancia y temporada; al cerrarlo vuelve a mandar la prioridad deportiva.
 const CARRIL_DESCUBRIMIENTO = -1_000_000_000;
 const CARRIL_CATALOGO = -2_000_000_000;
+/*
+ * ── CARRIL DE LA TEMPORADA EN CURSO (11/10/2026) ──────────────────────────────────────────────────────────
+ *
+ * La prioridad la domina la categoría de la competición (`base × 1.000.000`: regional 5, 1ª provincial 60, base
+ * 80-100) y la temporada sólo desempata. Resultado medido el domingo 11/10/2026: una regional de 2018-19
+ * (≈5,8 M) iba por delante de cualquier provincial o de base de 2026-27 (≈80-100 M). Galicia tenía 381 actas
+ * de 2026-27 vencidas mientras servía 822 de 2021-22; Andalucía 2.417, CyL 568, Madrid 444, Aragón 147. Los
+ * resultados de la jornada esperaban detrás de semanas de histórico.
+ *
+ * Todo el trabajo de la temporada en curso va ahora en un carril propio, entre el catálogo y el descubrimiento
+ * del histórico: dentro del carril siguen mandando la fase (descubrir antes que leer actas) y la categoría. Y
+ * como sólo se sirve trabajo VENCIDO, en cuanto la jornada está recogida el carril se vacía solo y el recolector
+ * vuelve al histórico sin que nadie toque nada; la jornada siguiente lo vuelve a llenar.
+ */
+const CARRIL_EN_CURSO = -1_500_000_000;
+/** Código PNFG de la temporada en curso (código = año de inicio − 2004; la temporada cambia en julio). */
+function codigoTemporadaEnCurso(ahora = new Date()) {
+  const forzada = Number(process.env.FACYLF_TEMPORADA_EN_CURSO);
+  if (Number.isFinite(forzada) && forzada > 0) return forzada;
+  const anio = ahora.getUTCFullYear();
+  return (ahora.getUTCMonth() >= 6 ? anio : anio - 1) - 2004;
+}
+/** Sube cuando cambia la forma de calcular prioridades: obliga a repriorizar la cola en el siguiente arranque. */
+const VERSION_PRIORIDADES = 'en-curso-1';
 const FASES = {
   catalogo_temporada: { fase: 1, sub: 0 },
   grupos: { fase: 1, sub: 0 },
@@ -727,7 +833,17 @@ function prioridadDesdeNombres(tipo, temporada, comp, nombreGrupo, defecto = 120
   const antiguedad = Number.isFinite(codigoTemporada) ? Math.max(0, 100 - codigoTemporada) : 100;
   const orden = base * 1_000_000 + antiguedad * 10_000 + etapa.fase * 1_000 + etapa.sub * 100;
   if (tipo === 'catalogo_temporada') return CARRIL_CATALOGO + orden;
-  return tipo === 'grupos' ? CARRIL_DESCUBRIMIENTO + orden : orden;
+  if (Number.isFinite(codigoTemporada) && codigoTemporada >= codigoTemporadaEnCurso()) return CARRIL_EN_CURSO + orden;
+  /*
+   * El índice de jornadas también va por el carril de descubrimiento (05/10/2026). Antes sólo `grupos`: el índice
+   * competía con las actas por la prioridad de su competición, y esa cifra (categoría × 1.000.000) pesa más que la
+   * temporada y que la fase. Resultado medido: los grupos de las competiciones «de segunda» (provinciales, base,
+   * sala) se quedaban SIN LEER sus jornadas durante semanas, mientras se servían actas de temporadas viejas de
+   * las competiciones «de primera». En CyL 2025-26, 108 de 301 grupos (1ª Provincial Juvenil y Aficionados de
+   * Valladolid, León, Burgos, El Bierzo…) llevaban pendientes desde el 07/09; en Andalucía 1.001 de 1.856; en
+   * Madrid 2024-25, 1.060 de 1.201. Un índice es UNA petición por grupo y es lo que hace visible la liga entera.
+   */
+  return (tipo === 'grupos' || tipo === 'indice_jornadas') ? CARRIL_DESCUBRIMIENTO + orden : orden;
 }
 
 function prioridadPlaneada(db, tipo, temporada, competicion, grupo, defecto = 120) {
@@ -784,7 +900,7 @@ function reprioritizaPlan(db) {
 function huellaDelCatalogo(db) {
   const c = db.prepare('select count(*) n, coalesce(max(rowid),0) r from competiciones').get();
   const g = db.prepare('select count(*) n, coalesce(max(rowid),0) r from grupos').get();
-  return `${c.n}:${c.r}|${g.n}:${g.r}`;
+  return `${VERSION_PRIORIDADES}@${codigoTemporadaEnCurso()}|${c.n}:${c.r}|${g.n}:${g.r}`;
 }
 
 const HORAS_ENTRE_REPRIORIZADOS = Number(process.env.FACYLF_HORAS_REPRIORIZAR ?? 12);
@@ -922,6 +1038,17 @@ function perfVuelca() {
   PERF.pendientesDeVolcar = [];
 }
 
+/** La URL del trabajo, siempre en el portal de este perfil (ver la nota antes de `navega(...)` en el proceso). */
+function urlDelPortalPropio(db, trabajo, base = perfilActivo().base) {
+  const r = urlEnPortal(trabajo.url, base);
+  if (r.error) throw Object.assign(new Error(r.error), { bloqueo: false });
+  if (r.rehecha) {
+    db.prepare('update trabajos set url=?, actualizado_en=? where clave=?').run(r.url, new Date().toISOString(), trabajo.clave);
+    console.warn(`  ⚠ la URL apuntaba a ${r.hostAnterior}; se pide a su portal: ${r.url}`);
+  }
+  return r.url;
+}
+
 async function navega(driver, ritmo, db, trabajo, url) {
   perfMarca('preparacion');
   await ritmo.antes();
@@ -1028,6 +1155,51 @@ function temporadaActual(db) {
     order by cast(codigo as integer) desc limit 1`).get()?.codigo ?? null;
 }
 
+/**
+ * ── COMPETICIONES CUYA WEB NO PUBLICA NINGUNA ACTA CON DATOS (15/10/2026) ───────────────────────────────────
+ *
+ * Medido en Navarra: 7.485 actas «sin datos» (la federación publica la ficha, pero vacía: sin alineaciones ni
+ * cuerpo técnico) y 573 peticiones de 2.754 en 24 h gastadas en fichas vacías, casi todas de categorías de base
+ * de temporadas ya cerradas. Cada ficha vacía se pide DOS veces (la segunda, dos días después) antes de cerrarla.
+ *
+ * Si en una competición de una temporada CERRADA ya se han mirado al menos `MINIMO` fichas y NINGUNA traía
+ * datos, la web no publica las de esa competición: el resto se cierra como `sin_datos` sin pedirlas, con el
+ * motivo escrito. Basta UNA ficha con datos para que la competición siga como siempre. El HTML de las vacías
+ * sigue archivado, y si un día la web las publica, `reprocesar`/la vigilancia las puede volver a abrir.
+ */
+const MINIMO_FICHAS_VACIAS_POR_COMPETICION = 10;
+function cierraCompeticionesSinDatos(db) {
+  // Una vez al día por cola, no en cada arranque: recorre la tabla `actas` entera (con el JSON de cada una), y
+  // en las colas de 1-2 GB eso es mucho disco para repetirlo cada vez que un worker se relanza.
+  const haceUnDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const ultima = leeMetadato(db, 'competiciones_sin_datos_revisadas_en');
+  if (ultima && ultima > haceUnDia) return { competiciones: 0, actas: 0 };
+  guardaMetadato(db, 'competiciones_sin_datos_revisadas_en', new Date().toISOString());
+  const actual = temporadaActual(db);
+  if (actual === null) return { competiciones: 0, actas: 0 };
+  const candidatas = db.prepare(`select temporada, competicion,
+      sum(case when estado='hecha' then 1 else 0 end) hechas,
+      sum(case when estado='sin_datos' or (estado='pendiente' and incidencias like '%acta_ilegible%') then 1 else 0 end) vacias,
+      sum(case when estado='pendiente' and (incidencias is null or incidencias not like '%acta_ilegible%') then 1 else 0 end) sin_mirar
+    from actas where cast(temporada as integer) < cast(? as integer)
+    group by temporada, competicion
+    having hechas = 0 and vacias >= ? and sin_mirar > 0`).all(actual, MINIMO_FICHAS_VACIAS_POR_COMPETICION);
+  let actas = 0;
+  enTransaccion(db, () => {
+    for (const c of candidatas) {
+      const motivo = `la web no publica datos en esta competición: ${c.vacias} fichas vacías y ninguna con datos; `
+        + 'el resto no se pide';
+      actas += Number(db.prepare(`update actas set estado='sin_datos', incidencias=?, comprobada_en=?
+        where temporada=? and competicion=? and estado='pendiente'`)
+        .run(JSON.stringify([motivo]), new Date().toISOString(), c.temporada, c.competicion).changes ?? 0);
+      db.prepare(`update trabajos set estado='cancelado', ultimo_error=?, actualizado_en=?
+        where tipo='acta' and temporada=? and competicion=? and estado in ('pendiente','bloqueado')`)
+        .run(motivo, new Date().toISOString(), c.temporada, c.competicion);
+    }
+  });
+  return { competiciones: candidatas.length, actas };
+}
+
 /** Devuelve la mañana posterior a una jornada. Así no se consulta una página
  * futura y se deja tiempo para que resultados y actas estén publicados. */
 function disponibleTrasJornada(fecha) {
@@ -1038,8 +1210,11 @@ function disponibleTrasJornada(fecha) {
   // usan para aplazar: aplazarían el trabajo miles de años y esa jornada no se recogería nunca.
   // Si la fecha no es creíble se devuelve null y el trabajo queda disponible ya.
   if (instante.getTime() - Date.now() > 400 * 24 * 60 * 60_000) return null;
-  instante.setUTCDate(instante.getUTCDate() + 1);
-  instante.setUTCHours(6, 0, 0, 0);
+  // La MISMA noche del partido (21:00 UTC = 23:00 en Madrid en verano, 22:00 en invierno), no a las 06:00 del
+  // día siguiente (11/10/2026: lo del domingo entraba el lunes). Lo que a esa hora aún no esté publicado lo
+  // vuelve a pedir `preparaRepasoJornadasRecientes` (jornadas de los últimos 4 días no comprobadas en 18 h) y,
+  // para las actas, sus propios reintentos de «sin publicar».
+  instante.setUTCHours(21, 0, 0, 0);
   return instante.toISOString();
 }
 
@@ -1140,12 +1315,56 @@ function preparaRepasoJornadasRecientes(db) {
   return { jornadas, clasificaciones };
 }
 
+/**
+ * ── JORNADAS DE LA TEMPORADA EN CURSO QUE SE LEYERON VACÍAS (21/10/2026) ──────────────────────────────────
+ *
+ * El repaso de arriba sólo mira los cuatro últimos días. Una jornada ya jugada que se leyó ANTES de que la
+ * federación publicara sus partidos (o en un mal momento de la web) se quedaba «hecha» y vacía para siempre.
+ * Medido hoy con `scripts/claude/completitud-colas.mjs`: Andalucía 462 jornadas así en 2026-27, Galicia 333,
+ * Castilla-La Mancha 57, Baleares 52. Se vuelven a pedir las de fecha ya pasada que llevan una semana sin
+ * comprobarse, como mucho 300 por pasada: es poco tráfico y, si la web sigue sin partidos, no se repite en 7 días.
+ */
+function repasaJornadasVaciasEnCurso(db) {
+  const actual = temporadaActual(db);
+  if (!actual) return 0;
+  const hoy = fechaLocal();
+  const haceUnaSemana = new Date(Date.now() - 7 * 24 * 60 * 60_000).toISOString();
+  const vacias = db.prepare(`select w.clave from trabajos w
+    join jornadas j on j.temporada=w.temporada and j.competicion=w.competicion and j.grupo=w.grupo and j.numero=w.jornada
+    where w.tipo='jornada' and w.estado='hecho' and w.temporada=? and j.fecha is not null and j.fecha < ?
+      and (j.comprobada_en is null or j.comprobada_en < ?)
+      and not exists (select 1 from partidos p where p.temporada=w.temporada and p.competicion=w.competicion
+        and p.grupo=w.grupo and p.jornada=w.jornada)
+    limit 300`).all(actual, hoy, haceUnaSemana);
+  /*
+   * Y las jugadas hace 4-30 días que tienen partidos pero NINGÚN marcador, en grupos que sí publican marcadores
+   * en otras jornadas: se leyeron antes de que la federación cargara los resultados y el repaso de 4 días ya no
+   * las mira (medido el 22/10 con el vigía: Gipuzkoa y Las Palmas, ~15 % de las jornadas de la semana pasada).
+   * Como mucho una vez cada 3 días por jornada.
+   */
+  const hace4 = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Madrid' }).format(new Date(Date.now() - 4 * 86400e3));
+  const hace30 = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Madrid' }).format(new Date(Date.now() - 30 * 86400e3));
+  const hace3dias = new Date(Date.now() - 3 * 24 * 60 * 60_000).toISOString();
+  const sinMarcador = db.prepare(`select w.clave from trabajos w
+    join jornadas j on j.temporada=w.temporada and j.competicion=w.competicion and j.grupo=w.grupo and j.numero=w.jornada
+    where w.tipo='jornada' and w.estado='hecho' and w.temporada=? and j.fecha between ? and ?
+      and (j.comprobada_en is null or j.comprobada_en < ?)
+      and exists (select 1 from partidos p where p.temporada=w.temporada and p.competicion=w.competicion and p.grupo=w.grupo and p.jornada=w.jornada)
+      and not exists (select 1 from partidos p where p.temporada=w.temporada and p.competicion=w.competicion and p.grupo=w.grupo and p.jornada=w.jornada and p.goles_local is not null)
+      and exists (select 1 from partidos p where p.temporada=w.temporada and p.competicion=w.competicion and p.grupo=w.grupo and p.goles_local is not null)
+    limit 300`).all(actual, hace30, hace4, hace3dias);
+  const todas = [...vacias, ...sinMarcador];
+  if (!todas.length) return 0;
+  enTransaccion(db, () => { for (const v of todas) reactiva(db, v.clave); });
+  return todas.length;
+}
+
 function vencido(fecha, dias) {
   return !fecha || new Date(fecha).getTime() <= Date.now() - dias * 24 * 60 * 60_000;
 }
 
 function registraTemporadasDisponibles(db, temporadas) {
-  const desde = numero('desde', 2015);
+  const desde = anioDesdePlan();
   enTransaccion(db, () => {
     for (const temporada of temporadas) {
       const inicio = Number(temporada.nombre.slice(0, 4));
@@ -1297,7 +1516,9 @@ function insertaCompeticiones(db, temporada, competiciones) {
       if (recibidas.has(anterior.codigo)) continue;
       db.prepare(`update competiciones set origen='ausente_web',comprobada_en=?
         where temporada=? and codigo=?`).run(ahora, temporada, anterior.codigo);
-      db.prepare(`update trabajos set estado='cancelado',actualizado_en=?
+      // Toda cancelación lleva su motivo (12/10/2026: 61 de Andalucía aparecieron «sin motivo guardado»).
+      db.prepare(`update trabajos set estado='cancelado',actualizado_en=?,
+        ultimo_error='la competición ya no aparece en el catálogo de la federación (ausente_web)' || coalesce(' · último error: ' || ultimo_error, '')
         where temporada=? and competicion=? and estado in ('pendiente','bloqueado')`)
         .run(ahora, temporada, anterior.codigo);
     }
@@ -1330,7 +1551,8 @@ function insertaGruposYTrabajos(db, trabajo, grupos) {
       db.prepare(`update grupos set estado='ausente_web',comprobado_en=?
         where temporada=? and competicion=? and codigo=?`)
         .run(new Date().toISOString(), trabajo.temporada, trabajo.competicion, anterior.codigo);
-      db.prepare(`update trabajos set estado='cancelado',actualizado_en=?
+      db.prepare(`update trabajos set estado='cancelado',actualizado_en=?,
+        ultimo_error='el grupo ya no aparece en su competición (ausente_web)' || coalesce(' · último error: ' || ultimo_error, '')
         where temporada=? and competicion=? and grupo=? and estado in ('pendiente','bloqueado')`)
         .run(new Date().toISOString(), trabajo.temporada, trabajo.competicion, anterior.codigo);
     }
@@ -1438,7 +1660,9 @@ function registraJornada(db, trabajo, html, ruta, hash) {
   const partidos = [];
   const descansos = [];
   for (const [ordenFuente, p] of candidatos.entries()) {
-    const maqueta = PERFIL_NOMBRE === 'euskadi' ? 'nova-widget' : 'pnfg-clasica';
+    // Los portales vascos (la Vasca y, desde el 16/10/2026, las tres forales) usan el tema nova y escriben en
+    // euskera: su vocabulario de descanso incluye «atsedena».
+    const maqueta = ['euskadi', 'bizkaia', 'gipuzkoa', 'araba'].includes(PERFIL_NOMBRE) ? 'nova-widget' : 'pnfg-clasica';
     const esDescanso = esPalabraDeDescanso(p.local, maqueta) ||
       esPalabraDeDescanso(p.visitante, maqueta);
     if (!esDescanso) {
@@ -1584,8 +1808,9 @@ function reconciliaAmbitoActas(db) {
         db.prepare(`update actas set estado='pendiente_ambito' where temporada=? and competicion=?
           and grupo=? and jornada=? and codigo=?`).run(acta.temporada, acta.competicion,
           acta.grupo, acta.jornada, acta.codigo);
-        db.prepare(`update trabajos set estado='cancelado',actualizado_en=? where tipo='acta'
-          and temporada=? and competicion=? and grupo=? and jornada=? and acta=?
+        db.prepare(`update trabajos set estado='cancelado',actualizado_en=?,
+          ultimo_error='acta fuera del alcance configurado (pendiente_ambito: menores/adultas)' || coalesce(' · último error: ' || ultimo_error, '')
+          where tipo='acta' and temporada=? and competicion=? and grupo=? and jornada=? and acta=?
           and estado in ('pendiente','bloqueado','en_curso')`).run(new Date().toISOString(),
           acta.temporada, acta.competicion, acta.grupo, acta.jornada, acta.codigo);
       } else if (permitida && acta.estado === 'pendiente_ambito') {
@@ -1596,6 +1821,78 @@ function reconciliaAmbitoActas(db) {
     }
   });
   return corregidas;
+}
+
+/**
+ * ── ACTAS EN ÁMBITO QUE NO TIENEN NINGÚN TRABAJO QUE LAS PIDA (29/09/2026) ──────────────────────────────
+ *
+ * Medido en Castilla y León antes de escribir esto: de **28.667 actas en estado `pendiente`**, 14.839 no tenían
+ * ninguna fila en `trabajos` y 12.000 tenían su fila en `cancelado`. Es decir: **casi la mitad de lo que la cola
+ * cuenta como «pendiente» no se podía descargar**, y nada lo avisaba — la acta se cuenta como pendiente, el
+ * porcentaje de la temporada se queda clavado y el recolector dice que no hay trabajo. La 2022-23 estaba al 18 %
+ * por esto: 17.374 actas pendientes y sólo 2.535 con trabajo, las 2.535 canceladas.
+ *
+ * ── POR QUÉ APARECE ESE HUECO ────────────────────────────────────────────────────────────────────────────
+ *
+ * `reconciliaAmbitoActas` CANCELA el trabajo de un acta que la configuración no permite (categorías de menores o
+ * de adultos), y `activaActasPermitidas` lo vuelve a encolar cuando el ámbito se amplía. Pero `encola` sólo
+ * actualiza `url`, `prioridad` y `actualizado_en` en su `on conflict`: **nunca resucita un trabajo cancelado**, y
+ * tampoco CREA la fila si se perdió. Así que un acta que vuelve al ámbito se queda en `pendiente` —que es «hay
+ * que ir a por ella»— con un trabajo `cancelado` que el selector no elige jamás.
+ *
+ * ── QUÉ HACE ESTO, Y QUÉ NO ──────────────────────────────────────────────────────────────────────────────
+ *
+ * Deja la cola coherente con su propio vocabulario: si el acta está en `pendiente` es que está en ámbito, así que
+ * su trabajo tiene que existir y estar pendiente. Ni una cosa más:
+ *   · sólo mira actas en estado `pendiente` (las de `pendiente_ambito` o `pendiente_permiso` NO se tocan: ahí
+ *     manda la configuración de ámbito, no esto);
+ *   · respeta los permisos de menores y adultos, con la misma condición que `activaActasPermitidas`;
+ *   · sólo las temporadas asignadas a esta máquina, igual que el resto del reparto;
+ *   · no pide nada a la federación: deja trabajo en la cola y son el ritmo, las pausas y los reintentos del
+ *     recolector los que deciden cuándo se hace.
+ */
+function reparaActasSinTrabajo(db, { limite = 50000 } = {}) {
+  if (!permiteActasAdultas() && !permiteActasMenores()) return { creados: 0, reactivados: 0 };
+  const conAsignacion = hayTemporadasAsignadas();
+  const filtro = conAsignacion ? sqlSoloTemporadasAsignadas('a') : '1=1';
+  const parametros = conAsignacion ? parametrosSoloTemporadas() : [];
+  /*
+   * El emparejamiento va por `clave`, que es la clave primaria de `trabajos` (índice único), y NO por las cinco
+   * columnas a la vez: esa unión no tiene índice y obligaría a recorrer los 123.000 trabajos por cada acta.
+   * La clave la construye `claveTrabajo`, la misma función que la escribió: aquí no se adivina ningún formato.
+   */
+  const candidatas = db.prepare(`
+    select a.temporada,a.competicion,a.grupo,a.jornada,a.codigo,a.menores,
+      coalesce(c.nombre,'') competicionNombre, coalesce(g.nombre,'') grupoNombre
+    from actas a
+    left join competiciones c on c.temporada=a.temporada and c.codigo=a.competicion
+    left join grupos g on g.temporada=a.temporada and g.competicion=a.competicion and g.codigo=a.grupo
+    where a.estado='pendiente' and ${filtro}`).all(...parametros);
+
+  const leeEstado = db.prepare('select estado from trabajos where clave=?');
+  let creados = 0;
+  let reactivados = 0;
+  let omitidas = 0;
+  const pendientes = [];
+  for (const a of candidatas) {
+    if (a.menores ? !permiteActasMenores() : !permiteActasAdultas()) { omitidas++; continue; }
+    const datos = { temporada: a.temporada, competicion: a.competicion, grupo: a.grupo,
+      jornada: a.jornada, acta: a.codigo };
+    const estado = leeEstado.get(claveTrabajo('acta', datos))?.estado ?? null;
+    // `hecho` o `en_curso` están bien; `pendiente` y `bloqueado`, también. Lo que falta es lo demás.
+    if (estado === null || estado === 'cancelado') pendientes.push({ a, datos, cancelado: estado === 'cancelado' });
+    if (pendientes.length >= limite) break;
+  }
+
+  enTransaccion(db, () => {
+    for (const f of pendientes) {
+      const clave = encola(db, 'acta', f.datos,
+        prioridadDesdeNombres('acta', f.a.temporada, f.a.competicionNombre, f.a.grupoNombre, 60),
+        urlActa(f.a.codigo));
+      if (f.cancelado) { reactiva(db, clave); reactivados++; } else { creados++; }
+    }
+  });
+  return { creados, reactivados, omitidas, candidatas: candidatas.length };
 }
 
 function marcaEquivalenteHecho(db, tipo, datos) {
@@ -1694,8 +1991,28 @@ function evaluaCalidadActa(db, referencia, parseada, html) {
   if (titularesLocal + titularesVisitante === 0) incidencias.push('sin_alineaciones');
   else {
     const esperados = titularesEsperados(db, referencia, titularesLocal, titularesVisitante);
-    if (titularesLocal !== esperados || titularesVisitante !== esperados) {
+    /*
+     * ── DOS COSAS MUY DISTINTAS QUE COMPARTÍAN NOMBRE (24/09/2026) ───────────────────────────────────────
+     *
+     * Este aviso saltaba igual si a un equipo le FALTABAN titulares que si le SOBRABAN, y por eso el
+     * porcentaje no servía para nada: medido en murcia (27 % de las actas de adultos), ceuta (26,5 %) y
+     * euskadi (17,4 %), bajo el mismo nombre convivían casos reales de los dos tipos.
+     *
+     *   · SOBRAN (12 titulares en fútbol 11): imposible, y apunta a una fila duplicada o mal leída.
+     *     Eso sí es una anomalía y merece el nombre `titulares_atipicos`.
+     *   · FALTAN (10 donde se esperan 11): la alineación viene incompleta. Puede ser que la federación
+     *     publique 10 —pasa cuando un equipo juega con uno menos— o que hayamos perdido una fila al leer.
+     *     Para lo segundo ya existe una comprobación aparte, que compara las filas de la ficha original con
+     *     las que hemos parseado (ver `filasFuente`/`filasParseadas` más abajo). Así que aquí se nombra por lo
+     *     que es: una alineación INCOMPLETA.
+     *
+     * Separarlos no es cosmético: convierte una cifra inútil («27 % de titulares atípicos») en dos cifras que
+     * se pueden perseguir por separado, y evita que un hueco de la fuente se confunda con un fallo nuestro.
+     */
+    if (titularesLocal > esperados || titularesVisitante > esperados) {
       incidencias.push(`titulares_atipicos:${titularesLocal}/${titularesVisitante};esperados:${esperados}`);
+    } else if (titularesLocal < esperados || titularesVisitante < esperados) {
+      incidencias.push(`titulares_incompletos:${titularesLocal}/${titularesVisitante};esperados:${esperados}`);
     }
   }
   // Algunas actas contienen una fila con enlace de jugador pero sin nombre visible.
@@ -1703,7 +2020,15 @@ function evaluaCalidadActa(db, referencia, parseada, html) {
   // atribuir al parser una ausencia que ya está en la propia ficha.
   const inspeccion = inspeccionaActa(html);
   const filasFuente = inspeccion.conNombre;
-  const filasParseadas = titularesLocal + titularesVisitante + suplentesLocal + suplentesVisitante;
+  // `inspeccionaActa` sólo ve las filas ENLAZADAS a una ficha de jugador. La fuente publica a veces una
+  // jugadora sin enlace (Euskadi: acta 133353, «HIDALGO AYESTA, EIDER», sin ficha); el parser la lee bien
+  // y el aviso salía igualmente (415 actas con «descuadre_alineacion_parser:29/28» en Euskadi). Se comparan
+  // las filas con código; si el parser no da códigos en esa maqueta, todas.
+  const todasParseadas = [parseada.lineups?.local, parseada.lineups?.visitante]
+    .flatMap((l) => [...(l?.titulares ?? []), ...(l?.suplentes ?? [])]);
+  const conCodigo = todasParseadas.filter((j) => j?.codigoJugador).length;
+  const filasParseadas = conCodigo > 0 ? conCodigo
+    : titularesLocal + titularesVisitante + suplentesLocal + suplentesVisitante;
   // Algunas territoriales (Navarra, entre otras) no enlazan las filas a una ficha de jugador.
   // En ese formato `inspeccionaActa` no puede contar la alineación fuente; cero significa
   // "recuento no disponible", no que el parser haya inventado los jugadores.
@@ -1746,6 +2071,8 @@ function evaluaCalidadActa(db, referencia, parseada, html) {
 }
 
 /** Actas guardadas con una versión de parser anterior a la actual. Es la cola del mantenimiento. */
+/** Cuenta de actas por reparar, calculada una vez por sesión (ver el mantenimiento cada 25 trabajos). */
+let actasDesactualizadasEnSesion = null;
 function cuentaActasDesactualizadas(db) {
   return db.prepare(`select count(*) n from actas
     where archivo is not null and estado!='ausente_web' and coalesce(version_parser,0) < ?`).get(VERSION_PARSER_ACTA).n;
@@ -1759,6 +2086,46 @@ function cuentaActasDesactualizadas(db) {
  * 15 a 16, ocho federaciones se quedaron mudas (Castilla y León tenía 11.100 actas pendientes) y el
  * aviso sólo se imprimía al terminar, así que desde fuera parecía que estaban colgadas.
  */
+/**
+ * Lee una página archivada aunque su fila guarde la ruta de la OTRA máquina.
+ *
+ * Las colas viajan entre el PC y el servidor (traspasos del 21/09 y del 13/10), y la columna `archivo` conserva la
+ * ruta donde se guardó: `F:\\EspacioCodigo\\facylf\\descargas-rioja\\recolector-local\\t8-…\\jornada-1.html` en el
+ * servidor, o `/app/descargas-…` en el PC. El fichero sí está, en la misma posición bajo `recolector-local` de
+ * ESTA cola. Sin esto, `reprocesar` fallaba en esas jornadas y dejaba sus filas viejas: 6 de los 20 grupos de
+ * Rioja siguieron con su partido inventado tras reprocesarlos (16/10/2026).
+ */
+function rutaEnEstaCola(ruta) {
+  const original = String(ruta ?? '');
+  if (existsSync(original) || existsSync(`${original}.gz`)) return original;
+  const relativa = /recolector-local[\\/](.+)$/i.exec(original)?.[1];
+  if (!relativa) return original;
+  const aqui = join(CARPETA, ...relativa.split(/[\\/]+/));
+  return existsSync(aqui) || existsSync(`${aqui}.gz`) ? aqui : original;
+}
+
+/** Lee la página archivada en ESTA cola (ver `rutaEnEstaCola`); si no existe, lanza el ENOENT de siempre. */
+function leeArchivoArchivado(ruta) {
+  return leeArchivo(rutaEnEstaCola(ruta)) ?? readFileSync(ruta);
+}
+
+/**
+ * Corrige en la fila la ruta de la otra máquina, para que el JSON del análisis se escriba JUNTO al HTML.
+ *
+ * Sin esto, el JSON iba a `rutaJsonDeArchivo('F:\\…\\acta-X.html')`, que en Linux NO es una ruta absoluta:
+ * se creaba en el directorio de trabajo (/app) un fichero llamado literalmente `F:\EspacioCodigo\…\acta-X.json`.
+ * Lo vio DeepSeek el 16/10/2026 en el contenedor de CyL, nada más desplegar `leeArchivoArchivado`.
+ */
+function corrigeRutaDeActa(db, acta) {
+  const ruta = rutaEnEstaCola(acta.archivo);
+  if (ruta !== acta.archivo) {
+    db.prepare(`update actas set archivo=? where temporada=? and competicion=? and grupo=? and jornada=? and codigo=?`)
+      .run(ruta, acta.temporada, acta.competicion, acta.grupo, acta.jornada, acta.acta);
+    acta.archivo = ruta;
+  }
+  return ruta;
+}
+
 function reparaActasDesactualizadas(db, limite = Infinity) {
   const actas = db.prepare(`select codigo acta,temporada,competicion,grupo,jornada,menores,archivo,hash
     from actas where archivo is not null and estado!='ausente_web' and coalesce(version_parser,0) < ?
@@ -1768,7 +2135,8 @@ function reparaActasDesactualizadas(db, limite = Infinity) {
   let fallidas = 0;
   for (const acta of actas) {
     try {
-      const html = decodificaHtml(leeArchivo(acta.archivo) ?? readFileSync(acta.archivo));
+      corrigeRutaDeActa(db, acta);
+      const html = decodificaHtml(leeArchivoArchivado(acta.archivo));
       const parseada = contextualizaActa(db, acta, parseaActa(html));
       const calidad = evaluaCalidadActa(db, acta, parseada, html);
       guardaJson(rutaJsonDeArchivo(acta.archivo), parseada, db, 'acta');
@@ -1802,6 +2170,14 @@ function reparaActasDesactualizadas(db, limite = Infinity) {
       db.prepare(`insert into eventos(creado_en,nivel,tipo,detalle) values(?,?,?,?)`)
         .run(new Date().toISOString(), 'aviso', 'reparacion_parser',
           `${acta.acta}: ${error instanceof Error ? error.message : String(error)}`);
+      // Si el HTML NO EXISTE, reintentarlo no lo hará aparecer. Sin esta marca, la misma acta encabezaba la
+      // consulta de reparación (`order by … limit 5`) para siempre: el mantenimiento no avanzaba nunca y cada
+      // 25 trabajos volvía a recorrer la tabla entera. Pasaba en el CyL del servidor con las actas traspasadas
+      // desde el PC (rutas F:\…, 16/10/2026). La marca no toca los datos ni el estado; el evento queda.
+      if (error?.code === 'ENOENT') {
+        db.prepare(`update actas set version_parser=? where temporada=? and competicion=? and grupo=? and jornada=? and codigo=?`)
+          .run(VERSION_PARSER_ACTA, acta.temporada, acta.competicion, acta.grupo, acta.jornada, acta.acta);
+      }
     }
   }
   return { procesadas, fallidas };
@@ -1897,7 +2273,14 @@ async function procesa(driver, ritmo, db, trabajo) {
     return `${datos.length} competiciones`;
   }
 
-  html = await navega(driver, ritmo, db, trabajo, trabajo.url);
+  /*
+   * ── NUNCA SE PIDE A LA WEB DE OTRA FEDERACIÓN (21/10/2026) ──────────────────────────────────────────────
+   * La pasada del fin de semana dejó ~3.300 trabajos con la URL de la web de CyL en 14 federaciones (ya
+   * arreglado en origen y reparado). Esto es la segunda barrera: si la URL del trabajo no es del portal de ESTE
+   * perfil, se rehace con su portal (misma ruta y consulta) y se guarda; si no se puede rehacer, no se pide.
+   */
+  const urlPedida = urlDelPortalPropio(db, trabajo);
+  html = await navega(driver, ritmo, db, trabajo, urlPedida);
   const validacion = validaPagina(trabajo.tipo, html);
   if (!validacion.ok) {
     // Se guarda la página RECHAZADA con su tamaño. Sin esto, un fallo de validación era
@@ -2151,15 +2534,29 @@ async function ejecutar(db) {
   compruebaPermiso();
   console.log('  · Preparando vigilancia y ámbito de actas (trabajo local).');
   preparaVigilanciaActual(db);
+  const sinDatos = cierraCompeticionesSinDatos(db);
+  if (sinDatos.actas) {
+    console.log(`  · ${sinDatos.actas} actas cerradas sin pedirlas: ${sinDatos.competiciones} competiciones de temporadas ` +
+      'cerradas cuya web sólo da fichas vacías.');
+  }
   const ambitosCorregidos = reconciliaAmbitoActas(db);
   if (ambitosCorregidos) console.log(`  · ${ambitosCorregidos} actas reclasificadas por categoría.`);
   activaActasPermitidas(db);
+  // Y después de reconciliar el ámbito, se cierra el agujero que dejaba: actas EN ámbito cuyo trabajo se canceló
+  // en su día (o nunca llegó a crearse) y que por eso no se descargaban nunca. Es local y no pide nada.
+  const sinTrabajo = reparaActasSinTrabajo(db);
+  if (sinTrabajo.creados || sinTrabajo.reactivados) {
+    console.log(`  · Actas en ámbito sin trabajo que las pida: ${sinTrabajo.creados} creadas, ` +
+      `${sinTrabajo.reactivados} reactivadas (de ${sinTrabajo.candidatas} pendientes revisadas).`);
+  }
   console.log('  · Revisando calendario futuro y jornadas recientes (trabajo local).');
   const aplazadas = aplazaFuturoTemporadaActual(db);
   if (aplazadas.jornadas || aplazadas.clasificaciones) {
     console.log(`  · Temporada actual: ${aplazadas.jornadas} jornadas futuras y ` +
       `${aplazadas.clasificaciones} clasificaciones sin resultados quedan aplazadas.`);
   }
+  const vaciasEnCurso = repasaJornadasVaciasEnCurso(db);
+  if (vaciasEnCurso) console.log(`  · ${vaciasEnCurso} jornadas ya jugadas de la temporada en curso se leyeron vacías o sin marcadores: se vuelven a pedir.`);
   const repaso = preparaRepasoJornadasRecientes(db);
   if (repaso.jornadas || repaso.clasificaciones) {
     console.log(`  · Repaso reciente: ${repaso.jornadas} jornadas y ` +
@@ -2180,7 +2577,11 @@ async function ejecutar(db) {
   const maxConfigurado = numero('max', 20);
   // Lotes distintos por federación evitan que todos los navegadores se reciclen a la vez.
   const desfase = [...PERFIL_NOMBRE].reduce((n, c) => (n + c.charCodeAt(0)) % 91, 0);
-  const limiteReciclado = 220 + desfase;
+  // 16/10/2026: de 220 a 900 trabajos por sesión. El navegador ya se recicla DENTRO de la sesión por consumo o
+  // cada 20-40 trabajos (`tocaReciclar`), así que el tope de sesión no protege la memoria; lo que sí hace es repetir
+  // la preparación del arranque, que en las colas de 2 GB cuesta 5-20 min (medido: Andalucía, 20 min parada cada
+  // ~40 min de trabajo). Con 900 se prepara cuatro veces menos.
+  const limiteReciclado = 900 + desfase;
   const max = Math.min(maxConfigurado, limiteReciclado);
   if (max < 1 || max > 200_000) throw new Error('--max debe estar entre 1 y 200000');
   if (maxConfigurado > max) console.log(`  · sesión limitada a ${max} trabajos para reciclar Chrome y contener la memoria.`);
@@ -2233,11 +2634,45 @@ async function ejecutar(db) {
   limpiaChromeHuerfanoDeEstePerfil();
   let memoriaNavegadorMb = null;
   const slotChrome = await adquiereSlotChrome(db);
+  /*
+   * ── EL LATIDO DE LA PLAZA, CON RELOJ PROPIO (15/10/2026) ───────────────────────────────────────────────
+   *
+   * Antes la ficha sólo se refrescaba ENTRE trabajos. Con la máquina cargada, un trabajo largo o un reciclado de
+   * Chrome pasaban de los 5 minutos sin latido, los que esperaban daban la plaza por abandonada, la borraban y
+   * abrían OTRO navegador mientras el primero seguía vivo. Medido hoy en el servidor: 9 navegadores con sólo 3
+   * fichas, carga 35 y la batería del portátil bajando al 4 %. Es una espiral: más carga → trabajos más lentos →
+   * más plazas «abandonadas» → más navegadores. Ahora la ficha late cada minuto pase lo que pase en el trabajo.
+   */
+  const relojDeLatido = setInterval(() => refrescaLatidoDePlaza(slotChrome), 60_000);
+  relojDeLatido.unref?.();
   let driver = null;
   let hechos = 0;
   // Fallos seguidos en esta sesión. Un fallo suelto no debe parar la federación: sólo una barrera
   // real, o varios fallos seguidos (que sí apuntan a un problema del sitio), activan la pausa.
   let fallosSeguidos = 0;
+  /*
+   * ── Y LOS FALLOS DE RED, CON UMBRAL PROPIO ─────────────────────────────────────────────────────────────
+   *
+   * Esto es lo que estaba costando media jornada a dos federaciones, medido el 24/09/2026:
+   *
+   *  · Valencia recogió 1.244 actas en UNA sesión y la perdió por cinco `fetch failed` seguidos —que es un
+   *    error de red NUESTRO (resolución de nombres o conexión cortada), no un rechazo del portal—, y
+   *    encima quedó parada una hora. Cinco sesiones de cinco terminaron así.
+   *  · Madrid: sus 16 sesiones de 24 horas terminaron TODAS en pausa global, por cinco «The operation was
+   *    aborted due to timeout» seguidos, teniendo 7.108 actas disponibles en la cola. Cinco páginas lentas
+   *    (~40 s cada una, unos 3 minutos) costaban 3.600 s de recolección: una desproporción de 90 a 1.
+   *  · Las otras diecisiete federaciones no se pararon ni una vez. No es la fuente: es el contador.
+   *
+   * El código ya aplicaba este criterio a las páginas vacías —«varias direcciones vacías consecutivas no
+   * prueban que haya fallado la federación completa y no deben detener miles de trabajos válidos que vienen
+   * detrás»—. Un tiempo agotado o una conexión cortada tampoco lo prueban: son de ESA dirección y, con la
+   * máquina a tope y cuatro resolucionadores DNS, muchas veces son nuestros.
+   *
+   * Por eso llevan su propio contador y un umbral mucho más alto: la federación sigue con sus miles de
+   * actas, y una caída REAL del portal se sigue detectando (treinta fallos seguidos son media hora de
+   * insistencia) sin que cinco fallos sueltos cuesten una hora entera.
+   */
+  let fallosDeRed = 0;
   // Veces que se ha caído la sesión del navegador en esta ejecución (ver el manejador de sesión caída).
   let recreacionesDeSesion = 0;
   try {
@@ -2262,6 +2697,7 @@ async function ejecutar(db) {
         console.log(`  ✓ ${detalle}`);
         hechos++;
         fallosSeguidos = 0;
+        fallosDeRed = 0;
         // El PNFG de Castilla y León deja renderers antiguos vivos al navegar entre actas. En una
         // sesión observada pasó de 7 a 23 procesos en ocho trabajos. Reciclar sólo el navegador
         // mantiene la misma cola/slot y evita que el sistema vuelva a paginar memoria.
@@ -2315,8 +2751,14 @@ async function ejecutar(db) {
         // La recolección no debe dejar para el final las mejoras del parser. Cada 25 respuestas
         // válidas se reparan cinco actas ya archivadas, sin red y usando esta misma conexión. El
         // coste es pequeño y evita otro proceso escritor que pudiera competir por SQLite.
-        if (hechos % 25 === 0 && cuentaActasDesactualizadas(db) > 0) {
+        // Antes se CONTABAN las actas desactualizadas cada 25 trabajos, y ese `count(*)` recorre la tabla `actas`
+        // entera (con el JSON de cada una): en las colas de 1,5-2 GB eran 2-4 minutos parado cada 25 trabajos
+        // (medido el 16/10/2026: CyL y Madrid con un silencio así cada 5-8 min). Ahora se cuenta UNA vez por sesión
+        // y luego se descuenta lo reparado: las actas nuevas ya se guardan con el parser actual.
+        if (hechos % 25 === 0 && actasDesactualizadasEnSesion === null) actasDesactualizadasEnSesion = cuentaActasDesactualizadas(db);
+        if (hechos % 25 === 0 && actasDesactualizadasEnSesion > 0) {
           const mantenimiento = reparaActasDesactualizadas(db, 5);
+          actasDesactualizadasEnSesion = Math.max(0, actasDesactualizadasEnSesion - 5);
           if (mantenimiento.procesadas || mantenimiento.fallidas) {
             console.log(`  · mantenimiento local: ${mantenimiento.procesadas} actas actualizadas` +
               (mantenimiento.fallidas ? `, ${mantenimiento.fallidas} pendientes de revisar` : '') + '.');
@@ -2332,9 +2774,24 @@ async function ejecutar(db) {
          * abandonada en el hueco entre el cierre y el siguiente turno.
          */
         refrescaLatidoDePlaza(slotChrome);
-        const turno = decideTurnoDePlaza({
-          desdeMs: slotChrome.desde, ahoraMs: Date.now(), topeMs: TURNO_PLAZA_MS, hayEspera: hayFederacionesEsperando(),
-        });
+        // Si la prioritaria acaba de entrar, la que ocupa la última plaza compartida la suelta (entre trabajos).
+        if (!esPrioritaria()) {
+          const cesion = cedePorPrioridad({
+            nombreSlot: slotChrome?.nombre,
+            plazas: repartePlazas({ memoriaGb: Number(process.env.FACYLF_MEMORIA_GB), memoriaTotalGb: totalmem() / 1024 ** 3 }).plazas,
+            prioritariaActiva: existsSync(join(CARPETA_SLOTS_CHROME, PLAZA_PRIORITARIA)),
+          });
+          if (cesion.ceder) {
+            console.log(`  · ${cesion.motivo}.`);
+            break;
+          }
+        }
+        // La prioritaria no cede su plaza por turno: es la que tiene que terminar primero.
+        const turno = esPrioritaria()
+          ? { ceder: false }
+          : decideTurnoDePlaza({
+            desdeMs: slotChrome.desde, ahoraMs: Date.now(), topeMs: TURNO_PLAZA_MS, hayEspera: hayFederacionesEsperando(),
+          });
         if (turno.ceder) {
           console.log(`  · ${turno.motivo}.`);
           break;
@@ -2418,7 +2875,10 @@ async function ejecutar(db) {
           //    el parser sepa leerla.
           const intentosActa = Number(trabajo.intentos ?? 0) + 1;
           const temporadaCerrada = Number(trabajo.temporada) < Number(temporadaActual(db));
-          if (temporadaCerrada && intentosActa >= 2) {
+          // (20/10/2026) Si la página viene vacía y el partido es de hace más de dos meses, la segunda visita no
+          // aporta nada: se cierra a la primera. Medido en Araba: 2.344 peticiones en 24 h eran primeras visitas a
+          // fichas vacías de temporadas cerradas que habrían vuelto a pedirse dos días después, sólo para cerrarlas.
+          if (temporadaCerrada && (intentosActa >= 2 || error?.ausenteDefinitiva)) {
             anotaUltimaPeticion(db, trabajo, 'sin_datos', mensaje);
             db.prepare(`update actas set estado='sin_datos',incidencias=?,comprobada_en=? where temporada=?
               and competicion=? and grupo=? and jornada=? and codigo=? and estado<>'hecha'`)
@@ -2493,9 +2953,18 @@ async function ejecutar(db) {
         // publicada, etc.). Varias direcciones vacías consecutivas no prueban que haya fallado la
         // federación completa y no deben detener miles de trabajos válidos que vienen detrás.
         const ausenciaEsperable = /página vacía o sin contenido|no parece una página|catálogo sin competiciones|competición sin grupos|no se pudo descubrir/i.test(mensaje);
-        if (ausenciaEsperable) fallosSeguidos = 0;
+        /*
+         * ¿Es un fallo NUESTRO o de la red, y no de la fuente? Se reconoce por su mensaje y se lleva aparte
+         * (ver el contador `fallosDeRed`): no incrementa `fallosSeguidos`, así que no dispara la pausa de una
+         * hora por sí solo. `fetch failed` es el error de la pila de red de Node cuando no puede resolver o
+         * conectar; «aborted due to timeout» es `AbortSignal.timeout` agotado, es decir una página que no
+         * llegó a tiempo.
+         */
+        const falloDeRed = /fetch failed|aborted due to timeout|timed out|timeout|ETIMEDOUT|ECONNRESET|EAI_AGAIN|ENOTFOUND|socket hang up|other side closed|network|net::ERR/i.test(mensaje);
+        if (ausenciaEsperable) { fallosSeguidos = 0; fallosDeRed = 0; }
+        else if (falloDeRed) fallosDeRed++;
         else fallosSeguidos++;
-        if (intentos >= 3) {
+        if (intentos >= 3 && !falloDeRed) {
           // La misma dirección ha fallado tres veces repartidas en días: no es una barrera, es que
           // ahí no hay contenido. Se descarta con el motivo guardado en vez de reintentarla siempre.
           marcaTrabajo(db, trabajo.clave, 'cancelado', mensaje, null);
@@ -2532,7 +3001,8 @@ async function ejecutar(db) {
               where temporada=? and competicion=? and codigo=? and estado<>'ausente_web'`)
               .run(new Date().toISOString(), trabajo.temporada, trabajo.competicion, trabajo.grupo);
             if (Number(r.changes ?? 0)) {
-              db.prepare(`update trabajos set estado='cancelado',siguiente_intento=null,actualizado_en=?
+              db.prepare(`update trabajos set estado='cancelado',siguiente_intento=null,actualizado_en=?,
+                ultimo_error='la federación lista el grupo pero no publica jornadas (ausente_web)' || coalesce(' · último error: ' || ultimo_error, '')
                 where temporada=? and competicion=? and grupo=? and estado in ('pendiente','bloqueado')`)
                 .run(new Date().toISOString(), trabajo.temporada, trabajo.competicion, trabajo.grupo);
               db.prepare(`insert into eventos(creado_en,nivel,tipo,detalle) values(?,?,?,?)`)
@@ -2547,9 +3017,22 @@ async function ejecutar(db) {
           const horas = intentos === 1 ? 2 : 24;
           const siguiente = new Date(Date.now() + horas * 60 * 60_000).toISOString();
           marcaTrabajo(db, trabajo.clave, 'pendiente', mensaje, siguiente);
-          console.warn(`  ! ${mensaje}. Se reintentará después de ${siguiente}.`);
+          /*
+           * UN FALLO DE RED NO GASTA INTENTOS. Tres intentos repartidos en días significan «ahí no hay
+           * contenido», y por eso el tercero marca el acta como `ausente_web`, que se lee como «la fuente
+           * no publica esta acta». Si el fallo fue que NUESTRA red no llegó a tiempo, esa frase es falsa
+           * sobre la fuente: sería inventar un dato ausente, que es justo lo que no se puede hacer.
+           *
+           * Ya pasó una vez y hubo que repararlo a mano: `scripts/reparar-descartes-transitorios.mjs`
+           * devolvió a la cola los descartes cuyo último error era «Timed out receiving message from
+           * renderer», «Wait timed out after…» o «script timeout» —tiempos agotados, no ausencias—. Contar
+           * el tiempo agotado como intento vuelve a fabricar esos mismos descartes; por eso se pone a cero
+           * y el trabajo sigue su escalera de espera (2 h, luego 24 h) sin declarar nada sobre la fuente.
+           */
+          if (falloDeRed) db.prepare(`update trabajos set intentos=0 where clave=?`).run(trabajo.clave);
+          console.warn(`  ! ${mensaje}. Se reintentará después de ${siguiente}${falloDeRed ? ' (fallo de red: no cuenta como intento)' : ''}.`);
         }
-        if (!ausenciaEsperable && fallosSeguidos >= 5) {
+        if (!ausenciaEsperable && (fallosSeguidos >= 5 || fallosDeRed >= 30)) {
           // Una hora, no seis. Evidencia del 11/09/2026: cuatro federaciones (Asturias, Extremadura,
           // Murcia y Navarra) se pusieron en pausa en menos de dos horas por «página vacía o sin
           // contenido», y todas ellas mientras la máquina estaba a tope (16 recolectores con su
@@ -2558,8 +3041,12 @@ async function ejecutar(db) {
           // páginas vacías. Con la pausa de 6 h, un problema local dejaba cuatro federaciones paradas
           // media jornada. Una hora sigue dando el respiro que pide una web que va mal, y si el
           // problema persiste la pausa se vuelve a poner sola.
-          const hasta = establecePausaGlobal(db, 1, `${fallosSeguidos} fallos seguidos: ${mensaje}`, trabajo);
-          console.error(`  Pausa global preventiva hasta ${hasta} por fallos repetidos.`);
+          //
+          // Los fallos de RED exigen treinta seguidos (ver `fallosDeRed`): cinco no bastan para dar por
+          // caída una federación, porque cinco tiempos agotados son tres minutos y la pausa cuesta una hora.
+          const motivo = fallosDeRed >= 30 ? `${fallosDeRed} fallos de red seguidos` : `${fallosSeguidos} fallos seguidos`;
+          const hasta = establecePausaGlobal(db, 1, `${motivo}: ${mensaje}`, trabajo);
+          console.error(`  Pausa global preventiva hasta ${hasta} por ${motivo}.`);
           break;
         }
         continue;
@@ -2574,32 +3061,75 @@ async function ejecutar(db) {
     // perfil, así que no hay ninguna sesión viva que proteger, y evita que la basura de esta sesión se sume a
     // la de las demás federaciones hasta que el sistema empiece a paginar.
     limpiaChromeHuerfanoDeEstePerfil();
+    clearInterval(relojDeLatido);
     liberaSlotChrome(slotChrome?.ruta);
   }
   exportaInventario(db);
   console.log(`Sesión terminada: ${hechos}/${max} trabajos.`);
 }
 
+/*
+ * Año desde el que se prepara el plan a partir del catálogo. Antes era un 2015 fijo (`numero('desde', 2015)`) y
+ * no seguía al suelo de trabajo: con `FACYLF_TEMPORADA_MINIMA=2010-11` (decidido el 06/10/2026) las temporadas
+ * 2010-11 a 2014-15 que las webs SÍ publican no entraban nunca en la cola (medido el 11/10/2026: ~1.960
+ * competiciones en Aragón, Andalucía, CLM, Extremadura, Euskadi, Asturias, Navarra y CyL). `--desde` sigue
+ * mandando si se pasa.
+ */
+function anioDesdePorDefecto() {
+  const anio = Number(String(TEMPORADA_MINIMA ?? '').slice(0, 4));
+  return Number.isFinite(anio) && anio > 1990 ? anio : 2015;
+}
+
+/*
+ * Y un tercer suelo, encontrado al verificar el despliegue (11/10/2026): `numero('desde')` lee ANTES el
+ * `alcance.desdeAnio` de `recolector.<fed>.config.json`, que vale 2014 en casi todas (2015 en CyL, Madrid,
+ * Valencia, Cataluña y Melilla). Con eso Andalucía pasó de 4 a 13 temporadas pero seguía sin la 2013-14 (419
+ * competiciones). En el servidor esos ficheros van DENTRO de la imagen, así que se arregla aquí: salvo un
+ * `--desde` explícito, el plan empieza en el MENOR de los dos años (el del fichero y el del suelo acordado).
+ * Rioja, con 2008 en su fichero, conserva el suyo.
+ */
+function anioDesdePlan() {
+  const explicito = process.argv.some((a) => a === '--desde' || a.startsWith('--desde='));
+  const valor = numero('desde', anioDesdePorDefecto());
+  return explicito ? valor : Math.min(valor, anioDesdePorDefecto());
+}
+
 function preparaPlan(db) {
   if (!existsSync(CATALOGO_EXISTENTE)) throw new Error(`No existe ${CATALOGO_EXISTENTE}`);
-  const r = preparaDesdeCatalogo(db, leeJson(CATALOGO_EXISTENTE), numero('desde', 2015));
+  const r = preparaDesdeCatalogo(db, leeJson(CATALOGO_EXISTENTE), anioDesdePlan());
   const grupos = existsSync(GRUPOS_EXISTENTES)
-    ? preparaGruposDesdeCatalogo(db, leeJson(GRUPOS_EXISTENTES), numero('desde', 2015))
+    ? preparaGruposDesdeCatalogo(db, leeJson(GRUPOS_EXISTENTES), anioDesdePlan())
     : 0;
   console.log(`Plan local preparado: ${r.temporadas} temporadas y ${r.competiciones} competiciones candidatas.`);
   if (grupos) console.log(`También se cargaron ${grupos} códigos de grupo candidatos ya existentes.`);
   return { ...r, grupos };
 }
 
-function reprocesaDescargas(db) {
+/*
+ * Reanálisis de lo YA ARCHIVADO, sin una sola petición a la federación.
+ *
+ * Sin filtros recorre todo. Con `--temporada`, `--competicion` y `--grupo` se acota a un ámbito, y eso
+ * hace falta de verdad: cuando se arregla un parser sólo hay que recuperar los grupos afectados, no
+ * reescribir las 2.836 jornadas y las 43.731 actas de las diecinueve federaciones. Acotar también
+ * evita tocar el estado de actas de otras colas como efecto lateral de una reparación.
+ */
+function reprocesaDescargas(db, filtro = {}) {
+  const condiciones = ['archivo is not null'];
+  const parametros = [];
+  if (filtro.temporada) { condiciones.push('temporada = ?'); parametros.push(String(filtro.temporada)); }
+  if (filtro.competicion) { condiciones.push('competicion = ?'); parametros.push(String(filtro.competicion)); }
+  if (filtro.grupo) { condiciones.push('grupo = ?'); parametros.push(String(filtro.grupo)); }
+  const where = condiciones.join(' and ');
+  const hayFiltro = Boolean(filtro.temporada || filtro.competicion || filtro.grupo);
   const jornadas = db.prepare(`select temporada,competicion,grupo,numero jornada,archivo,hash
-    from jornadas where archivo is not null order by temporada,competicion,grupo,numero`).all();
+    from jornadas where ${where} order by temporada,competicion,grupo,numero`).all(...parametros);
   let procesadas = 0;
   let fallidas = 0;
   for (const j of jornadas) {
     try {
-      const html = decodificaHtml(leeArchivo(j.archivo) ?? readFileSync(j.archivo));
-      registraJornada(db, j, html, j.archivo, j.hash ?? 'reprocesado');
+      const ruta = rutaEnEstaCola(j.archivo);
+      const html = decodificaHtml(leeArchivoArchivado(j.archivo));
+      registraJornada(db, j, html, ruta, j.hash ?? 'reprocesado');
       procesadas++;
     } catch (error) {
       fallidas++;
@@ -2609,13 +3139,14 @@ function reprocesaDescargas(db) {
     }
   }
   const actas = db.prepare(`select codigo acta,temporada,competicion,grupo,jornada,menores,archivo,hash
-    from actas where archivo is not null order by temporada,competicion,grupo,jornada,codigo`).all();
+    from actas where ${where} order by temporada,competicion,grupo,jornada,codigo`).all(...parametros);
   let actasProcesadas = 0;
   let actasFallidas = 0;
   let actasCerradas = 0;
   for (const acta of actas) {
     try {
-      const html = decodificaHtml(leeArchivo(acta.archivo) ?? readFileSync(acta.archivo));
+      corrigeRutaDeActa(db, acta);
+      const html = decodificaHtml(leeArchivoArchivado(acta.archivo));
       const parseada = contextualizaActa(db, acta, parseaActa(html));
       const calidad = evaluaCalidadActa(db, acta, parseada, html);
       guardaJson(rutaJsonDeArchivo(acta.archivo), parseada, db, 'acta');
@@ -2657,7 +3188,9 @@ function reprocesaDescargas(db) {
           `${acta.acta}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-  const legacy = readdirSync(join(RAIZ, 'descargas-federacion'), { withFileTypes: true })
+  // Los ficheros sueltos del arranque del proyecto no pertenecen a ningún ámbito acotado: sólo se
+  // recorren en la pasada completa, que es la que no lleva filtro.
+  const legacy = hayFiltro ? [] : readdirSync(join(RAIZ, 'descargas-federacion'), { withFileTypes: true })
     .filter((e) => e.isFile() && /^comp-(\d+)-gr-(\d+)-acta-(\d+)\.html$/i.test(e.name));
   let legacyProcesadas = 0;
   for (const entrada of legacy) {
@@ -2689,7 +3222,10 @@ function reprocesaDescargas(db) {
     legacyProcesadas++;
   }
   reprioritizaPlan(db);
-  console.log(JSON.stringify({ jornadas: jornadas.length, procesadas, fallidas,
+  console.log(JSON.stringify({ ambito: hayFiltro
+      ? { temporada: filtro.temporada ?? null, competicion: filtro.competicion ?? null, grupo: filtro.grupo ?? null }
+      : 'todo',
+    jornadas: jornadas.length, procesadas, fallidas,
     actas: actas.length, actasProcesadas, actasFallidas, actasCerradas, legacyProcesadas }, null, 2));
 }
 
@@ -2714,7 +3250,22 @@ try {
       peticionesEstimadas: plan.peticionesEstimadas,
     }, null, 2));
   } else if (comando === 'reprocesar') {
-    reprocesaDescargas(db);
+    // Acotable por ámbito: es lo que se usa cuando un parser se arregla y hay que recuperar sólo los
+    // grupos afectados sin reescribir el resto de las colas. No hace ninguna petición a la federación.
+    reprocesaDescargas(db, {
+      temporada: argumento('temporada', null),
+      competicion: argumento('competicion', null),
+      grupo: argumento('grupo', null),
+    });
+  } else if (comando === 'reparar-sin-trabajo') {
+    // Reparación puramente local del desajuste «acta en ámbito sin trabajo» (ver `reparaActasSinTrabajo`).
+    // Se puede acotar con `--limite N`; sin él las recorre todas.
+    const limite = Math.max(1, Number(argumento('limite', 50000)) || 50000);
+    const antes = db.prepare(`select count(*) n from actas where estado='pendiente'`).get().n;
+    const r = reparaActasSinTrabajo(db, { limite });
+    console.log(JSON.stringify({ actasPendientes: antes, revisadas: r.candidatas,
+      sinTrabajoCreadas: r.creados, reactivadas: r.reactivados,
+      fueraDeAmbito: r.omitidas }, null, 2));
   } else if (comando === 'reparar-actas') {
     // Mantenimiento puramente local y acotable: actualiza actas ya archivadas al parser vigente
     // sin recorrer jornadas ni realizar ninguna petición a la federación.

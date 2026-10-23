@@ -20,10 +20,17 @@
  * plan entero se puede probar sin lanzar un solo navegador.
  */
 
-/** Las 15 federaciones con perfil propio en `perfiles/` (todas PNFG, con navegador). */
+/**
+ * Las federaciones con perfil propio en `perfiles/` (todas PNFG, con navegador): las 15 autonómicas y, desde el
+ * 15/10/2026, las 5 provinciales/insulares que la Vasca y la Canaria no publican (Bizkaia, Gipuzkoa, Araba,
+ * Las Palmas y Tenerife). Su catálogo se generó el 05/10 pero nunca llegaron a arrancar; se recogen en el PC,
+ * que tiene procesador de sobra, en vez de cargar más el servidor (que ya va al tope y se ha caído cuatro veces).
+ */
+export const FEDERACIONES_PROVINCIALES = ['bizkaia', 'gipuzkoa', 'araba', 'laspalmas', 'tenerife'];
 export const FEDERACIONES_PNFG = [
   'andalucia', 'aragon', 'asturias', 'baleares', 'canarias', 'cantabria', 'castilla-la-mancha',
   'ceuta', 'euskadi', 'extremadura', 'galicia', 'melilla', 'murcia', 'navarra', 'rioja',
+  ...FEDERACIONES_PROVINCIALES,
 ];
 
 /**
@@ -161,6 +168,8 @@ export function entornoParaHijos(configuracion, base = process.env) {
    * ninguno. Ausente no es cero: si no está declarado, no se pone y manda el valor por defecto del recolector.
    */
   pon('FACYLF_TOPE_NAVEGADOR_MB', configuracion.topeNavegadorMb);
+  // Y el suelo de temporadas (11/10/2026): sin él, los hijos usaban el 2023-24 por defecto (ver configuracion-flota.mjs).
+  pon('FACYLF_TEMPORADA_MINIMA', configuracion.temporadaMinima);
   return entorno;
 }
 

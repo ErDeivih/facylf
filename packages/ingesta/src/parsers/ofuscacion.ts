@@ -1,7 +1,13 @@
 import { parse, type HTMLElement } from 'node-html-parser';
 
-/** Convierte escapes CSS como "\\0032" en "2". */
-function decodificaContenidoCss(valor: string): string {
+/**
+ * Convierte escapes CSS como "\\0032" en "2".
+ *
+ * Se exporta porque el lector de clasificaciones tiene que hacer exactamente lo mismo con el `content` de un
+ * pseudo-elemento (`#id:before{content:"\0031\0030\0037"}` es 107, y devolverlo sin decodificar deja la celda
+ * sin número). Una sola definición para los dos, o un día decodifican distinto.
+ */
+export function decodificaContenidoCss(valor: string): string {
   return valor.replace(/\\([0-9a-f]{1,6})\s?/gi, (_m, hex: string) =>
     String.fromCodePoint(Number.parseInt(hex, 16)));
 }

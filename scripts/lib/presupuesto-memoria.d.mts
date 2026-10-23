@@ -114,3 +114,19 @@ export function plazaAbandonada(opciones?: {
   ahoraMs?: number;
   sinLatidoMs?: number;
 }): EstadoPlaza;
+
+/** Ficha de la plaza RESERVADA de la federación prioritaria (CyL): `slot-prioridad.lock`. */
+export const PLAZA_PRIORITARIA: string;
+
+/** Cuántas plazas reparten las federaciones normales (una menos si la prioritaria está activa). Nunca menos de una. */
+export function plazasCompartidas(opciones?: {
+  plazas?: number | string;
+  prioritariaActiva?: boolean;
+}): number;
+
+/** ¿Tiene que ceder su plaza numerada este worker porque la prioritaria ha ocupado la suya? */
+export function cedePorPrioridad(opciones?: {
+  nombreSlot?: string | null;
+  plazas?: number | string;
+  prioritariaActiva?: boolean;
+}): { ceder: boolean; motivo: string };

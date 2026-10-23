@@ -301,3 +301,44 @@ describe('parser de acta', () => {
     expect(a.lineups.visitante.suplentes).toHaveLength(3);
   });
 });
+
+describe('actas rotuladas en euskera (Euskadi y sus forales)', () => {
+  // Recorte de una ficha real de la Vasca (acta 135216, 2012-13; petición 152 del 16/10/2026).
+  const vasca = `
+    <h4>Denboraldia 2012-2013 &nbsp; Jardunaldia 16</h4>
+    <h2 class="ntype"><strong>0 - 5</strong></h2>
+    <div class="font_widgetL">AÑORGA K.K.E B</div>
+    <div class="font_widgetV">BARAKALDO CLUB DE FÚTBOL</div>
+    <div class="details"><div class="number">Golak</div><div class="desc"><table class="table"><tbody>
+      <tr><td nowrap=""><strong><a class="img lgolpp" title="Norberaren gola"><i></i></a> 0 - 1</strong></td>
+        <td class="font_responsive"><span class="font-blue">(30')</span> GARCIA MAILLO, SONIA </td></tr>
+      <tr><td nowrap=""><strong><a class="img lpenalti" title="Penaltiaren gola"><i></i></a> 0 - 2</strong></td>
+        <td class="font_responsive"><span class="font-blue">(35')</span> BARRERA IRIONDO, MARIA </td></tr>
+      <tr><td nowrap=""><strong><a class="img lgol" title="helburu normala"><i></i></a> 0 - 3</strong></td>
+        <td class="font_responsive"><span class="font-blue">(43')</span> BARRERA IRIONDO, MARIA </td></tr>
+    </tbody></table></div></div>
+    <table><tbody>
+      <tr><td align="center"><br> <strong>Futbol Zelaia:</strong> <a class="btn grey" href="NFG_VisCampos?Codigo_Campo=3603"> SAN MIGUEL </a></td></tr>
+      <tr><td height="14" align="center"><h4>Hiria: Gallarta</h4></td></tr>
+    </tbody></table>`;
+
+  it('lee temporada, jornada, campo y ciudad con sus rótulos en euskera', () => {
+    const a = parseaActa(vasca);
+    expect(a.temporada).toBe('2012-2013');
+    expect(a.jornada).toBe(16);
+    expect(a.estadio).toBe('SAN MIGUEL');
+    expect(a.municipio).toBe('Gallarta');
+  });
+
+  it('distingue penalti y gol en propia puerta por el icono, no por el texto en castellano', () => {
+    const a = parseaActa(vasca);
+    expect(a.goles.map((g) => g.tipo)).toEqual(['propia-puerta', 'penalti', 'normal']);
+    // El de propia puerta lo marca una jugadora LOCAL y beneficia al visitante.
+    expect(a.goles[0]).toMatchObject({ lado: 'local', ladoBeneficiado: 'visitante' });
+  });
+
+  it('un campo publicado vacío se queda sin campo', () => {
+    const a = parseaActa(vasca.replace(' SAN MIGUEL ', ' '));
+    expect(a.estadio).toBeNull();
+  });
+});

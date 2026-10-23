@@ -182,8 +182,9 @@ export function parseaActa(html: string): ActaPartido {
   const plano = texto(raiz);
 
   // Cabecera: temporada, jornada, fecha, hora, competición, grupo
-  const temporada = captura(plano, /Temporada\s*([\d\/-]+)/i);
-  const jornadaRaw = captura(plano, /Jornada\s*(\d+)/i);
+  // Euskadi y sus tres forales titulan en euskera: «Denboraldia 2010-2011   Jardunaldia 26».
+  const temporada = captura(plano, /(?:Temporada|Denboraldia)\s*([\d\/-]+)/i);
+  const jornadaRaw = captura(plano, /(?:Jornada|Jardunaldia)\s*(\d+)/i);
   const jornada = jornadaRaw ? Number(jornadaRaw) : null;
   const fecha = captura(plano, /\b(\d{1,2}-\d{1,2}-\d{4})\b/);
   const hora = captura(plano, /\b(\d{1,2}:\d{2})\s*h\b/i);
@@ -217,8 +218,26 @@ export function parseaActa(html: string): ActaPartido {
     arbitro = captura(plano,
       /[ÁA]rbitro(?:\/a)?(?:\s+Principal)?\s*:?\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ,.'’\-]{3,}?)(?=\s+(?:Goles|Estadio|Ciudad|Titulares|Suplentes|Cuerpo)\b|$)/i);
   }
-  const estadio = captura(plano, /Estadio\s*:?\s*([^·|•]{2,70}?)(?=\s*(?:Ciudad|•|·|\|)|$)/i);
-  const municipio = captura(plano, /(?:Ciudad|Municipio)\s*:?\s*([^·|•]{2,40}?)(?=\s*(?:[•·|])|$)/i);
+  // Campo y ciudad. En euskera son «Futbol Zelaia:» (en un <strong>, con el nombre del campo en el enlace
+  // de al lado) y «Hiria: Tolosa» (en un <h4>). Sin estos rótulos las ~22.000 actas de Euskadi se
+  // guardaban sin campo ni ciudad (muestras de la petición 152, 16/10/2026). Se leen del DOM porque en
+  // esa maqueta no hay separadores (•, ·, |) que acoten el texto plano.
+  let estadio = captura(plano, /Estadio\s*:?\s*([^·|•]{2,70}?)(?=\s*(?:Ciudad|•|·|\|)|$)/i);
+  let municipio = captura(plano, /(?:Ciudad|Municipio)\s*:?\s*([^·|•]{2,40}?)(?=\s*(?:[•·|])|$)/i);
+  if (!estadio) {
+    const rotulo = raiz.querySelectorAll('strong')
+      .find((n) => /^(?:Futbol\s+Zelaia|Zelaia|Estadio|Campo(?:\s+de\s+juego)?)\s*:?\s*$/i.test(texto(n)));
+    let siguiente = rotulo?.nextElementSibling as HTMLElement | null | undefined;
+    if (siguiente && siguiente.tagName?.toLowerCase() === 'br') siguiente = siguiente.nextElementSibling as HTMLElement | null;
+    const nombreCampo = siguiente ? texto(siguiente) : '';
+    if (nombreCampo && nombreCampo.length <= 70) estadio = nombreCampo;
+  }
+  if (!municipio) {
+    for (const n of raiz.querySelectorAll('h4, h5, td')) {
+      const m = /^(?:Hiria|Ciudad|Municipio)\s*:\s*(.{2,40})$/i.exec(texto(n));
+      if (m?.[1]) { municipio = m[1].trim(); break; }
+    }
+  }
 
   // Alineaciones POR EQUIPO: local y visitante, cada una con titulares y suplentes.
   //
@@ -445,9 +464,16 @@ export function parseaActa(html: string): ActaPartido {
       const celdas = fila.querySelectorAll('td');
       const detalle = texto(celdas.at(-1));
       const jugador = nombreTrasMinuto(detalle);
-      const tituloTipo = fila.querySelector('a[title^="Gol"]')?.getAttribute('title') ?? '';
-      const tipo = /propia/i.test(tituloTipo) ? 'propia-puerta' as const
-        : /penalti/i.test(tituloTipo) ? 'penalti' as const : 'normal' as const;
+      // El tipo de gol va en el icono: su CLASE (`lgol`, `lpenalti`, `lgolpp`) es la misma en todas las
+      // maquetas y su `title` cambia con el idioma. En euskera es «helburu normala», «Penaltiaren gola» y
+      // «Norberaren gola» (en propia puerta): mirando sólo `title^="Gol"` los penaltis y los goles en
+      // propia puerta de Euskadi salían como goles normales, y el de propia puerta se le apuntaba a un
+      // jugador del equipo contrario (petición 152, 16/10/2026).
+      const icono = fila.querySelector('a.lgolpp, a.lpenalti, a.lgol, a[title^="Gol"]');
+      const claseTipo = icono?.getAttribute('class') ?? '';
+      const tituloTipo = icono?.getAttribute('title') ?? '';
+      const tipo = /\blgolpp\b/.test(claseTipo) || /propia|norberaren|bere\s+atean/i.test(tituloTipo) ? 'propia-puerta' as const
+        : /\blpenalti\b/.test(claseTipo) || /penalti/i.test(tituloTipo) ? 'penalti' as const : 'normal' as const;
       const ladoBeneficiado = ladosGoles[indiceGol++] ?? null;
       const lado = tipo === 'propia-puerta'
         ? ladoBeneficiado === 'local' ? 'visitante'

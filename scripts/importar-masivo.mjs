@@ -126,22 +126,81 @@ function unidadesDeLasColas() {
   return ordenaUnidades(unidades);
 }
 
+/**
+ * El motivo de un fallo, con las líneas que EXPLICAN algo.
+ *
+ * Antes se guardaban los últimos 400 caracteres de la salida, y eso es casi siempre el final del resumen
+ * («…completa hasta J30 · completa»), no la causa: medido el 25/09/2026, los fallos de Aragón se leían como
+ * «fallo aragon|2026-27|23200330 (intento 3) · sificacion.html.gz», un recorte que no dice nada. Ahora se
+ * buscan las líneas de error; sólo si no hay ninguna se cae a las últimas.
+ */
+function motivoDeSalida(salida) {
+  const lineas = String(salida).split('\n').map((l) => l.trim()).filter(Boolean);
+  /*
+   * Primero la causa REAL de que el grupo no entre (01/10/2026): «✗ R1…»/«✗ R4…» son AVISOS de la tabla oficial
+   * —el grupo se importa igual, sólo pierde su tabla—, y al salir los primeros tapaban la línea que de verdad
+   * revierte el lote («La validación del lote … ha fallado: …» o la lista de GRUPOS QUE NO HAN ENTRADO).
+   */
+  const causa = lineas.filter((l) => /La validación del lote|NO HAN ENTRADO|^✗ t\d|^✗ (?!R\d)/.test(l));
+  if (causa.length) return causa.slice(-4).join('\n').slice(-400);
+  const conError = lineas.filter((l) => /✗|error|Error|ERROR|no ha entrado|failed|ENOENT|malformed|timeout|agot/i.test(l));
+  return (conError.length ? conError.slice(-6).join('\n') : lineas.slice(-6).join('\n')).slice(-400);
+}
+
 /** Un grupo, con el importador de verdad. Devuelve { ok, filas, salida }. */
-function importaUnidad(unidad, { timeoutMs = 20 * 60_000 } = {}) {
+/*
+ * ── 20 MINUTOS SE QUEDABAN CORTOS (01/10/2026) ───────────────────────────────────────────────────────────────
+ * Un grupo de Andalucía 2025-26 (~10.000 filas) tardaba 16-20 min el 29/09 y 35-40 min el 30/09, con el
+ * servidor a carga 14 sobre 4 núcleos. Con el corte en 20 min se mataba a `pnpm`, pero el `tsx` hijo seguía
+ * escribiendo y el grupo acababa entrando… y se contaba como fallo y se repetía tres veces (2 h por grupo).
+ * Ahora el corte es configurable y por defecto de 60 min.
+ */
+const TIMEOUT_GRUPO_MS = Number(process.env.FACYLF_IMPORTAR_TIMEOUT_MIN ?? 60) * 60_000;
+function importaUnidad(unidad, { timeoutMs = TIMEOUT_GRUPO_MS } = {}) {
   return new Promise((listo) => {
     const orden = spawn('pnpm', ['--filter', '@facylf/canonico', 'importar',
       '--federacion', unidad.federacion, '--temporada', unidad.temporada, '--grupo', unidad.grupo],
-    { cwd: RAIZ, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    // Grupo de procesos propio (Linux): al cortar por tiempo hay que matar también al `tsx` que lanza pnpm, que
+    // si no sigue vivo, sigue escribiendo y retiene la tubería hasta acabar (visto el 30/09/2026).
+    { cwd: RAIZ, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let salida = '';
+    let matadoPorTiempo = false;
     const recoge = (d) => { salida += d.toString(); };
     orden.stdout.on('data', recoge);
     orden.stderr.on('data', recoge);
-    const reloj = setTimeout(() => { try { orden.kill(); } catch { /* ya murió */ } }, timeoutMs);
+    const reloj = setTimeout(() => {
+      matadoPorTiempo = true;
+      try { if (process.platform !== 'win32') process.kill(-orden.pid, 'SIGTERM'); else orden.kill(); }
+      catch { try { orden.kill(); } catch { /* ya murió */ } }
+    }, timeoutMs);
     orden.on('error', (error) => { clearTimeout(reloj); listo({ ok: false, salida: `no se pudo lanzar: ${error.message}` }); });
     orden.on('close', (codigo) => {
       clearTimeout(reloj);
       const filas = Number(/(\d+)\s*filas?\s*(insertadas|escritas)/i.exec(salida)?.[1] ?? 0);
-      listo({ ok: codigo === 0, salida, filas, codigo });
+      /*
+       * ── UN CÓDIGO DISTINTO DE CERO NO SIEMPRE ES UN FALLO (arreglado el 25/09/2026) ──────────────────
+       *
+       * El CLI del canónico sale con 1 cuando la validación de calidad del grupo no es correcta en todos sus
+       * grupos (`packages/canonico/src/cli.ts`: `correctos !== informes.length → process.exit(1)`). Es una
+       * señal legítima, no un fallo de importación… y el importador masivo la tomaba por fallo, reintentaba
+       * el grupo tres veces y lo contaba en «conFallos» **con el grupo ya dentro**. Medido en el servidor:
+       *   fallo andalucia|2025-26|45983670 (intento 1) · /30 · partidos 240 … · completa
+       *   RESUMEN: 1 grupo(s) · 11506 filas insertadas · 9 actualizadas · 0 rechazadas · validación correcta en 1/1
+       *
+       * Si el resumen dice que el grupo entró entero y no lo hemos matado por tiempo, el trabajo ESTÁ HECHO:
+       * se cuenta como hecho. Reintentarlo no aportaba nada y gastaba la tanda en trabajo ya hecho.
+       */
+      const resumen = /RESUMEN:[\s\S]*?validación correcta en (\d+)\s*\/\s*(\d+)/.exec(salida);
+      const gruposCorrectos = resumen === null ? 0 : Number(resumen[1]);
+      const gruposTotales = resumen === null ? 0 : Number(resumen[2]);
+      /*
+       * Y `0/0` NO cuenta: es el resumen de un grupo que no entró nada («0 filas insertadas … validación
+       * correcta en 0/0»), y ahí el 0 = 0 cuadraría y lo daríamos por hecho. Hace falta que haya al menos un
+       * grupo validado, que no queden grupos sin entrar, y que no lo hayamos matado por tiempo.
+       */
+      const entroEntero = gruposCorrectos > 0 && gruposCorrectos === gruposTotales
+        && !/GRUPOS QUE NO HAN ENTRADO/.test(salida);
+      listo({ ok: codigo === 0 || (entroEntero && !matadoPorTiempo), salida, filas, codigo, matadoPorTiempo, entroEntero });
     });
   });
 }
@@ -184,19 +243,28 @@ async function main() {
     const segundos = Math.round((Date.now() - antes) / 1000);
 
     if (resultado.ok) {
-      estado.hechos[clave] = { cuando: new Date().toISOString(), filas: resultado.filas, segundos };
+      estado.hechos[clave] = { cuando: new Date().toISOString(), filas: resultado.filas, segundos,
+        ...(resultado.codigo === 0 ? {} : { nota: `el grupo entró entero y el proceso salió con código ${resultado.codigo}` }) };
       hechas += 1;
-      anota(`hecho ${clave} · ${resultado.filas} filas · ${segundos} s`);
+      anota(`hecho ${clave} · ${resultado.filas} filas · ${segundos} s`
+        + `${resultado.codigo === 0 ? '' : ` (código ${resultado.codigo}, pero el grupo entró entero)`}`);
     } else if (esIncidenciaQueAparta(resultado.salida)) {
       // La incidencia conocida: se aparta, se lista y se sigue. Nada de pararlo todo ni de saltárselo callando.
-      estado.apartados[clave] = { cuando: new Date().toISOString(), motivo: resultado.salida.slice(-400) };
+      estado.apartados[clave] = { cuando: new Date().toISOString(), motivo: motivoDeSalida(resultado.salida) };
       apartadas += 1;
       anota(textoDeApartado(unidad, resultado.salida));
     } else {
       const previo = estado.fallos[clave] ?? { intentos: 0 };
-      estado.fallos[clave] = { intentos: previo.intentos + 1, cuando: new Date().toISOString(), motivo: resultado.salida.slice(-400) };
+      // La cabecera dice POR QUÉ se cuenta como fallo (código de salida, corte por tiempo, ¿entró entero?):
+      // sin ella, el 30/09 no había forma de distinguirlo desde el registro.
+      const cabecera = `[código ${resultado.codigo ?? '—'}${resultado.matadoPorTiempo ? ' · cortado por tiempo' : ''}`
+        + `${resultado.entroEntero ? ' · el resumen dice que entró entero' : ''} · ${segundos} s] `;
+      const motivo = cabecera + (resultado.matadoPorTiempo
+        ? `se agotó el tiempo por grupo (${Math.round(TIMEOUT_GRUPO_MS / 60_000)} min) y se mató el proceso: el grupo es grande o el servidor iba cargado`
+        : motivoDeSalida(resultado.salida));
+      estado.fallos[clave] = { intentos: previo.intentos + 1, cuando: new Date().toISOString(), motivo };
       fallos += 1;
-      anota(`fallo ${clave} (intento ${previo.intentos + 1}) · ${resultado.salida.slice(-200)}`);
+      anota(`fallo ${clave} (intento ${previo.intentos + 1}) · ${motivo.slice(0, 200)}`);
     }
 
     estado.actualizado = new Date().toISOString();

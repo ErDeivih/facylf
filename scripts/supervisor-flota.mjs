@@ -314,6 +314,22 @@ async function main() {
   };
   process.on('SIGINT', () => para('SIGINT'));
   process.on('SIGTERM', () => para('SIGTERM'));
+  /*
+   * ── QUE UNA CAÍDA DEJE RASTRO (16/10/2026) ───────────────────────────────────────────────────────────────
+   *
+   * La noche del 15/10 el supervisor murió hacia las 21:09 y otra vez el 16/10 a las 09:09, 30 s después de
+   * arrancar, sin una sola línea en este registro: su consola es invisible (wscript), así que el motivo se
+   * perdía. Ahora cualquier excepción sin capturar y la propia salida quedan anotadas con su código.
+   */
+  process.on('uncaughtException', (error) => {
+    anota(`CAÍDA del supervisor por una excepción sin capturar: ${error?.stack ?? error}`);
+    process.exit(1);
+  });
+  process.on('unhandledRejection', (motivo) => {
+    anota(`CAÍDA del supervisor por una promesa rechazada sin capturar: ${motivo?.stack ?? motivo}`);
+    process.exit(1);
+  });
+  process.on('exit', (codigo) => { if (!contexto.parando) anota(`El supervisor sale con código ${codigo}.`); });
 
   await Promise.all(plan.map((entrada) => vigilaFederacion(entrada, contexto)));
 
