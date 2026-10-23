@@ -2,7 +2,28 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 14:30 (DeepSeek: revisadas, aplicadas y comiteadas 0049 y 0050; T15 y T16 cerradas)
+**Última actualización:** 23/10/2026 14:50 (DeepSeek: poda del diario ENCENDIDA a 7 días, podado y compactado; T15 cerrada del todo)
+
+## ★★★★★ DeepSeek, 23/10, 14:50 — el diario de lotes, podado y compactado (decisión de David)
+
+David: «si son datos que no se van a usar, elimínalo todo; no borres datos necesarios para el funcionamiento
+correcto». Se enciende la poda a **7 días** (el mínimo que permite la función) y se ejecuta ya.
+
+- **Podado**: 18.462.654 filas de **13.152 lotes** (todo el diario con más de 7 días). Quedan **53 filas**
+  del único lote de la última semana. Se hizo en 11 tandas de ~2 M de filas (lote entero o nada).
+- **Compactado**: `vacuum (full, analyze) ops.batch_cambio` en **33,7 s** (252.176 versiones retirables en
+  794.365 páginas). La tabla pasa de **7.365 MB a 64 kB**; la base, de **23 GB a 16 GB**.
+- **Queda encendida**: `diario_lote_dias` = 7; `ops.purga()` de cada noche poda una tanda. El resumen ya
+  solo enseña los 53 de menos de 7 días.
+
+**Qué NO se ha tocado** (comprobado): `core.*`, `analytics.*`, las colas `descargas-*` y los HTML/JSON
+archivados de las actas. El diario era solo el «cómo estaba esto antes del lote» para `--revertir`; los
+datos de fútbol y la evidencia de ingesta siguen enteros. Lo que se pierde es el `--revertir` exacto de
+lotes de hace más de una semana; la vía sigue siendo retirar el grupo y reimportarlo.
+
+**Nota de disco**: dentro de PostgreSQL se han recuperado ~7 GB. El fichero de la máquina virtual de Docker
+(`docker_data.vhdx`) **no encoge solo**; recuperar ese espacio en `D:` exigiría parar Docker y compactar el
+disco virtual, que no se ha hecho (no hace falta: D: tiene 332 GB libres).
 
 ## ★★★★★ DeepSeek, 23/10, 14:30 — 0049 y 0050 revisadas, aplicadas en la base real y comiteadas (T15 y T16)
 
