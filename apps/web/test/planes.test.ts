@@ -12,11 +12,12 @@ import { describe, expect, it } from 'vitest';
 import { CONSULTAS_COBERTURA } from '../src/consultas/cobertura';
 import { CONSULTAS_CATALOGO } from '../src/consultas/catalogo';
 import { CONSULTAS_PARTIDOS } from '../src/consultas/partidos';
+import { CONSULTAS_ENTIDADES } from '../src/consultas/entidades';
 
 const RAIZ = join(import.meta.dirname, '..', '..', '..');
 const CARPETA_PLANES = join(RAIZ, 'pruebas', 'planes');
 
-const consultas = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO];
+const consultas = [...CONSULTAS_COBERTURA, ...CONSULTAS_PARTIDOS, ...CONSULTAS_CATALOGO, ...CONSULTAS_ENTIDADES];
 
 /** El nombre del fichero de plan: el mismo saneado que hace `scripts/planes.mjs`. */
 const ficheroDe = (nombre: string) => `${nombre.replace(/[^\w-]/g, '-')}.json`;

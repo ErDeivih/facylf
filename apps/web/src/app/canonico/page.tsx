@@ -73,7 +73,9 @@ export default async function Canonico() {
   let federaciones: FilaFederacionTabla[] = [];
   let grupos: FilaGrupoTabla[] = [];
   try {
-    resumen = (await consulta<Resumen>(RESUMEN_CANONICO.sql, PARAMETROS_POR_DEFECTO[RESUMEN_CANONICO.nombre]))[0] ?? null;
+    // El resumen declara su propio presupuesto porque cuenta tablas de hechos enteras (v. `cobertura.ts`).
+    resumen = (await consulta<Resumen>(RESUMEN_CANONICO.sql, PARAMETROS_POR_DEFECTO[RESUMEN_CANONICO.nombre],
+      { presupuestoMs: RESUMEN_CANONICO.presupuestoMs }))[0] ?? null;
     federaciones = await consulta<FilaFederacionTabla>(COBERTURA_POR_FEDERACION.sql, PARAMETROS_POR_DEFECTO[COBERTURA_POR_FEDERACION.nombre]);
     grupos = await consulta<FilaGrupoTabla>(COBERTURA_POR_GRUPO.sql, PARAMETROS_POR_DEFECTO[COBERTURA_POR_GRUPO.nombre]);
   } catch (error) {

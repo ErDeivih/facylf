@@ -21,6 +21,13 @@ const etiquetaDesarrollo = (tipo: string, subtipo: string | null) => {
 const explicaIncidencia = (valor: string) => {
   if (valor === 'sin_arbitro') return 'La ficha federativa no muestra árbitro';
   if (valor.startsWith('titulares_atipicos:')) return `Alineación visible incompleta o atípica (${valor.split(':')[1]?.replace(';esperados:', '; esperados ')})`;
+  /*
+   * Y el caso de «faltan titulares», que hasta el 24/09/2026 compartía nombre con el anterior y por eso los
+   * porcentajes no se podían interpretar: aquel juntaba «un equipo con 12 titulares en fútbol 11» —imposible,
+   * anomalía de verdad— con «la ficha publica 10 donde se esperan 11» —una alineación incompleta—. Ahora se
+   * dicen por separado, con esta frase.
+   */
+  if (valor.startsWith('titulares_incompletos:')) return `La ficha publica menos titulares de los esperados (${valor.split(':')[1]?.replace(';esperados:', '; esperados ')})`;
   if (valor.startsWith('descuadre_goles:')) return `El marcador y el desglose público de goles no coinciden (${valor.split(':')[1]})`;
   if (valor.startsWith('fuente_no_distingue_titulares_suplentes:')) return 'La federación publica los convocados de este equipo sin distinguir titulares y suplentes';
   if (valor === 'sin_cuerpo_tecnico') return 'La ficha no muestra cuerpo técnico';

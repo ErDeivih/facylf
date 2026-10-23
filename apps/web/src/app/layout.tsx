@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { FEDERACIONES_LOCALES } from '@/lib/repositorio-local';
 import { TEMPORADA_MINIMA } from '@/lib/temporadas';
 import { Buscador } from '@/componentes/Buscador';
 import './globals.css';
@@ -26,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <Link href="/federaciones"
               className="order-2 hidden font-display text-[11px] uppercase tracking-[0.14em] text-tinta-400 hover:text-white sm:order-3 sm:block">
-              {FEDERACIONES_LOCALES.length} federaciones
+              Federaciones
             </Link>
           </div>
           <nav className="mx-auto flex max-w-7xl flex-nowrap gap-1 overflow-x-auto px-4">

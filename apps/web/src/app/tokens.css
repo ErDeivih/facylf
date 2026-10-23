@@ -76,6 +76,18 @@
   --calor-2: color-mix(in oklab, var(--color-rojo-600) 62%, white);
   --calor-3: var(--color-rojo-600);
 
+  /* Elevación (SISTEMA-DISENO.md §11). El producto es plano por defecto: la sombra existe SÓLO para lo
+     que flota de verdad sobre el contenido y puede taparlo. Nunca para "destacar" una tarjeta en flujo. */
+  --sombra-1: 0 4px 12px oklch(0.18 0.012 250 / 0.10);
+  --sombra-2: 0 12px 32px oklch(0.18 0.012 250 / 0.18);
+
+  /* Capas (SISTEMA-DISENO.md §11). Sin números sueltos por el código: el buscador ya usaba 30. */
+  --capa-pegajoso: 10;
+  --capa-flotante: 30;
+  --capa-velo: 40;
+  --capa-modal: 50;
+  --capa-aviso: 60;
+
   /* Densidad cómoda (por defecto). */
   --fila:    2.25rem;
   --celda-x: 0.75rem;
@@ -121,6 +133,10 @@
   --calor-1: color-mix(in oklab, var(--color-rojo-500) 38%, black);
   --calor-2: color-mix(in oklab, var(--color-rojo-500) 66%, black);
   --calor-3: var(--color-rojo-500);
+
+  /* En oscuro la sombra informa menos: los niveles se distinguen ADEMÁS con `--borde-fuerte` (§11). */
+  --sombra-1: 0 4px 12px oklch(0 0 0 / 0.40);
+  --sombra-2: 0 12px 32px oklch(0 0 0 / 0.55);
 }
 
 /* --- Base -------------------------------------------------------------------- */

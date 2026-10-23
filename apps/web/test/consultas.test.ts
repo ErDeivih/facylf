@@ -1,5 +1,5 @@
 import { describe, expect, it, afterAll } from 'vitest';
-import { CanonicoNoDisponible, cierraCanonico, consulta, motivoSinCanonico } from '../src/consultas/adaptadores/postgres/conexion';
+import { CanonicoNoDisponible, cierraCanonico, consulta, consultaEnUnaFoto, motivoSinCanonico } from '../src/consultas/adaptadores/postgres/conexion';
 import {
   COBERTURA_POR_FEDERACION, COBERTURA_POR_GRUPO, CONSULTAS_COBERTURA, GRUPOS_DEL_CANONICO, PARAMETROS_POR_DEFECTO, RESUMEN_CANONICO,
 } from '../src/consultas/cobertura';
@@ -59,7 +59,8 @@ describe('contrato estático de las consultas', () => {
 
 describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
   it('el resumen devuelve exactamente las columnas prometidas y una sola fila', async () => {
-    const filas = await consulta(RESUMEN_CANONICO.sql, PARAMETROS_POR_DEFECTO[RESUMEN_CANONICO.nombre]);
+    const filas = await consulta(RESUMEN_CANONICO.sql, PARAMETROS_POR_DEFECTO[RESUMEN_CANONICO.nombre],
+      { presupuestoMs: RESUMEN_CANONICO.presupuestoMs });
     expect(filas).toHaveLength(1);
     expect(Object.keys(filas[0]!).sort()).toEqual([...RESUMEN_CANONICO.columnas].sort());
     for (const clave of ['federaciones', 'grupos', 'partidos', 'participaciones', 'personas']) {
@@ -407,8 +408,13 @@ describe.skipIf(!hayCanonico)('contrato del catálogo contra el canónico', () =
   });
 
   it('la paginación cuenta lo que cumple los filtros y no repite ni pierde filas', async () => {
-    const primera = await consulta(LISTADO_DE_GRUPOS.sql, sinFiltros(2, 0));
-    const segunda = await consulta(LISTADO_DE_GRUPOS.sql, sinFiltros(2, 2));
+    // Las dos páginas se piden EN LA MISMA FOTO del canónico: con dos consultas sueltas, el importador
+    // escribiendo hace que el `total` cambie de una a otra y la prueba falla sin que la paginación tenga
+    // nada que ver (§3.18 de la guía).
+    const [primera, segunda] = await consultaEnUnaFoto([
+      { sql: LISTADO_DE_GRUPOS.sql, parametros: sinFiltros(2, 0) },
+      { sql: LISTADO_DE_GRUPOS.sql, parametros: sinFiltros(2, 2) },
+    ]);
     expect(primera.length).toBeLessThanOrEqual(2);
     // `total` es lo que cumple los filtros, no lo que se devuelve: es lo que usan los enlaces de página.
     expect(Number(primera[0]!.total)).toBeGreaterThanOrEqual(primera.length);

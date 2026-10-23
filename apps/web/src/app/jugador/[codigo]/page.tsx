@@ -1,93 +1,128 @@
 import Link from 'next/link';
+import type { Route } from 'next';
 import { notFound } from 'next/navigation';
-import { datosFederacion, jugadorLocal } from '@/lib/repositorio-local';
-import { Bloque } from '@/componentes/Bloque';
-import { TrayectoriaJugador } from '@/componentes/TrayectoriaJugador';
+import { SinCanonico } from '@/componentes/SinCanonico';
+import { JugadorDesdeCola } from '@/componentes/JugadorDesdeCola';
+import { IdentidadPersona, Miga, TablaDatos, Vacio } from '@/componentes/base';
+import type { ColumnaTabla } from '@/componentes/base';
+import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
+import { PERSONA_POR_ID, TRAYECTORIA_DE_PERSONA } from '@/consultas/entidades';
+import type { FilaPersona, FilaTemporadaDePersona } from '@/consultas/entidades';
+import { etiqueta, numero } from '@/lib/presentacion-canonico';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+
+/**
+ * Ficha de jugador. Puente de dos caminos, igual que la de equipo:
+ *
+ * - **Identificador numérico** → canónico (`core.person.id`).
+ * - **Cualquier otra cosa** → el código federativo, como siempre (`JugadorDesdeCola`).
+ *
+ * El puente existe por lo mismo que en `/equipo`: los enlaces de las páginas sin migrar llevan el
+ * código federativo, y hoy el camino antiguo **enseña más** porque calcula las cifras desde las actas
+ * y el canónico no puede (`analytics` está vacía y nadie la escribe).
+ *
+ * Lo que esta pantalla **no** hace, y es deliberado: no presenta como hecho el enlace de una persona
+ * entre temporadas cuando la identidad es nominal. Un nombre igual no une a dos personas, y aquí se
+ * dice en pantalla en vez de dejarlo escrito sólo en la documentación.
+ */
+async function JugadorCanonico({ idPersona }: { idPersona: number }) {
+  const motivo = motivoSinCanonico();
+  if (motivo) return <SinCanonico titulo="Jugador" motivo={motivo} />;
+
+  let persona: FilaPersona | null = null;
+  let carrera: FilaTemporadaDePersona[] = [];
+  try {
+    persona = (await consulta<FilaPersona>(PERSONA_POR_ID.sql, [idPersona]))[0] ?? null;
+    if (persona) carrera = await consulta<FilaTemporadaDePersona>(TRAYECTORIA_DE_PERSONA.sql, [idPersona, 80]);
+  } catch (error) {
+    if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Jugador" motivo={error.message} />;
+    throw error;
+  }
+  if (!persona) notFound();
+
+  // Las cifras derivadas sólo existen si el agregado por jugador se ha calculado. Hoy no: `analytics`
+  // está vacía. Se decide por los datos, así que el día que se rellene la tabla se enseña sola.
+  const hayResumen = carrera.some((c) => c.convocatorias !== null || c.goles !== null);
+
+  const columnas: ColumnaTabla<FilaTemporadaDePersona>[] = [
+    { clave: 'temporada', titulo: 'Temporada' },
+    { clave: 'nombre_en_fuente', titulo: 'Equipo' },
+    { clave: 'edicion', titulo: 'Competición' },
+    { clave: 'grupo', titulo: 'Grupo' },
+    { clave: 'edicion_categoria', titulo: 'Categoría', render: (c) => etiqueta('categoria', c.edicion_categoria) },
+    { clave: 'partidos_con_aparicion', titulo: 'Partidos con aparición en acta', tipo: 'numero', abreviatura: 'Apar.' },
+    ...(hayResumen ? [
+      { clave: 'convocatorias' as const, titulo: 'Convocatorias', tipo: 'numero' as const, abreviatura: 'Conv.', render: (c: FilaTemporadaDePersona) => numero(c.convocatorias) },
+      { clave: 'partidos_demostrados' as const, titulo: 'Partidos demostrados', tipo: 'numero' as const, abreviatura: 'PJ', render: (c: FilaTemporadaDePersona) => numero(c.partidos_demostrados) },
+      { clave: 'goles' as const, titulo: 'Goles', tipo: 'numero' as const, abreviatura: 'G', render: (c: FilaTemporadaDePersona) => numero(c.goles) },
+      { clave: 'amarillas' as const, titulo: 'Tarjetas amarillas', tipo: 'numero' as const, abreviatura: 'TA', render: (c: FilaTemporadaDePersona) => numero(c.amarillas) },
+      { clave: 'rojas' as const, titulo: 'Tarjetas rojas', tipo: 'numero' as const, abreviatura: 'TR', render: (c: FilaTemporadaDePersona) => numero(c.rojas) },
+    ] : []),
+  ];
+
+  const federacion = carrera[0]?.federacion_nombre ?? null;
+  const temporadas = new Set(carrera.map((c) => c.temporada)).size;
+
+  return <>
+    <Miga tramos={[{ texto: 'Federaciones', href: '/federaciones' }, { texto: 'Jugador' }]} />
+
+    <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-[var(--texto-suave)]">
+      {federacion ?? 'Federación sin determinar'}
+    </p>
+    <h2 className="mt-1 font-display text-3xl uppercase">{persona.nombre_mostrado}</h2>
+
+    <p className="mt-2 flex flex-wrap gap-2 text-xs">
+      {persona.codigos
+        ? <span className="border border-[var(--borde)] bg-[var(--fondo-sutil)] px-1.5 py-0.5">Código federativo {persona.codigos}</span>
+        : <span className="border border-[var(--borde)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-[var(--texto-suave)]">Sin código federativo</span>}
+      <span className="border border-[var(--borde)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-[var(--texto-suave)]">
+        {carrera.length} {carrera.length === 1 ? 'equipo' : 'equipos'} en {temporadas} {temporadas === 1 ? 'temporada' : 'temporadas'}
+      </span>
+    </p>
+
+    {persona.identidad_nominal && <IdentidadPersona decisiones={persona.decisiones_identidad} />}
+
+    {persona.es_menor && (
+      <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+        Persona menor de edad en el canónico. Esta instancia es privada y estos datos no salen de ella.
+      </p>
+    )}
+
+    <h3 className="mt-6 font-display text-lg uppercase">Trayectoria</h3>
+    {!hayResumen && carrera.length > 0 && (
+      <div className="mt-2 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+        <b className="text-[var(--texto)]">Sólo se pueden enseñar las apariciones.</b> Salen de las actas
+        importadas y son lo único demostrable hoy. Las cifras derivadas —convocatorias, titularidades,
+        minutos, goles y tarjetas— viven en <code>analytics.player_team_season_summary</code>, que está
+        sin calcular y que ningún proceso del repositorio escribe todavía. Por eso esas columnas no se
+        pintan, en vez de salir a «—» o a cero.
+      </div>
+    )}
+    <div className="mt-3">
+      <TablaDatos
+        filas={carrera}
+        columnas={columnas}
+        caption={`Temporadas y equipos de ${persona.nombre_mostrado} según las actas importadas.`}
+        clave={(c) => c.equipo_id}
+        enlaceFila={(c) => `/equipo/${c.equipo_id}`}
+        columnaPrincipal={1}
+        vacio={<Vacio
+          titulo="Sin apariciones registradas"
+          motivo="El canónico conoce a esta persona, pero no hay ninguna acta importada en la que aparezca. No es un cero: es que no está."
+        />}
+      />
+    </div>
+    <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+      Una fila por equipo y temporada: si alguien juega con dos equipos el mismo año, salen dos filas y
+      <b> no se suman</b>. Una convocatoria sin condición publicada no cuenta como partido jugado.
+    </p>
+  </>;
+}
 
 export default async function Jugador({ params }: { params: Promise<{ codigo: string }> }) {
   const { codigo } = await params;
-  const j = jugadorLocal(codigo);
-  if (!j) notFound();
-  const minutos = j.contextos.reduce((n, c) => n + c.minutosEstimados, 0);
-  const golesPor90 = minutos >= 90 ? (j.goles * 90 / minutos).toFixed(2) : '—';
-  return <>
-    <div className="mb-5 text-xs text-[#5C646C]">
-      <Link href={`/jugadores?federacion=${j.federacion}`} className="hover:text-club hover:underline">Jugadores</Link>
-      <span className="mx-2">/</span><span>{j.nombre}</span>
-    </div>
-    <div className="flex flex-wrap gap-2"><span className="insignia insignia-verde">{datosFederacion(j.federacion).nombre}</span>
-      <span className="insignia">Código federativo {j.codigo}</span></div>
-    <h2 className="mt-1 font-display text-3xl uppercase">{j.nombre}</h2>
-    {j.alias.length > 1 && <p className="mt-2 text-xs text-[#5C646C]">También aparece como: {j.alias.slice(1).join(' · ')}</p>}
-
-    <div className="my-6 grid grid-cols-2 gap-px border border-[#D6D6D4] bg-[#D6D6D4] sm:grid-cols-4 lg:grid-cols-8">
-      {([['Conv.', j.convocatorias], ['PJ', j.partidos], ['Tit.', j.titularidades],
-        ['Min. est.', minutos], ['Goles', j.goles], ['G/90 est.', golesPor90],
-        ['Amarillas', j.amarillas + j.doblesAmarillas], ['Rojas', j.rojas]] as const)
-        .map(([k, v]) => <div key={k} className="bg-white p-3">
-          <p className="font-display text-2xl">{v}</p><p className="text-[10px] uppercase tracking-wider text-[#5C646C]">{k}</p>
-        </div>)}
-    </div>
-
-    <div className="mb-6 border-l-4 border-club bg-white px-4 py-3 text-sm leading-6 text-[#5C646C]">
-      Una convocatoria no equivale a jugar. Los suplentes sólo suman un partido cuando el acta registra
-      su entrada o existe un gol que confirma su participación. Los minutos son estimados a partir de
-      titularidades y sustituciones.
-    </div>
-
-    <Bloque titulo="Evolución por temporada" pie="Cada temporada suma todos sus equipos, que se detallan debajo.">
-      <TrayectoriaJugador temporadas={j.porTemporada} />
-      <div className="overflow-x-auto border-t border-[#EDF0ED]"><table className="w-full text-sm tabular-nums">
-        <thead><tr className="border-b border-[#D6D6D4] text-xs uppercase text-[#5C646C]">
-          <th className="p-2 text-left">Temporada</th><th className="p-2 text-right">Equipos</th>
-          <th className="p-2 text-right">Conv.</th><th className="p-2 text-right">PJ</th>
-          <th className="p-2 text-right">Tit.</th><th className="p-2 text-right">Min.</th>
-          <th className="p-2 text-right">Goles</th><th className="p-2 text-right">TA</th><th className="p-2 text-right">TR</th>
-        </tr></thead>
-        <tbody>{j.porTemporada.map((t) => <tr key={t.temporadaCodigo} className="border-b border-[#EDF0ED]">
-          <td className="p-2 font-medium">{t.temporada}</td><td className="p-2 text-right">{t.equipos}</td>
-          <td className="p-2 text-right">{t.convocatorias}</td><td className="p-2 text-right">{t.partidos}</td>
-          <td className="p-2 text-right">{t.titularidades}</td><td className="p-2 text-right">{t.minutosEstimados}</td>
-          <td className="p-2 text-right font-semibold">{t.goles}</td><td className="p-2 text-right">{t.amarillas + t.doblesAmarillas}</td>
-          <td className="p-2 text-right">{t.rojas}</td>
-        </tr>)}</tbody>
-      </table></div>
-    </Bloque>
-
-    <Bloque titulo="Desglose por temporada, equipo y competición"
-      pie="Si un jugador participa con dos categorías o equipos en el mismo año, aparece en filas distintas.">
-      <div className="overflow-x-auto"><table className="w-full text-sm tabular-nums">
-        <thead><tr className="border-b border-[#D6D6D4] text-xs uppercase text-[#5C646C]">
-          <th className="p-2 text-left">Temporada y equipo</th><th className="p-2 text-left">Competición</th>
-          <th className="p-2 text-right">Conv.</th><th className="p-2 text-right">PJ</th>
-          <th className="p-2 text-right">Tit.</th><th className="p-2 text-right">Min.</th>
-          <th className="p-2 text-right">G</th><th className="p-2 text-right">TA</th><th className="p-2 text-right">TR</th>
-        </tr></thead>
-        <tbody>{j.contextos.map((c) => <tr key={c.clave} className="border-b border-[#EDF0ED] align-top">
-          <td className="p-2"><span className="block text-xs text-[#5C646C]">{c.temporada} · {c.categoria}</span>
-            {c.equipoSlug ? <Link href={`/equipo/${c.equipoSlug}`} className="font-medium hover:text-club hover:underline">{c.equipo}</Link> : c.equipo}</td>
-          <td className="p-2"><Link href={`/competicion/${c.grupoSlug}`} className="hover:text-club hover:underline">{c.competicion}</Link>
-            <span className="block text-xs text-[#5C646C]">{c.grupo}</span></td>
-          <td className="p-2 text-right">{c.convocatorias}</td><td className="p-2 text-right">{c.partidos}</td>
-          <td className="p-2 text-right">{c.titularidades}</td><td className="p-2 text-right">{c.minutosEstimados}</td>
-          <td className="p-2 text-right font-semibold">{c.goles}{c.golesPenalti ? <span className="block text-[10px] text-[#5C646C]">{c.golesPenalti} pen.</span> : null}</td>
-          <td className="p-2 text-right">{c.amarillas + c.doblesAmarillas}</td><td className="p-2 text-right">{c.rojas}</td>
-        </tr>)}</tbody>
-      </table></div>
-    </Bloque>
-
-    <Bloque titulo="Partidos y actas recientes" pie="Resultado desde el punto de vista del jugador.">
-      <ul>{j.actuaciones.slice(0, 40).map((a) => <li key={a.actaSlug}
-        className="grid gap-2 border-t border-[#EDF0ED] px-4 py-3 text-sm first:border-t-0 sm:grid-cols-[5rem_1fr_auto]">
-        <div><span className={`insignia ${a.resultado === 'G' ? 'insignia-verde' : a.resultado === 'P' ? 'insignia-roja' : ''}`}>{a.resultado ?? '—'}</span>
-          <span className="mt-1 block text-xs text-[#5C646C]">J{a.jornada}</span></div>
-        <div><p className="font-medium">{a.equipo ?? 'Equipo no enlazado'} · vs. {a.rival ?? 'rival no enlazado'}</p>
-          <p className="text-xs text-[#5C646C]">{a.temporada} · {a.competicion} · {a.condicion === 'titulares' ? 'Titular' : a.condicion === 'convocados' ? 'Convocado · condición no publicada' : a.jugado ? `Entró ${a.minutoEntrada ?? '—'}′` : 'Suplente no utilizado'}</p></div>
-        <div className="text-left text-xs sm:text-right"><p>{a.goles ? `${a.goles} gol${a.goles === 1 ? '' : 'es'}` : `${a.minutosEstimados} min. est.`}</p>
-          <Link className="text-club hover:underline" href={`/acta/${a.actaSlug}`}>Ver acta</Link></div>
-      </li>)}</ul>
-    </Bloque>
-  </>;
+  return /^\d+$/.test(codigo)
+    ? <JugadorCanonico idPersona={Number(codigo)} />
+    : <JugadorDesdeCola codigo={codigo} />;
 }
