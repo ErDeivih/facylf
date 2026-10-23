@@ -2,7 +2,27 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 16:00 (DeepSeek: el servidor se apagó solo dos veces y nadie avisó; arreglada la guardia)
+**Última actualización:** 23/10/2026 23:55 (DeepSeek: revisión de cierre; todo verde y corregida la cifra de personas huérfanas de T14)
+
+## ★★★★★ DeepSeek, 23/10, 23:55 — revisión de cierre: todo verde y una corrección de T14
+
+- **`pnpm test`: 49 ficheros, 633 bien, 1 omitida, 0 fallos** (916 s). Ya no queda ninguno de los tres fallos
+  por tiempo: ni el resumen de `/canonico` (0047) ni los dos de `retirada.test.ts`.
+- **SQL: 359 ✓** (m29-m50 + análisis); migraciones **0023-0050 dos veces** sin error; `pnpm planes` ✓
+  (todo en presupuesto); `pnpm lint` y `tsc` de la web ✓.
+- **Base**: 16 GB; diario con 53 filas / 64 kB y poda a 7 días; **nada pendiente de migrar**.
+- **`ops.chequeos()`**: 1 fallo (`proyeccion_pendiente` = 39.464, esperado: faltan federaciones por proyectar)
+  y 7 avisos, todos consecuencia de la proyección a medias y de la oleada de importación
+  (`casos_*`, `ediciones_sin_medir`, `minutos_no_calculables`, `cache_sin_refrescar`). **Ninguno nuevo de
+  0049/0050.** Queda uno de calidad de datos para mirar con calma: `titular_en_dos_partidos_a_la_vez` = 321.
+- **Corrección de T14 — importante:** la cifra de **368 no eran personas huérfanas**; era el tamaño de
+  `analytics.search_entity` en ese momento (la salida de `psql` mezcló el resultado de dos consultas). Medido
+  ahora: **519.369 personas sin aparición ni arbitraje**, pero **0 de ellas en `analytics.search_entity`**,
+  porque el índice se construye desde `player_team_season_summary` y exige apariciones. La condición de T14
+  («el buscador no devuelve personas sin ningún partido») **ya se cumple**; limpiar `core.person` sería otra
+  decisión (con copia y sin urgencia), no un arreglo del buscador.
+- **Las dos commits nuevas de la otra sesión** (`35e40d4`, `5de1123`) son del servidor: solo
+  `scripts/servidor/guardia-energia.sh` y su bloque de estado. Revisadas, no tocan la plataforma.
 
 ## ★★★★★ DeepSeek, 23/10, 16:00 — el servidor se apagó a las 12:05 (y otra vez a las 14:07): qué pasó y qué queda
 
