@@ -1,0 +1,13 @@
+import { base29, ok, fin } from './m29.mjs';
+const db = await base29(); const q = async (s, p) => (await db.query(s, p)).rows;
+await q(`insert into app.usuario (user_id, rol) values ('admin','administrador')`);
+await db.exec(`begin; select set_config('facylf.usuario','admin',true); select app.alta_usuario('x', null) from (select 1) s where false;
+  update app.ajuste set valor='aprobacion' where clave='registro_modo'; commit;`);
+await q(`select app.alta_usuario('u9')`);
+await db.exec(`begin; select set_config('facylf.usuario','admin',true); select app.aprueba_usuario('u9','admin','ojeador'); commit;`);
+const a = await q(`select usuario, tabla, accion, clave, antes->>'estado' a, despues->>'estado' d, despues->>'paquete' p from app.auditoria order by id`);
+console.table(a);
+ok(a.some((x) => x.tabla === 'app.ajuste' && x.usuario === 'admin' && x.clave === 'registro_modo'), 'cambio de ajuste con su autor');
+ok(a.some((x) => x.tabla === 'app.usuario' && x.accion === 'update' && x.a === 'pendiente' && x.d === 'activo' && x.p === 'ojeador' && x.usuario === 'admin'), 'aprobación: antes/después y autor');
+ok(a.some((x) => x.tabla === 'app.usuario' && x.accion === 'insert' && x.clave === 'u9'), 'alta registrada');
+fin();
