@@ -41,6 +41,11 @@ services:
       - log_min_duration_statement=500
     ports:
       - "127.0.0.1:5433:5432"
+    # Memoria compartida del contenedor (`/dev/shm`). Docker da 64 MB por defecto y las consultas que PostgreSQL
+    # ejecuta en paralelo (las de la plataforma: cobertura, ojeo, buscador) piden segmentos mayores: con 64 MB
+    # fallan con «could not resize shared memory segment … No space left on device». Medido el 23/10/2026: con
+    # 1 GB no falla ninguna y no cuesta RAM reservada de verdad (es memoria compartida, sólo se llena si se usa).
+    shm_size: 1gb
     volumes:
       # En PostgreSQL 18 la imagen espera el volumen en /var/lib/postgresql y coloca los datos en un
       # subdirectorio por versión mayor (así `pg_upgrade --link` funciona sin cruzar montajes).
