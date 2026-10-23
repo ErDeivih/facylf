@@ -83,3 +83,15 @@ output/
 tmp/
 .tmp-srv/
 packages/canonico/.tmp-*
+
+# ── Evidencia de la reconstrucción: 1.900 ficheros de salidas, no fuente ─────────────────────────────────────
+# `salidas/` (1.323 ficheros) y `canonico/` (408) son lo que dejan las simulaciones e importaciones de
+# reconstrucción: recuentos por grupo y por federación, con nombres de jugadores dentro. Se quedan en el PC como
+# evidencia (y para poder repetir un caso); lo que se versiona es el código que las genera y los informes en
+# `pruebas/reconstruccion/informes/`, que no llevan nombres.
+pruebas/reconstruccion/salidas/
+pruebas/reconstruccion/canonico/
+# Resúmenes de importación por temporada y diarios de las vigilancias programadas: se regeneran.
+pruebas/reconstruccion/importacion-resumen-*.json
+pruebas/reconstruccion/vigilancia-programada.log
+pruebas/reconstruccion/vigilancia-flota.jsonl
