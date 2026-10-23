@@ -125,7 +125,17 @@ fi
 [ "$nuevo" -lt "$suelo" ] && { nuevo=$suelo; motivo="suelo por ${causa_suelo}${motivo:+; $motivo}"; }
 [ "$nuevo" -lt 0 ] && nuevo=0
 [ "$nuevo" -gt 4 ] && nuevo=4
-if [ "$cap" -le 6 ] && { [ "$ac" != 1 ] || [ -z "$tendencia" ] || [ "$tendencia" -le 0 ]; }; then nuevo=5; motivo="batería al ${cap}%: apagado limpio"; fi
+if [ "$cap" -le 6 ]; then
+  # 23/10/2026: a las 12:05 se apagó al 6 % y el reloj de la placa la despertó a las 14:06 con el 6 % todavía;
+  # la guardia volvió a apagarla UN MINUTO después, así que se perdió hora y media y hubo que encenderla a mano.
+  # Si acaba de arrancar y el cargador está puesto, no se apaga: se para todo menos CyL y se la deja cargar.
+  uptime_min=$(( $(cut -d. -f1 /proc/uptime) / 60 ))
+  if [ "$ac" = 1 ] && [ "$uptime_min" -lt 15 ]; then
+    nuevo=4; motivo="batería al ${cap}% y acaba de arrancar: se para todo menos CyL para que cargue"
+  elif [ "$ac" != 1 ] || [ -z "$tendencia" ] || [ "$tendencia" -le 0 ]; then
+    nuevo=5; motivo="batería al ${cap}%: apagado limpio"
+  fi
+fi
 
 # ── turbo apagado siempre (barato de repetir) ─────────────────────────────────────────────────────────────
 P=$SYS/devices/system/cpu/intel_pstate
@@ -133,6 +143,16 @@ if [ -w "$P/no_turbo" ] || [ "$SECO" = 1 ]; then
   [ "$(lee "$P/no_turbo")" = 1 ] || haz "echo 1 > $P/no_turbo"
 elif [ -w "$SYS/devices/system/cpu/cpufreq/boost" ]; then
   [ "$(lee "$SYS/devices/system/cpu/cpufreq/boost")" = 0 ] || haz "echo 0 > $SYS/devices/system/cpu/cpufreq/boost"
+fi
+
+# ── modo conservación de Lenovo APAGADO siempre ──────────────────────────────────────────────────────────
+# Con el modo conservación puesto, la batería se queda en ~60 % y NO carga (estado «Not charging»), así que
+# cualquier bajada de tensión se la come. David decidió cargar al 100 %; se repite aquí porque tras un apagón
+# el EC lo vuelve a poner él solo (pasó el 23/10: el fichero de tmpfiles lo deja a 0 al arrancar y aun así
+# estaba a 1 después del apagón de las 12:05).
+CM=$SYS/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
+if [ -w "$CM" ] || [ "$SECO" = 1 ]; then
+  [ "$(lee "$CM")" = 0 ] || haz "echo 0 > $CM"
 fi
 
 # Un pulso por hora en el registro aunque no cambie nada: así, al volver, se ve que la guardia ha estado viva.
@@ -147,7 +167,10 @@ fi
 
 # ── aplicar ───────────────────────────────────────────────────────────────────────────────────────────────
 case "$nuevo" in
-  0) cuota=250%; frec=100 ;;
+  # E0 ya no deja 250 %: el 23/10, con 250 % y la carga en 13, el cargador dejó de sostener la batería y se
+  # fue del 100 % al 6 % en hora y media (con 200 % y carga 9-10 el 22 % aguantó seis horas sin bajar). El
+  # cargador de este portátil es el que es; mejor que la máquina vaya un 20 % más lenta que morirse 3 h.
+  0) cuota=200%; frec=100 ;;
   1) cuota=200%; frec=90 ;;
   2) cuota=150%; frec=75 ;;
   3) cuota=100%; frec=60 ;;
