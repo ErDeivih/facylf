@@ -179,12 +179,15 @@ Cada una necesita volumen medido, requisitos de privacidad o una necesidad opera
 
 Datos y consulta:
 
+- [PLAN-DEEPSEEK.md](PLAN-DEEPSEEK.md) **(22/10/2026)**: orden de ejecución, comprobaciones y qué hacer si falla. [CASUISTICAS.md](CASUISTICAS.md): catálogo de casos de los datos.
+- [PLATAFORMA-NACIONAL.md](PLATAFORMA-NACIONAL.md): **(21/10/2026)** especificación y plan de la plataforma nacional: diagnóstico medido, modelo de lectura (migración 0023), normalización en cuatro lenguas, clubes, seguridad, observabilidad, despliegue y fases.
 - [MODELO-DATOS.md](MODELO-DATOS.md): entidades, claves, procedencia, identidades y métricas.
 - [FEDERACIONES-MATRIZ.md](FEDERACIONES-MATRIZ.md): las 19 territoriales, qué publica cada fuente y qué no, y cómo crece la web mientras llegan los datos.
 - [IMPORTADOR-SQLITE.md](IMPORTADOR-SQLITE.md): vocabularios medidos de la cola y reglas de mapeo al canónico.
 - [ENCARGO-IMPORTADOR.md](ENCARGO-IMPORTADOR.md): encargo autosuficiente del importador, con alcance, reglas y criterios de aceptación.
 - [IMPORTADOR-INFORME.md](IMPORTADOR-INFORME.md): informe final del importador: importaciones reales, cuánto ocupa un grupo en PostgreSQL, rendimiento medido y criterios de aceptación.
 - [RENDIMIENTO-BUSQUEDA.md](RENDIMIENTO-BUSQUEDA.md): índices, búsqueda, agregados y caché.
+- [JEV-EVALUACION.md](JEV-EVALUACION.md): qué se ha verificado del modelo de decisión Jev, dónde no entra (importador) y con qué criterio previo se medirá cuando haya clave.
 
 Producto e interfaz:
 
@@ -192,6 +195,7 @@ Producto e interfaz:
 - [SISTEMA-DISENO.md](SISTEMA-DISENO.md): tokens, tipografía, densidades, inventario de componentes y criterio visual.
 - [CONTENIDO-MICROCOPIA.md](CONTENIDO-MICROCOPIA.md): glosario, abreviaturas y los textos canónicos de ausencia y cobertura.
 - [FRONTEND.md](FRONTEND.md): versión de Next, estructura de carpetas, frontera servidor/cliente, caché y estado en la URL.
+- [DESIGN.md](../../DESIGN.md) (raíz): contrato visual de una pantalla, autosuficiente, para entregar a cualquier agente o herramienta antes de tocar interfaz.
 
 Operación y calidad:
 

@@ -6,7 +6,9 @@ fase 1 de [PLAN-DESARROLLO.md](PLAN-DESARROLLO.md).
 Los vocabularios de este documento **no están deducidos del código del recolector**: están medidos
 sobre la cola real de Canarias el 14/09/2026 (1.858 actas, 60.217 participaciones, 41.614 eventos).
 Cualquier valor nuevo que aparezca en otra federación se añade aquí con su medición antes de que el
-importador lo acepte; un valor desconocido **detiene el lote**, no se convierte en `otro`.
+importador lo acepte; un valor desconocido **detiene el lote** y no se convierte en `otro` para salir del
+paso. La única entrada que mapea a `otro` es `otra`, y está ahí porque la fuente publica ese valor con un
+significado propio (§2).
 
 ## 1. Esquema de origen
 
@@ -40,6 +42,19 @@ En Canarias el 100 % de las participaciones trae `jugador_codigo`. No se asume p
 | `doble-amarilla` | `tarjeta_roja` | `doble_amarilla` |
 | `entra` | `entra` | — |
 | `sale` | `sale` | — |
+| `otra` | `otro` | — |
+
+**`otra`, medido el 24/09/2026 sobre la cola de Valencia**: **34 eventos en 34 actas**, todos de la
+temporada 21 (2025-26), frente a 131.714 amarillas, 6.024 rojas y 5.213 dobles amarillas. Son la colección
+`otras_tarjetas` de la API de iSquad, que el recolector traduce a `tipo: 'otra'` y acompaña de la incidencia
+`otras_tarjetas_presentes` en el acta. La fuente dice que hubo una tarjeta y **no dice de qué color es**:
+`otro` es la respuesta correcta, no un cajón de sastre, y forzarla a amarilla o roja sería inventar el
+color. Que la falta quede registrada dos veces —el tipo `otro` y la incidencia del acta— es deliberado.
+
+> La regla de arriba sigue en pie para lo demás: **un valor que no esté medido y escrito aquí detiene el
+> lote**. Lo que `otra` demuestra es la diferencia entre «un valor que no sé leer» y «un valor que dice
+> justo eso». Coste de no tenerlo: esos 34 eventos tumbaban 29 grupos enteros, con sus jugadores, minutos
+> y goles.
 
 `eventos_acta.subtipo`: `normal` → `normal`, `penalti` → `penalti`,
 **`propia-puerta` → `propia_puerta`** (guion a guion bajo). `NULL` en todo lo que no es gol.
@@ -266,6 +281,114 @@ Cuando las dos maquetas del mismo grupo producen filas, **se comparan**; si dice
 se elige ninguna y el lote se detiene. Y si el HTML da filas, manda el HTML: el JSON entra cuando el
 HTML no las da.
 
+#### Y hay una TERCERA maqueta: la misma tabla con otras palabras, otras columnas y otros números (medido el 25/09/2026)
+
+Al ir a importar las tablas oficiales archivadas salió esto: **baleares, galicia y euskadi tienen la
+clasificación archivada y CERO tablas oficiales dentro del canónico**. No era que no la publicaran ni que la
+publicaran mal: el lector no la sabía leer. Y no era un caso raro —eran 7.165 de las 11.760 clasificaciones
+archivadas—.
+
+`pnpm importar:clasificaciones` pasa el lector de verdad por cada clasificación archivada y cuenta filas. Antes
+y después de arreglarlo:
+
+| | antes | después |
+|---|---:|---:|
+| clasificaciones archivadas | 11.760 | 11.763 |
+| **dan filas** | **4.595** | **5.977** |
+| no dan ni una fila | 7.165 | 5.786 |
+
+Lo que estaba mal, medido fichero a fichero con `scripts/compara-lectores-clasificacion.mts` (pasa el lector
+viejo y el nuevo por las 11.763 y compara): **+1.382 que ahora se leen, 0 que se pierden, 5 que cambian —y
+esos cinco son errores del lector viejo que desaparecen—**.
+
+1. **Las cabeceras cambian de idioma y de palabra.** La guarda pedía «Pts», «J» y «Sanción», y ésa es la
+   maqueta de Castilla y León. Euskadi la publica en euskera («Ptak», «J», «I», «B», «Zigorra») y Baleares
+   llama «Descuento» a la última columna. 1.321 clasificaciones se leían como «no hay tabla».
+2. **Una columna de más envenenaba los números.** Cuando el portal publica «Pts/PJ» (puntos por partido)
+   mete `2,5000` delante de los puntos y desplaza todo. Leyendo por índices fijos, `entero("4,2500")` quitaba
+   la coma y escribía **425 puntos** (murcia 2025-26, comp 24023651: así está en el canónico si se importó
+   entonces). Ahora las celdas se buscan por lo que son —el equipo es la celda con el enlace de código, los
+   números son la racha que le sigue, los últimos resultados son la celda que corta esa racha— y un valor con
+   coma no es un entero: se descarta.
+3. **La pretemporada no tiene «últimos resultados».** La celda está vacía y el lector exigía letras: 54
+   clasificaciones se perdían por eso.
+4. **Y una tabla publicada puede no cuadrar consigo misma.** Asturias 2019-20 (comp 7526, grupo 24469)
+   publica 21 victorias + 6 empates + 2 derrotas en una columna de 28 partidos jugados. No se descarta: su
+   desglose casa/fuera da exactamente esos totales (15+13 jugados, 13+8 ganados, 1+5 empatados, 1+1 perdidos)
+   y los puntos cuadran. La coherencia se exige al CONJUNTO de la tabla, y una lectura independiente de los
+   mismos datos vale como confirmación.
+
+Lo que sigue sin poder leerse (5.786) tiene tres causas distintas, y ninguna es «la federación no lo
+publica»:
+
+- **cataluña (1.508)**: su HTML es una cáscara sin tabla; la fuente de verdad es su `clasificacion.json`, que
+  se lee aparte. No es un hueco.
+- **galicia (1.267) y rioja (596)**: la página pinta los valores con JavaScript —`ntype(...)` y
+  `:after{content:"17"}`— dejando al lado un número escondido DISTINTO del visible (`content:"17"` con un `13`
+  oculto; el mismo patrón en rioja 2014-15, comp 795330, grupo 795331). El archivo no contiene la verdad: es
+  un problema de CAPTURA (habría que archivar el DOM ya pintado), no de lector.
+- **y hay archivos que no traen clasificación ninguna**: sólo la tabla de RESULTADOS. Euskadi 2014-15 (comp
+  2837, grupo 513242) es el caso medido. Antes se contaban como «el lector no la sabe leer» porque la tabla de
+  resultados también es una `<table>`; ahora el estado lo distingue (`sin_filas` frente a `ilegible`) con
+  `cuentaTablasDeClasificacion`, que mira si la página trae de verdad una tabla de clasificación.
+- **el resto (euskadi 624, andalucía 477, aragón 252, extremadura 215, baleares 136, Castilla-La Mancha 129,
+  Castilla y León 111, Navarra 105, Asturias 92, Murcia 90, Cantabria 77, Ceuta 45, Canarias 34, Melilla
+  28)**: maquetas o temporadas que aún no se han mirado una a una, con su medición en
+  `scripts/mide-clasificaciones-archivadas.mts` y `scripts/mira-clasificacion-archivada.mts` para mirarlas.
+
+#### El estado de la tabla oficial, en la cobertura (migraciones 0019 y 0020)
+
+`ops.normalizacion_error` **no lo ve el rol de lectura**, así que el motivo por el que un grupo no tiene tabla
+oficial vive en `ops.coverage_checkpoint.tabla_oficial_estado` (la tabla que la web ya lee). Seis valores, y
+cada uno señala a un sitio distinto:
+
+| estado | qué significa | a quién señala |
+|---|---|---|
+| `importada` | la tabla está en `core.standing_snapshot` con `origen = 'oficial'` | — |
+| `rechazada` | hay archivo y el validador lo descarta (reglas R1…R7) | a la federación |
+| `sin_archivar` | no hay clasificación archivada | al recolector |
+| `sin_filas` | hay archivo y no trae filas (la federación aún no la publica) | a la federación |
+| `ilegible` | hay archivo, trae tabla, y el lector no saca ni una fila | **al lector** (v. arriba) |
+| `sin_corte` | se lee bien, pero no hay jornada completa a la que colgarla | a la jornada que falta |
+| `null` | no se ha calculado | — |
+
+Lo decide `diagnosticaTablaOficial` (`packages/canonico/src/clasificacion-oficial.ts`) —el mismo lector que el
+importador, no una copia—, lo escribe el lote al importar, y `node scripts/revisa-tabla-oficial.mts --aplicar`
+lo recalcula para los grupos ya importados sin reimportar nada.
+
+#### Y CON QUÉ ARCHIVO SE DECIDIÓ, para que el plan no pida lo mismo dos veces (migración 0021)
+
+Medido el 25/09/2026: después de importar 1.747 grupos con el plan corregido, el plan seguía pidiendo **1.394**
+«por la tabla oficial archivada y legible». No era un fallo del importador: la había leído y había decidido
+**no** escribirla, por motivos que sólo se ven al importar (los equipos publicados no se resuelven dentro de su
+propio grupo, dos filas apuntan al mismo equipo, o no hay jornada completa a la que colgar la foto). El estado
+quedaba escrito —`rechazada`, `sin_corte`— pero el plan sólo miraba «¿hay archivo legible?», así que volvía a
+pedir esos 1.394 grupos **en cada pasada, para siempre**.
+
+`ops.coverage_checkpoint.tabla_oficial_archivo_en` guarda el `mtime` del archivo con el que se decidió el
+estado, y el plan distingue tres casos:
+
+| fecha guardada | qué significa | qué hace el plan |
+|---|---|---|
+| `null` | ese archivo no lo ha mirado nadie | entra |
+| distinta del `mtime` de hoy | la federación ha vuelto a publicar: es otro archivo | entra |
+| igual | ya se decidió con ESTE archivo, y el motivo está en `tabla_oficial_estado` | no entra |
+
+Medido: el plan pasó de **1.646 a 371 grupos**, y de esos 371 sólo 119 son de tabla oficial (cataluña 87,
+madrid 32). 4.590 archivos legibles ya tienen su veredicto escrito y no se vuelven a pedir.
+
+Lo escribe también `revisa-tabla-oficial.mts`, **respetando el veredicto del lote**: cuando el archivo es
+legible pero el estado guardado dice que el importador ya lo rechazó (`rechazada`, `sin_corte`, `ilegible`,
+`sin_filas`), conserva ese estado y sólo añade la fecha; cuando el grupo nunca se ha importado con esa
+clasificación, no escribe nada y el grupo sigue pendiente. Medido al aplicarlo: **28.553 grupos anotados**
+(14.969 `sin_archivar` · 5.621 `ilegible` · 5.025 `importada` · 1.492 `rechazada` · 926 `sin_filas` · 387
+`sin_corte` · 206 pendientes de reimportar).
+
+**Y el plan del importador usa ese mismo diagnóstico**, no «¿hay archivo?»: un grupo sólo vuelve a la cola de
+importación si su clasificación archivada da filas de verdad. La primera versión daba por bueno el archivo por
+existir y metía **2.567 grupos** de galicia, euskadi y baleares en el plan —que no podían traer ni un dato—:
+el plan pasó de 7.140 a 1.814 grupos al corregirlo.
+
 #### Vocabulario medido del `clasificacion.json`
 
 Diez claves, siempre las diez, siempre presentes, sin variantes: `posicion`, `equipoCodigo`, `equipo`,
@@ -295,7 +418,26 @@ Diez claves, siempre las diez, siempre presentes, sin variantes: `posicion`, `eq
 | R7 | los seis numéricos son enteros | 5 ficheros publican `puntos: 0.25` → rechazados: redondear sería inventar |
 
 Resultado medido del validador: **768 ficheros pasan · 251 se rechazan · 576 son arrays vacíos** (la
-fuente aún no publica tabla). Un fichero que no pasa **detiene el lote**: no se escribe media tabla.
+fuente aún no publica tabla). Un fichero que no pasa **no se escribe nunca**: no se escribe media tabla.
+
+> **Cambio del 24/09/2026, medido.** Antes, un fichero que no pasaba **detenía el lote entero**. El motivo
+> era bueno —no publicar media tabla oficial— pero la consecuencia no: la excepción subía y revertía el
+> lote completo, así que una clasificación mal publicada **se llevaba por delante los partidos, las actas,
+> los jugadores, los goles y los minutos de ese grupo**, que no tienen nada que ver con la clasificación.
+>
+> Medido cargando las diecinueve federaciones: **184 grupos de Cataluña rechazados así**, y con ellos toda
+> su cobertura de jugadores. Es el mismo error de fondo que dejó 126 grupos de 193 sin importar en Castilla
+> y León: confundir «este dato auxiliar no sirve» con «este grupo no sirve».
+>
+> Ahora la tabla oficial **sigue sin escribirse** —ni entera ni a medias—, se registra el aviso
+> `clasificacion_oficial_ilegible` en `ops.normalizacion_error` con el grupo y la regla que falló, y el
+> grupo **se importa con normalidad**. La ausencia de tabla oficial ya era un estado normal (cuando la
+> federación no la publica, esta función devuelve `null` y el lote sigue); lo único que cambia es que una
+> tabla ilegible se trata igual que una tabla ausente en vez de como una catástrofe.
+>
+> Esto **no** toca los casos de dato PRIMARIO, que siguen deteniendo el lote porque continuar significaría
+> atribuir mal a alguien: un acta que no se puede casar con su partido, un `tipo` de participación fuera del
+> vocabulario, o un marcador que contradice a los eventos siguen parando, como está documentado arriba.
 
 #### Resolución del equipo publicado: tres vías, ninguna por parecido
 

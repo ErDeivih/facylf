@@ -111,6 +111,9 @@ Cada uno dice qué pasa y qué hacer, en ese orden.
 - **Jugador sin minutos**: "Aparece en 3 convocatorias. Ninguna acta permite saber si jugó."
 - **Error recuperable**: "No se ha podido cargar la clasificación. Vuelve a intentarlo. Incidencia `a3f92c`."
 
+Catálogo completo por pantalla, la tarjeta de estado y los estados que da la base (sin calendario, empieza el…,
+pendiente, no publicado): [ESTADOS-VACIOS.md](ESTADOS-VACIOS.md) (23/10/2026, migración 0044).
+
 ## 8. Formato
 
 - **Fechas**: `dom 14 sep 2026`. Meses en minúscula y abreviados a tres letras, sin punto. Con día de

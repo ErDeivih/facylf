@@ -253,6 +253,22 @@ Las actas se archivan con el JSON ya interpretado y `version_parser`. Al corregi
 sube esa versión y `reparar` las vuelve a interpretar **desde el fichero guardado, sin pedir nada**;
 por eso las correcciones de goles, cuerpo técnico y calidad no costaron ni una petición.
 
+## La ficha del acta por dentro (22/10/2026)
+
+- **Estado** del partido entre el local y el marcador: «Pendent» (sin jugar), «Acta Tancada», «SUSPÈS». Con
+  «Pendent» la ficha va vacía: no se da por hecha, se vuelve a pedir el día siguiente al partido.
+- **Tarjetas, cambios y goles** NO van en secciones: son iconos al lado del minuto, en la fila de cada jugador
+  (amarilla `#FFEB3B`, roja `#F30000`, sale = flecha roja `M4 12H20`, entra = flecha azul `M20 12H4`, gol = balón).
+  Un icono desconocido se guarda con su «firma» en el JSON y sale en el log como «ICONOS DESCONOCIDOS».
+- **Código de jugador**, titular, capitán y portero: en la prop `player` del componente del nombre (React).
+- **Descansos**: el equipo que libra tiene código de acta; la ficha es «TBD - equipo», siempre vacía. No se pide.
+- En el **calendario**, cada partido trae `isClosed` y `status`: un texto («Acta Tancada») o, si no se ha jugado,
+  su fecha y hora propias («29/10/2026 20:30»), que no tienen por qué ser las de la jornada.
+- **Relecturas**: lo leído antes del 22/10 (16:24) se vuelve a pedir para tener tarjetas, cambios y códigos
+  (2026-27 con prioridad normal; 2025-26 detrás de todo). Una relectura sin alineaciones no borra las guardadas.
+- Si el panel del navegador está oculto, la ficha se queda en «Carregant acta…» (React no hace el cambio sin
+  pintar). El recolector va sin cabeza y no le pasa; para probar a mano, leer de `document.body`.
+
 ## Tareas programadas
 
 | Tarea | Cuándo | Qué hace |

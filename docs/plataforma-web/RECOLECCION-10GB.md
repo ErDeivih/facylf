@@ -1,5 +1,11 @@
 # Programa para recolectar con 10 GB
 
+> **Reparto de temporadas y actas sin trabajo.** Cuando una federación se recoge desde dos máquinas a la vez
+> (Castilla y León: PC y servidor), el reparto vive en `temporadas-asignadas.txt` y tiene tres puertas que hay
+> que abrir, no una. Y antes de creerse cualquier porcentaje de temporada hay que comprobar que las actas
+> pendientes **tienen un trabajo que las pida**: el 29/09/2026 aparecieron 27.000 que no lo tenían. Está todo en
+> [`REPARTO-TEMPORADAS.md`](REPARTO-TEMPORADAS.md).
+
 Encargo: el día que esto corra en un servidor con **10 GB para todo** (los recolectores, sus navegadores y lo
 que quede), tiene que funcionar **sin acumular basura y sin bloquearse**. Hoy corre en una máquina de 32 GB
 compartida con el escritorio del usuario, y todos los problemas de esta jornada vienen de ahí: la basura de

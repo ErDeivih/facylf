@@ -94,6 +94,34 @@ siempre la actual). Para el histórico hay que usar **`NFG_CmpJornada_Exec?codte
 - **0 bytes = freno**: no reescribir; en el worker esperar y reanudar.
 - La web **comparte** `descargas-federacion/` con la ingesta; los ficheros de Selenium
   entran en `descargas-federacion/selenium/`.
+- **La página de jornada tiene DOS maquetas** y no se distinguen por la URL. Ver §8.
+
+## 8. La página de jornada viene en dos maquetas (medido el 24/09/2026)
+
+`NFG_CmpJornada` sirve la misma jornada de dos formas distintas, y las dos están archivadas en la cola:
+
+| maqueta | estructura | ejemplo medido |
+|---|---|---|
+| **clásica** | **una `<table>` por partido**: local (`div.font_widgetL`), marcador (dos `.wid2_resultado_cerrada`) y visitante (`div.font_widgetV`), más una fila con el campo (`NFG_VisCampos`) y el árbitro. Fecha y hora en `span.horario`. | `comp-24218932/grupo-24218933/jornada-1`: 10 tablas, 18 marcadores → 9 partidos |
+| **de fila** | **una sola `<table>` con un `<tr>` por partido**. Fecha y hora en `span.esconder`; **el campo no se publica** en esa página. | `comp-24218963/grupo-24218968/jornada-1`: 1 tabla, 7 filas, 14 marcadores → 7 partidos |
+
+Antes del arreglo, `parseaJornada` daba **0 partidos** en la segunda, porque buscaba tablas con exactamente
+dos marcadores y esa trae los catorce de la jornada en la misma tabla. Las consecuencias no se veían: el
+recolector guardaba los partidos igual —los saca `extraePartidos`, que no lee marcadores— pero **con
+`goles_local` nulo**, así que la jornada quedaba sin resultado.
+
+Eso encadena hacia arriba y es lo que lo hacía difícil de ver:
+
+1. sin marcadores, `reconstruyeClasificacion` no encuentra ninguna jornada completa y devuelve nulo;
+2. sin jornada completa no hay **jornada de corte**, y el importador se niega a colgar la tabla oficial
+   (por diseño: no se hace pasar por «la tabla de J30» la foto de otro día) y sólo deja un aviso en
+   `ops.normalizacion_error` con el código `clasificacion_oficial_sin_jornada_de_corte`;
+3. resultado visible: 7 partidos jugados, 7 actas correctas, **0 marcadores y ninguna clasificación**, y un
+   lote que se declara «correcto» sin una sola discrepancia.
+
+Quién es de qué maqueta **no se deduce de la competición ni de la categoría**: en el mismo grupo de
+competiciones de Castilla y León conviven las dos (el juvenil de León usa la clásica y el de Salamanca la de
+fila). Por eso el parser acepta las dos y nunca se elige por nombre de federación.
 
 ## Estado actual (resumen)
 

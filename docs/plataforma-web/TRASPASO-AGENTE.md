@@ -6,6 +6,50 @@
 
 ---
 
+## Actualización del 24/09/2026: Castilla y León no la recogía nadie, y su jornada se leía a medias
+
+Dos averías encadenadas, las dos medidas y las dos arregladas.
+
+**1. La federación de casa se había quedado fuera de las dos flotas.** `FACYLF_EXCLUIR` de este PC
+(`scripts/entorno-flota.ps1`) la excluía con el motivo «la recolecta el servidor», y el servidor
+(192.168.1.138) **no contesta**: `Test-Connection` falla y el puerto 22 no acepta conexión. Su cola local
+llevaba sin avanzar desde el 21/09/2026 ~21:35. Es decir: no era «la recolecta el servidor», era «no la
+recolecta nadie» — y eso incumple la segunda mitad de la regla que la propia configuración declara
+(«ninguna federación puede estar en las dos flotas **ni en ninguna**»).
+
+Importa porque la cola que alimenta el canónico de este PC es la de este PC
+(`descargas-federacion/recolector-local/cola-v2.sqlite`): aunque el servidor volviera, su recolección no
+llega aquí. **Arreglado**: `federacion` sale de la lista y la flota pasa de 3 a 4 federaciones (verificado:
+el plan lo dice y hay un `recolector-local.mjs arrancar` vivo). **Cuando el servidor vuelva hay que
+devolvérsela** —volver a poner `federacion` en la lista y reiniciar— o las dos flotas pedirán a la vez.
+
+Para reiniciar el supervisor hacía falta un guion nuevo (`scripts/reiniciar-flota.ps1`,
+`pnpm flota:reiniciar`): el que había, `scripts/reiniciar-recolectores.ps1`, apunta a las 19 tareas antiguas
+(`FACyLF recolector *`), que están todas deshabilitadas, así que con un solo supervisor no hace nada.
+
+**2. La ingesta del fin de semana estaba deshabilitada y, además, mal configurada.** La tarea
+`FACyLF ingesta fin de semana` existía pero estaba `Disabled` (3 ejecuciones perdidas). Y su guion,
+`scripts/ejecutar-fin-de-semana.ps1`, **no cargaba `FACYLF_EXCLUIR`**: arranca por `wscript`, sin heredar
+entorno, y `ingesta-fin-de-semana.mjs` decide qué federaciones mira leyendo esa variable — sin ella las mira
+**todas**. Habría abierto jornadas en las dieciséis colas del servidor cada día, dejando trabajos que nadie
+consume y un parte que diría que faltan actas cuando lo que pasa es que las trae otra máquina.
+**Arreglado** cargando `entorno-flota.ps1` y volviendo a habilitar la tarea. Verificado en una pasada real:
+4 federaciones planificadas, 15 excluidas, 118 jornadas del fin de semana puestas en prioridad 2.
+
+**3. La página de jornada de PNFG tiene dos maquetas** y una de ellas no se leía. Está contado entero, con
+las consecuencias en cadena, en [HALLAZGOS.md](../../HALLAZGOS.md) §8. El resumen: en
+`comp-24218963/grupo-24218968` (Provincial Juvenil de Salamanca) había **7 partidos jugados, 7 actas
+correctas y 0 marcadores**, porque `parseaJornada` buscaba «una tabla por partido» y esa página trae la
+jornada entera en una sola tabla. Sin marcadores no hay jornada completa, sin jornada completa no hay
+jornada de corte, y sin jornada de corte el importador **se niega a escribir la tabla oficial** y sólo deja
+un aviso. Todo cuadraba y todo estaba mal. **Arreglado** en `packages/ingesta/src/parsers/jornada.ts` con
+prueba de regresión; los grupos ya archivados se recuperan **sin pedir nada a la federación** con
+`recolector-local.mjs reprocesar`, que ahora acepta `--temporada`, `--competicion` y `--grupo` para no
+reescribir las 2.836 jornadas y 43.731 actas de las diecinueve federaciones cuando sólo hay que reparar un
+grupo.
+
+---
+
 ## ⚠️ Actualización del 23/09/2026: lee `RITMO-MEDIDO.md` antes de empezar
 
 La medición de este traspaso se ha hecho y **corrige su premisa en dos puntos**. El detalle, con números y
@@ -286,6 +330,19 @@ node scripts/servidor/compara-ritmo.mjs historial.jsonl
 
 ## 6 · Pendientes pequeños (no olvidar)
 
+- **El resolutor de equipos de la tabla oficial** (medido el 25/09/2026, es la traba siguiente). Enseñado el
+  lector a leer las cabeceras en euskera y en baleares, y las tablas con una columna de más, se leyeron 1.382
+  clasificaciones más; pero al importarlas sólo **7 de ~2.200 grupos** acabaron con la tabla oficial dentro, y
+  **118 se rechazaron** por el mismo motivo: `importaClasificacionOficial` exige que TODOS los equipos
+  publicados se resuelvan dentro del catálogo del grupo, y ese catálogo se monta con los equipos que **han
+  jugado**. La tabla oficial lista a todos los inscritos, así que en un grupo de jornada 1 o 2 media tabla no
+  está y se descarta entera (no se escribe media tabla, que es correcto, pero el dato se pierde). El arreglo
+  apunta a resolver por CÓDIGO lo que la propia tabla publica —el enlace de cada fila lleva `codequipo`— en vez
+  de exigir que ya esté en el catálogo. Los grupos afectados están en `tabla_oficial_estado = 'rechazada'`
+  (1.741) y `sin_corte` (698: no hay jornada completa a la que colgar la foto).
+- **La captura de Galicia y Ríoja** (1.380 grupos en `ilegible`): su página pinta los valores con JavaScript
+  (`ntype(...)`, `:after{content:"17"}`) y deja al lado un número escondido DISTINTO del visible. El archivo
+  guardado no contiene la verdad: hay que archivar el DOM ya pintado, no el HTML crudo.
 - **14 ficheros** de Madrid (unos cientos de bytes, en `t21-2025-26/comp-26412359/grupo-26412375/actas-menores`)
   que no se copiaron; el resto del archivo está completo en las 19 federaciones.
 - **Que los recolectores no creen carpetas como `root`** (`user: "1000:1000"`), que es la causa de fondo del

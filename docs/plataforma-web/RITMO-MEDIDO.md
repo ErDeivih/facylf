@@ -770,6 +770,13 @@ familia de explicaciones. Tres de las cuatro eran fáciles de creer.
 | `compara-entorno-recolectores.sh` | caza variables perdidas por declarar `environment:` y pisar el ancla |
 | `estado-ultima-tanda.sh` · `revisa-salud-flota.sh` | ¿trabajando o caída? Bucles de caída y federaciones mudas |
 | `para-medicion.sh <guion.mjs>` | para SÓLO un contenedor de medición, sin tocar los 19 recolectores |
+| `cuenta-pausas-globales.sh [horas]` | **pausas globales por federación y segundos parada**, con el motivo: es lo que destapó §12 |
+| `inspecciona-clave-cola.mjs <fed> [clave]` | filas por clave duplicada, índices de `trabajos` y estado real de una clave (§12) |
+| `estado-turnos-cpu.sh [servicios…]` | CPU, turno y argumentos de cada recolector, y si lleva montado el script corregido |
+| `activa-arreglo-pausas.sh` | recrea los tres servicios afectados con LOS DOS ficheros de compose y retira la pausa |
+| `diagnostica-version-worker.sh <fed>` | qué script ejecuta de verdad el worker, desde cuándo y con qué fichero montado |
+| `mide-cobertura-canonico.sh` | cronometra las tres consultas de `/canonico` y los recuentos que las componen (§13) |
+| `psql-canonico.sh` | lanza SQL contra el canónico con el rol de sólo lectura, sin exponer las credenciales en la línea de órdenes |
 
 ---
 
@@ -891,12 +898,20 @@ Lo que hay que aprender:
 9. **Arreglar el reloj del servidor**: no tiene NTP (`System clock synchronized: no`).
 10. **Dejar de creerse el «sin trabajo» del monitor** (§0) y **mandar el «18 federaciones» del encabezado al
     canónico**, que tiene 21 filas (18 locales y 3 de pruebas, y ninguna de Melilla hasta que se importe).
+11. **Reconstruir la imagen de los recolectores y quitar los tres montajes de script** (§12): así el arreglo de
+    las pausas por fallos de red llega también a las otras dieciséis federaciones sin depender de un montaje.
+    Hacerlo cuando la máquina esté libre: son ~25 min de CPU y sale de la recolección.
+12. **Que la web pueda publicar un grupo diciendo cuántas actas faltan por descargar** (§12): hoy, o se publica
+    afirmando en falso que la fuente no publica un acta, o el grupo no se publica.
+13. **Poblar `analytics` desde el importador y leer de ahí el resumen de `/canonico`** (§13): la consulta tarda
+    22 s porque cuenta 1,6 millones de filas en disco duro en cada visita, y las cuatro tablas de resumen que el
+    esquema ya tiene están **vacías**.
 
 **Ya hecho:** Castilla y León vuelve a recoger (§0), el entorno de Compose ya no se pierde al añadir variables
 (§0.1), **la plataforma enseña datos reales del canónico con su procedencia** (§11), el ciclo por fases está
 instrumentado y medido (§6.1), el coste del `fsync` está localizado y hay un arreglo probado en una federación
-(§6.2), el método de (B) es aplicable sin reconstruir la imagen (§3) y Valencia corre en el escalón legal más
-bajo (§9).
+(§6.2), el método de (B) es aplicable sin reconstruir la imagen (§3), Valencia corre en el escalón legal más
+bajo (§9) y **Madrid y Valencia dejan de perder 16,2 h diarias por cinco páginas lentas** (§12).
 
 ---
 
@@ -922,3 +937,159 @@ tiene.
 de Generative UI que pide el traspaso; migrar las otras 17 rutas (siguen leyendo el SQLite local, y la propia
 portada avisa de que la búsqueda todavía lo hace); y el encabezado, que sigue diciendo «18 federaciones» desde
 una lista fija.
+
+---
+
+## 12 · Dos federaciones se paraban una hora por cinco páginas lentas (24/09/2026)
+
+Esto no salió de buscar rendimiento, salió de perseguir una rareza: Madrid llevaba una hora sin pedir nada
+teniendo **7.108 actas disponibles**. El registro lo dijo entero:
+
+```
+→ acta|19|17145676|17145685|1|5033521   ! The operation was aborted due to timeout. Se reintentará después de +2h
+→ acta|19|17145676|17145685|1|5010456   ! The operation was aborted due to timeout.
+→ acta|19|17145676|17145685|1|5033573   ! The operation was aborted due to timeout.
+→ acta|19|17145676|17145685|1|5023228   ! The operation was aborted due to timeout.
+→ acta|19|17145676|17145685|1|5010459   ! The operation was aborted due to timeout.
+  Pausa global preventiva hasta … por fallos repetidos.
+Sesión terminada: 0/200000 trabajos.   siguiente intento en 3599 s.
+```
+
+Cinco actas de una misma competición que no llegan a tiempo —unos **3 minutos**— paran la federación **3.600
+segundos**. Desproporción de 90 a 1. Y no es un caso raro: al reanudar, otras cuatro del mismo grupo volvieron a
+agotar el tiempo y la pararon otra hora más.
+
+### Lo que cuesta, medido en toda la flota
+
+`scripts/servidor/cuenta-pausas-globales.sh` (nuevo, sólo lee) cuenta las pausas globales y los segundos que el
+propio worker declara de espera tras terminar sesión, federación por federación:
+
+| federación | pausas / sesiones (24 h) | parada | motivo |
+|---|---|---|---|
+| **madrid** | **16 / 16** | **40.989 s = 11,4 h** | 5 tiempos agotados seguidos |
+| **valencia** | **5 / 5** | **18.812 s = 5,2 h** | 5 `fetch failed` seguidos |
+| castilla y león | 1 / 43 | 17.191 s = 4,8 h | 5 fallos seguidos |
+| las otras 16 | **0 / —** | 0 | — |
+
+Las otras dieciséis no se pararon **ni una vez**. Con eso el diagnóstico se cierra solo: no es que dieciocho
+webs fallen a la vez, es que el contador de fallos no distingue de quién es el fallo.
+
+Valencia es el caso que mejor lo enseña, porque **recogió 1.244 actas en la sesión que perdió**:
+
+```
+→ acta|21|29509612|905028179|18|26448513   ! fetch failed. Se reintentará después de …
+→ acta|21|29509612|905028179|18|26448514   ! fetch failed.
+→ acta|21|29509612|905028179|18|26448515   ! fetch failed.
+→ acta|21|29509612|905028179|18|26448516   ! fetch failed.
+→ acta|21|29509612|905028180|1|26448518    ! fetch failed.
+  Pausa global preventiva hasta … por fallos repetidos.
+Sesión terminada: 1244/200000 trabajos.
+```
+
+`fetch failed` es el error de la pila de red de Node cuando **no puede resolver el nombre o conectar**: es un
+fallo de casa, no un rechazo del portal. Y no es la primera vez que este proyecto tropieza con lo mismo — en
+`recolector-valencia.mjs` ya estaba escrito, de un incidente del 17/09/2026, que *«Madrid encadenó cinco `The
+operation was aborted due to timeout` y se quedó parada SEIS horas teniendo 30.000 trabajos disponibles»*. Se
+bajó la pausa de seis horas a una; **la causa siguió intacta**.
+
+### La hipótesis que yo tenía era falsa, y por eso está aquí
+
+Antes de mirar el registro pensé que la misma acta se reintentaba en bucle porque hubiera **filas duplicadas**
+en la cola (el diagnóstico las mostraba truncadas: `…501045` era en realidad `…5010456` y `…5010459`, actas
+**distintas**). `scripts/servidor/inspecciona-clave-cola.mjs` (nuevo, sólo lee) lo desmintió con datos: **cero
+claves duplicadas, cero filas sobrantes**, y la clave que yo creía repetida no existía. La causa era la pausa.
+Se deja escrito para que nadie vuelva a buscar duplicados por este síntoma.
+
+### El arreglo
+
+En `recolector-local.mjs` y en `recolector-valencia.mjs` (Valencia usa su propio recolector, así que el arreglo
+hay que hacerlo **dos veces**), un fallo de red deja de contar como fallo de la federación:
+
+- lleva **su propio contador**, así que cinco no disparan nada; el umbral son **30 seguidos** (media hora de
+  insistencia), que sigue detectando una caída real del portal;
+- el motivo de la pausa dice cuál de los dos contadores la provocó.
+
+Esto **no es un criterio nuevo**: el código ya lo aplicaba a las páginas vacías —*«varias direcciones vacías
+consecutivas no prueban que haya fallado la federación completa y no deben detener miles de trabajos válidos que
+vienen detrás»*—. Un tiempo agotado tampoco lo prueba.
+
+### Y una consecuencia que era peor que la pausa
+
+Un fallo de red **gastaba los tres intentos** que, al tercero, declaran el acta `ausente_web`, que se lee como
+**«la fuente no publica esta acta»**. Si el fallo fue que nuestra red no llegó a tiempo, esa frase es falsa
+sobre la fuente: sería inventar un dato ausente. Ahora un fallo de red pone `intentos` a cero y el trabajo sigue
+su escalera (2 h, luego 24 h) sin declarar nada. Ya había pasado: `scripts/reparar-descartes-transitorios.mjs`
+tuvo que devolver a la cola, **a mano**, los descartes cuyo último error era un tiempo agotado.
+
+Queda un cabo suelto y conviene decirlo: un acta así se queda `pendiente`, y la web exige que ninguna acta de un
+grupo esté fuera de `hecha` para publicarlo. Antes se publicaba **con una afirmación falsa**; ahora no se publica
+y el estado honesto es «no se pudo descargar». La salida correcta es que la web pueda publicar el grupo
+diciendo cuántas actas faltan por descargar, y eso pertenece al rediseño como producto de consulta.
+
+### Cómo se puso en marcha (y por qué montando, no reconstruyendo)
+
+El código vive **dentro** de la imagen, así que activarlo exige recrear el contenedor. Reconstruir la imagen hoy
+cuesta ~25 min de CPU (el Dockerfile recompila `dominio` e `ingesta` con `tsc -b`) y ese gasto sale de la propia
+recolección, así que los dos scripts van **montados** desde el repositorio en los tres servicios afectados —
+el mismo camino que ya se usó con `recolector.config.json` y, antes, con el lanzador. `activa-arreglo-pausas.sh`
+hace la recreación, imprime la foto de antes y después, y retira la pausa vigente (que existe por el fallo
+recién corregido; `limpiar-pausa.mjs` está para eso).
+
+**Dos trampas por el camino:** hay que pasar **los dos** ficheros de compose —`docker/compose-turnos.yml` fija
+`cpus` por servicio y recrear sólo con `compose.yml` devolvería a Madrid de 0,81 a 0,5 de CPU—; y el fichero de
+turnos **del servidor da más CPU que la copia del repositorio de trabajo** (madrid 0,81 frente a 0,52), señal
+de que se regeneró allí con `calcula-turnos.mjs` y de que la copia local está desfasada.
+
+**Pendiente de esta vía:** reconstruir la imagen y **quitar los tres montajes**, para que el arreglo llegue
+también a las otras dieciséis federaciones sin depender de un montaje.
+
+---
+
+## 13 · `/canonico` no está roto por la web: una consulta tarda 22 s (24/09/2026)
+
+Al verificar el despliegue de la web, tres de las cuatro páginas enseñan datos y `/competiciones` **ya no**
+muestra el panel de tiempo agotado (la consulta optimizada funcionó). `/canonico` seguía enseñándolo, y como la
+página lanza tres consultas y no dice cuál falla, se midieron las tres por separado con
+`scripts/servidor/mide-cobertura-canonico.sh` (nuevo, sólo lee):
+
+| consulta de `/canonico` | tiempo medido |
+|---|---|
+| `RESUMEN_CANONICO` | **22.258 ms** ← se pasa del presupuesto de 5 s y la página entera cae |
+| `COBERTURA_POR_FEDERACION` | 28 ms |
+| `COBERTURA_POR_GRUPO` | 47 ms |
+
+El culpable es el resumen, y la razón está en lo que hace: **diez `count(*)` seguidos** sobre las tablas grandes
+del canónico, que viven en el disco duro.
+
+| tabla | filas | tamaño |
+|---|---|---|
+| `core.appearance` | 1.592.474 | 469 MB |
+| `core.match_event` | 978.459 | 387 MB |
+| `core.person` | 204.019 | 49 MB |
+| `core.match` | 69.597 | 33 MB |
+
+Los recuentos sueltos, ya en caliente, suman ~7 s (`appearance` 1.415 ms, `match` 1.967 ms, `person` 1.483 ms…);
+en frío, la consulta entera se va a 22 s. **No es un problema de índices ni de la web: es que la página cuenta
+1,6 millones de filas en cada visita.**
+
+**El arreglo correcto ya está previsto en el propio esquema**, y esto es lo que hay que hacer: el esquema
+`analytics` existe con sus tablas de resumen —`team_edition_summary`, `player_career_summary`,
+`player_team_season_summary`, `search_entity`— y **las cuatro están VACÍAS (0 filas)**. Comprobado con
+`psql-canonico.sh`. La página de grupos ya declara ese principio para la completitud («los recuentos vienen de
+`ops.coverage_checkpoint`, que el importador recalcula al cerrar cada lote: esta página no calcula completitud
+recorriendo partidos»): **al resumen le falta exactamente eso**, que el importador deje los totales en `analytics`
+al cerrar cada lote y que la página lea una fila en vez de contar 1,6 millones.
+
+Por eso **no se ha tocado el presupuesto de tiempo para disimularlo**: subirlo convertiría una página honesta que
+dice «no lo sé» en una página lenta. Se deja medido y con el camino escrito.
+
+
+### Qué NO mejora esto (para no vender humo)
+
+Como la máquina está **al tope de CPU** (§6.9, 3,92 de 4 núcleos), el procesador que Madrid y Valencia dejaban
+libre lo estaban aprovechando las otras dieciséis: **el ritmo total de la flota no tiene por qué subir**. Lo que
+se arregla es el reparto —dos federaciones recuperan las 16,2 horas diarias en que no recolectaban nada y sus
+colas avanzan—, que es justo lo que el sistema de turnos (`FACYLF_TURNO_PLAZA_MIN`) pretendía repartir y las
+pausas estaban anulando. La mejora hay que medirla **por federación** (actas/hora de Madrid y de Valencia), no
+en el total de la flota.
+

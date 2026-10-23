@@ -137,6 +137,27 @@ Notas de implementación, no opinables:
 - Un token de color nunca se define **sólo** dentro de `[data-tema="oscuro"]` o de una media query.
   Siempre existe en `:root`.
 
+### Lo que el listado de arriba no incluye
+
+`tokens.css` es la fuente única de verdad y **el bloque anterior es ilustrativo, no exhaustivo**. El
+fichero tiene además, y este documento no los listaba: `--texto-inverso` (texto sobre superficie
+fuerte), la escala de calor `--calor-0` a `--calor-3` —derivada del rojo semántico, no una paleta
+aparte—, los peldaños crudos `--color-tinta-700` y las variantes `-500` de verde, ámbar y rojo, y
+`--foco` en modo oscuro. Ante cualquier duda, manda el fichero.
+
+`globals.css` mantiene además una **capa de alias temporal** (`--color-club`, `--color-club-claro`,
+`--color-club-oscuro`, `--color-pizarra`, `--color-pizarra-claro`, `--color-cal`, `--font-display`)
+para los componentes anteriores a la decisión de §1. Ya no tiñe el producto con el color de un club
+—todos apuntan al acento neutro—, pero **el nombre sobrevive en las clases** (`bg-club`, `text-club`)
+y las páginas antiguas que las usan siguen pendientes de migrar. Reglas: no se usa en código nuevo,
+no se añade un alias nuevo, y cuando se migre la última página que lo usa la capa se borra **entera**
+en el mismo cambio.
+
+Los componentes anteriores a la decisión de §1 contienen además colores literales (`bg-white`,
+`#D6D6D4`, `#5C646C`, `#C6892B`, `#FAFBFA`) que §2 prohíbe. No es una excepción: es la deuda del
+rediseño descrito en [TRASPASO-AGENTE.md](TRASPASO-AGENTE.md) §4(D) y desaparece al migrar cada
+página. Ninguna página nueva puede añadir uno.
+
 ## 3. Tipografía
 
 Una sola familia variable, cargada con `next/font` y `display: swap`, nunca desde una hoja externa
@@ -175,6 +196,44 @@ columna por debajo de `lg` con el contexto **después** del contenido.
 
 Todo componente vive en `apps/web/src/componentes/` y se escribe primero en su estado vacío. Los
 marcados con ☐ no existen todavía.
+
+**Estado medido el 23/09/2026, y una advertencia: las marcas ☐ de la lista que sigue están
+desactualizadas.** Varios componentes marcados como inexistentes sí existen: `Tabla` —que es la tabla
+**de clasificación** (`FilaClasificacion`), no la tabla genérica de este inventario—, `Racha`,
+`Buscador`, `Bloque`, `SinCanonico`, `SelectorFederacion`, `FiltroLista`, `MapaCalor`, `Barras`,
+`Evolucion`, `Puntos`, `Proximo`, `GraficasCompeticion`, `NavegacionCompeticion` y
+`TrayectoriaJugador`.
+
+Y desde esa misma fecha, `apps/web/src/componentes/base.tsx` aporta las piezas **compartidas** que
+usaban las dos espinas del front ([FRONT-PROPUESTA.md](FRONT-PROPUESTA.md)). Son componentes de
+servidor y cumplen las reglas de [`DESIGN.md`](../../DESIGN.md).
+
+**Auditoría de uso, 24-sep-2026.** Una lista de componentes escritos no dice nada sobre si sirven, así
+que se comprueba quién los usa de verdad:
+
+| En uso | Dónde |
+|---|---|
+| `TablaDatos`, `Vacio` | `/buscar`, `/club`, `/equipo`, `/jugador` |
+| `Chip` | `/buscar`, en los filtros activos |
+| `Miga` | `/club`, `/equipo`, `/jugador` |
+| `InsigniaCobertura`, `Procedencia` | `/club`, `/equipo` |
+
+| **Escritos y SIN USAR** | Qué falta para que sirvan |
+|---|---|
+| `Faceta` | `/competiciones` construye sus propias facetas con `FacetasDelCatalogo`: falta unificar |
+| `Paginador` | Ninguna página pagina. `/buscar` corta en 60 y lo dice: falta la paginación por cursor |
+| `Esqueleto` | **Se usó y se retiró a propósito el 24-sep-2026.** Estuvo en tres `loading.tsx` (`/club`, `/equipo`, `/jugador`) y hubo que quitarlo: un `loading.tsx` mete el límite de suspensión **por encima** de la página, Next envía el armazón y **compromete el 200 antes de que la página valide nada**, de modo que un identificador inexistente pasaba a responder **200 con cuerpo de 404** en las tres rutas. Medido: `/club/146`, `/club/999999`, `/jugador/999999` y `/equipo/999999` daban 200 con cuerpo de 404; con los `loading.tsx` retirados vuelven a dar **404**. **Arreglo bueno, pendiente:** mover la suspensión **dentro** de la página, por debajo de la validación, y entonces se recuperan las dos cosas. Entre un código de estado que miente y una comodidad visual, se eligió no mentir |
+| `ErrorRecuperable` | **En uso**, en `app/error.tsx` (límite de error raíz) |
+| `SinCapacidad` | **Bloqueado**: `core.source_capability` está vacía (FRONT-PROPUESTA.md §5.2) |
+
+**Cinco de once sin usar es un dato sobre el trabajo, no sobre los componentes**: cada uno espera una
+pieza de página que todavía no existe, y escribirlos por adelantado es exactamente lo que este
+repositorio hace mal cuando se hace. Queda escrito para que nadie los cuente como si estuvieran en
+servicio, y para que la próxima revisión empiece por decidir si se usan o se retiran.
+
+Quedan por escribir, y no existen hoy: `Marcador`, `LineaPartido`, `Alineacion`, `IdentidadPersona` y
+`Escudo` del bloque de dominio, y `Cascara`, `BarraContexto`, `Miga`, `NavInferior` y `HojaFiltros`
+del de estructura.
 
 ### Estructura
 
@@ -243,9 +302,11 @@ interactivo: la fila se comprime, el área pulsable no.
 
 ## 8. Gráficos
 
-**Antes de escribir la primera línea de código de cualquier gráfico, carga la skill `dataviz`.**
-Contiene la heurística de forma, la fórmula de color accesible con validador ejecutable y las reglas
-de interacción; este documento sólo fija lo propio del proyecto:
+Antes de escribir la primera línea de código de un gráfico, **si la instalación dispone de una skill
+de visualización de datos, úsala como apoyo**; no es una dependencia del repositorio, y este
+repositorio no la incluye. Cuando exista, aporta la heurística de forma, la fórmula de color
+accesible con validador ejecutable y las reglas de interacción. Con skill o sin ella, lo que sigue es
+lo propio del proyecto y es lo que se aplica:
 
 - Los colores de serie salen de los tokens, no de la paleta por defecto de la librería.
 - Todo gráfico tiene título que enuncia la conclusión o la pregunta, unidades, y **versión en tabla**
@@ -275,3 +336,92 @@ Una pantalla no está terminada hasta que:
 6. ningún número se muestra sin `tabular-nums` si comparte columna con otros;
 7. ningún dato ausente aparece como cero;
 8. con un nombre de 45 caracteres no rompe ninguna tabla.
+
+## 11. Elevación, capas, foco e iconografía
+
+Cuatro cosas que estaban sin decidir y que el código ya resolvía a mano, cada sitio a su manera: una
+sombra suelta aquí, un `z-30` allá. Se fijan para que la próxima pantalla no invente otra. Los
+valores de abajo se crean como tokens en `tokens.css` (§2); hasta entonces no existen.
+
+### Elevación
+
+El producto es **plano por defecto**: la jerarquía se hace con **borde y fondo**, no con sombra. La
+sombra existe sólo para lo que flota de verdad sobre el contenido y puede taparlo.
+
+| Nivel | Uso | Valor |
+|---|---|---|
+| 0 | todo el contenido en flujo | sin sombra; `--borde` sobre `--fondo-elevado` |
+| 1 `--sombra-1` | panel flotante anclado (sugerencias del buscador, menú) | `0 4px 12px oklch(0.18 0.012 250 / 0.10)` |
+| 2 `--sombra-2` | modal y hoja lateral | `0 12px 32px oklch(0.18 0.012 250 / 0.18)` |
+
+En modo oscuro la sombra no informa: los niveles 1 y 2 se distinguen **además** con `--borde-fuerte`.
+Nunca una sombra para "destacar" una tarjeta en flujo, ni una tarjeta con sombra dentro de otra.
+
+### Foco
+
+Un solo anillo para todo lo interactivo, ya definido en `tokens.css`: `outline: 2px solid var(--foco)`
+con `outline-offset: 2px`, heredando el radio del elemento.
+
+- El mecanismo es `:focus-visible`. **Nunca `outline: none` sin una alternativa visible en el mismo
+  selector.** La técnica existente que sustituye el anillo por `box-shadow` en `:focus` está admitida,
+  pero el anillo es el patrón por defecto y el que se recorre con teclado en las pruebas.
+- El anillo no se recorta: si un contenedor tiene `overflow: hidden`, se saca el anillo o se añade el
+  relleno que lo cubra.
+- Contraste del anillo contra el fondo adyacente ≥ 3:1, en los dos temas.
+
+### Capas
+
+Escala explícita, sin números sueltos por el código. El `z-30` que ya usa el buscador cae en
+«flotante» y se conserva:
+
+| Capa | Valor | Qué |
+|---|---|---|
+| contenido | 0 | todo lo demás |
+| pegajoso | 10 | cabecera de tabla, barra de contexto |
+| flotante | 30 | desplegable anclado |
+| velo | 40 | fondo oscurecido de un modal o una hoja |
+| modal | 50 | modal, hoja lateral, menú de móvil |
+| aviso | 60 | aviso transitorio, por encima de todo |
+
+### Iconografía
+
+- Una sola familia de iconos, de trazo, en `currentColor`: 16 px junto a texto de tabla, 20 px en
+  navegación y acciones.
+- El icono **nunca** es la única señal de nada: va con texto o con nombre accesible. Si lleva
+  significado propio, tiene nombre; si es decorativo, `aria-hidden="true"`.
+- Un icono pulsable es un `<button>` con nombre accesible, no un `<svg>` con `onClick`.
+- Los iconos de dominio (tarjeta, cobertura, racha) llevan forma y color, nunca sólo color, por §7.
+- Sin emoji en la interfaz.
+
+## 12. Referencias externas: qué se adopta y qué no
+
+Este proyecto no importa sistemas visuales de otros productos. La decisión de §1 —marca neutra,
+híbrido aire/denso— es propia. Se registra aquí para que nadie tenga que volver a discutirlo desde
+cero.
+
+**Se adopta: el contrato visual en [`DESIGN.md`](../../DESIGN.md)**, en la raíz del repositorio. Es la
+convención de «design md» —un único documento normativo que cualquier persona, agente o herramienta
+puede recibir antes de tocar interfaz, sin leer los seis documentos— adaptada a este repositorio.
+`DESIGN.md` **no duplica valores**: `tokens.css` sigue siendo la fuente única y este documento la
+especificación completa.
+
+**Se rechaza, y con motivo:**
+
+- **Bibliotecas de composiciones de mercadotecnia** (registro, precios, testimonios, héroes, bento,
+  pies de página). Este producto no tiene superficie de mercadotecnia ni captación: es una
+  herramienta privada de consulta sobre datos incompletos, y su densidad es la contraria.
+- **Interfaz conversacional y «generative UI» con el modelo en el camino de la petición.** No es una
+  cuestión de gusto: (a) hoy el repositorio no tiene ninguna dependencia de IA y el canónico no
+  depende de nada externo; (b) los presupuestos de rendimiento son aserciones que fallan el build
+  —sugerencias 200 ms p95, competición 800 ms— y una llamada a un modelo dentro de la petición los
+  rompe; (c) todo dato mostrado tiene procedencia y fecha, y una respuesta generada no las tiene.
+  Cualquier asistente vive **fuera** del camino de la petición y **nunca** es la fuente de una cifra.
+- **Marcos para «guiar» modelos pequeños** (salida estructurada forzada, compiladores de prompts). El
+  principio —el modelo no puede devolver algo fuera del esquema— ya está implementado aquí de la
+  forma más fuerte y sin modelo: el vocabulario del canónico es cerrado, un valor desconocido
+  **detiene el lote** y no existe el destino `otro`. Un esquema de validación es más débil, porque
+  admite la etiqueta válida y falsa. Si algún día entra un modelo, entra por
+  [JEV-EVALUACION.md](JEV-EVALUACION.md), donde el criterio está fijado de antemano.
+- **Referencias de estilo de otros productos como plantilla.** Se pueden mirar como oficio —cómo
+  resuelve otro una tabla densa o un estado vacío— pero **se copia el sistema, no el producto**: no
+  se importan paletas, tipografías ni densidad ajenas.
