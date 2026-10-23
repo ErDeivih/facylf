@@ -2,7 +2,53 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 23:55 (DeepSeek: revisión de cierre; todo verde y corregida la cifra de personas huérfanas de T14)
+**Última actualización:** 24/10/2026 00:05 (DeepSeek: actas priorizadas en TODAS las colas y estimación definitiva de CyL)
+
+## ★★★★★ DeepSeek, 24/10, 00:05 — actas primero en todas las federaciones, y por fin la cuenta definitiva de CyL
+
+### Lo que se ha cambiado (y por qué no rompe nada)
+
+David (23/10, 23:30): «prioriza actas, para todas las federaciones; pero recuerda que para obtener las actas hay
+que conocer la jornada».
+
+El recolector elige el trabajo con `order by prioridad, temporada desc, tipo='acta' primero, creado_en`
+(`scripts/lib/recolector-local.mjs`), y las tareas que **descubren** (catálogo de temporada, grupos, índice de
+jornadas, calendario) llevan prioridades entre −2.000.000.000 y −1.400.000.000. Con eso, **el orden nuevo queda**:
+
+1. **Descubrir** (catálogo, grupos, índice, calendario) — lo que «conoce la jornada»: **se queda primero**.
+2. **Bajar actas** de lo ya conocido — banda fija **−1.399.000.000**.
+3. **Seguir leyendo jornadas** — detrás.
+
+`scripts/claude/prioriza-actas.mjs` (nuevo): idempotente, simulación por defecto, `--aplicar` para hacerlo, copia de
+las prioridades anteriores junto a cada cola. **Aplicado hoy**: **454.766** trabajos de acta en las colas del PC y
+**265.549** en las del servidor (todas las federaciones). Comprobado en el acto: el recolector de CyL del PC ha
+pasado de **0 actas/hora** a bajar actas de seguido.
+
+**Dos avisos:** (a) las actas que se encoleen *después* (al leer una jornada nueva) entran con su prioridad normal,
+así que **conviene volver a pasar el guion de vez en cuando** (es idempotente y tarda segundos); (b) la solución
+definitiva es una línea en el `order by` del lib (`case when tipo='acta' then prioridad - 500000000 else prioridad`),
+que es código de Claude y hay que desplegar en los 26 contenedores: no se toca ahora para no romper nada de noche.
+
+### La cuenta definitiva de Castilla y León (medida en las dos colas, 24/10 00:00)
+
+| | PC | servidor | **total** |
+|---|---|---|---|
+| actas esperadas | 148.408 | 173.124 | **321.532** |
+| hechas | 133.660 | 162.644 | **296.304** (92,2 %) |
+| sin datos / no publicadas | 2.391 | 1.493 | **3.884** |
+| **pendientes** | **12.357** | **8.987** | **21.344** |
+| partidos jugados conocidos | 151.604 | 176.869 | **328.473** |
+| jugados sin ningún acta conocida | — | — | ≈ **6.941** (2,1 %) |
+
+Con las dos máquinas bajando actas (~500/hora juntas) las **21.344 que faltan caen en ~43 horas**: CyL con todas
+sus actas el **domingo 25 por la noche**. Después queda la cola de repaso: **68.025 jornadas** (34.541 PC + 33.484
+servidor) que en su mayoría no añaden actas nuevas — eso es la semana siguiente si se hace entera.
+
+Y el panorama global, para que no engañe: en las dos máquinas hay **≈720.000 trabajos de acta pendientes** de las
+17 federaciones (Galicia sola: 89.883). Priorizados ya todos; a ~3.300 actas/hora entre PC y servidor, el conjunto
+son unos **9 días**.
+
+
 
 ## ★★★★★ DeepSeek, 23/10, 23:55 — revisión de cierre: todo verde y una corrección de T14
 
