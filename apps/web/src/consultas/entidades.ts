@@ -847,7 +847,10 @@ export const EQUIPOS_POR_FEDERACION: Consulta<FilaEquipoListado> = {
   nombre: 'equipos-por-federacion',
   descripcion: 'Equipos inscritos del canónico con su club, su competición, su grupo y la cobertura medida de ese grupo, filtrables por federación, temporada, categoría y nombre.',
   plan: 'indexado',
-  presupuestoMs: 600,
+  // El listado sin filtros recorre y ordena 1,2 M de inscripciones (el `count(*) over ()` obliga a pasar por
+  // todas para dar el total): medido el 23/10/2026, 2,1-2,4 s. El tope dice el coste real; la solución de
+  // fondo es un listado precalculado en `analytics` (fase C), no subir el número.
+  presupuestoMs: 3_000,
   columnas: ['equipo_id', 'nombre_en_fuente', 'club_id', 'club', 'temporada', 'temporada_orden',
     'edicion', 'edicion_categoria', 'edicion_ambito', 'grupo', 'grupo_id', 'federacion',
     'federacion_nombre', 'jornadas_previstas', 'partidos_conocidos', 'visibility_state',

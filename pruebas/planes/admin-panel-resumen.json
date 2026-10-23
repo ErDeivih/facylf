@@ -1,0 +1,26 @@
+{
+  "consulta": "admin-panel-resumen",
+  "presupuestoMs": 150,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Hash",
+      "Hash Join",
+      "Index Only Scan",
+      "Result",
+      "Seq Scan"
+    ],
+    "seqScans": [
+      "alerta",
+      "copia",
+      "coverage_checkpoint",
+      "espacio_anuncio",
+      "estado_generador",
+      "notificacion",
+      "proyeccion_grupo",
+      "usuario"
+    ],
+    "filas": 40399
+  }
+}

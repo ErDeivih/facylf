@@ -92,7 +92,7 @@
     "workers:reparar-minutos": "node scripts/reparar-minutos-imposibles.mjs --aplicar",
     "temporadas:ventana": "node scripts/aplazar-temporadas-viejas.mjs",
     "oro": "node scripts/oro.mjs",
-    "planes": "tsx --tsconfig apps/web/tsconfig.json scripts/planes.mjs",
+    "planes": "pnpm --filter @facylf/canonico exec tsx --tsconfig ../../apps/web/tsconfig.json ../../scripts/planes.mjs",
     "workers:estimar": "node scripts/estimar-tiempos.mjs",
     "visor": "node scripts/visor-workers.mjs",
     "visor:vigilar": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ejecutar-visor.ps1",

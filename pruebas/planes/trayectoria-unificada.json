@@ -1,0 +1,19 @@
+{
+  "consulta": "trayectoria-unificada",
+  "presupuestoMs": 300,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Append",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Result",
+      "Sort",
+      "Unique",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

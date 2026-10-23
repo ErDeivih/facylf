@@ -1,0 +1,17 @@
+{
+  "consulta": "minutos-por-equipo",
+  "presupuestoMs": 150,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Append",
+      "Index Scan",
+      "Nested Loop",
+      "Result",
+      "Sort",
+      "Unique"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

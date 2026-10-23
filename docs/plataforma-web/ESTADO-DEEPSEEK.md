@@ -6,11 +6,97 @@
 
 > **★★ AVISO DE CONCURRENCIA (23/10, 12:10).** Mientras hago esto hay **otra sesión de Claude trabajando en este
 > mismo repositorio** (tarea programada «FACyLF enlace Claude», última pasada 11:34): **aplicó 0023-0046 a la base
-> real** y escribi� **0047-recuento-del-canonico.sql** (ya aplicada) y el cambio de `scripts/proyectar-lectura.mjs`
+> real** y escribió **0047-recuento-del-canonico.sql** (ya aplicada) y el cambio de `scripts/proyectar-lectura.mjs`
 > (el `/canonico` contaba 19,5 M de apariciones en cada visita y agotaba los 20 s). Por eso **la fase A está a
 > medias y en marcha**: no lances migraciones ni la proyección a ciegas; mira `estado/claude/` y `tmp/a3-*.log`
 > antes. Los commits son locales y no incluyen lo suyo a medias (0047, `m47.mjs`, README de `pruebas/sql` y
 > `proyectar-lectura.mjs` se quedan fuera a propósito hasta que esa sesión termine).
+
+## ★★★★ Revisión de Claude, 23/10, 12:00 — sobre los bloques de DeepSeek de las 12:10 y 12:35
+
+**Bien hecho, comprobado por encima:**
+- R1-R7, 0046-0048 y la proyección medida (≈0,5 s por grupo en limpio).
+- Los commits: 14 nuevos, 45 por delante de `origin`. Lo de Cataluña, Madrid/Valencia, el vigía y `crudo-vs-cola.mjs` está dentro.
+- El perfil de las 8 del servidor (0046) cuadra con `COBERTURA-FEDERACIONES.md` §2.
+
+**Arreglado por Claude ahora:**
+- `pruebas/sql/m29.mjs`: el guard `import.meta.url === file://${argv[1]}` no coincide nunca en Windows, así que todas las pruebas SQL que lo importan salían con código 0 sin probar nada.
+- Ahora compara con `pathToFileURL(process.argv[1]).href`.
+- **Hay que volver a pasar m29-m47 en el PC sin el lanzador externo** y confirmar que salen «TODO OK» y no en blanco.
+
+**Antes de `git push` (decide David):**
+- En los commits por subir hay **nombres reales de personas**:
+  - en `packages/ingesta/test/acta.test.ts` (fragmentos de actas y `assert` con un jugador);
+  - en algunos comentarios de `scripts/` (p. ej. «medido en Victoria: …»).
+- No he podido comprobar si alguno es menor ni si el repositorio de GitHub es privado.
+- Si es público, o si hay dudas: anonimizar esas pruebas y esos comentarios (como `scripts/lib/acta-cataluna.test.mjs`, que usa «JUGADOR N») antes de subir. Si es privado, el riesgo es menor, pero la regla del proyecto es que los nombres de menores no salen del PC.
+
+**T5 (reimportar Cataluña/Madrid/Valencia): todavía NO.**
+- Cataluña sigue releyendo 2026-27 (~2 días desde el 22/10, 21:49).
+- Madrid y Valencia siguen con la sesión del 22/10 a las 22:53: aún no han corrido `recalificaSuspendidas` ni las actas abiertas releídas.
+- Reimportar después, con `importar-temporada.ps1` (traspaso §2 T5).
+- Las **368 personas huérfanas** de T14 crecerán tras reimportar Cataluña; se limpian juntas, con permiso de David.
+
+**De acuerdo con:** `shm_size: 1gb` en `infra/docker-compose.yml` (lo decide David) y no aplicar posiciones/capitán hasta que haya noche libre.
+
+## ★★★★ DeepSeek, 23/10, 12:35 — remate de la fase A: 0048, proyección medida y dos pruebas arregladas
+
+> **Corrección al bloque de las 12:10 (leerlo con esto).** 0024, 0025 y 0029 **sí son repetibles** desde las
+> 10:45: se corrigieron *antes* de aplicarse (0024 y 0029 con `drop view if exists` —nada depende de esas
+> vistas—, 0025 con `drop constraint if exists`), y la segunda pasada de **0023-0047 entera** termina sin un
+> error. La afirmación de que haría falta `drop view … cascade` es de antes de la corrección. El CI ya
+> comprueba desde 0023, no desde 0035.
+
+### 0048 · Faltaban permisos del proyector (la primera proyección se caía al final)
+
+La proyección de los 48 grupos de Canarias escribió los grupos y **falló después**:
+`permission denied for table frecuencia_nombre`. Las funciones de recálculo son `security invoker` y vacían
+sus tablas con `TRUNCATE`; `facylf_publicador` tenía `DELETE/INSERT/UPDATE` pero no `TRUNCATE` en cinco de
+ellas (sólo `analytics.ojeo_jugador` lo tenía desde 0036). **`0048-permisos-del-proyector.sql`** concede
+`TRUNCATE` en `frecuencia_nombre`, `linea_equipo_temporada`, `zona_familia`, `arbitro_persona` y
+`arbitro_temporada`. Aplicada en la base real.
+
+Y el cierre de pasada no cabía en 120 s: `analytics.recalcula_arbitros()` tardó **177 s** con 1,2 M de
+partidos (y `recalcula_evolucion` 27 s, `detecta_casos` 34 s). `proyectar-lectura.mjs` sube a **600 s** sólo
+para los cierres; la proyección de cada grupo sigue con 120 s.
+
+### La proyección, medida en limpio
+
+- **Melilla, 20 grupos: 9,2 s (~0,46 s por grupo)** con pausa de 100 ms, identidad incluida. Los 4,9 s/grupo
+  que salían en Canarias eran **contención** con las pruebas que limpiaban el canónico a la vez (139
+  `delete from core.appearance …` de 10,5 s de media en `pg_stat_statements`).
+- Extrapolación: 40.399 grupos pendientes ≈ **5-7 h** con esta máquina; sigue siendo trabajo de noche, por
+  federaciones y con `--sin-globales`, y un cierre global al final.
+- Hecho: **Canarias (48) y Melilla (888)** proyectadas; el resto queda pendiente y anotado.
+
+### Dos pruebas que fallaban por tamaño, no por lógica
+
+- `apps/web/test/consultas.test.ts`: el resumen tardaba >20 s porque contaba 19,5 M de apariciones. Con la
+  0047 lee una fila: **399 ms**, y el fichero entero pasa en 23 s (32 bien, 1 omitida).
+- `packages/canonico/test/retirada.test.ts`: la limpieza del ámbito lanzaba `delete … in (select …)` sobre
+  tablas de 18,4 M de filas; PostgreSQL estimaba miles de lotes de la federación de pruebas y **recorría
+  `ops.batch_cambio` entera (45 s por limpieza, 6 limpiezas)**. Cambiado a `= any (array(…))`, que usa el
+  índice: **6 de 6 en 30 s**.
+- La 0047 sólo recalcula los recuentos en las pasadas completas: el proyector de cada 15 min
+  (`--sin-globales`) no paga los ~50 s de contar.
+
+### Estado de T3 y lo que queda
+
+| Paso | Estado |
+|---|---|
+| Copia antes de tocar | ✓ `canonico-20261023-0850.dump`, 0,84 GB, índice legible, 38 tablas |
+| `pnpm db:migrar` | ✓ 0023-0048 aplicadas (0 pendientes) |
+| Unir clubes por letra de filial | ✓ 6.086 clubes borrados, 12.828 equipos-temporada movidos; segunda pasada 0 |
+| Reclasificar ediciones | ✓ 9.250 ediciones (división, nivel y provincia) |
+| Posiciones y capitán | ✗ pendiente: el recorrido de JSON archivados es de horas (Valencia ~100 k actas); medido y **sin aplicar** |
+| Proyección | parcial: Canarias y Melilla; el resto, de noche |
+| `planes --guardar` | ✓ (11 planes en `pruebas/planes/`) |
+| T14 personas huérfanas | **368** medidas; no se borra nada sin permiso de David (`core` no se toca) |
+
+**Riesgo nuevo, para David:** el contenedor tiene `/dev/shm` de **64 MB** (el valor por defecto de Docker) y
+alguna consulta paralela falla con «could not resize shared memory segment … No space left on device». La
+solución es `shm_size: 1gb` en `infra/docker-compose.yml`, que **no toco sin su permiso**. Mientras tanto, si
+una consulta grande falla así, se puede lanzar con `set max_parallel_workers_per_gather = 0`.
 
 ## ★★★★ DeepSeek, 23/10, 12:10 — R1-R7 PASADAS (la primera contra PostgreSQL 18 de verdad), 0046 y los commits
 

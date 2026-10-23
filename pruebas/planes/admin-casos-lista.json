@@ -1,0 +1,23 @@
+{
+  "consulta": "admin-casos-lista",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Hash",
+      "Hash Join",
+      "Index Scan",
+      "Limit",
+      "Memoize",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "caso_dato",
+      "federation",
+      "season"
+    ],
+    "filas": 1267
+  }
+}

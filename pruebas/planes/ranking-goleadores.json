@@ -1,0 +1,20 @@
+{
+  "consulta": "ranking-goleadores",
+  "presupuestoMs": 500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Incremental Sort",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "season"
+    ],
+    "filas": 172
+  }
+}

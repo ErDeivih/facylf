@@ -1,0 +1,26 @@
+{
+  "consulta": "ojeo-jugadores",
+  "presupuestoMs": 800,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapAnd",
+      "CTE Scan",
+      "Index Scan",
+      "Limit",
+      "Memoize",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "federation",
+      "season"
+    ],
+    "filas": 1
+  }
+}

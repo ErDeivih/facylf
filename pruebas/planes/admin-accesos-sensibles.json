@@ -1,0 +1,19 @@
+{
+  "consulta": "admin-accesos-sensibles",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Hash",
+      "Hash Join",
+      "Index Scan",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "usuario"
+    ],
+    "filas": 0
+  }
+}

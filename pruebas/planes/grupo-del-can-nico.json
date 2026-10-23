@@ -4,17 +4,15 @@
   "plan": "indexado",
   "forma": {
     "nodos": [
-      "Hash",
-      "Hash Join",
       "Index Scan",
       "Limit",
       "Nested Loop",
       "Seq Scan"
     ],
     "seqScans": [
-      "coverage_checkpoint",
-      "phase_group"
+      "federation",
+      "season"
     ],
-    "filas": 30
+    "filas": 18
   }
 }

@@ -1,0 +1,18 @@
+{
+  "consulta": "plantilla-del-equipo",
+  "presupuestoMs": 400,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Limit",
+      "Merge Join",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 414
+  }
+}

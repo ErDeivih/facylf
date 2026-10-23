@@ -1,0 +1,21 @@
+{
+  "consulta": "arbitros",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Scan",
+      "Limit",
+      "Materialize",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "season"
+    ],
+    "filas": 39.2
+  }
+}

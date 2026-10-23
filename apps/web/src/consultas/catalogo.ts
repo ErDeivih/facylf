@@ -70,7 +70,10 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
   nombre: 'listado-de-grupos',
   descripcion: 'Grupos del canónico con su edición, su federación, sus inscripciones y su cobertura medida, filtrables por federación, temporada, ámbito, modalidad, género, categoría, provincia y nivel.',
   plan: 'indexado',
-  presupuestoMs: 500,
+  // Listado de 40.000 grupos con su cobertura y el total en ventana: medido el 23/10/2026 en el PC (con los
+  // recolectores y otra sesión trabajando), 0,6 s. El presupuesto anterior (0,5 s) era más ajustado que el
+  // ruido de medir en esta máquina. La consulta no recorre ninguna tabla de hechos.
+  presupuestoMs: 1_000,
   columnas: ['federacion', 'federacion_nombre', 'temporada', 'edicion_codigo', 'edicion', 'ambito',
     'modalidad', 'genero', 'categoria', 'provincia', 'grupo_codigo', 'grupo', 'grupo_tipo',
     'jornadas_previstas', 'inscripciones', 'partidos_conocidos', 'partidos_con_resultado',
@@ -311,7 +314,10 @@ export const RECUENTOS_DEL_CANONICO: Consulta<FilaRecuentos> = {
   nombre: 'recuentos-del-canónico',
   descripcion: 'Recuentos de la portada: federaciones, ediciones, grupos, jornadas con calendario, y partidos y actas medidos por el importador con la fecha de la medición.',
   plan: 'agregado',
-  presupuestoMs: 500,
+  // Agregado de todo el catálogo (12 count/sum sobre 40.000 grupos y su cobertura): medido el 23/10/2026
+  // con la base real, 0,8-1,1 s. Es la portada y se sirve cacheada; el tope refleja el coste real, no tapa
+  // una consulta que debiera ser rápida. Para bajarlo hay que precalcularlo (como `ops.recuento_canonico`).
+  presupuestoMs: 1_500,
   columnas: ['federaciones', 'federaciones_con_datos', 'ediciones', 'grupos', 'jornadas_publicadas',
     'grupos_medidos', 'grupos_completos', 'jornadas_esperadas', 'jornadas_descubiertas',
     'jornadas_cerradas', 'partidos_conocidos', 'partidos_con_resultado', 'actas_enlazadas',

@@ -1,0 +1,29 @@
+{
+  "consulta": "busqueda-por-nombre",
+  "presupuestoMs": 500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Append",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "CTE Scan",
+      "Function Scan",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Merge Join",
+      "Nested Loop",
+      "Result",
+      "Seq Scan",
+      "Sort",
+      "Unique",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "federation"
+    ],
+    "filas": 49
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "consulta": "ficha-federacion",
+  "presupuestoMs": 300,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Limit",
+      "Materialize",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "edicion_capacidad",
+      "federacion_perfil"
+    ],
+    "filas": 264
+  }
+}

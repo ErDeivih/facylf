@@ -1,0 +1,25 @@
+{
+  "consulta": "rachas-del-grupo",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Append",
+      "CTE Scan",
+      "Hash",
+      "Hash Join",
+      "Incremental Sort",
+      "Index Scan",
+      "Materialize",
+      "Merge Join",
+      "Nested Loop",
+      "Result",
+      "Sort",
+      "Subquery Scan",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 684
+  }
+}

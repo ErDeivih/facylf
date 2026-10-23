@@ -1,0 +1,15 @@
+{
+  "consulta": "admin-uso-por-pantalla",
+  "presupuestoMs": 100,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}

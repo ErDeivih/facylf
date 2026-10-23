@@ -1,0 +1,15 @@
+{
+  "consulta": "admin-caducidades",
+  "presupuestoMs": 60,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "usuario"
+    ],
+    "filas": 0
+  }
+}

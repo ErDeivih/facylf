@@ -1,0 +1,19 @@
+{
+  "consulta": "uso-de-cantera",
+  "presupuestoMs": 600,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Memoize",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

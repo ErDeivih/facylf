@@ -1,0 +1,17 @@
+{
+  "consulta": "reparto-de-goles",
+  "presupuestoMs": 120,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "CTE Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}

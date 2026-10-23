@@ -1,0 +1,17 @@
+{
+  "consulta": "admin-casos-resumen",
+  "presupuestoMs": 150,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "caso_dato"
+    ],
+    "filas": 1267
+  }
+}

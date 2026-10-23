@@ -1,0 +1,22 @@
+{
+  "consulta": "evolucion-del-club",
+  "presupuestoMs": 300,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Hash",
+      "Hash Join",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "season"
+    ],
+    "filas": 26
+  }
+}

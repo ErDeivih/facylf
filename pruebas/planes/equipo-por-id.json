@@ -1,0 +1,14 @@
+{
+  "consulta": "equipo-por-id",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Scan",
+      "Limit",
+      "Nested Loop"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

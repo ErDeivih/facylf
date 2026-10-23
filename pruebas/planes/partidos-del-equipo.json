@@ -1,0 +1,19 @@
+{
+  "consulta": "partidos-del-equipo",
+  "presupuestoMs": 400,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 26
+  }
+}

@@ -1,22 +1,25 @@
 {
   "consulta": "recuentos-del-canónico",
-  "presupuestoMs": 500,
+  "presupuestoMs": 1500,
   "plan": "agregado",
   "forma": {
     "nodos": [
       "Aggregate",
+      "CTE Scan",
+      "Hash",
+      "Hash Join",
       "Index Only Scan",
       "Limit",
+      "Nested Loop",
       "Result",
       "Seq Scan"
     ],
     "seqScans": [
       "competition_edition",
       "coverage_checkpoint",
-      "federation",
       "matchday",
       "phase_group"
     ],
-    "filas": 1124
+    "filas": 579753
   }
 }

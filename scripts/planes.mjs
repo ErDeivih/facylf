@@ -34,8 +34,11 @@ const guardar = process.argv.includes('--guardar');
 
 const { default: pg } = await import(new URL('../packages/canonico/node_modules/pg/lib/index.js', import.meta.url).href);
 const env = readFileSync(join(RAIZ, '.env'), 'utf8');
-const url = /^DATABASE_URL_LECTOR=(.*)$/m.exec(env)?.[1]?.trim();
-if (!url) throw new Error('Falta DATABASE_URL_LECTOR en .env');
+// Las consultas de usuarios y del panel leen `app.*` (favoritos, avisos, invitaciones), a lo que el rol de
+// lectura pública no tiene acceso: se miden con el rol de publicación, que sí puede leerlas y es el que
+// ejecuta el proyector. Las consultas públicas dan el mismo plan con cualquiera de los dos.
+const url = (/^DATABASE_URL_PUBLICADOR=(.*)$/m.exec(env)?.[1] ?? /^DATABASE_URL_LECTOR=(.*)$/m.exec(env)?.[1])?.trim();
+if (!url) throw new Error('Falta DATABASE_URL_PUBLICADOR (o DATABASE_URL_LECTOR) en .env');
 
 // En Windows hay que pasar file:// (una ruta `F:\...` no vale como URL de importación).
 const importa = (relativa) => import(pathToFileURL(join(RAIZ, relativa)).href);
@@ -80,7 +83,19 @@ mkdirSync(CARPETA_PLANES, { recursive: true });
 
 console.log('consulta                        tiempo   presupuesto  nodos  seq scans                        veredicto');
 for (const consulta of catalogo) {
-  const { rows } = await pool.query(`explain (analyze, buffers, format json) ${consulta.sql}`, [...consulta.parametros]);
+  let rows;
+  try {
+    ({ rows } = await pool.query(`explain (analyze, buffers, format json) ${consulta.sql}`, [...consulta.parametros]));
+  } catch (error) {
+    // Hay consultas de administración que leen tablas que el rol de medición no ve (app.invitacion,
+    // auth.*). No se inventa el dato ni se cambia el rol a media pasada: se dicen y se sigue, para que
+    // una consulta sin permiso no impida medir las demás.
+    if (error?.code === '42501') {
+      console.log(`${consulta.nombre.padEnd(30)} — sin permiso con el rol de medición: se omite (${error.message})`);
+      continue;
+    }
+    throw error;
+  }
   const plan = rows[0]['QUERY PLAN'][0];
   const ms = Number(plan['Execution Time'] ?? 0);
   const resumen = recorrePlan(plan.Plan);

@@ -1,0 +1,23 @@
+{
+  "consulta": "admin-procesos",
+  "presupuestoMs": 200,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Append",
+      "Hash",
+      "Hash Join",
+      "Seq Scan"
+    ],
+    "seqScans": [
+      "alerta",
+      "caso_dato",
+      "copia",
+      "coverage_checkpoint",
+      "estado_generador",
+      "proyeccion_grupo"
+    ],
+    "filas": 40399
+  }
+}

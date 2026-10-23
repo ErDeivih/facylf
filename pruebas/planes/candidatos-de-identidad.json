@@ -1,0 +1,25 @@
+{
+  "consulta": "candidatos-de-identidad",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Function Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Result",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "federation"
+    ],
+    "filas": 0
+  }
+}

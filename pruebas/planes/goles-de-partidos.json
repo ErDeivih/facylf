@@ -11,9 +11,7 @@
       "Sort"
     ],
     "seqScans": [
-      "competition_edition",
-      "federation",
-      "phase_group"
+      "federation"
     ],
     "filas": 811
   }

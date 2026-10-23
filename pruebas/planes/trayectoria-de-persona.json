@@ -1,0 +1,20 @@
+{
+  "consulta": "trayectoria-de-persona",
+  "presupuestoMs": 300,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Incremental Sort",
+      "Index Scan",
+      "Limit",
+      "Materialize",
+      "Memoize",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}

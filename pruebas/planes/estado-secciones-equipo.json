@@ -1,0 +1,17 @@
+{
+  "consulta": "estado-secciones-equipo",
+  "presupuestoMs": 60,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "CTE Scan",
+      "Function Scan",
+      "Index Only Scan",
+      "Index Scan",
+      "Nested Loop"
+    ],
+    "seqScans": [],
+    "filas": 7
+  }
+}

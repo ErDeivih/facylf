@@ -1,0 +1,17 @@
+{
+  "consulta": "sanciones-inferidas",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Incremental Sort",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Result",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "consulta": "comparador-jugadores",
+  "presupuestoMs": 400,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Function Scan",
+      "Incremental Sort",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort",
+      "Unique",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 2
+  }
+}

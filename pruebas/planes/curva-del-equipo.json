@@ -1,0 +1,20 @@
+{
+  "consulta": "curva-del-equipo",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Index Scan",
+      "Limit",
+      "Materialize",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 26
+  }
+}

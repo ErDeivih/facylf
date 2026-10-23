@@ -1,0 +1,21 @@
+{
+  "consulta": "admin-usuarios",
+  "presupuestoMs": 200,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "Limit",
+      "Result",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "suscripcion_push",
+      "usuario"
+    ],
+    "filas": 0
+  }
+}

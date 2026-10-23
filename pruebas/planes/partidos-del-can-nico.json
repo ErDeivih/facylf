@@ -1,0 +1,22 @@
+{
+  "consulta": "partidos-del-canónico",
+  "presupuestoMs": 600,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "federation",
+      "season"
+    ],
+    "filas": 24360
+  }
+}

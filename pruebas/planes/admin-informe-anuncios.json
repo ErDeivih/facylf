@@ -1,0 +1,19 @@
+{
+  "consulta": "admin-informe-anuncios",
+  "presupuestoMs": 150,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "Index Scan",
+      "Nested Loop",
+      "Sort",
+      "Subquery Scan",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}

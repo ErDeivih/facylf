@@ -1,0 +1,20 @@
+{
+  "consulta": "admin-campanas-anuncio",
+  "presupuestoMs": 120,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Hash",
+      "Hash Join",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "anuncio_dia",
+      "campana_anuncio"
+    ],
+    "filas": 0
+  }
+}

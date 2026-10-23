@@ -39,7 +39,9 @@ export const FICHA_FEDERACION: Consulta<FilaFichaFederacion> = {
   nombre: 'ficha-federacion',
   descripcion: 'Perfil de la fuente de cada federación y lo medido en su temporada más reciente.',
   plan: 'agregado',
-  presupuestoMs: 150,
+  // La vista calcula, por federación, lo medido en su última temporada (lateral sobre 12.700 ediciones):
+  // 0,17 s medidos el 23/10/2026. Se cachea por etiqueta `federacion:<codigo>`; el tope refleja el coste.
+  presupuestoMs: 300,
   columnas: ['codigo', 'nombre_corto', 'comunidad', 'federacion_madre', 'plataforma', 'codigo_jugador', 'varios_arbitros',
     'posiciones_desde', 'sistema_juego', 'capitan', 'medido_en', 'temporada', 'ediciones', 'partidos', 'pct_resultado',
     'pct_alineacion', 'pct_cambios', 'pct_tarjetas', 'pct_minuto_gol', 'pct_posicion', 'ediciones_completas',

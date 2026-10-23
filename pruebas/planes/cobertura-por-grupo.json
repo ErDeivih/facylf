@@ -4,19 +4,13 @@
   "plan": "agregado",
   "forma": {
     "nodos": [
-      "Hash",
-      "Hash Join",
+      "Incremental Sort",
+      "Index Scan",
       "Limit",
-      "Seq Scan",
-      "Sort"
+      "Memoize",
+      "Nested Loop"
     ],
-    "seqScans": [
-      "competition_edition",
-      "coverage_checkpoint",
-      "federation",
-      "phase_group",
-      "season"
-    ],
-    "filas": 39
+    "seqScans": [],
+    "filas": 4507
   }
 }

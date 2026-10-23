@@ -1,0 +1,21 @@
+{
+  "consulta": "admin-anuncios-por-dia",
+  "presupuestoMs": 120,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Function Scan",
+      "Hash",
+      "Hash Join",
+      "Index Scan",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "campana_anuncio"
+    ],
+    "filas": 30
+  }
+}

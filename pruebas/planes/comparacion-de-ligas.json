@@ -1,0 +1,24 @@
+{
+  "consulta": "comparacion-de-ligas",
+  "presupuestoMs": 800,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "CTE Scan",
+      "Hash",
+      "Hash Join",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "season"
+    ],
+    "filas": 25
+  }
+}

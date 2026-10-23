@@ -1,0 +1,21 @@
+{
+  "consulta": "forma-del-equipo",
+  "presupuestoMs": 120,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Append",
+      "CTE Scan",
+      "Hash",
+      "Hash Join",
+      "Index Scan",
+      "Limit",
+      "Sort",
+      "Subquery Scan",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 36
+  }
+}

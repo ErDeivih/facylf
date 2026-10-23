@@ -1,0 +1,18 @@
+{
+  "consulta": "admin-uso-por-dia",
+  "presupuestoMs": 100,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "ProjectSet",
+      "Result",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [],
+    "filas": 14
+  }
+}

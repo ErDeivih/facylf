@@ -1,0 +1,17 @@
+{
+  "consulta": "estado-secciones",
+  "presupuestoMs": 60,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "CTE Scan",
+      "Function Scan",
+      "Index Only Scan",
+      "Index Scan",
+      "Subquery Scan"
+    ],
+    "seqScans": [],
+    "filas": 9
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "consulta": "club-por-id",
+  "presupuestoMs": 100,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort"
+    ],
+    "seqScans": [],
+    "filas": 39
+  }
+}

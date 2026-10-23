@@ -1,0 +1,20 @@
+{
+  "consulta": "goles-por-tramo",
+  "presupuestoMs": 200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 101
+  }
+}

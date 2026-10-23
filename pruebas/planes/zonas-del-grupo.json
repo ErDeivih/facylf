@@ -1,0 +1,18 @@
+{
+  "consulta": "zonas-del-grupo",
+  "presupuestoMs": 100,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "reglamento_grupo"
+    ],
+    "filas": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "consulta": "equipos-del-club",
+  "presupuestoMs": 300,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [],
+    "filas": 115
+  }
+}

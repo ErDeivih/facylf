@@ -107,7 +107,10 @@ const GRUPO = `in (select g.id from core.phase_group g
 const filtroDe = (tabla: string, porGrupo: boolean | undefined, grupo = true): string => {
   if (porGrupo) return `phase_group_id ${GRUPO}`;
   if (tabla === 'core.match') return `phase_group_id ${GRUPO}`;
-  return `match_id in (select id from core.match where phase_group_id ${GRUPO})`;
+  // `= any (array(...))` y no `in (select ...)`: con las tablas de hechos del canónico (19,5 M de
+  // apariciones) el planificador estima mal y recorre la tabla entera; con el array usa el índice por
+  // `match_id`. Medido el 23/10/2026: la diferencia es entre 30 s y milisegundos.
+  return `match_id = any (array(select id from core.match where phase_group_id ${GRUPO}))`;
 };
 
 /**
@@ -161,20 +164,30 @@ async function limpiaCanonico(): Promise<void> {
     await c.query('begin');
     // Cada sentencia lleva sus parámetros: hay una que NO usa la federación (la de personas huérfanas) y
     // pasarle un parámetro de más hace que PostgreSQL rechace el `bind` entero.
+    //
+    // `= any (array(...))` en vez de `in (select ...)`: con el segundo, PostgreSQL estima que la federación
+    // de pruebas tiene miles de lotes (la estadística no la conoce) y recorre `ops.batch_cambio` entera
+    // —18,4 M de filas, 7,3 GB— para borrar cero: 45 s por limpieza (medido el 23/10/2026). Con el array
+    // usa el índice de la clave. El test limpia 6 veces, así que la diferencia es entre 1 minuto y 7.
+    const MATCHES = `select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id
+      join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id
+      where f.codigo = $1`;
+    const GRUPOS = `select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id
+      join core.federation f on f.id = e.federation_id where f.codigo = $1`;
     const sentencias: Array<[string, unknown[]]> = [
-      [`delete from ops.batch_cambio where batch_id in (select id from ops.batch where federation_id = (select id from core.federation where codigo = $1))`, [FEDERACION]],
-      [`delete from ops.normalizacion_error where batch_id in (select id from ops.batch where federation_id = (select id from core.federation where codigo = $1))`, [FEDERACION]],
-      [`delete from core.match_event where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.match_staff where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.match_official where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.appearance where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.match_report where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.match_source where match_id in (select m.id from core.match m join core.phase_group g on g.id = m.phase_group_id join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.match where phase_group_id in (select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.standing_snapshot where phase_group_id in (select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.matchday where phase_group_id in (select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from core.team_entry where phase_group_id in (select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
-      [`delete from ops.coverage_checkpoint where phase_group_id in (select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
+      [`delete from ops.batch_cambio where batch_id = any (array(select id from ops.batch where federation_id = (select id from core.federation where codigo = $1)))`, [FEDERACION]],
+      [`delete from ops.normalizacion_error where batch_id = any (array(select id from ops.batch where federation_id = (select id from core.federation where codigo = $1)))`, [FEDERACION]],
+      [`delete from core.match_event where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.match_staff where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.match_official where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.appearance where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.match_report where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.match_source where match_id = any (array(${MATCHES}))`, [FEDERACION]],
+      [`delete from core.match where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
+      [`delete from core.standing_snapshot where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
+      [`delete from core.matchday where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
+      [`delete from core.team_entry where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
+      [`delete from ops.coverage_checkpoint where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from core.phase_group where competition_edition_id in (select e.id from core.competition_edition e join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
       [`delete from source.external_ref where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from core.competition_edition where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
@@ -183,7 +196,7 @@ async function limpiaCanonico(): Promise<void> {
       [`delete from core.person_name where person_id in (select p.id from core.person p join core.person_source_identity psi on psi.person_id = p.id join core.federation f on f.id = psi.federation_id where f.codigo = $1)`, [FEDERACION]],
       [`delete from core.person_source_identity where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from core.person where id not in (select person_id from core.person_source_identity)`, []],
-      [`delete from core.team_season where club_id in (select id from core.club where federation_id = (select id from core.federation where codigo = $1))`, [FEDERACION]],
+      [`delete from core.team_season where club_id = any (array(select id from core.club where federation_id = (select id from core.federation where codigo = $1)))`, [FEDERACION]],
       [`delete from core.club where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from core.venue where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
     ];
@@ -264,8 +277,8 @@ describe('retirada canónica con diario', () => {
     // La comprobación va acotada a ESTA federación de pruebas: contar los `borrado` de toda la base incluiría
     // los de los lotes reales —la retirada del canónico de Euskadi dejó 3— y la aserción diría lo que no es.
     expect(await cuenta(pool!, `select count(*) n from ops.batch_cambio
-      where accion = 'borrado' and batch_id in (
-        select id from ops.batch where federation_id = (select id from core.federation where codigo = $1))`,
+      where accion = 'borrado' and batch_id = any (array(
+        select id from ops.batch where federation_id = (select id from core.federation where codigo = $1)))`,
     [FEDERACION])).toBe(0);
   });
 

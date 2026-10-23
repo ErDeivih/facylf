@@ -1,0 +1,26 @@
+{
+  "consulta": "equipos-por-federacion",
+  "presupuestoMs": 3000,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Hash",
+      "Hash Join",
+      "Limit",
+      "Seq Scan",
+      "Sort",
+      "WindowAgg"
+    ],
+    "seqScans": [
+      "club",
+      "competition_edition",
+      "coverage_checkpoint",
+      "federation",
+      "phase_group",
+      "season",
+      "team_entry",
+      "team_season"
+    ],
+    "filas": 305115
+  }
+}

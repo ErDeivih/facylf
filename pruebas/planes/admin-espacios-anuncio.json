@@ -1,0 +1,19 @@
+{
+  "consulta": "admin-espacios-anuncio",
+  "presupuestoMs": 120,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Merge Join",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "campana_anuncio"
+    ],
+    "filas": 7
+  }
+}

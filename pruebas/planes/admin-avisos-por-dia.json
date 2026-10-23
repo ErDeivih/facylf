@@ -1,0 +1,16 @@
+{
+  "consulta": "admin-avisos-por-dia",
+  "presupuestoMs": 300,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "notificacion"
+    ],
+    "filas": 0
+  }
+}

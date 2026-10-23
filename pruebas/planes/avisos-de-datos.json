@@ -1,0 +1,17 @@
+{
+  "consulta": "avisos-de-datos",
+  "presupuestoMs": 50,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Append",
+      "CTE Scan",
+      "Index Scan",
+      "Result",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

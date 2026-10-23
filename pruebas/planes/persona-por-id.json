@@ -1,0 +1,18 @@
+{
+  "consulta": "persona-por-id",
+  "presupuestoMs": 150,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Index Scan",
+      "Limit",
+      "Sort"
+    ],
+    "seqScans": [],
+    "filas": 1
+  }
+}

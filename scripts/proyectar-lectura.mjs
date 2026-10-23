@@ -332,6 +332,11 @@ for (const g of grupos) {
   if (pausaMs > 0) await new Promise((ok) => setTimeout(ok, pausaMs));
 }
 
+// Los cálculos de cierre (identidad, evolución, zonas, sanciones, árbitros) recorren TODO el canónico, no
+// un grupo: el tope de 120 s de la proyección por grupo no sirve aquí. Medido el 23/10/2026: la primera
+// pasada de `recalcula_arbitros()` sobre 1,2 M de partidos se pasa de 120 s. Se les da el mismo margen que
+// a las reparaciones (600 s) y si aun así no cabe, se ve en ops.evento_app y se trocea.
+await cliente.query(`set statement_timeout = '600s'`);
 await identidad([...tocadas]);
 await capa0029([...edicionesTocadas], tocadas, hechos > 0 && !sinGlobales);
 await casos([...edicionesTocadas], hechos > 0 && !sinGlobales);
@@ -344,8 +349,9 @@ if (hechos > 0 && !sinGlobales && (await cliente.query(`select to_regclass('anal
   console.log(`Evolución: ${ev.n} movimientos entre temporadas · ${zo.n} familias de competición con zonas aprendidas · ${((Date.now() - t) / 1000).toFixed(1)} s`);
 }
 // 0047: recuentos del canónico para `/canonico`. Antes se contaban las tablas de hechos en cada visita
-// (19,5 M de apariciones); ahora se recalculan aquí, una vez por pasada, y la web lee una fila.
-if ((await cliente.query(`select to_regprocedure('ops.actualiza_recuento_canonico()') is not null as ok`)).rows[0].ok) {
+// (19,5 M de apariciones). Se actualizan sólo en las pasadas completas (no en las de cada 15 minutos con
+// `--sin-globales`): contar cuesta ~50 s y el resumen no cambia de un cuarto de hora a otro.
+if (!sinGlobales && (await cliente.query(`select to_regprocedure('ops.actualiza_recuento_canonico()') is not null as ok`)).rows[0].ok) {
   const t = Date.now();
   await cliente.query('select ops.actualiza_recuento_canonico()');
   console.log(`Recuentos del canónico actualizados · ${((Date.now() - t) / 1000).toFixed(1)} s`);

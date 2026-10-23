@@ -3,7 +3,7 @@ import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm';
 import { unaccent } from '@electric-sql/pglite/contrib/unaccent';
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 // Pruebas de las migraciones 0029 sobre un PostgreSQL embebido (PGlite), sin tocar ninguna base real.
 // Instalar una vez en una carpeta aparte: npm i @electric-sql/pglite@0.5 ; ejecutar: node pruebas/sql/m29.mjs
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -24,7 +24,8 @@ let fallos = 0;
 export function ok(c, msg, extra) { if (!c) { fallos++; console.log('  ✗', msg, extra !== undefined ? JSON.stringify(extra) : ''); } else console.log('  ✓', msg); }
 export function fin() { console.log(fallos ? `${fallos} FALLOS` : 'TODO OK'); process.exitCode = fallos ? 1 : 0; }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// En Windows `file://${argv[1]}` nunca coincide (barras y letra de unidad): se compara con la URL bien formada.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const db = await base29();
   const q = async (s, p) => (await db.query(s, p)).rows;
   const mp = async (c, ev, d) => (await q('select analytics.minutos_partido($1,$2::jsonb,$3) m', [c, JSON.stringify(ev), d]))[0].m;

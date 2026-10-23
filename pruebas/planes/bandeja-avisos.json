@@ -1,0 +1,16 @@
+{
+  "consulta": "bandeja-avisos",
+  "presupuestoMs": 80,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "Limit",
+      "Sort"
+    ],
+    "seqScans": [],
+    "filas": 0
+  }
+}
