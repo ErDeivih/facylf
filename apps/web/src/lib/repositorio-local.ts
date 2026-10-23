@@ -8,9 +8,19 @@ import type { Partido } from '@facylf/dominio';
 import { parseaClasificacionHtml, type ClasificacionOficialHtml } from '@facylf/ingesta';
 // Ventana de temporadas: la web enseña lo mismo que se recoge (2023-24 en adelante).
 import { TEMPORADA_MINIMA, filtroVentana } from './temporadas';
+import { estaExcluida } from './federaciones-excluidas';
 
 export const FEDERACION_POR_DEFECTO = 'castilla-leon';
-export const FEDERACIONES_LOCALES = [
+
+/**
+ * TODAS las federaciones que el programa conoce, estén o no en esta web.
+ *
+ * Se deja completa a propósito, y la lista que se OFRECE se deriva de ella un poco más abajo. Reconocer un
+ * código y ofrecerlo en un listado son cosas distintas: si una federación desapareciera de aquí,
+ * `federacionDesde` caería a la federación por defecto y **una URL de esa federación enseñaría los datos de
+ * otra** — que es exactamente el fallo que ya pasó con Cataluña y Baleares (ver el comentario de más abajo).
+ */
+const TODAS_LAS_FEDERACIONES = [
   { codigo: 'castilla-leon', nombre: 'Castilla y León', territorio: 'Castilla y León', carpeta: 'descargas-federacion' },
   { codigo: 'galicia', nombre: 'Galicia', territorio: 'Galicia', carpeta: 'descargas-galicia' },
   { codigo: 'asturias', nombre: 'Asturias', territorio: 'Asturias', carpeta: 'descargas-asturias' },
@@ -34,14 +44,30 @@ export const FEDERACIONES_LOCALES = [
   { codigo: 'cataluna', nombre: 'Cataluña', territorio: 'Cataluña', carpeta: 'descargas-cataluna' },
   { codigo: 'baleares', nombre: 'Baleares', territorio: 'Illes Balears', carpeta: 'descargas-baleares' },
 ] as const;
-export type FederacionCodigo = typeof FEDERACIONES_LOCALES[number]['codigo'];
+
+/**
+ * Las que esta web OFRECE: lista, selectores, encabezado y búsqueda.
+ *
+ * Aquí sí se quitan las excluidas (`FACYLF_EXCLUIR`, ver `lib/federaciones-excluidas.ts`). Desde el 24/09/2026
+ * Valencia, Madrid y Cataluña se recogen en el PC de trabajo: lo que este servidor tiene de ellas es una foto
+ * congelada que a partir de ahora se queda atrás, así que no se ofrecen hasta que su trabajo se una al canónico.
+ */
+export const FEDERACIONES_LOCALES = TODAS_LAS_FEDERACIONES.filter((f) => !estaExcluida(f.codigo));
+export type FederacionCodigo = typeof TODAS_LAS_FEDERACIONES[number]['codigo'];
 
 const raizProyecto = resolve(process.cwd(), '..', '..');
 const conexiones = new Map<FederacionCodigo, DatabaseSync>();
 const versionesPublicacion = new Map<FederacionCodigo, { version: number; comprobadaEn: number }>();
 
+/**
+ * ¿Es un código de federación que conocemos?
+ *
+ * Se comprueba contra TODAS, no contra las ofrecidas: una federación excluida sigue siendo un código válido, y
+ * si aquí no lo fuera, `federacionDesde` la sustituiría por la federación por defecto y sus páginas enseñarían
+ * datos de otra sin avisar. Que no se ofrezca en un listado no significa que su código no exista.
+ */
 export function esFederacionCodigo(valor: string): valor is FederacionCodigo {
-  return FEDERACIONES_LOCALES.some((f) => f.codigo === valor);
+  return TODAS_LAS_FEDERACIONES.some((f) => f.codigo === valor);
 }
 
 export function federacionDesde(valor: string | null | undefined): FederacionCodigo {
@@ -49,8 +75,8 @@ export function federacionDesde(valor: string | null | undefined): FederacionCod
 }
 
 export function datosFederacion(codigo: string) {
-  return FEDERACIONES_LOCALES.find((f) => f.codigo === codigo) ??
-    FEDERACIONES_LOCALES.find((f) => f.codigo === FEDERACION_POR_DEFECTO)!;
+  return TODAS_LAS_FEDERACIONES.find((f) => f.codigo === codigo) ??
+    TODAS_LAS_FEDERACIONES.find((f) => f.codigo === FEDERACION_POR_DEFECTO)!;
 }
 
 function rutaBaseDe(federacion: FederacionCodigo): string {

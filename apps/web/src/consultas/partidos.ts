@@ -1,4 +1,5 @@
 import type { Consulta } from './contratos';
+import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 
 /**
  * Partidos y actas del canónico.
@@ -46,7 +47,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       from core.match m
       join core.phase_group g on g.id = m.phase_group_id
       join core.competition_edition e on e.id = g.competition_edition_id
-      join core.federation f on f.id = e.federation_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.matchday d on d.id = m.matchday_id
       join core.team_entry el on el.id = m.home_team_entry_id
       join core.team_entry ev on ev.id = m.away_team_entry_id
@@ -89,7 +90,7 @@ export const GOLES_DE_PARTIDOS: Consulta<FilaGoleador> = {
       join core.match m on m.id = e.match_id
       join core.phase_group g on g.id = m.phase_group_id
       join core.competition_edition ed on ed.id = g.competition_edition_id
-      join core.federation f on f.id = ed.federation_id
+      join core.federation f on f.id = ed.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.person p on p.id = e.person_id
       join core.team_entry te on te.id = e.team_entry_id
      where f.codigo = $1 and g.codigo_externo = $2 and e.event_type = 'gol'
@@ -140,7 +141,7 @@ export const GRUPO_DEL_CANONICO: Consulta<FilaGrupoDetalle> = {
            c.calculado_en
       from core.phase_group g
       join core.competition_edition e on e.id = g.competition_edition_id
-      join core.federation f on f.id = e.federation_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.season s on s.id = e.season_id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
      where f.codigo = $1 and g.codigo_externo = $2
@@ -183,7 +184,7 @@ export const CLASIFICACION_DEL_GRUPO: Consulta<FilaClasificacion> = {
       from core.standing_snapshot s
       join core.phase_group g on g.id = s.phase_group_id
       join core.competition_edition e on e.id = g.competition_edition_id
-      join core.federation f on f.id = e.federation_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.team_entry te on te.id = s.team_entry_id
       join core.matchday d on d.id = s.matchday_id
      where f.codigo = $1 and g.codigo_externo = $2

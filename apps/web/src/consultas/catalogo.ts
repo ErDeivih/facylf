@@ -1,4 +1,5 @@
 import type { Consulta } from './contratos';
+import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 
 /**
  * Catálogo del canónico: federaciones, grupos y los recuentos que enseña la portada.
@@ -120,7 +121,7 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
            (count(*) over ())::int              as total
       from core.phase_group g
       join core.competition_edition e on e.id = g.competition_edition_id
-      join core.federation f on f.id = e.federation_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.season s on s.id = e.season_id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
       -- El recuento de inscripciones, calculado UNA vez para toda la tabla (ver el comentario del select).
@@ -253,13 +254,19 @@ export const FEDERACIONES_DEL_CANONICO: Consulta<FilaFederacionCanonica> = {
            sum(c.actas_a_revisar)::int                                            as actas_a_revisar,
            count(c.phase_group_id) filter (where c.visibility_state = 'completa')::int as grupos_completos,
            count(c.phase_group_id) filter (where c.visibility_state in ('parcial_privada', 'verificada_hasta_jornada'))::int as grupos_parciales,
-           count(g.id) filter (where c.phase_group_id is null)::int               as grupos_sin_cobertura,
+           -- «Sin cobertura» = ni completo ni parcial: sin punto de control, o con él en 'oculta' (el valor
+           -- por defecto). Antes sólo contaba los grupos sin control, y un grupo con control en 'oculta' no
+           -- caía en ninguna cesta: la suma no cuadraba con 'grupos'. Ver el comentario largo en
+           -- cobertura.ts, donde está el mismo arreglo y el porqué medido. Sin acentos graves aquí dentro.
+           count(g.id) filter (where coalesce(c.visibility_state, 'oculta')
+                                 not in ('completa', 'parcial_privada', 'verificada_hasta_jornada'))::int as grupos_sin_cobertura,
            max(c.calculado_en)                                                    as calculado_en
       from core.federation f
       left join core.competition_edition e on e.federation_id = f.id
       left join core.season s on s.id = e.season_id
       left join core.phase_group g on g.competition_edition_id = e.id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
+     where ${SQL_FEDERACION_NO_EXCLUIDA}
      group by f.codigo, f.nombre, f.portal_url, f.activa, f.adaptador
      order by f.codigo
      limit 100`,
@@ -310,24 +317,50 @@ export const RECUENTOS_DEL_CANONICO: Consulta<FilaRecuentos> = {
     'jornadas_cerradas', 'partidos_conocidos', 'partidos_con_resultado', 'actas_enlazadas',
     'actas_disponibles', 'actas_parseadas', 'actas_correctas', 'actas_a_revisar', 'calculado_en'],
   sql: `
-    select (select count(*) from core.federation)::int                              as federaciones,
-           (select count(distinct e.federation_id) from core.competition_edition e)::int as federaciones_con_datos,
-           (select count(*) from core.competition_edition)::int                     as ediciones,
-           (select count(*) from core.phase_group)::int                             as grupos,
-           (select count(*) from core.matchday)::int                                as jornadas_publicadas,
-           (select count(*) from ops.coverage_checkpoint)::int                      as grupos_medidos,
-           (select count(*) from ops.coverage_checkpoint where visibility_state = 'completa')::int as grupos_completos,
-           (select sum(jornadas_esperadas) from ops.coverage_checkpoint)::int        as jornadas_esperadas,
-           (select sum(jornadas_descubiertas) from ops.coverage_checkpoint)::int     as jornadas_descubiertas,
-           (select sum(jornadas_cerradas) from ops.coverage_checkpoint)::int         as jornadas_cerradas,
-           (select sum(partidos_conocidos) from ops.coverage_checkpoint)::int        as partidos_conocidos,
-           (select sum(partidos_con_resultado) from ops.coverage_checkpoint)::int    as partidos_con_resultado,
-           (select sum(actas_enlazadas) from ops.coverage_checkpoint)::int           as actas_enlazadas,
-           (select sum(actas_disponibles) from ops.coverage_checkpoint)::int         as actas_disponibles,
-           (select sum(actas_parseadas) from ops.coverage_checkpoint)::int           as actas_parseadas,
-           (select sum(actas_correctas) from ops.coverage_checkpoint)::int           as actas_correctas,
-           (select sum(actas_a_revisar) from ops.coverage_checkpoint)::int           as actas_a_revisar,
-           (select max(calculado_en) from ops.coverage_checkpoint)                   as calculado_en
+    with edicion_visible as (
+      select e.id as edicion_id
+        from core.competition_edition e
+        join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+    ),
+    grupo_visible as (
+      select g.id as grupo_id
+        from core.phase_group g
+        join edicion_visible ev on ev.edicion_id = g.competition_edition_id
+    )
+    select (select count(*) from core.federation f where ${SQL_FEDERACION_NO_EXCLUIDA})::int as federaciones,
+           (select count(distinct e.federation_id) from core.competition_edition e
+              join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA}))::int as federaciones_con_datos,
+           (select count(*) from edicion_visible)::int                              as ediciones,
+           (select count(*) from grupo_visible)::int                                as grupos,
+           (select count(*) from core.matchday m
+              join grupo_visible gv on gv.grupo_id = m.phase_group_id)::int         as jornadas_publicadas,
+           (select count(*) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as grupos_medidos,
+           (select count(*) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id
+             where c.visibility_state = 'completa')::int                            as grupos_completos,
+           (select sum(c.jornadas_esperadas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_esperadas,
+           (select sum(c.jornadas_descubiertas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_descubiertas,
+           (select sum(c.jornadas_cerradas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_cerradas,
+           (select sum(c.partidos_conocidos) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as partidos_conocidos,
+           (select sum(c.partidos_con_resultado) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as partidos_con_resultado,
+           (select sum(c.actas_enlazadas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_enlazadas,
+           (select sum(c.actas_disponibles) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_disponibles,
+           (select sum(c.actas_parseadas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_parseadas,
+           (select sum(c.actas_correctas) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_correctas,
+           (select sum(c.actas_a_revisar) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_a_revisar,
+           (select max(c.calculado_en) from ops.coverage_checkpoint c
+              join grupo_visible gv on gv.grupo_id = c.phase_group_id)              as calculado_en
      limit 1`,
 };
 
