@@ -19,12 +19,32 @@ services:
     restart: unless-stopped
     cgroup_parent: facylf.slice
     mem_limit: 256m
+    # Y una cuota DURA de procesador, para que esto no pueda volver a pasar: la vigilancia no puede costar más
+    # que lo vigilado. Con 1,0 núcleo el monitor sigue leyendo las colas (tardará más en dar la vuelta
+    # completa) y su consumo queda acotado pase lo que pase.
+    cpus: 1.0
     # Con el usuario del servidor y el GRUPO de Docker: así puede leer el socket (`root:996`, modo 660) y lo que
     # escribe en `estado/` queda como david, para que el `cron` del host siga escribiendo ahí. Medido el
     # 21/09/2026: como `1000:1000` el socket daba `EACCES`, y como root los ficheros quedaban de root y el cron
     # no habría podido tocarlos.
     user: "1000:996"
-    command: ["node", "/app/scripts/monitor-flota.mjs", "--cada-seg", "60"]
+    # ── LA CADENCIA Y EL COSTE (ajustado el 25/09/2026) ───────────────────────────────────────────────
+    #
+    # Reevaluado el 25/09/2026: el estado completo de una cola son barridos sobre tablas de cientos de miles de
+    # filas, y con 19 colas de 600-800 MB la rotación de 3 por vuelta mantenía al monitor barriendo sin parar.
+    # Ahora una vuelta cada 2 minutos y UNA cola por vuelta (cada cola se relee cada ~19 min en vez de ~6). Las
+    # señales que importan para avisar —última petición, peticiones y fallos de la ventana, plaza ocupada— se
+    # siguen leyendo de TODAS las federaciones en cada vuelta, así que la detección de atascos no se retrasa.
+    #
+    # ── Y UN ERROR DE MEDICIÓN QUE NO HAY QUE REPETIR ─────────────────────────────────────────────────
+    #
+    # Ese mismo día el monitor pareció consumir **788 % de un núcleo** leyendo `cpu.stat` desde dentro. Era
+    # falso: este contenedor monta `/sys/fs/cgroup` DEL HOST (lo necesita para vigilar la rebanada
+    # `facylf.slice`), así que esa lectura devuelve el consumo de TODA la máquina, no el suyo. Medido bien, con
+    # `docker stats`, el monitor no aparecía ni en el top: el consumo estaba en los recolectores (3,5 de los 4
+    # núcleos, cada uno dentro de su cuota). Para medir un contenedor hay que usar el daemon, no el cgroup que
+    # el propio contenedor tiene montado.
+    command: ["node", "/app/scripts/monitor-flota.mjs", "--cada-seg", "120"]
     environment:
       FACYLF_RAIZ: /app
       FACYLF_ESTADO_DIR: /app/estado
@@ -46,6 +66,14 @@ services:
       # Los dos avisos. `host.docker.internal` es el servidor de casa: ntfy escucha ahí en el 8085.
       FACYLF_NTFY: "${FACYLF_NTFY:-http://host.docker.internal:8085/facylf}"
       FACYLF_KUMA_PUSH: "${FACYLF_KUMA_PUSH:-}"
+      # Una cola entera por vuelta (antes 3): es lo que reparte el barrido gordo sin retrasar los avisos.
+      FACYLF_COLAS_POR_VUELTA: "${FACYLF_COLAS_POR_VUELTA:-1}"
+      # Las que recoge el PC: fuera de la vigilancia de este servidor, o avisa de lo que no es una avería.
+      FACYLF_EXCLUIR: "${FACYLF_EXCLUIR:-valencia,madrid,cataluna,andalucia}"
+      # El suelo de temporadas (11/10/2026). Sin esta línea el monitor usaba el 2023-24 por defecto y no veía el
+      # histórico: enseñaba «sin-trabajo» a Rioja y «casi terminadas» a federaciones con 15.000-60.000 trabajos
+      # vencidos, mientras los recolectores (que sí reciben 2010-11 por `docker/.env`) trabajaban en ellos.
+      FACYLF_TEMPORADA_MINIMA: "${FACYLF_TEMPORADA_MINIMA:-2010-11}"
       TZ: Europe/Madrid
     volumes:
       # El repositorio entero: las colas, el estado y los guiones viven ahí.

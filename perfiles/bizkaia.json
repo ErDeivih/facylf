@@ -1,0 +1,9 @@
+{
+  "nombre": "bizkaia",
+  "base": "https://webvizcaya.novanet.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-bizkaia",
+  "config": "recolector.bizkaia.config.json",
+  "catalogo": "descargas-bizkaia/competiciones-por-temporada.json",
+  "grupos": "descargas-bizkaia/grupos-por-temporada.json"
+}

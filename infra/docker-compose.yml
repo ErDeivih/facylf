@@ -1,6 +1,14 @@
 # PostgreSQL canónico de la plataforma (ADR-0008).
 # Escucha sólo en 127.0.0.1 y en el puerto 5433 para no chocar con otra instalación.
-# Arranque:  docker compose --env-file .env -f infra/docker-compose.yml up -d
+# Arranque (DESDE LA RAÍZ DEL REPOSITORIO, con el proyecto `facylf` y el .env que existe):
+#   cd /srv/data/facylf && docker compose -p facylf --env-file docker/.env -f infra/docker-compose.yml up -d
+#
+# OJO con las dos trampas, comprobadas el 26/09/2026 con `--dry-run`:
+#   · sin `-p facylf` el proyecto por defecto es «infra`» (el nombre del directorio), Docker NO reconoce el
+#     contenedor que ya corre y **crearía otro** (`infra-postgres-1`) con su propia red y su propio volumen,
+#     dejando la base canónica de verdad a un lado. El contenedor que corre pertenece al proyecto `facylf`;
+#   · `--env-file .env` apunta a un fichero de la raíz que NO existe: el entorno está en `docker/.env`, y sin
+#     él el compose se niega a arrancar porque POSTGRES_PASSWORD es obligatoria.
 services:
   postgres:
     image: postgres:18

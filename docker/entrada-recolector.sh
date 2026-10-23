@@ -34,11 +34,15 @@ mkdir -p "$carpeta"
 # contenedor —`SessionNotCreatedError: session created: Chrome instance exited`— y el worker moría en bucle cada
 # 20 s. En el servidor no hay dos sistemas sobre el mismo perfil, pero el fichero también se queda huérfano si el
 # contenedor se para de golpe, así que se limpia siempre antes de abrir el navegador.
+# El perfil puede vivir fuera de la cola (FACYLF_DIR_PERFILES_CHROME, 09/10/2026: el disco duro de /srv/data no
+# aguantaba las escrituras de nueve navegadores). Misma regla que `rutaPerfilChrome()` del recolector.
+perfil_chrome="$carpeta/perfil-chrome"
+[ -n "${FACYLF_DIR_PERFILES_CHROME:-}" ] && perfil_chrome="$FACYLF_DIR_PERFILES_CHROME/descargas-$fed/perfil-chrome"
 limpia_restos() {
-  pkill -f "user-data-dir=$carpeta/perfil-chrome" 2>/dev/null || true
-  rm -f "$carpeta/perfil-chrome/SingletonLock" \
-        "$carpeta/perfil-chrome/SingletonSocket" \
-        "$carpeta/perfil-chrome/SingletonCookie" 2>/dev/null || true
+  pkill -f "user-data-dir=$perfil_chrome" 2>/dev/null || true
+  rm -f "$perfil_chrome/SingletonLock" \
+        "$perfil_chrome/SingletonSocket" \
+        "$perfil_chrome/SingletonCookie" 2>/dev/null || true
 }
 
 # Y al pararlo, se suelta la plaza de navegador que tuviera el worker.

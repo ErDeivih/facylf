@@ -15,8 +15,8 @@
     "actasMadrid": true
   },
   "ritmo": {
-    "intervaloMinSeg": 4,
-    "intervaloMaxSeg": 6,
+    "intervaloMinSeg": 5,
+    "intervaloMaxSeg": 7,
     "maxPeticionesDia": 200000,
     "maxTrabajosSesion": 200000,
     "desdeHora": 0,

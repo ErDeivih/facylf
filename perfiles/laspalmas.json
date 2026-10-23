@@ -1,0 +1,9 @@
+{
+  "nombre": "laspalmas",
+  "base": "https://www.fiflp.com/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-laspalmas",
+  "config": "recolector.laspalmas.config.json",
+  "catalogo": "descargas-laspalmas/competiciones-por-temporada.json",
+  "grupos": "descargas-laspalmas/grupos-por-temporada.json"
+}

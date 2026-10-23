@@ -1,0 +1,9 @@
+{
+  "nombre": "araba",
+  "base": "https://webalava.novanet.es/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-araba",
+  "config": "recolector.araba.config.json",
+  "catalogo": "descargas-araba/competiciones-por-temporada.json",
+  "grupos": "descargas-araba/grupos-por-temporada.json"
+}

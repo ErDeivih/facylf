@@ -44,6 +44,22 @@ x-ambiente-recolector: &ambiente-recolector
   TZ: Europe/Madrid
   FACYLF_MEMORIA_GB: "${FACYLF_MEMORIA_GB:-10}"
   FACYLF_CHROME_HEADLESS: "1"
+  # Perfiles de Chrome en el SSD, no en el disco duro de /srv/data (09/10/2026: disco al 87 % con 126 operaciones/s,
+  # presión de E/S al 94-98 %, carga 45). Ver `rutaPerfilChrome()` en scripts/recolector-local.mjs.
+  FACYLF_DIR_PERFILES_CHROME: "${FACYLF_DIR_PERFILES_CHROME:-/srv/ssd/facylf/perfiles-chrome}"
+  # ── SUELO DE TEMPORADAS: SE RETOMA EL HISTÓRICO (06/10/2026) ────────────────────────────────────────────
+  #
+  # El 14/09/2026 se decidió recoger sólo de 2023-24 en adelante, y lo anterior quedó APLAZADO —no borrado— con
+  # la fecha centinela `2099-01-01`, que en este proyecto significa «nunca». Se retoma, y la razón está medida:
+  # las dieciséis federaciones hacían 1.769 peticiones por hora entre todas cuando su capacidad ronda las
+  # 8.000. **El histórico no le quita el turno al presente: llena el hueco.**
+  #
+  # El suelo se cambia sin tocar código (`lib/temporada-minima.mjs`, que lo dice en su comentario). El valor
+  # real va en `.env`.
+  #
+  # OJO: esto YA SE PERDIÓ UNA VEZ. Se añadió a mano SÓLO en el servidor y, al copiar después el `compose.yml`
+  # del repositorio encima, desapareció sin que nada avisara. Por eso está aquí, en el fichero versionado.
+  FACYLF_TEMPORADA_MINIMA: "${FACYLF_TEMPORADA_MINIMA:-2010-11}"
   # Turno máximo con una plaza cuando hay federaciones esperando: es lo que hace que todas entren a lo largo
   # del día en un servidor donde no caben las 19 a la vez.
   FACYLF_TURNO_PLAZA_MIN: "${FACYLF_TURNO_PLAZA_MIN:-150}"
@@ -148,6 +164,11 @@ x-comun: &recolector
 services:
   andalucia:
     <<: *recolector
+    # Pasa al PC (09/10/2026, petición de David): es la que más trabajo vencido tiene (~200.000 trabajos de 13
+    # temporadas) y el PC tiene 12 núcleos frente a 4. Se traspasa con scripts/claude/traspasa-federaciones-al-pc.ps1,
+    # que para el contenedor, trae la cola VIVA y quita a Andalucía de FACYLF_EXCLUIR en el PC. El perfil impide que
+    # un `up -d` general la vuelva a arrancar aquí y se pidan las mismas actas desde las dos máquinas.
+    profiles: ["recoge-en-pc"]
     command: ["bash", "docker/entrada-recolector.sh", "andalucia"]
     # ── SEGUNDA FEDERACIÓN DE MEDICIÓN (23/09/2026) ─────────────────────────────────────────────────────────
     #
@@ -168,6 +189,11 @@ services:
       # aquí primero y se midió la ganancia, así que ahora son el comportamiento por defecto.
       FACYLF_PERF: "1"
     volumes:
+      # El CÓDIGO de los recolectores se monta del repositorio del servidor (07/10/2026): un `docker cp` se
+      # pierde en cuanto se recrea el contenedor (pasó con el arreglo del índice de jornadas). Desplegar es
+      # copiar `scripts/` y `perfiles/` a /srv/data/facylf y reiniciar; ver docs/plataforma-web/DESPLIEGUE-CODIGO.md.
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-andalucia:/app/descargas-andalucia
@@ -176,6 +202,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "aragon"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-aragon:/app/descargas-aragon
@@ -184,6 +212,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "asturias"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-asturias:/app/descargas-asturias
@@ -192,6 +222,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "baleares"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-baleares:/app/descargas-baleares
@@ -200,6 +232,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "canarias"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-canarias:/app/descargas-canarias
@@ -208,6 +242,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "cantabria"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-cantabria:/app/descargas-cantabria
@@ -216,14 +252,35 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "castilla-la-mancha"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-castilla-la-mancha:/app/descargas-castilla-la-mancha
 
   cataluna:
     <<: *recolector
+    # ── ESTAS TRES FEDERACIONES YA NO SE RECOGEN AQUÍ (24/09/2026) ─────────────────────────────────────────
+    #
+    # Valencia, Madrid y Cataluña pasan a recogerse en el PC de trabajo; el servidor se queda con las otras
+    # dieciséis. El motivo de fondo es que las tres son las más pesadas y las que peor encajaban con el techo de
+    # CPU de esta máquina (ver `docs/plataforma-web/RITMO-MEDIDO.md`).
+    #
+    # Se les pone un PERFIL para que un `docker compose up -d` general —el que se usa para levantar la flota
+    # entera— NO las arranque por descuido: si se levantaran, pedirían a los mismos portales que el PC a la vez,
+    # con peticiones duplicadas y riesgo de que el portal nos corte. Para arrancar una a propósito:
+    #
+    #     docker compose --project-name facylf --env-file docker/.env \
+    #       -f docker/compose.yml -f docker/compose-turnos.yml up -d valencia
+    #
+    # (nombrarla explícitamente basta: el perfil sólo impide que entren por selección implícita). Y los datos no
+    # se tocan: viven en el sistema de ficheros del servidor y se copiaron al PC antes de pararlas.
+    profiles: ["recoge-en-pc"]
     command: ["bash", "docker/entrada-recolector.sh", "cataluna"]
+
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-cataluna:/app/descargas-cataluna
@@ -232,6 +289,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "ceuta"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-ceuta:/app/descargas-ceuta
@@ -240,14 +299,85 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "euskadi"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-euskadi:/app/descargas-euskadi
+
+  # Territorial/insular (05/10/2026): PNFG propio, la autonómica sólo publica lo autonómico. Ver
+  # docs/plataforma-web/AUDITORIA-COMPLETITUD-2026-10-05.md §2.
+  bizkaia:
+    <<: *recolector
+    # Sólo arranca si se nombra (`up -d bizkaia`) o con `--profile territoriales`: un `up -d` del proyecto entero
+    # las levantó las cinco a la vez el 07/10 y la carga del servidor subió a 40-55.
+    profiles: ["territoriales"]
+    command: ["bash", "docker/entrada-recolector.sh", "bizkaia"]
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-bizkaia:/app/descargas-bizkaia
+
+  # Territorial/insular (05/10/2026): PNFG propio, la autonómica sólo publica lo autonómico. Ver
+  # docs/plataforma-web/AUDITORIA-COMPLETITUD-2026-10-05.md §2.
+  gipuzkoa:
+    <<: *recolector
+    profiles: ["territoriales"]
+    command: ["bash", "docker/entrada-recolector.sh", "gipuzkoa"]
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-gipuzkoa:/app/descargas-gipuzkoa
+
+  # Territorial/insular (05/10/2026): PNFG propio, la autonómica sólo publica lo autonómico. Ver
+  # docs/plataforma-web/AUDITORIA-COMPLETITUD-2026-10-05.md §2.
+  araba:
+    <<: *recolector
+    profiles: ["territoriales"]
+    command: ["bash", "docker/entrada-recolector.sh", "araba"]
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-araba:/app/descargas-araba
+
+  # Territorial/insular (05/10/2026): PNFG propio, la autonómica sólo publica lo autonómico. Ver
+  # docs/plataforma-web/AUDITORIA-COMPLETITUD-2026-10-05.md §2.
+  laspalmas:
+    <<: *recolector
+    profiles: ["territoriales"]
+    command: ["bash", "docker/entrada-recolector.sh", "laspalmas"]
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-laspalmas:/app/descargas-laspalmas
+
+  # Territorial/insular (05/10/2026): PNFG propio, la autonómica sólo publica lo autonómico. Ver
+  # docs/plataforma-web/AUDITORIA-COMPLETITUD-2026-10-05.md §2.
+  tenerife:
+    <<: *recolector
+    profiles: ["territoriales"]
+    command: ["bash", "docker/entrada-recolector.sh", "tenerife"]
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-tenerife:/app/descargas-tenerife
 
   extremadura:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "extremadura"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-extremadura:/app/descargas-extremadura
@@ -255,7 +385,15 @@ services:
   federacion:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "federacion"]
+    # ── PRIORIDAD DE CPU PARA CyL (18/10/2026) ───────────────────────────────────────────────────────────────
+    # Con la guardia de energía el slice tiene menos CPU, y cuando está lleno se reparte por PESO entre contenedores
+    # (todos 1024 por defecto). Medido (petición 160): CyL usaba 61 % de su 100 % permitido y bajó de 287 a 125
+    # peticiones/h, con el slice lleno (carga 11-14). Con 4096 gana a las demás cuando hay que elegir; si sobra CPU
+    # no cambia nada. El tope (`cpus: 1.0`, compose-turnos.yml) sigue igual.
+    cpu_shares: 4096
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-federacion:/app/descargas-federacion
@@ -279,18 +417,59 @@ services:
       # `recolector.<federación>.config.json` dentro de la imagen porque SÍ están versionados.
       - ../recolector.config.json:/app/recolector.config.json:ro
 
+      # ── EL ARREGLO DE LAS PAUSAS GLOBALES, MONTADO PARA NO RECONSTRUIR (24/09/2026) ──────────────────────
+      #
+      # `recolector-local.mjs` y `recolector-valencia.mjs` se montan encima de la copia de la imagen porque
+      # reconstruirla hoy cuesta ~25 min de CPU en una máquina que ya está al 100 % (el Dockerfile recompila
+      # `dominio` e `ingesta` con `tsc -b`), y ese gasto sale de la propia recolección. Es el mismo camino que ya
+      # se usó con `recolector.config.json` y, antes, con el lanzador (ver el comentario de arriba). Cuando la
+      # máquina esté libre hay que reconstruir y quitar estos dos montajes.
+      #
+      # QUÉ ARREGLA, medido el 24/09/2026: un fallo de RED se contaba como fallo de la federación, así que cinco
+      # `fetch failed` o cinco tiempos agotados —tres minutos de páginas lentas— activaban la pausa global de una
+      # hora. Madrid terminó en pausa las 16 sesiones de 24 h (40.989 s parada, 11,4 h) teniendo 7.108 actas
+      # disponibles; Valencia, las 5 de 5 (18.812 s, 5,2 h), y la última perdió una sesión que ya había recogido
+      # 1.244 actas. Las otras diecisiete federaciones no se pararon ni una vez: no era la fuente, era el conteo.
+      # Ahora los fallos de red llevan su propio contador (umbral 30, no 5) y no gastan los tres intentos que
+      # declaran un acta como «la fuente no la publica».
+      #
+      # Se monta SÓLO el script que ejecuta cada servicio: esta federación usa `recolector-local.mjs`.
+      #
+      # ── Y EL FILTRO DE REPARTO POR TEMPORADAS (24/09/2026) ───────────────────────────────────────────────
+      #
+      # Castilla y León es la ÚNICA federación que se reparte por temporadas entre dos máquinas: este servidor
+      # se queda la 2026-27 y el PC la 2025-26, cada uno con su fichero `temporadas-asignadas.txt` dentro de la
+      # carpeta de la federación (que va montada). Así las dos piden a rfcylf.es en paralelo sin pedir lo mismo.
+      #
+      # Hay que montar DOS ficheros, no uno: la consulta que elige el trabajo vive en la BIBLIOTECA
+      # (`scripts/lib/recolector-local.mjs`) y el filtro en un módulo nuevo que esa biblioteca importa
+      # (`scripts/lib/temporadas-asignadas.mjs`). Montar sólo el primero daría un error de importación al
+      # arrancar; montar sólo el segundo no cambiaría nada, porque nadie lo llamaría.
+      #
+      # Comprobado el 24/09/2026 por qué hace falta: el código de los recolectores vive DENTRO de la imagen, así
+      # que este contenedor siguió trabajando la temporada 20 —todas— aunque su fichero de asignación ya decía
+      # 2026-27 y se veía desde dentro. Montarlos es el camino rápido; la alternativa es reconstruir la imagen en
+      # el PC y traerla, como se hizo con la web.
+
   galicia:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "galicia"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-galicia:/app/descargas-galicia
 
   madrid:
     <<: *recolector
+    # Se recoge en el PC desde el 24/09/2026 (explicación completa en el servicio `cataluna`). El perfil impide
+    # que un `up -d` general la arranque por descuido y duplique peticiones con el PC.
+    profiles: ["recoge-en-pc"]
     command: ["bash", "docker/entrada-recolector.sh", "madrid"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-madrid:/app/descargas-madrid
@@ -305,11 +484,21 @@ services:
       # Además, cada actualización del repositorio del servidor aparta en un `stash` lo que no está versionado,
       # así que meterlo en la imagen era frágil de todas formas. Se monta, como el resto de los datos.
       - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
+      # El arreglo de las pausas globales por fallos de red (explicado entero en el servicio `federacion`).
+      # Madrid terminó en pausa las 16 sesiones de 24 h: es la federación que más gana con este cambio.
+      #
+      # OJO CON ESTE MONTAJE, que me equivoqué la primera vez: el supervisor (`docker/entrada-recolector.sh`)
+      # lanza `recolector-madrid.mjs` para Madrid, y ese fichero es un ENVOLTORIO de once líneas que hace
+      # `await import('./recolector-valencia.mjs')`. Es decir: Madrid EJECUTA el recolector de Valencia, así que
+      # el arreglo vive en `recolector-valencia.mjs` y montar aquí `recolector-local.mjs` no servía de nada (el
+      # contenedor lo tenía montado y seguía pausándose, porque el que corre es el otro).
 
   melilla:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "melilla"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-melilla:/app/descargas-melilla
@@ -337,6 +526,8 @@ services:
       # eso ahora va en el ancla para toda la flota. Se deja `FACYLF_PERF` porque Murcia sigue siendo una de las
       # dos federaciones de medición.
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-murcia:/app/descargas-murcia
@@ -345,6 +536,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "navarra"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-navarra:/app/descargas-navarra
@@ -353,12 +546,17 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "rioja"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-rioja:/app/descargas-rioja
 
   valencia:
     <<: *recolector
+    # Se recoge en el PC desde el 24/09/2026 (explicación completa en el servicio `cataluna`). El perfil impide
+    # que un `up -d` general la arranque por descuido y duplique peticiones con el PC.
+    profiles: ["recoge-en-pc"]
     command: ["bash", "docker/entrada-recolector.sh", "valencia"]
     # ── ESCALÓN DE CORTESÍA EN PRUEBA (23/09/2026) ──────────────────────────────────────────────────────────
     #
@@ -383,11 +581,16 @@ services:
       <<: *ambiente-recolector
       FACYLF_ARGS: "--intervalo-min 4 --intervalo-max 5"
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-valencia:/app/descargas-valencia
       # Mismo caso que Madrid: el catálogo del sondeo es DATO y va montado (ver el comentario de Madrid).
       - ../descargas-federacion-sondeo:/app/descargas-federacion-sondeo:ro
+      # El arreglo de las pausas globales por fallos de red (explicado entero en el servicio `federacion`).
+      # Valencia se paró las 5 sesiones de 5 en 24 h, y perdió una que ya había recogido 1.244 actas. Ojo: usa
+      # su PROPIO recolector, así que el arreglo vive en `recolector-valencia.mjs`, no en el común.
 
   # La federación de PRUEBA (`prueba-10gb`): misma cola que se usa en el PC para las pruebas del programa de
   # 10 GB. No es una federación real: sirve para comprobar que la imagen y el compose funcionan antes de tocar
@@ -405,6 +608,8 @@ services:
     <<: *recolector
     command: ["bash", "docker/entrada-recolector.sh", "prueba-10gb"]
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../descargas-prueba-10gb:/app/descargas-prueba-10gb
@@ -415,7 +620,25 @@ services:
     <<: *recolector
     mem_limit: 512m
     command: ["bash", "docker/entrada-fin-de-semana.sh", "${FACYLF_HORA_FINDE:-07:30}"]
+    # ── DE QUÉ FEDERACIONES NO SE OCUPA ESTA MÁQUINA (24/09/2026) ──────────────────────────────────────────
+    #
+    # `FACYLF_EXCLUIR` es la MISMA variable que usa el supervisor del PC (`scripts/entorno-flota.ps1`), y
+    # significa lo mismo en los dos sitios: «de estas no me ocupo yo». Allí evita que dos flotas pidan a la misma
+    # federación; aquí dice cuáles se recogen en otro equipo.
+    #
+    # Importa de verdad: sin esto, este repaso abriría cada fin de semana las jornadas de Valencia, Madrid y
+    # Cataluña para que alguien las revisara —y ese alguien ya no está en este servidor—, dejando trabajos
+    # pendientes en colas que nadie consume y un informe que diría que faltan actas cuando lo que pasa es que las
+    # trae el PC. Un informe que miente es peor que no tenerlo.
+    #
+    # OJO: declarar `environment:` en un servicio PISA el del ancla (es la trampa de YAML documentada al principio
+    # de este fichero), así que hay que volver a fusionar `*ambiente-recolector` en la primera línea del bloque.
+    environment:
+      <<: *ambiente-recolector
+      FACYLF_EXCLUIR: "${FACYLF_EXCLUIR:-valencia,madrid,cataluna,andalucia}"
     volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
       - plazas:/app/.estado-workers
       - /srv/ssd/facylf:/srv/ssd/facylf
       - ../pruebas/reconstruccion:/app/pruebas/reconstruccion

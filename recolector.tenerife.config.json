@@ -1,0 +1,28 @@
+{
+  "permiso": {
+    "concedido": false,
+    "fecha": "",
+    "referencia": ""
+  },
+  "identidad": {
+    "urlProyecto": "",
+    "contacto": "nanotech@gmail.com"
+  },
+  "alcance": {
+    "desdeAnio": 2014,
+    "actasAdultas": true,
+    "actasMenores": true
+  },
+  "ritmo": {
+    "intervaloMinSeg": 6,
+    "intervaloMaxSeg": 8,
+    "maxPeticionesDia": 200000,
+    "maxTrabajosSesion": 200000,
+    "desdeHora": 0,
+    "hastaHora": 24
+  },
+  "vigilancia": {
+    "catalogoActualCadaDias": 7,
+    "gruposActualesCadaDias": 14
+  }
+}

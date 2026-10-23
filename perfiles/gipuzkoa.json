@@ -1,0 +1,9 @@
+{
+  "nombre": "gipuzkoa",
+  "base": "https://www.gipuzkoafutbola.eus/pnfg/NPcd",
+  "codPrimaria": "1000120",
+  "carpeta": "descargas-gipuzkoa",
+  "config": "recolector.gipuzkoa.config.json",
+  "catalogo": "descargas-gipuzkoa/competiciones-por-temporada.json",
+  "grupos": "descargas-gipuzkoa/grupos-por-temporada.json"
+}

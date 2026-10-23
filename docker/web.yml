@@ -24,6 +24,16 @@ services:
       DATABASE_URL_LECTOR: "${DATABASE_URL_LECTOR:?falta DATABASE_URL_LECTOR en docker/.env (rol facylf_lector)}"
       NEXT_TELEMETRY_DISABLED: "1"
       FACYLF_TEMPORADA_MINIMA: "${FACYLF_TEMPORADA_MINIMA:-}"
+      # ── LAS FEDERACIONES QUE ESTA WEB NO ENSEÑA (24/09/2026) ─────────────────────────────────────────────
+      #
+      # Es la misma variable que usa el supervisor del PC: «de estas no se ocupa esta máquina». Desde que
+      # Valencia, Madrid y Cataluña se recogen en el PC, lo que este servidor tiene de ellas es una foto
+      # CONGELADA —y a partir de ahora se queda atrás—, así que no se ofrecen: enseñarlas sería enseñar datos
+      # viejos con pinta de actuales, que es justo lo que el proyecto no hace en ningún otro sitio (un dato que
+      # no se tiene se dice, no se inventa).
+      #
+      # Cuando el PC termine y se una todo, se quitan de esta lista y vuelven a la web.
+      FACYLF_EXCLUIR: "${FACYLF_EXCLUIR:-valencia,madrid,cataluna,andalucia}"
       TZ: Europe/Madrid
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
