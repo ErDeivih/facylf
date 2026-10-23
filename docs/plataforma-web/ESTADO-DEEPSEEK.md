@@ -2,7 +2,51 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 23/10/2026 14:05 (Claude: 0049 retención del diario de lotes —apagada— y 0050 rol de la web con cuenta; bloque de arriba)
+**Última actualización:** 23/10/2026 14:30 (DeepSeek: revisadas, aplicadas y comiteadas 0049 y 0050; T15 y T16 cerradas)
+
+## ★★★★★ DeepSeek, 23/10, 14:30 — 0049 y 0050 revisadas, aplicadas en la base real y comiteadas (T15 y T16)
+
+Las dos de Claude (bloque de las 14:05 de abajo) estaban bien y no necesitaban cambios de código: **359
+comprobaciones ✓** (m29-m50 + análisis), las migraciones **0023-0050 aplicadas dos veces sin error**,
+`tsc` de la web ✓, `consultas.test.ts` 32 ✓ y `pnpm planes` ✓ (todo dentro de presupuesto). Aplicadas a la
+base real tras **copia verificada** (`canonico-20261023-1214.dump`, 0,85 GB, 93 tablas, sha256 `cd837f90…`).
+Commit `776e087`.
+
+### 0049 · Cuánto ocupa el diario de lotes (medido en la base real, 11,4 s)
+
+| antigüedad del lote | lotes | filas | % |
+|---|---|---|---|
+| menos de 7 días | 1 | 53 | 0,0 |
+| 7-30 días | 13.146 | 18.367.973 | 99,5 |
+| 30-90 días | 6 | 94.681 | 0,5 |
+| más de 90 días | 0 | 0 | 0,0 |
+
+Detalle fino: **7-10 días 12,28 M** (5.854 lotes), **10-14 días 5,40 M** (5.907), **21-30 días 0,68 M**
+(1.385). La poda está **APAGADA**: `diario_lote_dias` = 0 y `ops.purga_diario_lotes()` devuelve `apagado`.
+
+**Matiz importante para la decisión de los 30 días:** con 30 días **no se liberan los 7,3 GB ahora**. El
+99,5 % del diario es de lotes de hace 7-14 días, así que hoy solo se podarían 94.681 filas (0,5 %) y el
+`vacuum full` recuperaría eso, no los 7 GB. Con 14 días se podarían 6,2 M (33 %); con **10 días, 18,4 M
+(99,5 %)**; con 7 días, todo menos 53 filas. Dos caminos:
+
+- **Recuperar disco ya:** bajar a 7-10 días, podar por tandas y `vacuum full ops.batch_cambio` de noche con el
+  importador parado (bloquea la tabla mientras dura).
+- **Solo dejar de crecer:** 30 días. Lo de hoy se irá pudiendo podar dentro de ~3 semanas y el `vacuum full`
+  tendrá sentido entonces.
+
+### 0050 · El rol de la web con cuenta, comprobado en la base real
+
+Con `DATABASE_URL_APP` (`facylf_app`, clave local fijada con `ALTER ROLE`): lee `app.notificacion`,
+`app.usuario`, `core.match`, `analytics.player_team_season_summary`, `ops.alerta` y **`ops.chequeos()` (67
+chequeos)**; **no** escribe en `core.federation` y **no** puede `set role facylf_lector`. En el código, las
+21 consultas de usuario y panel llevan `rol: 'app'` y `conexion.ts` elige el pool; lo público sigue por el
+lector. `DATABASE_URL_APP` añadida a `.env` (local), `.env.example` y `docker/web.yml` (opcional: sin ella la
+web pública arranca y las páginas de cuenta dicen qué falta).
+
+**Detalle de operación:** las migraciones que tocan **roles** son de **clúster**, no de base. Aplicar la 0050
+en `facylf_prueba` ya activó la herencia de `facylf_app` en el clúster entero (por eso al aplicarla en
+`facylf` salió «already granted»). No rompe nada, pero conviene saberlo: una prueba en otra base puede tocar
+los roles de la base buena.
 
 ## ★ Claude, 23/10, 14:10 — la «pausa de 3 s» de Madrid no es un fallo
 
