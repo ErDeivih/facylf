@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Club</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+<svg width="60" height="66" viewBox="0 0 36 40" aria-hidden="true"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="#1C5D99"></path><path d="M18 1 34 7v12c0 10-7 17-16 20Z" fill="#000000" fill-opacity="0.15"></path><path d="M10 15h16M10 21h16" stroke="#FFFFFF" stroke-width="2"></path></svg>
+<div style="flex: 1 1 260px; min-width: 0">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em">U.D. Valdecastro</h1>
+<div style="font-size: 14px; color: #3D4853; margin-top: 2px">Valdecastro (Salamanca) · Castilla y León · Campo Municipal de Valdecastro</div>
+</div>
+<button type="button" style="height: 44px; border: 1px solid #CCD4DC; background: #FFFFFF; border-radius: 8px; padding: 0 14px; font-size: 14px; font-weight: 600">Seguir club</button>
+</section>
+
+<section aria-labelledby="eq" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="eq" style="margin: 0; font-size: 18px; font-weight: 800">Equipos 2025-26</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px">
+<sc-for list="{{equipos}}" as="e" hint-placeholder-count="6">
+<a href="Equipo.dc.html" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; color: #1A2027; text-decoration: none; min-height: 44px">
+<span style="{{e.letra}}">{{e.l}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 15px">{{e.cat}}</span><span style="font-size: 12px; color: #5B6876; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{e.comp}}</span></div>
+<div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end"><span style="font-size: 18px; font-weight: 800">{{e.pos}}</span><span style="{{e.zonaS}}">{{e.zona}}</span></div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="ev" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: baseline">
+<h2 id="ev" style="margin: 0; font-size: 16px; font-weight: 700">Evolución de cada equipo</h2>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #3D4853">
+<span style="display: inline-flex; gap: 5px; align-items: center"><span style="color: #2F9E5E; font-weight: 800">▲</span>ascenso</span>
+<span style="display: inline-flex; gap: 5px; align-items: center"><span style="color: #C0453B; font-weight: 800">▼</span>descenso</span>
+<span style="display: inline-flex; gap: 5px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #3A8DDE"></span>jugó fase de ascenso</span>
+<span style="display: inline-flex; gap: 5px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #E08A2E"></span>jugó promoción de permanencia</span>
+</div>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 860px; padding: 8px 0 12px">
+<div style="display: grid; grid-template-columns: 150px repeat(7, minmax(0, 1fr)); font-size: 12px; color: #5B6876; font-weight: 600; padding: 6px 16px">
+<span></span><sc-for list="{{temporadas}}" as="t" hint-placeholder-count="7"><span style="text-align: center">{{t}}</span></sc-for>
+</div>
+<sc-for list="{{lineas}}" as="ln" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 150px repeat(7, minmax(0, 1fr)); align-items: stretch; gap: 6px; padding: 5px 16px">
+<a href="Equipo.dc.html" style="display: flex; align-items: center; font-weight: 700; font-size: 14px; color: #1A2027">{{ln.nombre}}</a>
+<sc-for list="{{ln.celdas}}" as="c" hint-placeholder-count="7">
+<a href="Competicion.dc.html" title="{{c.titulo}}" style="{{c.s}}">
+<span style="font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">{{c.div}}</span>
+<span style="display: inline-flex; gap: 4px; align-items: center; font-size: 13px; font-weight: 800">{{c.pos}}<span style="{{c.flechaS}}">{{c.flecha}}</span></span>
+</a>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 12px; color: #5B6876">Cuanto más oscuro, más alta la división dentro de su categoría. Pulsa una casilla para abrir aquella clasificación.</div>
+</section>
+
+<section aria-labelledby="st" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline"><h2 id="st" style="margin: 0; font-size: 16px; font-weight: 700">Juvenil "A" — escalera de divisiones</h2><span style="font-size: 12px; color: #5B6876">Posición final en cada temporada</span></div>
+<svg viewBox="0 0 640 210" role="img" aria-label="Divisiones del Juvenil A por temporada" style="width: 100%; height: auto; display: block; margin-top: 10px">
+<sc-for list="{{escalones}}" as="n" hint-placeholder-count="4"><line x1="150" x2="630" y1="{{n.y}}" y2="{{n.y}}" stroke="#EEF1F4"></line><text x="140" y="{{n.ty}}" text-anchor="end" font-size="11" fill="#5B6876">{{n.l}}</text></sc-for>
+<path d="{{escalera.d}}" fill="none" stroke="#1C5D99" stroke-width="3" stroke-linejoin="round"></path>
+<sc-for list="{{escalera.p}}" as="p" hint-placeholder-count="7"><circle cx="{{p.x}}" cy="{{p.y}}" r="11" fill="#FFFFFF" stroke="{{p.c}}" stroke-width="2.5"></circle><text x="{{p.x}}" y="{{p.ty}}" text-anchor="middle" font-size="10" font-weight="800" fill="#1A2027">{{p.pos}}</text><text x="{{p.x}}" y="204" text-anchor="middle" font-size="10" fill="#5B6876">{{p.t}}</text></sc-for>
+</svg>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const L = (l) => `width: 36px; height: 36px; border-radius: 10px; background: ${l === 'A' ? '#1C5D99' : l === 'B' ? '#5B8DC0' : '#9DB9D8'}; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; flex: none`;
+    const Z = { asc: ['Ascenso', '#2F9E5E'], fase: ['Fase ascenso', '#3A8DDE'], des: ['Descenso', '#C0453B'], '': ['', '#5B6876'] };
+    const eqs = [['A', 'Aficionado', 'Primera Regional · Grupo B', '4º', 'fase'], ['A', 'Juvenil', 'Liga Nacional · Grupo 7', '1º', 'asc'], ['B', 'Juvenil', 'Primera Provincial · Salamanca', '6º', ''], ['A', 'Cadete', 'Regional Cadete · Grupo A', '9º', ''], ['B', 'Cadete', 'Primera Provincial · Salamanca', '2º', 'asc'], ['A', 'Infantil', 'Regional Infantil · Grupo B', '13º', 'des']];
+    const equipos = eqs.map(([l, cat, comp, pos, z]) => ({ l, cat, comp, pos, letra: L(l), zona: Z[z][0], zonaS: `font-size: 11px; font-weight: 700; color: ${Z[z][1]}` }));
+    const temporadas = ['19-20', '20-21', '21-22', '22-23', '23-24', '24-25', '25-26'];
+    const sombra = ['#1C5D99', '#4A7FB5', '#8FB0D3', '#D3E0EE'];
+    const txt = ['#FFFFFF', '#FFFFFF', '#11181F', '#11181F'];
+    const celda = ([div, nivel, pos, mov, fase], i) => {
+      if (!div) return { div: '—', pos: '', flecha: '', flechaS: '', titulo: 'Sin equipo', s: 'display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 52px; border-radius: 8px; border: 1px dashed #CCD4DC; color: #8994A0; text-decoration: none' };
+      const borde = fase === 'f' ? 'box-shadow: inset 0 0 0 2px #3A8DDE; ' : fase === 'p' ? 'box-shadow: inset 0 0 0 2px #E08A2E; ' : '';
+      return { div, pos: pos + 'º', flecha: mov === '+' ? '▲' : mov === '-' ? '▼' : '',
+        flechaS: `font-size: 11px; color: ${mov === '+' ? (nivel < 2 ? '#B9F0CF' : '#2F9E5E') : (nivel < 2 ? '#FFC9C2' : '#C0453B')}`,
+        titulo: `${temporadas[i]} · ${div} · ${pos}º`,
+        s: `display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; padding: 4px 6px; border-radius: 8px; background: ${sombra[nivel]}; color: ${txt[nivel]}; text-decoration: none; text-align: center; ${borde}` };
+    };
+    const datos = [
+      ['Aficionado "A"', [['Prov.', 3, 2, '+', ''], ['1ª Reg.', 2, 9, '', ''], ['1ª Reg.', 2, 14, '-', 'p'], ['Prov.', 3, 1, '+', ''], ['1ª Reg.', 2, 7, '', ''], ['1ª Reg.', 2, 3, '', 'f'], ['1ª Reg.', 2, 4, '', '']]],
+      ['Juvenil "A"', [['Reg.', 2, 1, '+', ''], ['L. Nac.', 1, 11, '', ''], ['L. Nac.', 1, 15, '-', ''], ['Reg.', 2, 2, '+', 'f'], ['L. Nac.', 1, 8, '', ''], ['L. Nac.', 1, 5, '', ''], ['L. Nac.', 1, 1, '', '']]],
+      ['Juvenil "B"', [[null], [null], ['2ª Prov.', 3, 3, '+', ''], ['1ª Prov.', 3, 10, '', ''], ['1ª Prov.', 3, 6, '', ''], ['1ª Prov.', 3, 4, '', ''], ['1ª Prov.', 3, 6, '', '']]],
+      ['Cadete "A"', [['Reg.', 1, 7, '', ''], ['Reg.', 1, 12, '', ''], ['Reg.', 1, 14, '-', ''], ['Prov.', 2, 1, '+', ''], ['Reg.', 1, 10, '', ''], ['Reg.', 1, 6, '', ''], ['Reg.', 1, 9, '', '']]],
+    ];
+    const lineas = datos.map(([nombre, cs]) => ({ nombre, celdas: cs.map(celda) }));
+    const niveles = ['División de Honor', 'Liga Nacional', 'Regional', 'Primera Provincial'];
+    const Y = (n) => 24 + n * 48;
+    const escalones = niveles.map((l, n) => ({ l, y: Y(n), ty: Y(n) + 4 }));
+    const ja = [[2, 1, '+'], [1, 11, ''], [1, 15, '-'], [2, 2, '+'], [1, 8, ''], [1, 5, ''], [1, 1, '']];
+    const X = (i) => 180 + i * 72;
+    const p = ja.map(([n, pos, m], i) => ({ x: X(i), y: Y(n), ty: Y(n) + 3.5, pos, t: temporadas[i], c: m === '+' ? '#2F9E5E' : m === '-' ? '#C0453B' : '#1C5D99' }));
+    let d = `M${p[0].x} ${p[0].y}`;
+    for (let i = 1; i < p.length; i++) { const mx = (p[i - 1].x + p[i].x) / 2; d += ` H${mx} V${p[i].y} H${p[i].x}`; }
+    return { equipos, temporadas, lineas, escalones, escalera: { d, p } };
+  }
+}
+</script>
+</body>
+</html>

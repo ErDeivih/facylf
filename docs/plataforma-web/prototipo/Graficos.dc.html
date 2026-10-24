@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Gráficos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+.marca:hover{opacity:.8}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Vocabulario de gráficos</h1>
+<p style="margin: 6px 0 0; font-size: 14px; color: #3D4853">Cada análisis con su forma. Colores de serie validados para daltonismo; verde, rojo y ámbar sólo significan victoria, derrota y tarjeta, y siempre con letra.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap: 18px; align-items: start">
+
+<section aria-labelledby="g1" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g1" style="margin: 0; font-size: 16px; font-weight: 700">Pablo jugó casi un tercio de sus minutos con el A</h2>
+<span style="font-size: 12px; color: #5B6876">Minutos por equipo y temporada · barra apilada</span>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #3D4853">
+<sc-for list="{{leyendaMin}}" as="l" hint-placeholder-count="4"><span style="display: inline-flex; align-items: center; gap: 6px"><span style="{{l.s}}"></span>{{l.t}}</span></sc-for>
+</div>
+<svg viewBox="0 0 520 120" width="100%" role="img" aria-label="Minutos por equipo en dos temporadas">
+<sc-for list="{{barrasMin}}" as="b" hint-placeholder-count="6"><rect class="marca" x="{{b.x}}" y="{{b.y}}" width="{{b.w}}" height="26" rx="4" fill="{{b.c}}"><title>{{b.t}}</title></rect></sc-for>
+<sc-for list="{{etiqMin}}" as="e" hint-placeholder-count="2"><text x="0" y="{{e.y}}" font-size="12" fill="#3D4853">{{e.t}}</text></sc-for>
+<sc-for list="{{totMin}}" as="e" hint-placeholder-count="2"><text x="{{e.x}}" y="{{e.y}}" font-size="12" font-weight="700" fill="#1A2027">{{e.t}}</text></sc-for>
+</svg>
+<details style="font-size: 13px"><summary style="cursor: pointer; color: #0B7285">Ver como tabla</summary>
+<table style="border-collapse: collapse; margin-top: 8px"><tr><th style="text-align: left; padding: 4px 10px 4px 0">Temporada</th><th style="padding: 4px 8px">Ficha (B)</th><th style="padding: 4px 8px">Superior (A)</th><th style="padding: 4px 8px">Cadete</th></tr>
+<tr><td style="padding: 4px 10px 4px 0">2024-25</td><td style="padding: 4px 8px; text-align: right">1.620</td><td style="padding: 4px 8px; text-align: right">180</td><td style="padding: 4px 8px; text-align: right">270</td></tr>
+<tr><td style="padding: 4px 10px 4px 0">2025-26</td><td style="padding: 4px 8px; text-align: right">720</td><td style="padding: 4px 8px; text-align: right">330</td><td style="padding: 4px 8px; text-align: right">0</td></tr></table></details>
+</section>
+
+<section aria-labelledby="g2" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g2" style="margin: 0; font-size: 16px; font-weight: 700">Valdecastro llega con cuatro victorias seguidas</h2>
+<span style="font-size: 12px; color: #5B6876">Forma · últimos 10 (viejo → nuevo)</span>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{forma}}" as="f" hint-placeholder-count="10"><span title="{{f.t}}" style="{{f.s}}">{{f.r}}</span></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 6px">
+<sc-for list="{{cifras}}" as="c" hint-placeholder-count="4"><div style="background: #F7F8FA; border-radius: 10px; padding: 10px 12px"><div style="font-size: 12px; color: #5B6876">{{c.t}}</div><div style="font-size: 24px; font-weight: 800">{{c.v}}</div></div></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px">
+<sc-for list="{{casaFuera}}" as="cf" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: 52px 1fr; gap: 8px; align-items: center; font-size: 12px"><span style="color: #3D4853">{{cf.t}}</span>
+<div style="display: flex; gap: 2px; height: 22px"><sc-for list="{{cf.p}}" as="p" hint-placeholder-count="3"><span style="{{p.s}}">{{p.l}}</span></sc-for></div></div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="g3" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g3" style="margin: 0; font-size: 16px; font-weight: 700">{{tituloCurva}}</h2>
+<span style="font-size: 12px; color: #5B6876">Puntos acumulados · el equipo resaltado, el resto del grupo en gris</span>
+<svg viewBox="0 0 520 200" width="100%" role="img" aria-label="Puntos acumulados por jornada">
+<sc-for list="{{rejilla}}" as="r" hint-placeholder-count="4"><line x1="40" x2="510" y1="{{r.y}}" y2="{{r.y}}" stroke="#E1E6EB" stroke-width="1"></line><text x="32" y="{{r.ty}}" font-size="11" fill="#5B6876" text-anchor="end">{{r.t}}</text></sc-for>
+<sc-for list="{{lineasGris}}" as="l" hint-placeholder-count="5"><polyline points="{{l.p}}" fill="none" stroke="#B7C0C9" stroke-width="1.5"></polyline></sc-for>
+<polyline points="{{lineaEq}}" fill="none" stroke="#1386B0" stroke-width="2.5"></polyline>
+<sc-for list="{{puntosEq}}" as="p" hint-placeholder-count="10"><circle class="marca" cx="{{p.x}}" cy="{{p.y}}" r="4.5" fill="#1386B0" stroke="#FFFFFF" stroke-width="2"><title>{{p.t}}</title></circle></sc-for>
+<text x="512" y="{{finEq}}" font-size="12" font-weight="700" fill="#1A2027" text-anchor="end">{{finTxt}}</text>
+</svg>
+</section>
+
+<section aria-labelledby="g4" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g4" style="margin: 0; font-size: 16px; font-weight: 700">Marca casi todo en la segunda parte</h2>
+<span style="font-size: 12px; color: #5B6876">Goles por tramo de 15' · a favor arriba, en contra abajo · 2 goles sin minuto, aparte</span>
+<svg viewBox="0 0 520 190" width="100%" role="img" aria-label="Goles a favor y en contra por tramo">
+<line x1="30" x2="510" y1="95" y2="95" stroke="#8A96A3" stroke-width="1"></line>
+<sc-for list="{{tramos}}" as="t" hint-placeholder-count="6">
+<rect class="marca" x="{{t.x}}" y="{{t.yf}}" width="44" height="{{t.hf}}" rx="4" fill="#1386B0"><title>{{t.tf}}</title></rect>
+<rect class="marca" x="{{t.x}}" y="97" width="44" height="{{t.hc}}" rx="4" fill="#EB6834"><title>{{t.tc}}</title></rect>
+<text x="{{t.cx}}" y="186" font-size="11" fill="#5B6876" text-anchor="middle">{{t.n}}</text>
+</sc-for>
+</svg>
+<div style="display: flex; gap: 14px; font-size: 12px; color: #3D4853"><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 12px; height: 12px; border-radius: 3px; background: #1386B0"></span>A favor</span><span style="display: inline-flex; gap: 6px; align-items: center"><span style="width: 12px; height: 12px; border-radius: 3px; background: #EB6834"></span>En contra</span></div>
+</section>
+
+<section aria-labelledby="g5" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g5" style="margin: 0; font-size: 16px; font-weight: 700">Dos jugadores firman el 62 % de los goles</h2>
+<span style="font-size: 12px; color: #5B6876">Reparto de goles · barras por jugador y % acumulado</span>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{reparto}}" as="r" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 150px 1fr 56px; gap: 10px; align-items: center; font-size: 13px">
+<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.n}}</span>
+<div style="height: 14px; background: #F2F4F6; border-radius: 4px; overflow: hidden"><div style="{{r.s}}"></div></div>
+<span style="text-align: right; font-weight: 700">{{r.g}} <span style="font-weight: 400; color: #5B6876">{{r.a}}</span></span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="g6" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="g6" style="margin: 0; font-size: 16px; font-weight: 700">Destaca en minutos y nivel frente a su quinta</h2>
+<span style="font-size: 12px; color: #5B6876">Percentil frente a los nacidos en 2008-2009 de toda España · la línea marca la mitad</span>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{percentiles}}" as="p" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 150px 1fr 40px; gap: 10px; align-items: center; font-size: 13px">
+<span>{{p.n}}</span>
+<div style="position: relative; height: 12px; background: #F2F4F6; border-radius: 4px"><div style="{{p.s}}"></div><div style="position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: #5B6876"></div></div>
+<span style="text-align: right; font-weight: 700">{{p.v}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = ['#1386B0', '#EB6834', '#6250D6', '#D55181'];
+    const leyendaMin = ['Ficha (B)', 'Superior (A)', 'Cadete', 'Otro club'].map((t, i) => ({ t, s: `width: 12px; height: 12px; border-radius: 3px; background: ${S[i]}` }));
+    const temporadas = [{ t: '2024-25', v: [1620, 180, 270, 0] }, { t: '2025-26', v: [720, 330, 0, 0] }];
+    const escala = 400 / 2100, nombres = ['ficha', 'superior', 'cadete', 'otro club'];
+    const barrasMin = [], etiqMin = [], totMin = [];
+    temporadas.forEach((tp, j) => {
+      let x = 64; const y = 14 + j * 50;
+      etiqMin.push({ t: tp.t, y: y + 17 });
+      tp.v.forEach((v, i) => { if (!v) return; const w = v * escala; barrasMin.push({ x, y, w: Math.max(w - 2, 1), c: S[i], t: `${tp.t} · ${nombres[i]}: ${v} min` }); x += w; });
+      totMin.push({ t: tp.v.reduce((a, b) => a + b, 0).toLocaleString('es-ES') + ' min', x: x + 8, y: y + 17 });
+    });
+    const res = { G: ['#1E7A47', 'Ganado'], E: ['#66717D', 'Empate'], P: ['#C8463B', 'Perdido'] };
+    const forma = 'GEGPPEGGGG'.split('').map((r, i) => ({ r, t: `Jornada ${i + 9}: ${res[r][1]}`, s: `width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 800; font-size: 14px; background: ${res[r][0]}` }));
+    const cifras = [{ t: 'Racha actual', v: 'G4' }, { t: 'Sin perder', v: '4' }, { t: 'Porterías a cero', v: '7' }, { t: 'Goles / partido', v: '1,9' }];
+    const tira = (g, e, p) => { const tot = g + e + p; return [['G', g, '#1E7A47'], ['E', e, '#66717D'], ['P', p, '#C8463B']].filter((x) => x[1]).map(([l, n, c]) => ({ l: `${l} ${n}`, s: `flex: ${n / tot}; background: ${c}; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 4px` })); };
+    const casaFuera = [{ t: 'Casa', p: tira(6, 2, 1) }, { t: 'Fuera', p: tira(3, 3, 3) }];
+    const X = (j) => 40 + (j - 1) * (440 / 9), Y = (p) => 190 - p * (180 / 25);
+    const rejilla = [0, 5, 10, 15, 20, 25].map((p) => ({ y: Y(p), ty: Y(p) + 4, t: p }));
+    const serie = (inc) => { let a = 0; return inc.map((d, i) => { a += d; return [X(i + 1), Y(a)]; }); };
+    const otros = [[3, 1, 0, 3, 3, 1, 1, 0, 3, 1, 3, 0, 1, 3, 3, 0, 1, 3], [1, 0, 3, 0, 1, 1, 3, 3, 0, 0, 1, 3, 0, 1, 0, 3, 1, 0], [0, 3, 1, 1, 0, 3, 0, 1, 3, 3, 0, 1, 3, 0, 1, 1, 0, 3], [3, 3, 1, 0, 3, 0, 3, 1, 1, 0, 3, 3, 0, 1, 3, 3, 1, 0], [0, 0, 1, 3, 0, 1, 0, 3, 0, 1, 0, 0, 3, 0, 1, 0, 3, 1]];
+    const lineasGris = otros.map((o) => ({ p: serie(o.slice(0, 10)).map((p) => p.join(',')).join(' ') }));
+    const eq = [3, 0, 1, 3, 3, 3, 1, 0, 3, 1, 3, 0, 0, 1, 3, 3, 3, 3].slice(0, 10);
+    const pe = serie(eq); let acc = 0;
+    const puntosEq = pe.map(([x, y], i) => { acc += eq[i]; return { x, y, t: `Jornada ${i + 1}: ${acc} puntos` }; });
+    const lineaEq = pe.map((p) => p.join(',')).join(' ');
+    const finEq = pe[pe.length - 1][1] - 10;
+    const finales = [...otros.map((o) => o.slice(0, 10).reduce((a, b) => a + b, 0)), acc].sort((a, b) => b - a);
+    const puesto = finales.indexOf(acc) + 1;
+    const tituloCurva = `Valdecastro es ${puesto}.º tras 10 jornadas, con ${acc} puntos`;
+    const finTxt = `Valdecastro ${acc}`;
+    const tr = [[1, 2], [3, 1], [2, 2], [5, 1], [6, 2], [8, 3]];
+    const tramos = tr.map(([f, c], i) => ({ x: 50 + i * 76, cx: 72 + i * 76, yf: 95 - f * 10, hf: f * 10, hc: c * 10, n: `${i * 15}-${i * 15 + 15}'`, tf: `${f} a favor`, tc: `${c} en contra` }));
+    const rg = [['Martín Ezquerra', 11], ['Unai Robledo', 7], ['Iker Salcedo', 4], ['Dani Vega', 3], ['Otros (5)', 4]];
+    let ac = 0; const totG = 29;
+    const reparto = rg.map(([n, g]) => { ac += g; return { n, g, a: `${Math.round(100 * ac / totG)} %`, s: `width: ${100 * g / 11}%; height: 100%; background: #1386B0; border-radius: 4px` }; });
+    const percentiles = [['Minutos', 92], ['% de minutos', 81], ['Nivel', 88], ['Minutos por encima', 64], ['Continuidad', 47], ['Goles', 71]].map(([n, v]) => ({ n, v, s: `width: ${v}%; height: 100%; background: #1386B0; border-radius: 4px` }));
+    return { leyendaMin, barrasMin, etiqMin, totMin, forma, cifras, casaFuera, rejilla, lineasGris, lineaEq, puntosEq, finEq, tituloCurva, finTxt, tramos, reparto, percentiles };
+  }
+}
+</script>
+</body>
+</html>

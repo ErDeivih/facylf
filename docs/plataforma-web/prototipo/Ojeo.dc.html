@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ojeo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+select,button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="ojeo" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: baseline">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Ojeo</h1>
+<span style="font-size: 13px; color: #5B6876">Sub-19 de Castilla y León · 2025-26 · al menos 270 minutos</span>
+</div>
+
+<section aria-label="Filtros" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end">
+<sc-for list="{{filtros}}" as="f" hint-placeholder-count="8">
+<div style="display: flex; flex-direction: column; gap: 5px">
+<label for="{{f.id}}" style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6876">{{f.label}}</label>
+<select id="{{f.id}}" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; background: #FFFFFF"><sc-for list="{{f.op}}" as="o" hint-placeholder-count="2"><option>{{o}}</option></sc-for></select>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.on}}" style="{{c.s}}">{{c.t}}</button></sc-for>
+<span style="flex: 1"></span>
+<button type="button" style="height: 40px; border: 1px solid #CCD4DC; background: #FFFFFF; border-radius: 8px; padding: 0 14px; font-size: 14px; font-weight: 600">Guardar búsqueda</button>
+</div>
+</section>
+
+<section aria-labelledby="res" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="res" style="margin: 0; font-size: 16px; font-weight: 700">Mejores perfiles</h2>
+<span style="font-size: 12px; color: #5B6876">Puntuación orientativa: percentiles dentro de esta búsqueda</span>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 980px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px">
+<th style="padding: 10px 16px; font-weight: 600; width: 36px">#</th>
+<th style="padding: 10px 8px; font-weight: 600">Jugador</th>
+<th style="padding: 10px 8px; font-weight: 600">Equipo · nivel</th>
+<th style="padding: 10px 8px; font-weight: 600; text-align: right">Minutos</th>
+<th style="padding: 10px 8px; font-weight: 600; text-align: right">% equipo</th>
+<th style="padding: 10px 8px; font-weight: 600; text-align: right">Por encima</th>
+<th style="padding: 10px 8px; font-weight: 600; text-align: right">Goles</th>
+<th style="padding: 10px 8px; font-weight: 600; width: 190px">Perfil</th>
+<th style="padding: 10px 16px; font-weight: 600; text-align: right">Puntuación</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{filas}}" as="r" hint-placeholder-count="8">
+<tr style="border-top: 1px solid #EEF1F4">
+<td style="padding: 10px 16px; font-weight: 800; color: #5B6876">{{r.pos}}</td>
+<td style="padding: 10px 8px"><a href="Jugador.dc.html" style="font-weight: 700; color: #1A2027">{{r.nombre}}</a><div style="font-size: 11px; color: #5B6876">{{r.sub}}</div></td>
+<td style="padding: 10px 8px"><a href="Equipo.dc.html" style="display: inline-flex; gap: 8px; align-items: center; color: #1A2027"><svg width="16" height="18" viewBox="0 0 36 40" aria-hidden="true"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="{{r.color}}"></path></svg>{{r.equipo}}</a><div style="font-size: 11px; color: #5B6876">{{r.nivel}}</div></td>
+<td style="padding: 10px 8px; text-align: right; font-weight: 800">{{r.min}}</td>
+<td style="padding: 10px 8px; text-align: right">{{r.pct}}</td>
+<td style="padding: 10px 8px; text-align: right; color: #1E6B40; font-weight: 600">{{r.encima}}</td>
+<td style="padding: 10px 8px; text-align: right">{{r.g}}</td>
+<td style="padding: 10px 8px">
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; align-items: end; height: 30px" role="img" aria-label="{{r.aria}}">
+<sc-for list="{{r.barras}}" as="b" hint-placeholder-count="5"><div title="{{b.t}}" style="{{b.s}}"></div></sc-for>
+</div>
+</td>
+<td style="padding: 10px 16px; text-align: right"><span style="{{r.puntS}}">{{r.punt}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: #3D4853">
+<span>Perfil, de izquierda a derecha:</span>
+<sc-for list="{{leyenda}}" as="l" hint-placeholder-count="5"><span style="display: inline-flex; gap: 6px; align-items: center"><span style="{{l.s}}"></span>{{l.t}}</span></sc-for>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 18px">
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3D4853">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700; color: #1A2027">Cómo sale la edad</h2>
+<p style="margin: 0">Las actas no traen fecha de nacimiento. La deducimos de las categorías: quien es cadete en 2025-26 nació en 2010 u 2011. Cada temporada que juega estrecha la horquilla. Si las temporadas no cuadran con una sola edad, la ficha lo avisa.</p>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #3D4853">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700; color: #1A2027">Posición</h2>
+<p style="margin: 0">Sólo la publican algunas federaciones (Valencia en casi todas las actas desde 2025-26, Madrid en pocas). Con «Posición: cualquiera» se busca en toda España; al filtrar por posición, sólo salen jugadores con ella publicada. El portero se conoce siempre.</p>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const filtros = [
+      { id: 'o-fed', label: 'Federación', op: ['Castilla y León', 'Todas', 'Madrid', 'Valencia'] },
+      { id: 'o-tem', label: 'Temporada', op: ['2025-26', '2024-25', 'Últimas 3'] },
+      { id: 'o-edad', label: 'Edad', op: ['Sub-19 (nacidos en 2007 o después)', 'Sub-17 (2009 o después)', 'Sub-16 (2010 o después)', 'Año concreto…'] },
+      { id: 'o-niv', label: 'Nivel mínimo', op: ['Cualquiera', 'Liga Nacional o más', 'División de Honor'] },
+      { id: 'o-min', label: 'Minutos mínimos', op: ['270', '0', '540', '900'] },
+      { id: 'o-pos', label: 'Posición', op: ['Cualquiera', 'Portero', 'Defensa (si se publica)', 'Medio (si se publica)', 'Delantero (si se publica)'] },
+      { id: 'o-prov', label: 'Provincia', op: ['Todas', 'Salamanca', 'Valladolid', 'León'] },
+      { id: 'o-ord', label: 'Ordenar por', op: ['Puntuación', 'Minutos', '% de minutos', 'Goles'] },
+    ];
+    const chip = (t, on) => ({ t, on: on ? 'true' : 'false', s: `height: 36px; border-radius: 999px; padding: 0 14px; font-size: 13px; font-weight: 600; border: 1px solid ${on ? '#0B7285' : '#CCD4DC'}; background: ${on ? '#E6F4F5' : '#FFFFFF'}; color: ${on ? '#08596A' : '#3D4853'}` });
+    const chips = [chip('Juega por encima de su edad', false), chip('Sólo minutos exactos', false), chip('Excluir porteros', false), chip('Incluye ojeados antes', true)];
+    const colores = ['#1C5D99', '#2E7D4F', '#0B7285', '#7A3E9D', '#C2571A', '#6B7A2A', '#1C5D99', '#A83246'];
+    const d = [
+      ['Martín Ezquerra Valcárcel', '2007 · DEL (goles)', 'U.D. Valdecastro "A"', 'Liga Nacional · 1.º', 1002, 93, 0, 11, [96, 88, 92, 40, 90], 91],
+      ['Sergio Blanco Ortega', '2008 · cambió de club en enero', 'U.D. Valdecastro "A"', 'Liga Nacional · 1.º', 978, 91, 0, 1, [93, 85, 92, 40, 30], 84],
+      ['Hugo Collado Ruiz', '2010 · cadete con minutos en juvenil', 'U.D. Valdecastro Cadete', 'Regional Cadete', 1320, 96, 150, 6, [99, 95, 55, 99, 60], 82],
+      ['Iván Lozano Prieto', '2008', 'Atlético Peñalba', 'Liga Nacional · 3.º', 905, 84, 0, 3, [86, 76, 92, 40, 52], 77],
+      ['Daniel Pastor Ruiz', '2007 · portero', 'U.D. Valdecastro "A"', 'Liga Nacional · 1.º', 1080, 100, 0, 0, [100, 100, 92, 40, 100], 76],
+      ['Nico Ortega Sanz', '2009 · sube del B', 'U.D. Valdecastro "B"', 'Primera Provincial', 1190, 98, 341, 7, [97, 92, 35, 96, 70], 74],
+      ['Álex Moro Calle', '2008', 'C.D. Ribera del Tormes', 'Liga Nacional · 9.º', 870, 81, 0, 2, [82, 71, 92, 40, 44], 70],
+      ['Pedro Lara Gil', '2007 · minutos ≥ (acta incompleta)', 'C.D. Navalcruz', 'Liga Nacional · 6.º', 812, 75, 0, 4, [78, 62, 92, 40, 64], 66],
+    ];
+    const comp = ['Minutos', '% de minutos de su equipo', 'Nivel de la competición', 'Minutos por encima de su equipo o edad', 'Goles por 90 (porteros: titularidades)'];
+    const tonos = ['#0B7285', '#3A8DDE', '#1C5D99', '#2F9E5E', '#E08A2E'];
+    const filas = d.map(([nombre, sub, equipo, nivel, min, pct, encima, g, p, punt], i) => ({
+      pos: i + 1, nombre, sub, equipo, nivel, color: colores[i], min: (sub.includes('≥') ? '≥ ' : '') + min.toLocaleString('es-ES'),
+      pct: pct + ' %', encima: encima ? '+' + encima + '′' : '—', g, punt,
+      aria: comp.map((c, k) => `${c}: percentil ${p[k]}`).join(', '),
+      barras: p.map((v, k) => ({ t: `${comp[k]}: percentil ${v}`, s: `height: ${Math.max(8, v * 0.3)}px; background: ${tonos[k]}; border-radius: 3px 3px 0 0; opacity: ${0.35 + v / 160}` })),
+      puntS: `display: inline-flex; min-width: 44px; justify-content: center; font-size: 14px; font-weight: 800; padding: 5px 8px; border-radius: 8px; background: ${punt >= 80 ? '#11181F' : '#EEF1F4'}; color: ${punt >= 80 ? '#FFFFFF' : '#1A2027'}`,
+    }));
+    const leyenda = comp.map((t, k) => ({ t, s: `width: 10px; height: 10px; border-radius: 3px; background: ${tonos[k]}` }));
+    return { filtros, chips, filas, leyenda };
+  }
+}
+</script>
+</body>
+</html>

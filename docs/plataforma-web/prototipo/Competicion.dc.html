@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Competición</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button,select{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="explorar" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<nav aria-label="Ruta" style="font-size: 13px; color: #5B6876; display: flex; gap: 8px; flex-wrap: wrap">
+<a href="Main.dc.html">Castilla y León</a><span aria-hidden="true">›</span><a href="#">Juvenil</a><span aria-hidden="true">›</span><a href="#">Liga Nacional</a><span aria-hidden="true">›</span><span style="color: #1A2027">Grupo 7</span>
+</nav>
+
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 20px 22px 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap">
+<div aria-hidden="true" style="width: 56px; height: 56px; border-radius: 14px; background: #0B7285; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; flex: none">LN</div>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Liga Nacional Juvenil · Grupo 7</h1>
+<span style="font-size: 13px; color: #5B6876">Juvenil · Fútbol 11 · Por encima: División de Honor · Por debajo: Primera Regional</span>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<label for="g" style="position: absolute; left: -9999px">Grupo</label>
+<select id="g" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; font-weight: 600; background: #FFFFFF; color: #1A2027"><option>Grupo 7</option><option>Grupo 1</option><option>Grupo 5</option></select>
+<label for="t" style="position: absolute; left: -9999px">Temporada</label>
+<select id="t" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; font-weight: 600; background: #FFFFFF; color: #1A2027"><option>2025-26</option><option>2024-25</option></select>
+</div>
+</div>
+<div style="padding: 0 22px 14px; display: flex; flex-direction: column; gap: 6px">
+<div style="height: 6px; background: #EEF1F4; border-radius: 3px; overflow: hidden"><div style="width: 40%; height: 100%; background: #0B7285"></div></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #5B6876"><span>14 sep</span><span style="color: #1A2027; font-weight: 600">Jornada 12 de 30</span><span>3 may</span></div>
+</div>
+<nav aria-label="Secciones" style="display: flex; gap: 2px; padding: 0 12px; border-top: 1px solid #EEF1F4; overflow-x: auto">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><a href="{{t.href}}" style="{{t.estilo}}">{{t.label}}</a></sc-for>
+</nav>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+
+<section aria-labelledby="clasif" style="flex: 999 1 640px; min-width: 0; background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; flex-wrap: wrap">
+<h2 id="clasif" style="margin: 0; font-size: 16px; font-weight: 700">Clasificación</h2>
+<div role="group" aria-label="Vista" style="display: flex; background: #EEF1F4; border-radius: 8px; padding: 3px">
+<sc-for list="{{vistas}}" as="v" hint-placeholder-count="3"><button type="button" onClick="{{v.pick}}" style="{{v.estilo}}">{{v.label}}</button></sc-for>
+</div>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px">
+<thead><tr style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #5B6876; text-align: right">
+<th scope="col" style="padding: 8px 6px 8px 16px; text-align: left; width: 40px">#</th>
+<th scope="col" style="padding: 8px 6px; text-align: left">Equipo</th>
+<th scope="col" style="padding: 8px 6px" title="Partidos jugados">PJ</th>
+<th scope="col" style="padding: 8px 6px" title="Ganados-Empatados-Perdidos">G-E-P</th>
+<th scope="col" style="padding: 8px 6px" title="Goles a favor y en contra">Goles</th>
+<th scope="col" style="padding: 8px 6px; text-align: left" title="Últimos 5 partidos, del más antiguo al más reciente">Forma</th>
+<th scope="col" style="padding: 8px 16px 8px 6px">Pts</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{tabla}}" as="r" hint-placeholder-count="16">
+<tr style="border-top: 1px solid #EEF1F4; text-align: right">
+<td style="padding: 0; text-align: left"><div style="display: flex; align-items: center; gap: 10px; height: 42px"><span style="{{r.zona}}"></span><span style="font-weight: 700; width: 22px; text-align: right">{{r.pos}}</span></div></td>
+<td style="padding: 0 6px; text-align: left"><a href="Equipo.dc.html" style="display: flex; align-items: center; gap: 10px; color: #1A2027; text-decoration: none; font-weight: 500; min-height: 42px">
+<svg width="22" height="24" viewBox="0 0 36 40" aria-hidden="true" style="flex: none"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="{{r.color}}"></path><path d="M18 1 34 7v12c0 10-7 17-16 20Z" fill="#000000" fill-opacity="0.15"></path></svg>
+<span style="white-space: nowrap">{{r.nombre}}</span></a></td>
+<td style="padding: 0 6px; color: #3D4853">{{r.pj}}</td>
+<td style="padding: 0 6px; color: #3D4853; white-space: nowrap">{{r.gep}}</td>
+<td style="padding: 0 6px; color: #3D4853">{{r.goles}}</td>
+<td style="padding: 0 6px; text-align: left"><div style="display: flex; gap: 3px"><sc-for list="{{r.forma}}" as="f" hint-placeholder-count="5"><span title="{{f.t}}" style="{{f.s}}">{{f.l}}</span></sc-for></div></td>
+<td style="padding: 0 16px 0 6px; font-weight: 800; font-size: 15px">{{r.pts}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; gap: 14px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid #EEF1F4; font-size: 12px; color: #3D4853">
+<sc-for list="{{leyenda}}" as="z" hint-placeholder-count="4"><span style="display: flex; align-items: center; gap: 6px"><span style="{{z.s}}"></span>{{z.t}}</span></sc-for>
+</div>
+<p style="margin: 0; padding: 0 16px 14px; font-size: 12px; color: #5B6876">Zonas según lo ocurrido en las últimas temporadas de esta liga. Un administrador puede fijarlas con las bases de la competición.</p>
+<details style="margin: 0 16px 14px; font-size: 12px; color: #5B6876"><summary style="cursor: pointer; color: #0B7285">Sobre estos datos</summary><p style="margin: 6px 0 0">Esta competición apunta cambios, tarjetas y minuto de cada gol en casi todas las actas: minutos, disciplina y goles por tramo son exactos. La clasificación es la oficial publicada por la federación tras cada jornada.</p></details>
+</section>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<section aria-labelledby="jor" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 10px 10px 16px">
+<h2 id="jor" style="margin: 0; font-size: 16px; font-weight: 700">Jornada {{jornada}}</h2>
+<div style="display: flex; gap: 4px">
+<button type="button" onClick="{{anterior}}" aria-label="Jornada anterior" style="width: 44px; height: 44px; border: 1px solid #E1E6EB; border-radius: 8px; background: #FFFFFF; font-size: 18px; color: #3D4853">‹</button>
+<button type="button" onClick="{{siguiente}}" aria-label="Jornada siguiente" style="width: 44px; height: 44px; border: 1px solid #E1E6EB; border-radius: 8px; background: #FFFFFF; font-size: 18px; color: #3D4853">›</button>
+</div>
+</div>
+<sc-for list="{{partidos}}" as="m" hint-placeholder-count="8">
+<a href="Acta.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) 58px minmax(0, 1fr); align-items: center; gap: 8px; padding: 9px 14px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; font-size: 13px; min-height: 44px">
+<span style="{{m.estiloLocal}}">{{m.local}}</span>
+<span style="{{m.estiloMarcador}}">{{m.marcador}}</span>
+<span style="{{m.estiloVisit}}">{{m.visit}}</span>
+</a>
+</sc-for>
+</section>
+<section aria-labelledby="gol" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px"><h2 id="gol" style="margin: 0; font-size: 16px; font-weight: 700">Goleadores</h2><a href="Ranking.dc.html" style="font-size: 13px; font-weight: 600">Ver todos</a></div>
+<sc-for list="{{goleadores}}" as="g" hint-placeholder-count="5">
+<a href="Jugador.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; min-height: 44px">
+<span style="width: 18px; font-weight: 700; color: #5B6876">{{g.pos}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 14px">{{g.nombre}}</span><span style="font-size: 12px; color: #5B6876">{{g.equipo}}</span></div>
+<span style="font-weight: 800; font-size: 17px">{{g.goles}}</span>
+</a>
+</sc-for>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { vista: 'Total', jornada: 12 }; }
+  renderVals() {
+    const tabs = [['Clasificación', '#'], ['Jornadas', '#'], ['Goleadores', 'Ranking.dc.html'], ['Disciplina', '#'], ['Equipos', '#']].map(([label, href], i) => ({
+      label, href, estilo: 'display: flex; align-items: center; height: 46px; padding: 0 12px; font-size: 14px; font-weight: 600; white-space: nowrap; text-decoration: none; ' + (i === 0 ? 'color: #0B7285; box-shadow: inset 0 -3px 0 #0B7285' : 'color: #3D4853'),
+    }));
+    const vistas = ['Total', 'Casa', 'Fuera'].map((label) => ({ label, pick: () => this.setState({ vista: label }),
+      estilo: 'border: 0; border-radius: 6px; padding: 0 12px; height: 36px; font-size: 13px; font-weight: 600; cursor: pointer; ' + (this.state.vista === label ? 'background: #FFFFFF; color: #1A2027; box-shadow: 0 1px 2px rgba(0,0,0,0.08)' : 'background: transparent; color: #5B6876') }));
+    const Z = { asc: '#2F9E5E', prom: '#3A8DDE', desc: '#C0453B', playout: '#E08A2E' };
+    const zonaDe = (i) => i === 0 ? Z.asc : i === 1 ? Z.prom : i === 12 ? Z.playout : i >= 13 ? Z.desc : 'transparent';
+    const nombres = ['U.D. Valdecastro', 'C.D. Ribera del Tormes', 'Atlético Peñalba', 'C.F. Monteluz', 'S.D. Arenales', 'C.D. Navalcruz', 'U.D. Sierra Alta', 'C.D. Puente Viejo', 'Racing Almenar', 'C.D. Los Pinares', 'U.D. Campo Rubio', 'C.F. Torreblanca', 'Deportivo Linares', 'C.D. Fuentes', 'U.D. La Vega Baja', 'C.D. Mirador'];
+    const colores = ['#1C5D99', '#B23A3A', '#2E7D4F', '#6A3FA0', '#C77A12', '#0B7285', '#3D4853', '#8E2C5A', '#1F6E8C', '#5E7A1F', '#A0522D', '#284B63', '#7A1F1F', '#336B87', '#4F6D2F', '#5A4A8A'];
+    const g = [9, 8, 7, 6, 6, 5, 5, 4, 4, 3, 3, 3, 2, 2, 1, 1], e = [2, 3, 3, 4, 3, 4, 3, 5, 3, 5, 4, 3, 5, 3, 4, 2];
+    // Mismas letras que analisis.ts (rachas-del-grupo) y la clasificación: G-E-P. Valdecastro coincide con su panel de equipo.
+    const formas = ['GEGGG', 'GEGGP', 'EGGPG', 'GPEGG', 'PGGEE', 'GEPPG', 'EEGPG', 'PGEGP', 'GPPEG', 'EPGPE', 'PPGEE', 'EGPPP', 'PEEPG', 'PPEPE', 'EPPPP', 'PPPEP'];
+    const chip = { G: ['#1E7A47', 'Ganado'], E: ['#66717D', 'Empate'], P: ['#C8463B', 'Perdido'] };
+    const tabla = nombres.map((nombre, i) => {
+      const p = 12 - g[i] - e[i], gf = i === 0 ? 31 : 8 + g[i] * 3, gc = i === 0 ? 10 : 6 + i * 2;
+      return { pos: i + 1, nombre, color: colores[i], pj: 12, gep: `${g[i]}-${e[i]}-${p}`, goles: `${gf}:${gc}`, pts: g[i] * 3 + e[i],
+        zona: `display: block; width: 4px; height: 42px; background: ${zonaDe(i)}`,
+        forma: formas[i].split('').map((l) => ({ l, t: chip[l][1], s: `display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; font-size: 10px; font-weight: 700; color: #FFFFFF; background: ${chip[l][0]}` })) };
+    });
+    const sq = (c) => `width: 12px; height: 12px; border-radius: 3px; background: ${c}`;
+    const leyenda = [{ t: 'Asciende a División de Honor', s: sq(Z.asc) }, { t: 'Fase de ascenso', s: sq(Z.prom) }, { t: 'Promoción de permanencia', s: sq(Z.playout) }, { t: 'Desciende a Primera Regional', s: sq(Z.desc) }];
+    const j = this.state.jornada;
+    const jugada = j <= 12;
+    const pares = [[0, 15], [2, 1], [3, 8], [4, 14], [5, 6], [7, 9], [10, 11], [12, 13]];
+    const partidos = pares.map(([a, b], k) => {
+      const gl = (a + j + k) % 4, gv = (b + j) % 3;
+      const base = 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ';
+      return { local: nombres[a], visit: nombres[b],
+        marcador: jugada ? `${gl} - ${gv}` : ['16:30', '12:00', '17:00', '11:30'][k % 4],
+        estiloLocal: base + 'text-align: right; ' + (jugada && gl > gv ? 'font-weight: 700' : 'font-weight: 500'),
+        estiloVisit: base + (jugada && gv > gl ? 'font-weight: 700' : 'font-weight: 500'),
+        estiloMarcador: 'text-align: center; border-radius: 6px; padding: 4px 0; font-weight: 700; ' + (jugada ? 'background: #11181F; color: #FFFFFF' : 'background: #EEF1F4; color: #3D4853') };
+    });
+    const goleadores = [
+      { pos: 1, nombre: 'Martín Ezquerra', equipo: 'U.D. Valdecastro', goles: 11 },
+      { pos: 2, nombre: 'Adrián Gonzalvo', equipo: 'C.D. Ribera del Tormes', goles: 10 },
+      { pos: 3, nombre: 'Yeray Bustillo', equipo: 'Atlético Peñalba', goles: 9 },
+      { pos: 4, nombre: 'Hugo Mancebo', equipo: 'C.F. Monteluz', goles: 8 },
+      { pos: 5, nombre: 'Samuel Lastras', equipo: 'S.D. Arenales', goles: 8 },
+    ];
+    return { tabs, vistas, tabla, leyenda, jornada: j, partidos, goleadores,
+      anterior: () => this.setState({ jornada: Math.max(1, j - 1) }), siguiente: () => this.setState({ jornada: Math.min(30, j + 1) }) };
+  }
+}
+</script>
+</body>
+</html>

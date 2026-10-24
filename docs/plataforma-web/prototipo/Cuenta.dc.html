@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mi cuenta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button,select,input{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<div style="max-width: 1040px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<nav aria-label="Mi cuenta" style="flex: 1 1 200px; max-width: 230px; background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{menu}}" as="m" hint-placeholder-count="5"><a href="{{m.h}}" style="{{m.s}}">{{m.t}}</a></sc-for>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Mi cuenta</h1>
+
+<section aria-labelledby="dp" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="dp" style="margin: 0; font-size: 17px; font-weight: 700">Datos</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="nm" style="font-size: 13px; font-weight: 600">Nombre que se ve</label><input id="nm" value="Ana G." style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 12px; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="zn" style="font-size: 13px; font-weight: 600">Zona horaria</label><select id="zn" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 15px"><option>Península y Baleares</option><option selected>Canarias</option></select></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; color: #3D4853">
+<span style="font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #E6F4F5; color: #08596A">Paquete Ojeador</span>
+<span>hasta el 30/06/2027 · ana@ejemplo.es</span>
+</div>
+<div><button type="button" style="height: 42px; border: 0; border-radius: 8px; background: #0B7285; color: #FFFFFF; padding: 0 16px; font-size: 14px; font-weight: 700">Guardar</button></div>
+</section>
+
+<section aria-labelledby="av" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<h2 id="av" style="margin: 0; font-size: 17px; font-weight: 700">Avisos</h2>
+<fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px">
+<legend style="font-size: 13px; font-weight: 600; margin-bottom: 6px">Avísame de</legend>
+<sc-for list="{{eventos}}" as="e" hint-placeholder-count="6">
+<div role="checkbox" aria-checked="{{e.aria}}" tabindex="0" style="display: flex; gap: 10px; align-items: center; min-height: 40px; font-size: 14px; cursor: pointer"><span style="{{e.caja}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>{{e.t}}<span style="font-size: 12px; color: #5B6876">{{e.d}}</span></div>
+</sc-for>
+</fieldset>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="co" style="font-size: 13px; font-weight: 600">Por correo</label><select id="co" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 15px"><option>Nunca</option><option>Al momento</option><option selected>Un resumen al día</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="hr" style="font-size: 13px; font-weight: 600">Hora del resumen</label><input id="hr" type="time" value="08:00" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 12px; font-size: 15px"></div>
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="si" style="font-size: 13px; font-weight: 600">Sin avisos al móvil de</label><div style="display: flex; gap: 8px; align-items: center"><input id="si" type="time" value="23:00" style="flex: 1; min-width: 0; height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 15px"><span>a</span><input aria-label="hasta" type="time" value="08:00" style="flex: 1; min-width: 0; height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 15px"></div></div>
+</div>
+<div style="border-top: 1px solid #EEF1F4; padding-top: 14px; display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 14px">Dispositivos que reciben avisos</strong>
+<sc-for list="{{dispositivos}}" as="d" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; font-size: 14px"><span style="width: 36px; height: 36px; border-radius: 10px; background: #F2F4F6; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #3D4853">{{d.i}}</span><span style="flex: 1">{{d.t}}<span style="display: block; font-size: 12px; color: #5B6876">{{d.u}}</span></span><button type="button" style="height: 36px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 12px; font-size: 13px; font-weight: 600">Quitar</button></div>
+</sc-for>
+<div><button type="button" style="height: 42px; border: 1px solid #0B7285; border-radius: 8px; background: #FFFFFF; color: #0B7285; padding: 0 14px; font-size: 14px; font-weight: 700">Recibir avisos en este dispositivo</button></div>
+<p style="margin: 0; font-size: 12px; color: #5B6876">En iPhone: añade facylf a la pantalla de inicio (Compartir → Añadir a inicio) y actívalo desde ahí.</p>
+</div>
+</section>
+
+<section aria-labelledby="se" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="se" style="margin: 0; font-size: 17px; font-weight: 700">Seguridad</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="height: 42px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600">Cambiar contraseña</button>
+<button type="button" style="height: 42px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600">Activar verificación en dos pasos</button>
+<button type="button" style="height: 42px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600">Cerrar las demás sesiones (2)</button>
+</div>
+</section>
+
+<section aria-labelledby="mi" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="mi" style="margin: 0; font-size: 17px; font-weight: 700">Tus datos</h2>
+<p style="margin: 0; font-size: 14px; color: #3D4853">Descarga todo lo que guardamos de ti: cuenta, favoritos, preferencias, avisos y dispositivos.</p>
+<div><button type="button" style="height: 42px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600">Descargar mis datos</button></div>
+<div style="border-top: 1px solid #EEF1F4; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<span style="font-size: 14px; color: #3D4853">Darte de baja borra tus favoritos, avisos y dispositivos. No se puede deshacer.</span>
+<button type="button" style="height: 42px; border: 1px solid #E2B4AF; border-radius: 8px; background: #FFFFFF; color: #9A2F27; padding: 0 14px; font-size: 14px; font-weight: 700">Darme de baja</button>
+</div>
+</section>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const item = (t, on, h) => ({ t, h, s: `display: flex; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; ${on ? 'background: #11181F; color: #FFFFFF' : 'color: #3D4853'}` });
+    const menu = [item('Datos', true, '#dp'), item('Avisos', false, '#av'), item('Seguridad', false, '#se'), item('Tus datos', false, '#mi'), item('Mi panel', false, 'MiPanel.dc.html')];
+    const eventos = [
+      { t: 'Resultado', d: 'cuando acaba un partido de lo que sigues', on: true },
+      { t: 'Acta publicada', d: 'alineaciones y goles', on: true },
+      { t: 'Cambio de fecha u hora', d: '', on: true },
+      { t: 'Próximo partido', d: 'cuando se fija', on: false },
+      { t: 'Jornada completa', d: 'de los grupos que sigues', on: true },
+      { t: 'Jugadores que sigues', d: 'goles, expulsiones, convocatorias', on: true },
+    ].map((e) => ({ ...e, aria: e.on ? 'true' : 'false',
+      caja: `width: 22px; height: 22px; flex: 0 0 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; ${e.on ? 'background: #0B7285; border: 1px solid #0B7285' : 'background: #FFFFFF; border: 1px solid #9AA7B4'}` }));
+    const dispositivos = [{ i: 'AN', t: 'Móvil Android · Chrome', u: 'último aviso: hoy 18:42' }, { i: 'PC', t: 'Ordenador · Firefox', u: 'último aviso: ayer' }];
+    return { menu, eventos, dispositivos };
+  }
+}
+</script>
+</body>
+</html>

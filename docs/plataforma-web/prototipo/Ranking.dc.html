@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Rankings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+select{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="rankings" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Rankings</h1>
+<div role="tablist" aria-label="Tipo de ranking" style="display: flex; background: #E6EAEE; border-radius: 10px; padding: 3px; flex-wrap: wrap">
+<sc-for list="{{tipos}}" as="t" hint-placeholder-count="4"><a href="#" role="tab" style="{{t.s}}">{{t.l}}</a></sc-for>
+</div>
+</div>
+
+<section aria-label="Filtros" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end">
+<sc-for list="{{filtros}}" as="f" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 5px">
+<label for="{{f.id}}" style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6876">{{f.label}}</label>
+<select id="{{f.id}}" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; background: #FFFFFF"><sc-for list="{{f.op}}" as="o" hint-placeholder-count="2"><option>{{o}}</option></sc-for></select>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="gol" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="gol" style="margin: 0; font-size: 16px; font-weight: 700">Goleadores · Juvenil · Liga Nacional · todas las federaciones</h2>
+<span style="font-size: 12px; color: #5B6876">Mínimo 5 partidos · 2025-26</span>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px">
+<th style="padding: 10px 16px; font-weight: 600; width: 40px">#</th><th style="padding: 10px 8px; font-weight: 600">Jugador</th><th style="padding: 10px 8px; font-weight: 600">Equipo</th><th style="padding: 10px 8px; font-weight: 600; width: 26%">Goles</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">PJ</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Por partido</th><th style="padding: 10px 16px; font-weight: 600; text-align: right">Min/gol</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{filas}}" as="r" hint-placeholder-count="10">
+<tr style="border-top: 1px solid #EEF1F4">
+<td style="padding: 10px 16px"><span style="{{r.ps}}">{{r.p}}</span></td>
+<td style="padding: 10px 8px"><a href="Jugador.dc.html" style="font-weight: 600; color: #1A2027">{{r.n}}</a><div style="font-size: 11px; color: #5B6876">{{r.fed}}</div></td>
+<td style="padding: 10px 8px"><a href="Equipo.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #1A2027"><svg width="18" height="20" viewBox="0 0 36 40" aria-hidden="true"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="{{r.c}}"></path></svg>{{r.eq}}</a></td>
+<td style="padding: 10px 8px"><div style="display: flex; align-items: center; gap: 8px"><span style="font-weight: 800; width: 22px">{{r.g}}</span><div style="flex: 1; height: 8px; background: #EEF1F4; border-radius: 4px; overflow: hidden"><div style="height: 100%; background: #0B7285; width: {{r.w}}"></div></div></div></td>
+<td style="padding: 10px 8px; text-align: right">{{r.pj}}</td>
+<td style="padding: 10px 8px; text-align: right; color: #3D4853">{{r.gp}}</td>
+<td style="padding: 10px 16px; text-align: right; color: #3D4853">{{r.mg}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 12px; color: #5B6876">Min/gol solo se calcula con actas completas; si falta el minuto de algún cambio se muestra «—» en lugar de inventarlo.</div>
+</section>
+
+<section aria-labelledby="lig" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="lig" style="margin: 0; font-size: 16px; font-weight: 700">Comparar ligas · Juvenil 2025-26</h2>
+<a href="#" style="font-size: 13px; font-weight: 600">Añadir liga</a>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px">
+<th style="padding: 10px 16px; font-weight: 600">Liga</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Goles/partido</th><th style="padding: 10px 8px; font-weight: 600; width: 28%">Resultado (local · empate · visitante)</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Amarillas/p.</th><th style="padding: 10px 16px; font-weight: 600; text-align: right">Actas completas</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{ligas}}" as="l" hint-placeholder-count="5">
+<tr style="border-top: 1px solid #EEF1F4">
+<td style="padding: 10px 16px"><a href="Competicion.dc.html" style="font-weight: 600; color: #1A2027">{{l.n}}</a><div style="font-size: 11px; color: #5B6876">{{l.fed}}</div></td>
+<td style="padding: 10px 8px; text-align: right; font-weight: 700">{{l.gp}}</td>
+<td style="padding: 10px 8px"><div style="display: flex; height: 12px; border-radius: 6px; overflow: hidden" title="{{l.t}}"><div style="background: #1C5D99; width: {{l.v1}}"></div><div style="background: #C9D2DB; width: {{l.v2}}"></div><div style="background: #E08A2E; width: {{l.v3}}"></div></div><div style="font-size: 11px; color: #5B6876; margin-top: 3px">{{l.t}}</div></td>
+<td style="padding: 10px 8px; text-align: right">{{l.am}}</td>
+<td style="padding: 10px 16px; text-align: right; color: #3D4853">{{l.edad}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const tab = (l, on) => ({ l, s: 'display: inline-flex; align-items: center; height: 38px; padding: 0 14px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; ' + (on ? 'background: #FFFFFF; color: #11181F; box-shadow: 0 1px 2px rgba(0,0,0,0.08)' : 'color: #3D4853') });
+    const tipos = [tab('Goleadores', true), tab('Minutos', false), tab('Tarjetas', false), tab('Porteros', false)];
+    const filtros = [
+      { id: 'r-fed', label: 'Federación', op: ['Todas', 'Castilla y León', 'Madrid', 'Bizkaia'] },
+      { id: 'r-tem', label: 'Temporada', op: ['2025-26', '2024-25'] },
+      { id: 'r-cat', label: 'Categoría', op: ['Juvenil', 'Cadete', 'Aficionado'] },
+      { id: 'r-div', label: 'División', op: ['Liga Nacional', 'División de Honor', 'Todas'] },
+      { id: 'r-gru', label: 'Grupo', op: ['Todos', 'Grupo 7', 'Grupo 5'] },
+      { id: 'r-min', label: 'Mínimo de partidos', op: ['5', '1', '10'] },
+    ];
+    const d = [
+      ['Martín Ezquerra Valcárcel', 'Castilla y León', 'U.D. Valdecastro "A"', '#1C5D99', 11, 12, 91],
+      ['Hugo Lastra Pérez', 'Madrid', 'C.D. Mirador', '#6B7A2A', 10, 12, 98],
+      ['Iker Bengoa Sarasola', 'Gipuzkoa', 'Lasarte K.E.', '#2E7D4F', 10, 13, 112],
+      ['Pablo Rendo Cid', 'Galicia', 'C.D. Ribera del Miño', '#0B7285', 9, 11, 101],
+      ['Jan Puigvert Soler', 'Cataluña', 'U.E. Montseny', '#A83246', 9, 12, null],
+      ['Aitor Gorostiza Urrutia', 'Bizkaia', 'Arenaza K.E.', '#C2571A', 8, 13, 141],
+      ['Rubén Calvo Mesa', 'Castilla y León', 'C.D. Navalcruz', '#0B7285', 8, 12, 122],
+      ['Nacho Ferrán Gil', 'Valencia', 'C.F. Monteluz', '#C2571A', 7, 10, 109],
+    ];
+    const mx = 11;
+    const filas = d.map(([n, fed, eq, c, g, pj, mg], i) => ({ p: i + 1, n, fed, eq, c, g, pj, gp: (g / pj).toFixed(2).replace('.', ','), mg: mg ?? '—', w: (g / mx * 100).toFixed(0) + '%',
+      ps: `display: inline-flex; width: 26px; height: 26px; border-radius: 50%; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; ${i < 3 ? 'background: #11181F; color: #FFFFFF' : 'color: #5B6876'}` }));
+    const L = [
+      ['Liga Nacional · Grupo 7', 'Castilla y León', 3.12, 46, 25, 29, '3,9', '96 %'],
+      ['Liga Nacional · Grupo 5', 'Madrid', 3.41, 49, 21, 30, '4,4', '91 %'],
+      ['División de Honor Regional', 'Bizkaia', 2.86, 44, 28, 28, '3,1', '99 %'],
+      ['Liga Nacional · Grupo 3', 'Cataluña', 3.05, 47, 24, 29, '—', '62 %'],
+      ['Primera Provincial · Salamanca', 'Castilla y León', 3.78, 51, 18, 31, '3,5', '88 %'],
+    ];
+    const ligas = L.map(([n, fed, gp, v1, v2, v3, am, edad]) => ({ n, fed, gp: gp.toFixed(2).replace('.', ','), v1: v1 + '%', v2: v2 + '%', v3: v3 + '%', t: `${v1}% · ${v2}% · ${v3}%`, am, edad }));
+    return { tipos, filtros, filas, ligas };
+  }
+}
+</script>
+</body>
+</html>

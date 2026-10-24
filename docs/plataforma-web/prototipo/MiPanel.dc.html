@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mi panel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Hola, David</h1>
+<a href="#" style="font-size: 14px; font-weight: 600">Ordenar y editar favoritos</a>
+</div>
+
+<section aria-label="Accesos rápidos" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px">
+<sc-for list="{{rapidos}}" as="r" hint-placeholder-count="6">
+<a href="{{r.h}}" style="flex: none; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E1E6EB; color: #1A2027; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="{{r.ic}}">{{r.i}}</span>{{r.t}}</a>
+</sc-for>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<section aria-labelledby="eq" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 id="eq" style="margin: 0; font-size: 18px; font-weight: 800">Tus equipos</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px">
+<sc-for list="{{equipos}}" as="e" hint-placeholder-count="4">
+<article style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="display: flex; gap: 10px; align-items: center; padding: 12px 14px">
+<svg width="30" height="34" viewBox="0 0 36 40" aria-hidden="true"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="{{e.c}}"></path></svg>
+<a href="Equipo.dc.html" style="flex: 1; min-width: 0; display: flex; flex-direction: column; color: #1A2027"><strong style="font-size: 15px">{{e.n}}</strong><span style="font-size: 12px; color: #5B6876">{{e.comp}}</span></a>
+<button type="button" aria-label="{{e.bell}}" aria-pressed="{{e.av}}" style="{{e.bs}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10 21a2 2 0 0 0 4 0"></path></svg></button>
+</div>
+<a href="Acta.dc.html" style="display: flex; justify-content: space-between; padding: 9px 14px; border-top: 1px solid #EEF1F4; font-size: 13px; color: #3D4853; text-decoration: none"><span>{{e.ult}}</span><strong style="color: #1A2027">{{e.res}}</strong></a>
+<div style="display: flex; justify-content: space-between; padding: 9px 14px; border-top: 1px solid #EEF1F4; font-size: 13px; background: #F9FAFB; color: #3D4853"><span>{{e.prox}}</span><strong style="color: #1A2027">{{e.hora}}</strong></div>
+</article>
+</sc-for>
+</div>
+<h2 style="margin: 8px 0 0; font-size: 18px; font-weight: 800">Jugadores y competiciones</h2>
+<div style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<sc-for list="{{otros}}" as="o" hint-placeholder-count="4">
+<a href="{{o.h}}" style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; min-height: 44px">
+<span style="{{o.ic}}">{{o.i}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><strong style="font-size: 14px">{{o.t}}</strong><span style="font-size: 12px; color: #5B6876">{{o.s}}</span></div>
+<span style="font-size: 12px; color: #5B6876">{{o.tipo}}</span>
+</a>
+</sc-for>
+</div>
+</section>
+
+<aside aria-labelledby="av" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="av" style="margin: 0; font-size: 18px; font-weight: 800">Avisos</h2><a href="#" style="font-size: 13px; font-weight: 600">Marcar todo leído</a></div>
+<div style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<sc-for list="{{avisos}}" as="a" hint-placeholder-count="6">
+<a href="{{a.h}}" style="{{a.s}}">
+<span style="{{a.ic}}">{{a.i}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{a.t}}</span><span style="font-size: 12px; color: #5B6876">{{a.d}}</span></div>
+<span style="font-size: 11px; color: #5B6876; white-space: nowrap">{{a.cuando}}</span>
+</a>
+</sc-for>
+</div>
+<section aria-labelledby="pr" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<h3 id="pr" style="margin: 0; font-size: 15px; font-weight: 700">Cómo te avisamos</h3>
+<sc-for list="{{prefs}}" as="p" hint-placeholder-count="5">
+<label style="display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; min-height: 36px"><span>{{p.t}}</span><span style="{{p.s}}"><span style="{{p.k}}"></span></span></label>
+</sc-for>
+<span style="font-size: 12px; color: #5B6876">Silencio de 23:00 a 8:00 · resumen por correo a las 8:00</span>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ic = (bg, fg, r) => `width: 28px; height: 28px; border-radius: ${r}; background: ${bg}; color: ${fg}; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex: none`;
+    const rapidos = [
+      { t: 'Valdecastro Juvenil A', i: 'VA', ic: ic('#1C5D99', '#FFF', '6px'), h: 'Equipo.dc.html' },
+      { t: 'Liga Nacional · G7', i: 'LN', ic: ic('#E6F4F5', '#08596A', '6px'), h: 'Competicion.dc.html' },
+      { t: 'Martín Ezquerra', i: 'ME', ic: ic('#DDE3E9', '#3D4853', '50%'), h: 'Jugador.dc.html' },
+      { t: 'Ojeo sub-19 CyL', i: 'OJ', ic: ic('#FFF1D6', '#8A5A00', '6px'), h: 'Ojeo.dc.html' },
+      { t: 'Valdecastro Cadete', i: 'VC', ic: ic('#5B8DC0', '#FFF', '6px'), h: 'Equipo.dc.html' },
+      { t: 'Temporada 2025-26', i: '25', ic: ic('#EEF1F4', '#3D4853', '6px'), h: 'Main.dc.html' },
+    ];
+    const bell = (on) => ({ av: on ? 'true' : 'false', bell: on ? 'Avisos activados' : 'Avisos desactivados',
+      bs: `width: 40px; height: 40px; border-radius: 10px; border: 1px solid ${on ? '#0B7285' : '#CCD4DC'}; background: ${on ? '#E6F4F5' : '#FFFFFF'}; color: ${on ? '#08596A' : '#8994A0'}; display: inline-flex; align-items: center; justify-content: center` });
+    const equipos = [
+      { n: 'U.D. Valdecastro "A"', comp: 'Liga Nacional Juvenil · G7 · 1.º', c: '#1C5D99', ult: 'vs C.D. Navalcruz', res: '3-1', prox: 'en C.D. Mirador · sáb 6 dic', hora: '16:30', ...bell(true) },
+      { n: 'U.D. Valdecastro Cadete', comp: 'Regional Cadete · A · 4.º', c: '#5B8DC0', ult: 'en Racing Almenar', res: '2-2', prox: 'vs C.F. Monteluz · dom 7 dic', hora: '11:00', ...bell(true) },
+      { n: 'Atlético Peñalba', comp: 'Liga Nacional Juvenil · G7 · 3.º', c: '#2E7D4F', ult: 'vs Racing Almenar', res: '1-0', prox: 'en Ribera del Tormes · sáb', hora: '12:00', ...bell(false) },
+    ];
+    const otros = [
+      { t: 'Martín Ezquerra Valcárcel', s: '11 goles · 1.002 minutos esta temporada', tipo: 'Jugador', i: 'ME', ic: ic('#DDE3E9', '#3D4853', '50%'), h: 'Jugador.dc.html' },
+      { t: 'Liga Nacional Juvenil · Grupo 7', s: 'Jornada 12 completa · líder Valdecastro', tipo: 'Competición', i: 'LN', ic: ic('#E6F4F5', '#08596A', '6px'), h: 'Competicion.dc.html' },
+      { t: 'Ojeo: sub-19 de Castilla y León', s: 'Búsqueda guardada · 3 perfiles nuevos desde ayer', tipo: 'Búsqueda', i: 'OJ', ic: ic('#FFF1D6', '#8A5A00', '6px'), h: 'Ojeo.dc.html' },
+      { t: 'Andrés Ezquerra Mata', s: 'Árbitro · próximo partido sáb', tipo: 'Árbitro', i: 'AE', ic: ic('#FFF1D6', '#8A5A00', '50%'), h: 'Arbitro.dc.html' },
+    ];
+    const tipoIc = { resultado: ['R', '#11181F', '#FFF'], gol: ['G', '#1E7A47', '#FFF'], horario: ['H', '#A85D1A', '#FFF'], acta: ['A', '#0B7285', '#FFF'], jornada: ['J', '#5B6876', '#FFF'], prox: ['P', '#3A8DDE', '#FFF'] };
+    const av = (k, t, d, cuando, nuevo, h) => ({ t, d, cuando, h, i: tipoIc[k][0], ic: ic(tipoIc[k][1], tipoIc[k][2], '50%'),
+      s: `display: flex; gap: 10px; align-items: center; padding: 11px 14px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; min-height: 44px; ${nuevo ? 'background: #F2FAFB; box-shadow: inset 3px 0 0 #0B7285' : ''}` });
+    const avisos = [
+      av('resultado', 'U.D. Valdecastro "A" 3-1 C.D. Navalcruz', 'Liga Nacional Juvenil · G7', 'hace 2 h', true, 'Acta.dc.html'),
+      av('gol', 'Martín Ezquerra marcó 2 goles', 'Acta publicada · jugó 90′', 'hace 1 h', true, 'Jugador.dc.html'),
+      av('horario', 'Cambio de horario: Mirador - Valdecastro', 'sáb 6 dic, 16:30 (antes 12:00)', 'ayer', false, 'Acta.dc.html'),
+      av('jornada', 'Jornada 12 completa · Grupo 7', 'Clasificación actualizada', 'ayer', false, 'Competicion.dc.html'),
+      av('prox', 'Próximo partido: Valdecastro Cadete - Monteluz', 'dom 7 dic, 11:00', 'lun', false, 'Acta.dc.html'),
+    ];
+    const sw = (on) => ({ s: `width: 44px; height: 26px; border-radius: 999px; background: ${on ? '#0B7285' : '#CCD4DC'}; position: relative; flex: none; display: inline-block`, k: `position: absolute; top: 3px; ${on ? 'right' : 'left'}: 3px; width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF` });
+    const prefs = [{ t: 'Resultados y actas', ...sw(true) }, { t: 'Próximos partidos y cambios de hora', ...sw(true) }, { t: 'Lo que hacen mis jugadores', ...sw(true) },
+      { t: 'Notificaciones en el móvil', ...sw(true) }, { t: 'Correo al momento', ...sw(false) }];
+    return { rapidos, equipos, otros, avisos, prefs };
+  }
+}
+</script>
+</body>
+</html>

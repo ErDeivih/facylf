@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cabecera</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<header style="background: #11181F; font-family: Inter, system-ui, sans-serif; color: #FFFFFF">
+<div style="max-width: 1240px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 9px; color: #FFFFFF; text-decoration: none; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; min-height: 44px">
+<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#0B7285"></rect><circle cx="14" cy="14" r="7" fill="none" stroke="#FFFFFF" stroke-width="2"></circle><path d="M14 7v14M7 14h14" stroke="#FFFFFF" stroke-width="1.5"></path></svg>
+facylf</a>
+<a href="Main.dc.html" style="flex: 1 1 260px; order: 3; display: flex; align-items: center; gap: 10px; background: #1E2A35; color: #9AA7B4; border-radius: 10px; padding: 0 14px; height: 44px; text-decoration: none; font-size: 14px; min-width: 0">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Jugador, club, equipo, competición, árbitro…</span>
+</a>
+<nav aria-label="Funciones" style="display: flex; align-items: center; gap: 4px; order: 2; margin-left: auto">
+<a href="Competicion.dc.html" style="{{estilos.explorar}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>Explorar</a>
+<a href="Ranking.dc.html" style="{{estilos.rankings}}">Rankings</a>
+<a href="Ojeo.dc.html" style="{{estilos.ojeo}}">Ojeo</a>
+<a href="Comparar.dc.html" style="{{estilos.comparar}}">Comparar</a>
+<a href="MiPanel.dc.html" aria-label="Mi panel: lo que sigues" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #C9D2DB; border-radius: 10px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"></path></svg></a>
+<a href="MiPanel.dc.html" aria-label="Avisos: 3 sin leer" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #C9D2DB; border-radius: 10px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>
+<span aria-hidden="true" style="position: absolute; top: 7px; right: 6px; min-width: 16px; height: 16px; border-radius: 999px; background: #C9352A; color: #FFFFFF; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; padding: 0 3px">3</span></a>
+<a href="Admin.dc.html" aria-label="Tu cuenta: David, administrador (Administración)" style="display: inline-flex; align-items: center; gap: 8px; color: #FFFFFF; text-decoration: none; padding: 0 6px; height: 44px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; background: #0B7285; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">DP</span></a>
+</nav>
+</div>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"activo":{"editor":"enum","options":["","explorar","rankings","ojeo","comparar"],"default":""},"$preview":{"width":1440,"height":64}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const base = 'display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 12px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; ';
+    const e = (k) => base + (this.props.activo === k ? 'background: #FFFFFF; color: #11181F' : 'color: #C9D2DB');
+    return { estilos: { explorar: e('explorar'), rankings: e('rankings'), ojeo: e('ojeo'), comparar: e('comparar') } };
+  }
+}
+</script>
+</body>
+</html>

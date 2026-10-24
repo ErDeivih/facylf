@@ -19,6 +19,7 @@ Fútbol no profesional de España: recogida, base canónica e informes. Instanci
 | Pedir o generar un informe de equipo | [`docs/informes/PEDIR-INFORMES.md`](docs/informes/PEDIR-INFORMES.md) |
 | La plataforma web pública (`apps/web`), el canónico o el importador | `.claude/skills/plataforma-web-futbol/SKILL.md` y `docs/plataforma-web/` |
 | **La plataforma nacional** (todas las federaciones, fichas instantáneas, plan por fases) | [`docs/plataforma-web/PLATAFORMA-NACIONAL.md`](docs/plataforma-web/PLATAFORMA-NACIONAL.md) |
+| **Terminar la web nueva** (fase C, etapas W0-W10, 24/10) | [`docs/plataforma-web/ENCARGO-WEB-DEEPSEEK-2026-10-24.md`](docs/plataforma-web/ENCARGO-WEB-DEEPSEEK-2026-10-24.md) · prototipo en [`docs/plataforma-web/prototipo/`](docs/plataforma-web/prototipo/) |
 | **Revisar todo lo de Claude, hacer los commits y rematar** (23/10) | [`docs/plataforma-web/ENCARGO-DEEPSEEK-2026-10-23.md`](docs/plataforma-web/ENCARGO-DEEPSEEK-2026-10-23.md) + [`TRASPASO-DEEPSEEK-2026-10-23.md`](docs/plataforma-web/TRASPASO-DEEPSEEK-2026-10-23.md) |
 | **Qué ejecutar, en qué orden** (migraciones 0023-0045, proyección, vigilancia, copias, usuarios) | [`docs/plataforma-web/PLAN-DEEPSEEK.md`](docs/plataforma-web/PLAN-DEEPSEEK.md) |
 | **Qué datos da cada federación** y cómo se muestran según lo que haya | [`docs/plataforma-web/COBERTURA-FEDERACIONES.md`](docs/plataforma-web/COBERTURA-FEDERACIONES.md) |

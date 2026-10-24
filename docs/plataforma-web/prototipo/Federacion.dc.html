@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Federación</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="explorar" hint-size="100%,64px"></dc-import>
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px">
+<div>
+<div style="font-size: 13px; color: #5B6876"><a href="Main.dc.html">Inicio</a> · Federaciones</div>
+<h1 style="margin: 4px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em">Federación Catalana de Fútbol</h1>
+<div style="font-size: 14px; color: #3D4853; margin-top: 4px">Temporada 2025-26 · 1.412 competiciones · 143.058 partidos</div>
+</div>
+<div style="display: flex; gap: 8px">
+<button type="button" aria-label="Seguir esta federación" style="height: 42px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"></path></svg>Seguir</button>
+</div>
+</div>
+
+<section aria-labelledby="qd" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="qd" style="margin: 0; font-size: 17px; font-weight: 700">Qué datos publica</h2>
+<span style="font-size: 12px; color: #5B6876">Medido sobre lo importado · actualizado tras cada carga</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 1px; background: #EEF1F4; border-top: 1px solid #EEF1F4">
+<sc-for list="{{medidas}}" as="m" hint-placeholder-count="6">
+<div style="background: #FFFFFF; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13px; color: #3D4853">{{m.t}}</span>
+<strong style="font-size: 22px; font-weight: 800">{{m.v}}</strong>
+<div style="height: 6px; border-radius: 3px; background: #EEF1F4; overflow: hidden"><div style="{{m.barra}}"></div></div>
+<span style="font-size: 12px; color: #5B6876">{{m.d}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="av" style="display: flex; flex-direction: column; gap: 10px">
+<h2 id="av" style="position: absolute; left: -9999px">Avisos sobre los datos</h2>
+<sc-for list="{{avisos}}" as="a" hint-placeholder-count="4">
+<div style="{{a.s}}"><span style="{{a.chip}}">{{a.n}}</span><span>{{a.t}}</span></div>
+</sc-for>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 18px; align-items: start">
+<section aria-labelledby="co" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px"><h2 id="co" style="margin: 0; font-size: 17px; font-weight: 700">Competiciones</h2></div>
+<sc-for list="{{competiciones}}" as="c" hint-placeholder-count="6">
+<a href="Competicion.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none">
+<span style="flex: 1; min-width: 0"><strong style="font-size: 14px; font-weight: 600">{{c.n}}</strong><span style="display: block; font-size: 12px; color: #5B6876">{{c.g}}</span></span>
+<span style="{{c.nivs}}">{{c.niv}}</span>
+</a>
+</sc-for>
+</section>
+<section aria-labelledby="cm" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="cm" style="margin: 0; font-size: 17px; font-weight: 700">Comparar con otras federaciones</h2>
+<p style="margin: 0; font-size: 14px; color: #3D4853">Los minutos sólo se comparan entre competiciones que apuntan los cambios. Entre Cataluña y Castilla y León, el comparador usa partidos y titularidades.</p>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 360px">
+<thead><tr style="color: #5B6876; font-size: 12px; text-align: right"><th style="text-align: left; padding: 6px 0; font-weight: 600">Federación</th><th style="padding: 6px; font-weight: 600">Cambios</th><th style="padding: 6px; font-weight: 600">Tarjetas</th><th style="padding: 6px 0; font-weight: 600">Nivel</th></tr></thead>
+<tbody><sc-for list="{{otras}}" as="o" hint-placeholder-count="4"><tr style="border-top: 1px solid #EEF1F4; text-align: right"><td style="text-align: left; padding: 7px 0; font-weight: 600">{{o.n}}</td><td style="padding: 7px 6px">{{o.c}}</td><td style="padding: 7px 6px">{{o.t}}</td><td style="padding: 7px 0">{{o.l}}</td></tr></sc-for></tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const barra = (p, col) => `width: ${p}%; height: 100%; background: ${col}`;
+    const medida = (t, p, d) => ({ t, v: p + ' %', d, barra: barra(p, '#1386B0')   // azul de la paleta: verde/rojo/ámbar sólo para resultados (GRAFICOS.md) });
+    const medidas = [
+      medida('Partidos con resultado', 92, 'el resto, aún por jugar'),
+      medida('Con alineaciones', 17, 'la FCF da acta de una parte'),
+      medida('Con cambios', 0, 'actas leídas antes del 22/10'),
+      medida('Con tarjetas', 0, 'se recuperan al releerlas'),
+      medida('Minuto del gol', 100, 'cronología y tramos'),
+      medida('Con árbitro', 12, 'a veces varios en un nombre'),
+    ];
+    const lim = 'display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #FFF4E5; border: 1px solid #F6D9B8; color: #6B4100; font-size: 14px';
+    const nota = 'display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E1E6EB; color: #3D4853; font-size: 13px';
+    const chip = (c) => `flex: 0 0 auto; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border-radius: 6px; background: ${c}`;
+    const avisos = [
+      { n: 'Límite', t: 'En la mayoría de competiciones aún no hay cambios: no se pueden calcular minutos. Se muestran partidos y titularidades.', s: lim, chip: chip('#F6D9B8') },
+      { n: 'Límite', t: 'Aún no hay tarjetas en la mayoría de competiciones: no hay disciplina ni sanciones.', s: lim, chip: chip('#F6D9B8') },
+      { n: 'Nota', t: 'En las competiciones leídas antes del 22/10 los jugadores no traen código: las fichas se unen por nombre y equipo. Las actas nuevas ya lo traen.', s: nota, chip: chip('#EEF1F4') },
+      { n: 'Nota', t: 'A veces el acta junta a varios colegiados en un solo nombre; se cuenta sólo el principal.', s: nota, chip: chip('#EEF1F4') },
+    ];
+    const niv = (n) => ({ completo: ['Completo', '#E9F6EE', '#1E6B3E'], alineaciones: ['Alineaciones', '#FFF4E5', '#8A5300'], resultados: ['Sólo resultados', '#EEF1F4', '#3D4853'] }[n]);
+    const competiciones = [
+      ['Lliga Nacional Juvenil', 'Grupo 7 · 16 equipos', 'alineaciones'], ['Primera Catalana', '2 grupos · 36 equipos', 'alineaciones'],
+      ['Segona Catalana', '6 grupos', 'resultados'], ['Divisió d\'Honor Cadet', '2 grupos', 'alineaciones'],
+      ['Infantil Primera Divisió', '8 grupos', 'resultados'], ['Benjamí F7', '42 grupos', 'resultados'],
+    ].map(([n, g, k]) => { const [t, bg, col] = niv(k); return { n, g, niv: t, nivs: `flex: 0 0 auto; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: ${bg}; color: ${col}` }; });
+    const otras = [
+      { n: 'Cataluña', c: '0 %', t: '0 %', l: 'alineaciones' }, { n: 'Castilla y León', c: '57 %', t: '53 %', l: 'completo' },
+      { n: 'Madrid', c: '23 %', t: '67 %', l: 'mixto' }, { n: 'Bizkaia', c: '75 %', t: '96 %', l: 'completo' },
+    ];
+    return { medidas, avisos, competiciones, otras };
+  }
+}
+</script>
+</body>
+</html>

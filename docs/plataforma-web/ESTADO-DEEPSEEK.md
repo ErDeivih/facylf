@@ -2,7 +2,27 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 24/10/2026 00:35 (DeepSeek: comprobado que las actas se bajan de verdad y medido cuántas faltan por DESCUBRIR)
+**Última actualización:** 24/10/2026 11:30 (Claude: ENCARGO-WEB-DEEPSEEK-2026-10-24.md — terminar la web nueva, etapas W0-W10)
+
+## ★★★★★ Claude, 24/10, 11:30 — SIGUIENTE TAREA: terminar la web · [`ENCARGO-WEB-DEEPSEEK-2026-10-24.md`](ENCARGO-WEB-DEEPSEEK-2026-10-24.md)
+
+David (24/10): «especifica toda la tarea que falta para terminar la web y se la damos a DeepSeek». La capa de datos
+está cerrada; falta la **web nueva** (fase C). El encargo la parte en 11 etapas con su «terminado»:
+- **W0:** proyectar los 39.464 grupos (requisito).
+- **W1:** Next 16, esqueleto, caché y métricas.
+- **W2:** cuentas con Better Auth.
+- **W3:** fichas públicas.
+- **W4:** rankings, comparar, ojeo y árbitro.
+- **W5:** Mi panel, avisos y Mi cuenta.
+- **W6:** panel de administración.
+- **W7:** estados y accesibilidad.
+- **W8:** operación (fase B).
+- **W9:** retirar la web vieja (SQLite).
+- **W10:** despliegue y visto bueno de David.
+
+Se trabaja en la rama `fase-c`; a `main` sólo con el visto bueno de David. Especifica también las **18 consultas
+que faltan** (Q1-Q18: acta, jornada, clasificación por id, árbitro, rankings de minutos y tarjetas, panel…). El
+prototipo está ahora copiado en el repositorio: `docs/plataforma-web/prototipo/` (22 tableros, datos inventados).
 
 ## ★★★★★ DeepSeek, 24/10, 00:35 — funciona, y sí: hay actas sin descubrir (y son muchas)
 

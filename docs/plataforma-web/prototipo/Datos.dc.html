@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Calidad de datos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+<div><a href="Admin.dc.html" style="font-size: 13px; font-weight: 600">Administración</a>
+<h1 style="margin: 4px 0 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Calidad de datos</h1></div>
+<span style="font-size: 13px; color: #5B6876">Última detección: hoy 06:10, tras proyectar · 31 casos abiertos</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px">
+<sc-for list="{{resumen}}" as="r" hint-placeholder-count="4">
+<div style="{{r.s}}"><span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em">{{r.t}}</span><span style="font-size: 14px; color: #3D4853">{{r.d}}</span></div>
+</sc-for>
+</div>
+
+<section aria-labelledby="ca" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="ca" style="margin: 0; font-size: 17px; font-weight: 700">Casos por tipo</h2>
+<span style="font-size: 12px; color: #5B6876">Se abren solos, se cierran solos si el dato se corrige en origen</span>
+</div>
+<sc-for list="{{casos}}" as="c" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; padding: 12px 16px; border-top: 1px solid #EEF1F4; align-items: start">
+<span style="{{c.gs}}">{{c.cod}}</span>
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<strong style="font-size: 14px">{{c.t}}</strong>
+<span style="font-size: 13px; color: #3D4853">Qué hace la plataforma: {{c.tr}}</span>
+<span style="font-size: 12px; color: #5B6876">{{c.ej}}</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px">
+<strong style="font-size: 18px">{{c.n}}</strong>
+<a href="#" style="font-size: 13px; font-weight: 600; min-height: 32px; display: inline-flex; align-items: center">{{c.acc}}</a>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="co" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="co" style="margin: 0; font-size: 17px; font-weight: 700">Qué datos da cada federación</h2>
+<span style="font-size: 12px; color: #5B6876">Medido sobre las actas con alineación · temporada de referencia</span>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 820px">
+<thead><tr style="text-align: right; color: #5B6876; font-size: 12px"><th style="padding: 8px 16px; text-align: left; font-weight: 600">Federación</th><th style="padding: 8px; font-weight: 600">Partidos</th><th style="padding: 8px; font-weight: 600">Con acta</th><th style="padding: 8px; font-weight: 600">Cambios</th><th style="padding: 8px; font-weight: 600">Tarjetas</th><th style="padding: 8px; font-weight: 600">Minuto de gol</th><th style="padding: 8px 16px; text-align: left; font-weight: 600">Se muestra</th></tr></thead>
+<tbody><sc-for list="{{feds}}" as="f" hint-placeholder-count="17">
+<tr style="border-top: 1px solid #EEF1F4; text-align: right">
+<td style="padding: 8px 16px; text-align: left; font-weight: 600">{{f.n}}</td>
+<td style="padding: 8px">{{f.p}}</td>
+<td style="padding: 8px"><span style="{{f.as}}">{{f.a}}</span></td>
+<td style="padding: 8px"><span style="{{f.cs}}">{{f.c}}</span></td>
+<td style="padding: 8px"><span style="{{f.ts}}">{{f.t}}</span></td>
+<td style="padding: 8px"><span style="{{f.gs}}">{{f.g}}</span></td>
+<td style="padding: 8px 16px; text-align: left; color: #3D4853">{{f.m}}</td>
+</tr>
+</sc-for></tbody>
+</table>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 12px; color: #5B6876">Por medir en el servidor: Aragón, Asturias, Baleares, Cantabria, Castilla-La Mancha, Extremadura, Galicia y Murcia. Debajo de 40 % de cambios no se calculan minutos; debajo de 15 % de tarjetas no hay disciplina.</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const tarjeta = (bg, bd, col) => `display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 12px; background: ${bg}; border: 1px solid ${bd}; color: ${col}`;
+    const resumen = [
+      { t: '3 graves', d: 'Necesitan una persona: el dato público contradice otro dato.', s: tarjeta('#FBE7E5', '#F2C4BF', '#9A2F27') },
+      { t: '19 avisos', d: 'La plataforma ya los trata; revisar si hay tiempo.', s: tarjeta('#FFF7EE', '#F6D9B8', '#8A5300') },
+      { t: '9 informativos', d: 'Huecos del origen. No se rellenan: se dice que faltan.', s: tarjeta('#FFFFFF', '#E1E6EB', '#3D4853') },
+      { t: '412 resueltos solos', d: 'Este mes: el acta se corrigió en la federación.', s: tarjeta('#E9F6EE', '#C3E6CF', '#1E6B3E') },
+    ];
+    const g = { grave: ['#FBE7E5', '#9A2F27'], aviso: ['#FFF4E5', '#8A5300'], info: ['#EEF1F4', '#3D4853'] };
+    const chip = (k) => `display: inline-flex; justify-content: center; align-items: center; height: 26px; border-radius: 6px; font-size: 12px; font-weight: 800; background: ${g[k][0]}; color: ${g[k][1]}`;
+    const casos = [
+      ['grave', 'P1', 'Resultado del acta distinto de la suma de goles', 'manda el resultado oficial; los goles de los jugadores se cuentan igual y se marca el partido', 'Partido 88231 · 3-1 en el acta, 2 goles anotados', 3, 'Revisar'],
+      ['grave', '2.8', 'Mismo jugador en dos partidos a la vez', 'se separan las fichas hasta que alguien confirme', 'Dos actas el sábado a las 10:00 con la misma licencia', 0, 'Ver'],
+      ['aviso', 'E1', 'Más de 11 titulares o menos de 7', 'se cuentan los partidos pero no los minutos de ese equipo en ese partido', '12 titulares · Juvenil Primera Regional G2', 7, 'Ver lista'],
+      ['aviso', '1.3', 'Dos amarillas en el mismo minuto', 'se cuenta como una amarilla (suele ser un duplicado), no como expulsión', '4 casos en Valencia esta temporada', 4, 'Ver lista'],
+      ['aviso', 'P2', 'Cambio de un jugador que no estaba en el campo', 'se ignora el cambio; los minutos del resto se calculan', 'Entra un suplente que ya había entrado', 5, 'Ver lista'],
+      ['aviso', '3.5', 'Jugador expulsado que vuelve a jugar sin cumplir sanción', 'se marca la sanción como «sin confirmar»; puede haber recurso', '3 partidos de suspensión, juega el siguiente', 3, 'Ver lista'],
+      ['info', 'E3', 'Competición sin cambios apuntados', 'no se calculan minutos; se muestran partidos y titularidades', 'Ceuta, Andalucía base, Euskadi 2016-23…', 6, 'Ver competiciones'],
+      ['info', 'P3', 'Gol sin minuto', 'el gol cuenta; no entra en goles por tramo', 'Canarias 2024-25, Araba, Las Palmas', 3, 'Ver competiciones'],
+    ].map(([k, cod, t, tr, ej, n, acc]) => ({ cod, t, tr, ej, n, acc, gs: chip(k) }));
+    const nivel = (v, lim) => v === null ? 'color: #5B6876' : v < lim ? 'display: inline-block; padding: 1px 6px; border-radius: 5px; background: #FBE7E5; color: #9A2F27; font-weight: 700' : 'font-weight: 600';
+    const pct = (v) => v === null ? '—' : v + ' %';
+    const feds = [
+      ['Andalucía', '64.581', 86, 2, 12, 100, 'resultados, alineaciones y goles; sin minutos ni disciplina'],
+      ['Araba', '36.585', 35, 30, 80, 27, 'alineaciones y tarjetas; minutos sólo en algunas ligas'],
+      ['Bizkaia', '31.896', 50, 75, 96, 96, 'completo'],
+      ['Canarias', '638', 48, 100, 91, 0, 'completo salvo goles por tramo'],
+      ['Castilla y León', '24.360', 96, 57, 53, 100, 'completo en la mayoría de ligas'],
+      ['Cataluña', '143.058', 17, 0, 0, 100, 'resultados y goles; sin minutos ni tarjetas'],
+      ['Ceuta', '3.024', 95, 6, 28, 100, 'partidos y titularidades; sin minutos'],
+      ['Euskadi', '4.130', 53, 77, 94, 100, 'completo desde 2023-24'],
+      ['Gipuzkoa', '31.067', 53, 62, 81, 100, 'completo'],
+      ['Las Palmas', '29.490', 64, 60, 69, 29, 'completo salvo goles por tramo'],
+      ['Madrid', '94.827', 70, 23, 67, 100, 'minutos sólo en ligas con cambios; posición en 10 %'],
+      ['Melilla', '3.453', 100, 12, 30, 100, 'partidos, titularidades y tarjetas'],
+      ['Navarra', '16.116', 70, 59, 81, 100, 'completo'],
+      ['Rioja', '7.415', 59, 47, 65, 100, 'completo'],
+      ['Tenerife', '32.398', 56, 62, 63, 45, 'completo salvo goles por tramo'],
+      ['Valencia', '71.272', 99, 23, 49, 100, 'minutos sólo en ligas con cambios; posición y sistema'],
+    ].map(([n, p, a, c, t, gg, m]) => ({ n, p, a: pct(a), c: pct(c), t: pct(t), g: pct(gg), m,
+      as: nivel(a, 30), cs: nivel(c, 40), ts: nivel(t, 15), gs: nivel(gg, 80) }));
+    return { resumen, casos, feds };
+  }
+}
+</script>
+</body>
+</html>

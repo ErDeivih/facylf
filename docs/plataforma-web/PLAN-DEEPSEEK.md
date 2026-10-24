@@ -268,6 +268,9 @@ hay una copia de las 3:31 y una restauración de prueba correcta en `ops.copia`.
 
 ## 4. Fase C — la web
 
+> **24/10: el encargo detallado de esta fase es [`ENCARGO-WEB-DEEPSEEK-2026-10-24.md`](ENCARGO-WEB-DEEPSEEK-2026-10-24.md)**
+> (etapas W0-W10, consultas que faltan, etiquetas de caché). Lo de abajo queda como resumen.
+
 Next.js 15 está congelado en `apps/web`; la fase C es la reconstrucción (Next 16 + Cache Components, ver
 PLATAFORMA-NACIONAL §5 y §10). Mapa de pantallas → consultas (todo lee `analytics`, nada agrega hechos):
 

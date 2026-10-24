@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Panel de administración</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<div style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<nav aria-label="Administración" style="flex: 1 1 200px; max-width: 240px; background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{menu}}" as="m" hint-placeholder-count="11"><a href="{{m.h}}" style="{{m.s}}"><span>{{m.t}}</span><span style="{{m.bs}}">{{m.b}}</span></a></sc-for>
+</nav>
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Hoy en facylf</h1>
+<span style="font-size: 13px; color: #5B6876">Jueves 22/10 · 21:40 · datos de hace 2 min</span>
+</div>
+
+<section aria-label="Lo que necesita atención" style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{atencion}}" as="a" hint-placeholder-count="3">
+<a href="{{a.h}}" style="{{a.s}}"><span style="{{a.chip}}">{{a.n}}</span><span style="flex: 1">{{a.t}}</span><span style="font-size: 13px; font-weight: 700">{{a.acc}}</span></a>
+</sc-for>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="6">
+<div style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; color: #5B6876">{{k.t}}</span>
+<strong style="font-size: 26px; font-weight: 800; letter-spacing: -0.02em">{{k.v}}</strong>
+<svg viewBox="0 0 100 24" width="100%" height="24" aria-hidden="true"><polyline points="{{k.p}}" fill="none" stroke="#1386B0" stroke-width="2"></polyline></svg>
+<span style="font-size: 12px; color: #3D4853">{{k.d}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 18px; align-items: start">
+<section aria-labelledby="pr" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px"><h2 id="pr" style="margin: 0; font-size: 16px; font-weight: 700">Procesos automáticos</h2></div>
+<sc-for list="{{procesos}}" as="p" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 14px">
+<span style="{{p.punto}}"></span><span><strong style="font-weight: 600">{{p.n}}</strong><span style="display: block; font-size: 12px; color: #5B6876">{{p.d}}</span></span><span style="font-size: 13px; color: #3D4853">{{p.c}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="av" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="av" style="margin: 0; font-size: 16px; font-weight: 700">Avisos enviados · 7 días</h2>
+<svg viewBox="0 0 360 140" width="100%" role="img" aria-label="Avisos por día">
+<line x1="20" x2="350" y1="118" y2="118" stroke="#E1E6EB"></line>
+<sc-for list="{{avisosDia}}" as="d" hint-placeholder-count="7">
+<rect x="{{d.x}}" y="{{d.y}}" width="34" height="{{d.h}}" rx="4" fill="#1386B0"><title>{{d.t}}</title></rect>
+<text x="{{d.cx}}" y="134" font-size="11" fill="#5B6876" text-anchor="middle">{{d.l}}</text>
+<text x="{{d.cx}}" y="{{d.ty}}" font-size="11" fill="#1A2027" text-anchor="middle">{{d.v}}</text>
+</sc-for>
+</svg>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #3D4853"><span>Leídos: <strong>71 %</strong></span><span>Por push: <strong>48 %</strong></span><span>Por correo: <strong>22 %</strong></span><span>Fallidos: <strong>0</strong></span></div>
+</section>
+
+<section aria-labelledby="cu" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: baseline"><h2 id="cu" style="margin: 0; font-size: 16px; font-weight: 700">Cuentas</h2><a href="Admin.dc.html" style="font-size: 13px; font-weight: 600">Ir a usuarios</a></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 1px; background: #EEF1F4; border-top: 1px solid #EEF1F4">
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">2</div><div style="font-size: 12px; color: #5B6876">pendientes · 1 espera más de 3 días</div></div>
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">0</div><div style="font-size: 12px; color: #5B6876">administradores sin doble verificación</div></div>
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">1</div><div style="font-size: 12px; color: #5B6876">cuenta frenada por contraseñas fallidas (última hora)</div></div>
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">3</div><div style="font-size: 12px; color: #5B6876">paquetes que vencen en 30 días</div></div>
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">2</div><div style="font-size: 12px; color: #5B6876">invitaciones vigentes</div></div>
+<div style="background: #FFFFFF; padding: 12px 16px"><div style="font-size: 22px; font-weight: 800">4</div><div style="font-size: 12px; color: #5B6876">altas esta semana</div></div>
+</div>
+</section>
+
+<section aria-labelledby="ac" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: baseline"><h2 id="ac" style="margin: 0; font-size: 16px; font-weight: 700">Accesos sensibles · 30 días</h2><span style="font-size: 12px; color: #5B6876">nombres de menores y exportaciones</span></div>
+<sc-for list="{{accesos}}" as="a" hint-placeholder-count="3">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 14px">
+<span><strong style="font-weight: 600">{{a.u}}</strong><span style="display: block; font-size: 12px; color: #5B6876">{{a.c}}</span></span><span>{{a.n}}</span><span style="color: #5B6876; font-size: 13px">{{a.f}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="ve" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="ve" style="margin: 0; font-size: 16px; font-weight: 700">Rapidez · p95 de las consultas</h2>
+<sc-for list="{{rapidez}}" as="r" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 150px 1fr 70px; gap: 10px; align-items: center; font-size: 13px">
+<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.n}}</span>
+<div style="position: relative; height: 10px; background: #F2F4F6; border-radius: 4px"><div style="{{r.s}}"></div><div style="{{r.m}}"></div></div>
+<span style="text-align: right; font-weight: 700">{{r.v}}</span>
+</div>
+</sc-for>
+<span style="font-size: 12px; color: #5B6876">La raya marca el presupuesto de cada consulta. Caché de páginas: 94 % de aciertos hoy.</span>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const item = (t, on, b, h) => ({ t, h: h ?? '#', b: b ?? '', bs: b ? 'font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #FBE7E5; color: #9A2F27' : 'display: none',
+      s: `display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; ${on ? 'background: #11181F; color: #FFFFFF' : 'color: #3D4853'}` });
+    const menu = [item('Inicio', true), item('Salud', false, '1', 'Salud.dc.html'), item('Usuarios', false, '2', 'Admin.dc.html'), item('Invitaciones', false, null, 'Admin.dc.html'),
+      item('Calidad de datos', false, '3', 'Datos.dc.html'), item('Identidades', false, '214'), item('Competiciones', false), item('Procesos', false),
+      item('Avisos', false), item('Publicidad', false, null, 'Publicidad.dc.html'), item('Auditoría', false)];
+    const lim = (bg, bd, col) => `display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; background: ${bg}; border: 1px solid ${bd}; color: ${col}; text-decoration: none; font-size: 14px; min-height: 44px`;
+    const chip = (bg, col) => `flex: 0 0 auto; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: ${bg}; color: ${col}`;
+    const atencion = [
+      { n: 'Fallo', t: 'La copia de esta noche no terminó: el disco D: tiene 31 GB libres.', acc: 'Ver salud', h: 'Salud.dc.html', s: lim('#FBE7E5', '#F2C4BF', '#7A241D'), chip: chip('#F2C4BF', '#7A241D') },
+      { n: 'Datos', t: '3 casos graves: resultados del acta que no cuadran con los goles.', acc: 'Revisar', h: 'Datos.dc.html', s: lim('#FFF4E5', '#F6D9B8', '#6B4100'), chip: chip('#F6D9B8', '#6B4100') },
+      { n: 'Usuarios', t: '2 registros esperan aprobación (uno desde hace 3 días).', acc: 'Aprobar', h: 'Admin.dc.html', s: lim('#FFFFFF', '#E1E6EB', '#1A2027'), chip: chip('#EEF1F4', '#3D4853') },
+    ];
+    const chispa = (vals) => { const mx = Math.max(...vals), mn = Math.min(...vals); return vals.map((v, i) => `${(i * 100) / (vals.length - 1)},${22 - ((v - mn) / ((mx - mn) || 1)) * 20}`).join(' '); };
+    const kpis = [
+      { t: 'Usuarios activos (7 días)', v: '38', d: '+4 respecto a la semana pasada', p: chispa([28, 30, 31, 33, 34, 34, 38]) },
+      { t: 'Páginas vistas hoy', v: '2.140', d: 'pico el domingo: 6.900', p: chispa([900, 1100, 2400, 6900, 1500, 1300, 2140]) },
+      { t: 'Partidos nuevos (24 h)', v: '412', d: '17 federaciones al día', p: chispa([120, 80, 2900, 3400, 410, 230, 412]) },
+      { t: 'Grupos por proyectar', v: '0', d: 'última pasada 21:30', p: chispa([0, 12, 340, 80, 0, 0, 0]) },
+      { t: 'Actas a revisar', v: '1,8 %', d: 'umbral de aviso: 5 %', p: chispa([2.1, 2, 1.9, 2.4, 1.9, 1.8, 1.8]) },
+      { t: 'Errores de la web (24 h)', v: '0', d: 'último: martes 18:02', p: chispa([2, 0, 0, 1, 0, 0, 0]) },
+    ];
+    const punto = (c) => `width: 10px; height: 10px; border-radius: 50%; background: ${c}`;
+    const ok = '#2F9E5E', av = '#D9A23B', ko = '#C8463B';
+    const procesos = [
+      ['Proyector', 'cada 15 min · 0 grupos pendientes', 'hace 10 min', ok], ['Avisos', 'cada 15 min · 63 hoy', 'hace 10 min', ok],
+      ['Ojeo (puntuación)', 'cada hora · 21.400 jugadores en 38 s', 'hace 40 min', ok], ['Vigilancia', 'cada 15 min · 38 chequeos', 'hace 2 min', ok],
+      ['Copia de seguridad', '3:31 · no terminó: disco', 'ayer', ko], ['Restauración de prueba', 'el día 2 de cada mes', 'hace 20 días', ok],
+      ['Despliegue', 'versión a1b2c3d · CI en verde', 'martes 5:45', ok],
+    ].map(([n, d, c, col]) => ({ n, d, c, punto: punto(col) }));
+    const dias = [['V', 41], ['S', 118], ['D', 164], ['L', 52], ['M', 33], ['X', 47], ['J', 63]];
+    const mx = 170;
+    const avisosDia = dias.map(([l, v], i) => { const h = (v / mx) * 96; const x = 28 + i * 46; return { l, v, x, cx: x + 17, h, y: 118 - h, ty: 114 - h, t: `${l}: ${v} avisos` }; });
+    const accesos = [{ u: 'David', c: 'ver nombres de menores', n: '146 fichas', f: 'hoy' }, { u: 'Javier (entrenador)', c: 'ver nombres de menores', n: '22 fichas', f: 'ayer' }, { u: 'Ana', c: 'exportación de goleadores', n: '1 fichero', f: 'lunes' }];
+    const rapidez = [['ojeo-jugadores', 61, 800], ['busqueda-por-nombre', 48, 500], ['partidos-de-grupo', 72, 800], ['mis-accesos', 9, 150], ['admin-casos-lista', 118, 200]]
+      .map(([n, v, p]) => { const esc = 100 / Math.max(p * 1.2, v); return { n, v: `${v} ms`, s: `width: ${v * esc}%; height: 100%; border-radius: 4px; background: ${v > p ? '#C8463B' : '#1386B0'}`, m: `position: absolute; left: ${p * esc}%; top: -3px; bottom: -3px; width: 2px; background: #3D4853` }; });
+    return { menu, atencion, kpis, procesos, avisosDia, accesos, rapidez };
+  }
+}
+</script>
+</body>
+</html>

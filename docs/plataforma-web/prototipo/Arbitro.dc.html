@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Árbitro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+<span aria-hidden="true" style="width: 60px; height: 60px; border-radius: 50%; background: #FFF1D6; color: #8A5A00; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; flex: none">AE</span>
+<div style="flex: 1 1 260px; min-width: 0">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Andrés Ezquerra Mata</h1>
+<div style="font-size: 14px; color: #3D4853; margin-top: 4px">Árbitro · Castilla y León · 6 temporadas en los datos · 142 partidos</div>
+</div>
+<label for="ta" style="position: absolute; left: -9999px">Temporada</label>
+<select id="ta" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; background: #FFFFFF; font-family: inherit"><option>2025-26</option><option>Todas</option></select>
+</section>
+
+<section aria-label="Frente a sus colegas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<sc-for list="{{comparadas}}" as="c" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 600; color: #5B6876">{{c.t}}</span>
+<span style="font-size: 28px; font-weight: 800">{{c.v}}</span>
+<div style="position: relative; height: 8px; background: #EEF1F4; border-radius: 4px">
+<div style="{{c.barra}}"></div>
+<div title="Media de la competición" style="{{c.media}}"></div>
+</div>
+<span style="font-size: 12px; color: #5B6876">{{c.nota}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="ev" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline"><h2 id="ev" style="margin: 0; font-size: 16px; font-weight: 700">Trayectoria: la competición más alta que dirigió cada temporada</h2><span style="font-size: 12px; color: #5B6876">Número = partidos de esa temporada</span></div>
+<svg viewBox="0 0 640 200" role="img" aria-label="Escalón más alto dirigido por temporada" style="width: 100%; height: auto; display: block; margin-top: 10px">
+<sc-for list="{{escalones}}" as="n" hint-placeholder-count="4"><line x1="170" x2="630" y1="{{n.y}}" y2="{{n.y}}" stroke="#EEF1F4"></line><text x="160" y="{{n.ty}}" text-anchor="end" font-size="11" fill="#5B6876">{{n.l}}</text></sc-for>
+<path d="{{traza.d}}" fill="none" stroke="#8A5A00" stroke-width="3" stroke-linejoin="round"></path>
+<sc-for list="{{traza.p}}" as="p" hint-placeholder-count="6"><circle cx="{{p.x}}" cy="{{p.y}}" r="12" fill="#FFFFFF" stroke="#8A5A00" stroke-width="2.5"></circle><text x="{{p.x}}" y="{{p.ty}}" text-anchor="middle" font-size="10" font-weight="800" fill="#1A2027">{{p.n}}</text><text x="{{p.x}}" y="194" text-anchor="middle" font-size="10" fill="#5B6876">{{p.t}}</text></sc-for>
+</svg>
+</section>
+
+<section aria-labelledby="co" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="co" style="margin: 0; font-size: 16px; font-weight: 700">Por competición</h2></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px">
+<th style="padding: 10px 16px; font-weight: 600">Temporada</th><th style="padding: 10px 8px; font-weight: 600">Competición</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Partidos</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Amarillas/p. (media)</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Expulsiones/p. (media)</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Penaltis</th><th style="padding: 10px 16px; font-weight: 600; text-align: right">Gana el local</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{filas}}" as="f" hint-placeholder-count="5">
+<tr style="border-top: 1px solid #EEF1F4">
+<td style="padding: 10px 16px; color: #3D4853">{{f.t}}</td>
+<td style="padding: 10px 8px"><a href="Liga.dc.html">{{f.c}}</a></td>
+<td style="padding: 10px 8px; text-align: right">{{f.p}}</td>
+<td style="padding: 10px 8px; text-align: right"><strong>{{f.am}}</strong> <span style="color: #5B6876">({{f.amm}})</span></td>
+<td style="padding: 10px 8px; text-align: right"><strong>{{f.ex}}</strong> <span style="color: #5B6876">({{f.exm}})</span></td>
+<td style="padding: 10px 8px; text-align: right">{{f.pen}}</td>
+<td style="padding: 10px 16px; text-align: right">{{f.loc}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 12px; color: #5B6876">Sólo cuentan los partidos con acta. Penaltis = penaltis marcados (los fallados no constan en las actas). Una doble amarilla escrita como dos amarillas cuenta como expulsión.</div>
+</section>
+
+<section aria-labelledby="ul" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px"><h2 id="ul" style="margin: 0; font-size: 16px; font-weight: 700">Últimos partidos</h2></div>
+<sc-for list="{{partidos}}" as="m" hint-placeholder-count="5">
+<a href="Acta.dc.html" style="display: grid; grid-template-columns: 90px minmax(0, 1fr) 60px 90px; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; min-height: 44px; font-size: 14px">
+<span style="font-size: 12px; color: #5B6876">{{m.f}}</span>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{m.p}}</span>
+<strong style="text-align: center">{{m.r}}</strong>
+<span style="display: inline-flex; gap: 6px; justify-content: flex-end; align-items: center; font-size: 13px"><span style="width: 10px; height: 14px; border-radius: 2px; background: #F2C230"></span>{{m.am}}<span style="width: 10px; height: 14px; border-radius: 2px; background: #D93A30"></span>{{m.ro}}</span>
+</a>
+</sc-for>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const cmp = (t, v, media, max, nota, fmt) => ({
+      t, v: fmt(v), nota,
+      barra: `position: absolute; left: 0; top: 0; height: 8px; border-radius: 4px; width: ${(100 * v / max).toFixed(0)}%; background: ${v > media * 1.1 ? '#C0453B' : v < media * 0.9 ? '#3A8DDE' : '#5B6876'}`,
+      media: `position: absolute; top: -4px; width: 2px; height: 16px; background: #11181F; left: ${(100 * media / max).toFixed(0)}%`,
+    });
+    const c2 = (x) => x.toFixed(1).replace('.', ',');
+    const comparadas = [
+      cmp('Amarillas por partido', 4.6, 3.9, 7, 'Media de sus competiciones: 3,9', c2),
+      cmp('Expulsiones por partido', 0.42, 0.28, 1, 'Media: 0,28', (x) => x.toFixed(2).replace('.', ',')),
+      cmp('Penaltis marcados por partido', 0.21, 0.24, 1, 'Media: 0,24', (x) => x.toFixed(2).replace('.', ',')),
+      cmp('Gana el local', 52, 47, 100, 'Media: 47 %', (x) => x + ' %'),
+    ];
+    const niveles = ['Liga Nacional Juvenil', 'Regional Juvenil / Cadete', 'Provincial', 'Infantil y alevín'];
+    const Y = (n) => 24 + n * 46;
+    const escalones = niveles.map((l, n) => ({ l, y: Y(n), ty: Y(n) + 4 }));
+    const t = [['20-21', 3, 18], ['21-22', 2, 22], ['22-23', 2, 25], ['23-24', 1, 24], ['24-25', 1, 30], ['25-26', 0, 23]];
+    const X = (i) => 200 + i * 80;
+    const p = t.map(([tt, n, pj], i) => ({ x: X(i), y: Y(n), ty: Y(n) + 3.5, n: pj, t: tt }));
+    let d = `M${p[0].x} ${p[0].y}`;
+    for (let i = 1; i < p.length; i++) { const mx = (p[i - 1].x + p[i].x) / 2; d += ` H${mx} V${p[i].y} H${p[i].x}`; }
+    const filas = [
+      { t: '2025-26', c: 'Liga Nacional Juvenil · Grupo 7', p: 9, am: '4,9', amm: '3,9', ex: '0,44', exm: '0,30', pen: 2, loc: '56 %' },
+      { t: '2025-26', c: 'Regional Cadete · Grupo A', p: 14, am: '4,4', amm: '3,6', ex: '0,36', exm: '0,25', pen: 3, loc: '50 %' },
+      { t: '2024-25', c: 'Regional Juvenil · Grupo B', p: 30, am: '4,5', amm: '4,1', ex: '0,40', exm: '0,31', pen: 7, loc: '53 %' },
+      { t: '2023-24', c: 'Regional Juvenil · Grupo B', p: 24, am: '4,2', amm: '4,0', ex: '0,33', exm: '0,29', pen: 5, loc: '46 %' },
+    ];
+    const partidos = [
+      { f: '29 nov 2025', p: 'U.D. Valdecastro "A" - C.D. Navalcruz', r: '3-1', am: 5, ro: 1 },
+      { f: '22 nov 2025', p: 'Racing Almenar - Atlético Peñalba', r: '0-1', am: 6, ro: 0 },
+      { f: '16 nov 2025', p: 'C.D. Mirador Cadete - S.D. Arenales Cadete', r: '2-2', am: 3, ro: 1 },
+      { f: '8 nov 2025', p: 'C.D. Ribera del Tormes - C.F. Monteluz', r: '1-0', am: 4, ro: 0 },
+    ];
+    return { comparadas, escalones, traza: { d, p }, filas, partidos };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Administración</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button,select,input{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+<div style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<nav aria-label="Administración" style="flex: 1 1 200px; max-width: 240px; background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{menu}}" as="m" hint-placeholder-count="10"><a href="{{m.h}}" style="{{m.s}}"><span>{{m.t}}</span><span style="{{m.bs}}">{{m.b}}</span></a></sc-for>
+</nav>
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Usuarios</h1>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<label for="bu" style="position: absolute; left: -9999px">Buscar usuario</label>
+<input id="bu" placeholder="Buscar por nombre o correo" style="height: 40px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 12px; font-size: 14px; min-width: 220px">
+<button type="button" style="height: 40px; border: 0; border-radius: 8px; background: #0B7285; color: #FFFFFF; padding: 0 14px; font-size: 14px; font-weight: 600">Nueva invitación</button>
+</div>
+</div>
+
+<section aria-labelledby="pe" style="background: #FFF7EE; border: 1px solid #F6D9B8; border-radius: 14px; overflow: hidden">
+<div style="padding: 12px 16px; font-weight: 700" id="pe">2 pendientes de aprobar</div>
+<sc-for list="{{pendientes}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #F6D9B8; background: #FFFFFF">
+<div style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column"><strong style="font-size: 14px">{{p.n}}</strong><span style="font-size: 12px; color: #5B6876">{{p.e}} · se registró {{p.c}} · {{p.dias}}</span></div>
+<label for="{{p.id}}" style="position: absolute; left: -9999px">Paquete</label>
+<select id="{{p.id}}" style="height: 36px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 8px; font-size: 13px"><option>Esencial</option><option>Ojeador</option><option>Analista</option></select>
+<button type="button" style="height: 36px; border: 0; border-radius: 8px; background: #1E7A47; color: #FFFFFF; padding: 0 12px; font-size: 13px; font-weight: 700">Aprobar</button>
+<button type="button" style="height: 36px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 12px; font-size: 13px; font-weight: 600">Rechazar</button>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="us" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<h2 id="us" style="position: absolute; left: -9999px">Lista de usuarios</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px"><th style="padding: 10px 16px; font-weight: 600">Usuario</th><th style="padding: 10px 8px; font-weight: 600">Rol · paquete</th><th style="padding: 10px 8px; font-weight: 600">Permisos sueltos</th><th style="padding: 10px 8px; font-weight: 600">Último acceso</th><th style="padding: 10px 8px; font-weight: 600; text-align: right">Favoritos</th><th style="padding: 10px 16px; font-weight: 600"></th></tr></thead>
+<tbody><sc-for list="{{usuarios}}" as="u" hint-placeholder-count="6">
+<tr style="border-top: 1px solid #EEF1F4">
+<td style="padding: 10px 16px"><strong>{{u.n}}</strong><div style="font-size: 12px; color: #5B6876">{{u.e}}</div></td>
+<td style="padding: 10px 8px"><span style="{{u.rs}}">{{u.r}}</span> {{u.p}}<div style="font-size: 11px; color: #5B6876">{{u.cad}}</div></td>
+<td style="padding: 10px 8px; font-size: 12px; color: #3D4853">{{u.cap}}</td>
+<td style="padding: 10px 8px; color: #3D4853">{{u.ult}}</td>
+<td style="padding: 10px 8px; text-align: right">{{u.f}}</td>
+<td style="padding: 10px 16px; text-align: right"><a href="#" style="font-size: 13px; font-weight: 600">Editar</a></td>
+</tr>
+</sc-for></tbody>
+</table>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px">
+<section aria-labelledby="in" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 12px 16px; display: flex; justify-content: space-between; align-items: baseline"><h2 id="in" style="margin: 0; font-size: 16px; font-weight: 700">Invitaciones</h2><span style="font-size: 12px; color: #5B6876">Registro: sólo con invitación · rechazar pide motivo</span></div>
+<sc-for list="{{invitaciones}}" as="i" hint-placeholder-count="3">
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 13px">
+<code style="font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; background: #F2F4F6; padding: 3px 7px; border-radius: 6px">{{i.c}}</code>
+<span style="flex: 1; min-width: 0">{{i.p}} · {{i.u}}<span style="display: block; font-size: 12px; color: #5B6876">{{i.para}}</span></span><span style="color: #5B6876">{{i.cad}}</span><sc-if value="{{i.vigente}}" hint-placeholder-val="{{ true }}"><button type="button" aria-label="Anular la invitación" style="height: 32px; border: 1px solid #CCD4DC; border-radius: 8px; background: #FFFFFF; padding: 0 10px; font-size: 12px; font-weight: 600">Anular</button></sc-if>
+</div>
+</sc-for>
+</section>
+<section aria-labelledby="au" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 12px 16px"><h2 id="au" style="margin: 0; font-size: 16px; font-weight: 700">Auditoría · últimos cambios</h2></div>
+<sc-for list="{{auditoria}}" as="a" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 10px; padding: 9px 16px; border-top: 1px solid #EEF1F4; font-size: 13px">
+<span style="color: #5B6876">{{a.h}}</span><span><strong>{{a.q}}</strong> {{a.t}}</span>
+</div>
+</sc-for>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const item = (t, on, b, h) => ({ t, h, b: b ?? '', bs: b ? 'font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #FBE7E5; color: #9A2F27' : 'display: none',
+      s: `display: flex; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; ${on ? 'background: #11181F; color: #FFFFFF' : 'color: #3D4853'}` });
+    const menu = [item('Salud', false, '2', 'Salud.dc.html'), item('Usuarios', true, '2', '#'), item('Invitaciones', false), item('Calidad de datos', false, '31', 'Datos.dc.html'),
+      item('Identidades', false, '214'), item('Competiciones', false), item('Procesos', false), item('Avisos', false), item('Publicidad', false, null, 'Publicidad.dc.html'), item('Auditoría', false)];
+    const pendientes = [{ id: 'p1', n: 'Lucía Bermejo', e: 'lucia@ejemplo.es', c: 'hace 3 h', dias: 'esperando 0 días' }, { id: 'p2', n: 'Raúl Hidalgo', e: 'raul@ejemplo.es', c: 'el 19/10', dias: 'esperando 4 días (la vigilancia avisa a los 3)' }];
+    const rol = (r) => `font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: ${r === 'Administrador' ? '#11181F' : '#EEF1F4'}; color: ${r === 'Administrador' ? '#FFFFFF' : '#3D4853'}`;
+    const usuarios = [
+      ['David', 'david@ejemplo.es', 'Administrador', '', 'sin caducidad', 'ver nombres de menores', 'ahora', 24],
+      ['Ana', 'ana@ejemplo.es', 'Usuario', 'Ojeador', 'hasta 30/06/2027', '—', 'hace 2 h', 11],
+      ['Javier (entrenador)', 'javier@ejemplo.es', 'Usuario', 'Analista', 'sin caducidad', 'confirmar identidades', 'ayer', 37],
+      ['Marta', 'marta@ejemplo.es', 'Usuario', 'Esencial', 'sin caducidad', '—', 'hace 5 días', 4],
+    ].map(([n, e, r, p, cad, cap, ult, f]) => ({ n, e, r, p, cad, cap, ult, f, rs: rol(r) }));
+    const invitaciones = [
+      { c: 'K7QFM-2XRTA-PW9HC-E4NJD', p: 'Ojeador', u: '0 de 1 usos', para: 'Personal: sólo para el correo al que se envió', cad: 'hasta 06/11', vigente: true },
+      { c: 'H3VNA-QZ8KE-TR2MW-B6YPF', p: 'Esencial', u: '6 de 20 usos', para: 'Para el club (cualquier correo)', cad: 'hasta 31/12', vigente: true },
+      { c: 'M9TXC-4KPRE-WA7NH-Q2ZDV', p: 'Analista', u: '1 de 3 usos', para: 'Para el club (cualquier correo)', cad: 'anulada', vigente: false },
+    ];
+    const auditoria = [
+      { h: '09:55', q: 'David', t: 'bloqueó a «Pedro» · motivo: comparte la cuenta (sus sesiones se cerraron)' },
+      { h: '09:41', q: 'David', t: 'aprobó a Ana · paquete Ojeador (recibe aviso y correo)' },
+      { h: '09:12', q: 'Javier', t: 'separó 2 fichas de «Iván Lozano» (jugaban a la vez)' },
+      { h: 'ayer', q: 'David', t: 'fijó 2 ascensos en Liga Nacional G7 (manda sobre lo aprendido)' },
+      { h: 'ayer', q: 'David', t: 'cambió el registro a «sólo con invitación»' },
+      { h: 'lun', q: 'Javier', t: 'descartó el caso P1 del partido 88231 (el acta oficial manda)' },
+    ];
+    return { menu, pendientes, usuarios, invitaciones, auditoria };
+  }
+}
+</script>
+</body>
+</html>

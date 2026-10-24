@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Comparar jugadores</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+select{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="comparar" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1100px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Comparar jugadores</h1>
+
+<section style="display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: stretch">
+<sc-for list="{{jug}}" as="j" hint-placeholder-count="2">
+<div style="{{j.caja}}">
+<span aria-hidden="true" style="{{j.av}}">{{j.ini}}</span>
+<a href="Jugador.dc.html" style="font-weight: 800; font-size: 16px; color: #1A2027">{{j.n}}</a>
+<span style="font-size: 13px; color: #3D4853">{{j.eq}}</span>
+<span style="font-size: 12px; color: #5B6876">{{j.fed}}</span>
+<a href="#" style="font-size: 12px; font-weight: 600">Cambiar</a>
+</div>
+<sc-if value="{{j.vs}}" hint-placeholder-val="{{true}}"><div style="display: flex; align-items: center; justify-content: center; font-weight: 800; color: #66717D; font-size: 14px">VS</div></sc-if>
+</sc-for>
+</section>
+
+<section aria-labelledby="ct" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+<h2 id="ct" style="margin: 0; font-size: 16px; font-weight: 700">Temporada 2025-26</h2>
+<label for="per" style="position: absolute; left: -9999px">Periodo</label>
+<select id="per" style="height: 40px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 10px; font-size: 14px; background: #FFFFFF"><option>2025-26</option><option>Toda la carrera</option><option>Solo juvenil</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px">
+<sc-for list="{{metricas}}" as="m" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; font-size: 13px; align-items: baseline">
+<strong style="{{m.sa}}">{{m.a}}</strong><span style="color: #5B6876; text-align: center">{{m.l}}</span><strong style="{{m.sb}}">{{m.b}}</strong>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px">
+<div style="display: flex; justify-content: flex-end; background: #F2F4F6; border-radius: 5px 0 0 5px; height: 10px"><div style="{{m.ba}}"></div></div>
+<div style="display: flex; background: #F2F4F6; border-radius: 0 5px 5px 0; height: 10px"><div style="{{m.bb}}"></div></div>
+</div>
+</div>
+</sc-for>
+</div>
+<p style="margin: 16px 0 0; font-size: 12px; color: #5B6876">Ojo: compiten en divisiones distintas (Liga Nacional frente a División de Honor Regional). El nivel orientativo de cada división se muestra para no comparar a ciegas.</p>
+</section>
+
+<section aria-labelledby="tl" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; overflow: hidden">
+<h2 id="tl" style="margin: 0 0 12px; font-size: 16px; font-weight: 700">Trayectorias</h2>
+<div style="overflow-x: auto">
+<div style="min-width: 640px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: grid; grid-template-columns: 120px repeat(7, minmax(0, 1fr)); gap: 4px; font-size: 11px; color: #5B6876; font-weight: 600">
+<span></span><sc-for list="{{temps}}" as="t" hint-placeholder-count="7"><span style="text-align: center">{{t}}</span></sc-for>
+</div>
+<sc-for list="{{tray}}" as="r" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: 120px repeat(7, minmax(0, 1fr)); gap: 4px; align-items: center">
+<span style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.n}}</span>
+<sc-for list="{{r.c}}" as="c" hint-placeholder-count="7"><span title="{{c.t}}" style="{{c.s}}">{{c.l}}</span></sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = '#1C5D99', B = '#C2571A';
+    const caja = (c) => `background: #FFFFFF; border: 1px solid #E1E6EB; border-top: 4px solid ${c}; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; min-width: 0`;
+    const av = (c) => `width: 52px; height: 52px; border-radius: 50%; background: ${c}; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; margin-bottom: 4px`;
+    const jug = [
+      { n: 'Martín Ezquerra Valcárcel', ini: 'ME', eq: 'U.D. Valdecastro "A" · Liga Nacional Juvenil', fed: 'Castilla y León · antes Madrid', caja: caja(A), av: av(A), vs: true },
+      { n: 'Aitor Gorostiza Urrutia', ini: 'AG', eq: 'Arenaza K.E. · División de Honor Juvenil', fed: 'Bizkaia', caja: caja(B), av: av(B), vs: false },
+    ];
+    const m = [['Partidos', 12, 13, 1], ['Minutos', 1002, 1131, 1], ['Goles', 11, 8, 1], ['Minutos por gol', 91, 141, -1], ['% de minutos del equipo', 93, 87, 1], ['Amarillas', 1, 3, -1]];
+    const metricas = m.map(([l, a, b, dir]) => {
+      const mx = Math.max(a, b); const winA = dir > 0 ? a >= b : a <= b;
+      return { l, a: a.toLocaleString('es-ES'), b: b.toLocaleString('es-ES'),
+        sa: `font-size: 15px; text-align: right; color: ${winA ? '#1A2027' : '#66717D'}`, sb: `font-size: 15px; color: ${!winA ? '#1A2027' : '#66717D'}`,
+        ba: `width: ${(a / mx * 100).toFixed(0)}%; background: ${A}; border-radius: 5px 0 0 5px; opacity: ${winA ? 1 : 0.45}`,
+        bb: `width: ${(b / mx * 100).toFixed(0)}%; background: ${B}; border-radius: 0 5px 5px 0; opacity: ${!winA ? 1 : 0.45}` };
+    });
+    const temps = ['19-20', '20-21', '21-22', '22-23', '23-24', '24-25', '25-26'];
+    const cel = (l, bg, t) => ({ l, t, s: `display: flex; align-items: center; justify-content: center; height: 34px; border-radius: 6px; font-size: 11px; font-weight: 700; color: ${bg ? '#FFFFFF' : '#66717D'}; background: ${bg || '#F2F4F6'}; white-space: nowrap; overflow: hidden; padding: 0 4px` });
+    const tray = [
+      { n: 'Ezquerra', c: [cel('Cad.', '#C2571A', 'C.F. Monteluz · Madrid'), cel('Cad.', '#C2571A', 'C.F. Monteluz · Madrid'), cel('Juv.', '#7A3E9D', 'S.D. Arenales · Madrid'), cel('Juv. B', A, 'U.D. Valdecastro · CyL'), cel('Juv. A', A, 'U.D. Valdecastro · CyL'), cel('Juv. A', A, 'U.D. Valdecastro · CyL'), cel('Juv. A', A, 'U.D. Valdecastro · CyL')] },
+      { n: 'Gorostiza', c: [cel('Inf.', '#2E7D4F', 'Ugao F.T. · Bizkaia'), cel('Cad.', '#2E7D4F', 'Ugao F.T. · Bizkaia'), cel('Cad.', '#2E7D4F', 'Ugao F.T. · Bizkaia'), cel('Cad.', B, 'Arenaza K.E. · Bizkaia'), cel('Juv.', B, 'Arenaza K.E. · Bizkaia'), cel('Juv.', B, 'Arenaza K.E. · Bizkaia'), cel('Juv.', B, 'Arenaza K.E. · Bizkaia')] },
+    ];
+    return { jug, metricas, temps, tray };
+  }
+}
+</script>
+</body>
+</html>

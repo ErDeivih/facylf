@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Estadísticas de la competición</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<nav aria-label="Ruta" style="font-size: 13px; color: #5B6876; display: flex; gap: 8px; flex-wrap: wrap"><a href="Competicion.dc.html">Liga Nacional Juvenil · Grupo 7</a><span aria-hidden="true">›</span><span style="color: #1A2027">Estadísticas</span></nav>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Liga Nacional Juvenil · Grupo 7</h1>
+<div role="tablist" aria-label="Secciones" style="display: flex; background: #E6EAEE; border-radius: 10px; padding: 3px; flex-wrap: wrap">
+<sc-for list="{{pestanas}}" as="t" hint-placeholder-count="4"><a href="{{t.h}}" role="tab" style="{{t.s}}">{{t.l}}</a></sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 18px">
+<section aria-labelledby="re" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="re" style="margin: 0; font-size: 16px; font-weight: 700">Resultados</h2>
+<div style="display: flex; height: 30px; border-radius: 8px; overflow: hidden" role="img" aria-label="Gana el local 46 %, empate 25 %, gana el visitante 29 %">
+<div style="width: 46%; background: #1C5D99; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; padding-left: 8px">Local 46 %</div>
+<div style="width: 25%; background: #C9D2DB; color: #1A2027; font-size: 12px; font-weight: 700; display: flex; align-items: center; padding-left: 8px">X 25 %</div>
+<div style="width: 29%; background: #A85D1A; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; padding-left: 8px">Visit. 29 %</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+<div style="background: #F6F8FA; border-radius: 10px; padding: 10px 12px"><div style="font-size: 20px; font-weight: 800">3,12</div><div style="font-size: 12px; color: #5B6876">goles por partido</div></div>
+<div style="background: #F6F8FA; border-radius: 10px; padding: 10px 12px"><div style="font-size: 20px; font-weight: 800">31 %</div><div style="font-size: 12px; color: #5B6876">partidos con 0 goles de un equipo</div></div>
+<div style="background: #F6F8FA; border-radius: 10px; padding: 10px 12px"><div style="font-size: 20px; font-weight: 800">96 %</div><div style="font-size: 12px; color: #5B6876">actas completas</div></div>
+</div>
+</section>
+
+<section aria-labelledby="gt" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px">
+<h2 id="gt" style="margin: 0 0 12px; font-size: 16px; font-weight: 700">Cuándo se marcan los goles</h2>
+<div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 140px">
+<sc-for list="{{tramos}}" as="t" hint-placeholder-count="6"><div style="display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end"><span style="font-size: 12px; font-weight: 700">{{t.n}}</span><div title="{{t.titulo}}" style="{{t.s}}"></div><span style="font-size: 11px; color: #5B6876">{{t.l}}</span></div></sc-for>
+</div>
+<p style="margin: 10px 0 0; font-size: 12px; color: #5B6876">El último cuarto de hora concentra el 22 % de los goles.</p>
+</section>
+</div>
+
+<section aria-labelledby="mi" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+<h2 id="mi" style="margin: 0; font-size: 16px; font-weight: 700">Minutos para la cantera: jugadores de sus equipos inferiores</h2>
+<span style="font-size: 12px; color: #5B6876">Fichas del B o de cadete que juegan con este equipo</span>
+</div>
+<div style="padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{cantera}}" as="c" hint-placeholder-count="6">
+<a href="Equipo.dc.html" style="display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 110px; gap: 10px; align-items: center; color: #1A2027; text-decoration: none; min-height: 32px">
+<span style="display: inline-flex; gap: 8px; align-items: center; font-weight: 600; font-size: 14px; min-width: 0"><svg width="16" height="18" viewBox="0 0 36 40" aria-hidden="true" style="flex: none"><path d="M18 1 34 7v12c0 10-7 17-16 20C9 36 2 29 2 19V7Z" fill="{{c.color}}"></path></svg><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.e}}</span></span>
+<div style="height: 12px; background: #EEF1F4; border-radius: 6px; overflow: hidden"><div style="{{c.barra}}"></div></div>
+<span style="font-size: 13px; text-align: right"><strong>{{c.pct}}</strong> <span style="color: #5B6876">· {{c.j}}</span></span>
+</a>
+</sc-for>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 18px">
+<section aria-labelledby="dc" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="dc" style="margin: 0; font-size: 16px; font-weight: 700">Disciplina por equipo</h2></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 420px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px"><th style="padding: 8px 16px; font-weight: 600">Equipo</th><th style="padding: 8px; font-weight: 600; text-align: right">Amarillas</th><th style="padding: 8px; font-weight: 600; text-align: right">Expulsiones</th><th style="padding: 8px 16px; font-weight: 600; text-align: right">Partidos de sanción</th></tr></thead>
+<tbody><sc-for list="{{disciplina}}" as="d" hint-placeholder-count="5"><tr style="border-top: 1px solid #EEF1F4"><td style="padding: 9px 16px"><a href="Equipo.dc.html">{{d.e}}</a></td><td style="padding: 9px 8px; text-align: right">{{d.a}}</td><td style="padding: 9px 8px; text-align: right">{{d.x}}</td><td style="padding: 9px 16px; text-align: right">{{d.s}}</td></tr></sc-for></tbody>
+</table>
+</div>
+</section>
+<section aria-labelledby="ar" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="ar" style="margin: 0; font-size: 16px; font-weight: 700">Árbitros de esta liga</h2></div>
+<sc-for list="{{arbitros}}" as="a" hint-placeholder-count="4">
+<a href="Arbitro.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 120px; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #EEF1F4; color: #1A2027; text-decoration: none; min-height: 44px; font-size: 14px">
+<span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{a.n}}</span><span style="color: #5B6876; text-align: right">{{a.p}} p.</span><span style="text-align: right"><strong>{{a.am}}</strong> <span style="color: #5B6876">am./p.</span></span>
+</a>
+</sc-for>
+</section>
+</div>
+<a href="Ranking.dc.html" style="align-self: flex-start; height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 8px; border: 1px solid #CCD4DC; background: #FFFFFF; font-weight: 600; font-size: 14px; color: #1A2027">Comparar con otras ligas</a>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const tab = (l, on, h) => ({ l, h, s: 'display: inline-flex; align-items: center; height: 38px; padding: 0 14px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; ' + (on ? 'background: #FFFFFF; color: #11181F; box-shadow: 0 1px 2px rgba(0,0,0,0.08)' : 'color: #3D4853') });
+    const pestanas = [tab('Clasificación', false, 'Competicion.dc.html'), tab('Jornadas', false, 'Competicion.dc.html'), tab('Goleadores', false, 'Ranking.dc.html'), tab('Estadísticas', true, '#')];
+    const tr = [['0-15′', 41], ['16-30′', 47], ['31-45′', 52], ['46-60′', 44], ['61-75′', 50], ['76-90′', 66]];
+    const mx = 66;
+    const tramos = tr.map(([l, n]) => ({ l, n, titulo: `${n} goles entre ${l}`, s: `width: 100%; max-width: 54px; height: ${(n / mx * 100).toFixed(0)}px; background: ${n === mx ? '#0B7285' : '#9CCFD3'}; border-radius: 6px 6px 0 0` }));
+    const can = [['U.D. Valdecastro "A"', '#1C5D99', 14.2, 6], ['Atlético Peñalba', '#2E7D4F', 11.5, 5], ['C.D. Navalcruz', '#0B7285', 8.1, 3], ['C.D. Mirador', '#6B7A2A', 6.4, 4], ['Racing Almenar', '#A83246', 3.2, 2], ['C.D. Ribera del Tormes', '#7A3E9D', 0.8, 1]];
+    const cantera = can.map(([e, color, pct, j]) => ({ e, color, pct: pct.toString().replace('.', ',') + ' %', j: `${j} jugadores`, barra: `width: ${(pct / 15 * 100).toFixed(0)}%; height: 100%; background: #2F9E5E; border-radius: 6px` }));
+    const disciplina = [
+      { e: 'Racing Almenar', a: 41, x: 4, s: 6 }, { e: 'C.D. Navalcruz', a: 38, x: 3, s: 4 }, { e: 'C.D. Mirador', a: 33, x: 2, s: 2 },
+      { e: 'Atlético Peñalba', a: 29, x: 1, s: 1 }, { e: 'U.D. Valdecastro "A"', a: 22, x: 1, s: 1 },
+    ];
+    const arbitros = [{ n: 'Andrés Ezquerra Mata', p: 9, am: '4,9' }, { n: 'Lucía Bermejo Sanz', p: 8, am: '3,1' }, { n: 'Óscar Peral Gómez', p: 7, am: '3,8' }, { n: 'Raúl Hidalgo Prieto', p: 7, am: '4,2' }];
+    return { pestanas, tramos, cantera, disciplina, arbitros };
+  }
+}
+</script>
+</body>
+</html>

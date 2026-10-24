@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Estados vacíos y de cuenta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="explorar" hint-size="100%,64px"></dc-import>
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="font-size: 13px; color: #5B6876"><a href="Competicion.dc.html">Liga Juvenil Preferente</a> · Grupo 2</div>
+<h1 style="margin: 4px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em">Ninguna sección vacía y muda</h1>
+<p style="margin: 6px 0 0; font-size: 14px; color: #3D4853; max-width: 70ch">Cuando una sección no tiene datos, en su sitio va una tarjeta que dice qué pasa y qué hacer. El motivo lo da la base de datos, competición a competición.</p>
+</div>
+
+<section aria-labelledby="sc" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="sc" style="margin: 0; font-size: 17px; font-weight: 700">Página de competición: los cuatro motivos</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 14px">
+<sc-for list="{{secciones}}" as="s" hint-placeholder-count="4">
+<section style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 15px; font-weight: 700">{{s.titulo}}</h3>
+<div role="status" style="border: 1px dashed #B9C3CD; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; color: #3D4853">
+<span style="{{s.chipS}}">{{s.chip}}</span>
+<p style="margin: 0; font-size: 14px; line-height: 1.45">{{s.texto}}</p>
+<sc-if value="{{s.hayAccion}}" hint-placeholder-val="{{ false }}"><a href="Federacion.dc.html" style="font-size: 14px; font-weight: 600">{{s.accion}}</a></sc-if>
+</div>
+</section>
+</sc-for>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 18px; align-items: start">
+<section aria-labelledby="mp" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="mp" style="margin: 0; font-size: 17px; font-weight: 700">Mi panel, la primera vez</h2>
+<p style="margin: 0; font-size: 14px; color: #3D4853; line-height: 1.45">Aún no sigues nada. Busca tu equipo y pulsa la estrella: aquí verás su último resultado y el próximo partido.</p>
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="bq" style="font-size: 13px; font-weight: 600">Buscar equipo, club o jugador</label><input id="bq" value="cd la granja" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 12px; font-size: 15px"></div>
+<div style="font-size: 13px; color: #5B6876">Avisos: «No tienes avisos. Te llegarán cuando cambie un horario o se publique un resultado de lo que sigues.» <a href="Cuenta.dc.html">Elegir qué avisos recibo</a></div>
+</section>
+<section aria-labelledby="bu" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<h2 id="bu" style="margin: 0; font-size: 17px; font-weight: 700">Buscador con nombres muy comunes</h2>
+<div style="display: flex; flex-direction: column; gap: 5px"><label for="bq2" style="font-size: 13px; font-weight: 600">Buscar</label><input id="bq2" value="garcía" style="height: 44px; border: 1px solid #CCD4DC; border-radius: 8px; padding: 0 12px; font-size: 15px"></div>
+<div role="status" style="background: #EEF1F4; border-radius: 10px; padding: 10px 12px; font-size: 14px; color: #3D4853">Más de 5.000 resultados: se muestran los más activos. Añade un apellido o una federación.</div>
+<div style="font-size: 13px; color: #5B6876">Sin resultados: «No hay nada con <em>pereira</em>. Prueba con un solo apellido o quita la federación.»</div>
+</section>
+</div>
+
+<section aria-labelledby="cu" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="cu" style="margin: 0; font-size: 17px; font-weight: 700">Cuenta: lo que ve cada usuario según su estado</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 14px">
+<sc-for list="{{cuentas}}" as="c" hint-placeholder-count="4">
+<section style="background: #11181F; color: #FFFFFF; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; min-height: 200px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #9FB0BF">{{c.ruta}}</span>
+<h3 style="margin: 0; font-size: 18px; font-weight: 800">{{c.titulo}}</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.45; color: #D7DEE5">{{c.texto}}</p>
+<sc-if value="{{c.hayBoton}}" hint-placeholder-val="{{ true }}"><button type="button" style="margin-top: auto; height: 44px; border: 0; border-radius: 8px; background: #FFFFFF; color: #11181F; font-size: 14px; font-weight: 700">{{c.boton}}</button></sc-if>
+</section>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="en" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 18px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 8px">
+<h2 id="en" style="margin: 0; font-size: 17px; font-weight: 700">Entrar: freno por cuenta</h2>
+<p style="margin: 0; font-size: 14px; color: #3D4853; line-height: 1.45">Tras 8 contraseñas mal seguidas, esa cuenta espera 15 minutos aunque los intentos lleguen desde muchos sitios. El mensaje es el mismo exista o no la cuenta.</p>
+</div>
+<div role="alert" style="flex: 1 1 320px; border: 1px solid #CCD4DC; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1A2027; background: #F7F9FA">Demasiados intentos. Vuelve a probar dentro de 15 minutos o <a href="Acceso.dc.html">cambia la contraseña</a>.</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const chip = 'align-self: flex-start; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #EEF1F4; color: #1A2027';
+    const chipBorde = 'align-self: flex-start; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: #FFFFFF; border: 1px solid #B9C3CD; color: #1A2027';
+    const secciones = [
+      { titulo: 'Clasificación', chip: 'Empieza el 08/11', chipS: chip, texto: 'La competición empieza el 08/11/2026. Aquí verás los datos en cuanto se jueguen los partidos.', accion: '' },
+      { titulo: 'Resultados', chip: 'Pendiente', chipS: chip, texto: 'Ya se han jugado partidos, pero la federación todavía no ha publicado los resultados.', accion: '' },
+      { titulo: 'Minutos', chip: 'No publicado', chipS: chipBorde, texto: 'Esta competición no apunta los cambios: no se pueden calcular los minutos jugados.', accion: 'Qué datos hay en esta federación' },
+      { titulo: 'Calendario', chip: 'Sin calendario', chipS: chip, texto: 'Esta competición aún no tiene calendario publicado.', accion: '' },
+    ];
+    const cuentas = [
+      { ruta: '/cuenta/pendiente', titulo: 'Tu solicitud está pendiente', texto: 'Un administrador la revisará. Te avisaremos por correo en cuanto esté aprobada.', boton: '' },
+      { ruta: '/cuenta/sin-acceso', titulo: 'Tu acceso está suspendido', texto: 'Motivo: [MOTIVO QUE ESCRIBE EL ADMINISTRADOR]. Si crees que es un error, escribe a quien te invitó.', boton: 'Descargar mis datos' },
+      { ruta: '/cuenta/caducado', titulo: 'Tu paquete venció el 31/10/2026', texto: 'Puedes ver tu cuenta y descargar tus datos. Para seguir usando facylf, pide la renovación.', boton: 'Ir a mi cuenta' },
+      { ruta: '/cuenta/seguridad', titulo: 'Activa la verificación en dos pasos', texto: 'Los administradores la necesitan para entrar en el panel. Escanea el código con tu aplicación de autenticación.', boton: 'Activar ahora' },
+    ];
+    return { secciones: secciones.map((x) => ({ ...x, hayAccion: !!x.accion })), cuentas: cuentas.map((x) => ({ ...x, hayBoton: !!x.boton })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Salud de la plataforma</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F6F8;font-family:Inter,system-ui,sans-serif;color:#1A2027;font-feature-settings:"tnum" 1}
+a{color:#0B7285;text-decoration:none}a:hover{color:#08596A;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F8; font-family: Inter, system-ui, sans-serif; color: #1A2027">
+<dc-import name="Cabecera" activo="" hint-size="100%,64px"></dc-import>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 18px 20px 48px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: baseline">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">Salud de la plataforma</h1>
+<span style="font-size: 13px; color: #5B6876">Comprobado hace 4 min · cada 15 min · avisos por Telegram</span>
+</div>
+
+<section aria-label="Estado por área" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px">
+<sc-for list="{{areas}}" as="a" hint-placeholder-count="7">
+<div style="{{a.caja}}">
+<span style="{{a.punto}}"></span>
+<div style="display: flex; flex-direction: column; min-width: 0"><span style="font-weight: 700; font-size: 14px">{{a.t}}</span><span style="font-size: 12px; color: #3D4853">{{a.e}}</span></div>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="al" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="al" style="margin: 0; font-size: 16px; font-weight: 700">Alertas abiertas</h2></div>
+<sc-for list="{{alertas}}" as="x" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #EEF1F4">
+<span style="{{x.sev}}">{{x.nivel}}</span>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 700; font-size: 14px">{{x.t}}</span><span style="font-size: 12px; color: #5B6876">{{x.d}}</span></div>
+<span style="font-size: 12px; color: #5B6876">{{x.desde}}</span>
+<button type="button" style="height: 36px; border: 1px solid #CCD4DC; background: #FFFFFF; border-radius: 8px; padding: 0 12px; font-size: 13px; font-weight: 600">Silenciar 24 h</button>
+</div>
+</sc-for>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 18px">
+<section aria-labelledby="fr" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="fr" style="margin: 0; font-size: 16px; font-weight: 700">Datos por federación</h2></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px">
+<thead><tr style="text-align: left; color: #5B6876; font-size: 12px"><th style="padding: 8px 16px; font-weight: 600">Federación</th><th style="padding: 8px; font-weight: 600">Último lote</th><th style="padding: 8px; font-weight: 600; text-align: right">Por proyectar</th><th style="padding: 8px 16px; font-weight: 600; text-align: right">Minutos calculables</th></tr></thead>
+<tbody><sc-for list="{{feds}}" as="f" hint-placeholder-count="6"><tr style="border-top: 1px solid #EEF1F4"><td style="padding: 9px 16px; font-weight: 600">{{f.n}}</td><td style="padding: 9px 8px"><span style="{{f.ls}}">{{f.l}}</span></td><td style="padding: 9px 8px; text-align: right">{{f.p}}</td><td style="padding: 9px 16px; text-align: right"><span style="{{f.ms}}">{{f.m}}</span></td></tr></sc-for></tbody>
+</table>
+</div>
+</section>
+
+<section aria-labelledby="ti" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px">
+<div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline"><h2 id="ti" style="margin: 0; font-size: 16px; font-weight: 700">Tiempos de respuesta (p95, última hora)</h2><span style="font-size: 12px; color: #5B6876">raya = presupuesto</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px">
+<sc-for list="{{tiempos}}" as="t" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 13px">
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.n}}</span>
+<div style="position: relative; height: 12px; background: #EEF1F4; border-radius: 6px"><div style="{{t.barra}}"></div><div style="{{t.raya}}"></div></div>
+<span style="{{t.vs}}">{{t.v}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 18px">
+<section aria-labelledby="ca" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="ca" style="margin: 0; font-size: 16px; font-weight: 700">Calidad de los datos (7 días)</h2></div>
+<sc-for list="{{calidad}}" as="c" hint-placeholder-count="5">
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 14px">
+<span style="flex: 1">{{c.t}}</span><strong>{{c.v}}</strong><a href="#" style="font-size: 12px">ver</a>
+</div>
+</sc-for>
+</section>
+<section aria-labelledby="co" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 id="co" style="margin: 0; font-size: 16px; font-weight: 700">Copias de seguridad</h2>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 14px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #2F9E5E"></span>Última copia: hoy 3:42 · 18,6 GB · comprobada</div>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 14px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #2F9E5E"></span>Última restauración de prueba: 2 oct · cuadró</div>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 14px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #E08A2E"></span>Disco de copias: 61 GB libres</div>
+<span style="font-size: 12px; color: #5B6876">Se guardan 7 diarias, 4 semanales y 6 mensuales.</span>
+</section>
+</div>
+
+<section aria-labelledby="er" style="background: #FFFFFF; border: 1px solid #E1E6EB; border-radius: 14px; overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #EEF1F4"><h2 id="er" style="margin: 0; font-size: 16px; font-weight: 700">Últimos errores</h2></div>
+<sc-for list="{{errores}}" as="e" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 70px 110px minmax(0, 1fr); gap: 10px; padding: 10px 16px; border-top: 1px solid #EEF1F4; font-size: 13px; align-items: baseline">
+<span style="color: #5B6876">{{e.h}}</span><span style="font-weight: 600">{{e.o}}</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{e.m}}</span>
+</div>
+</sc-for>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const C = { ok: ['#2F9E5E', '#F1FAF4', '#CFE9D9'], aviso: ['#E08A2E', '#FFF7EE', '#F6D9B8'], fallo: ['#C0453B', '#FDF1F0', '#F2C6C1'] };
+    const area = (t, est, e) => ({ t, e,
+      caja: `background: ${C[est][1]}; border: 1px solid ${C[est][2]}; border-radius: 12px; padding: 12px 14px; display: flex; gap: 10px; align-items: center`,
+      punto: `width: 12px; height: 12px; border-radius: 50%; background: ${C[est][0]}; flex: none` });
+    const areas = [area('Web', 'ok', 'responde en 180 ms'), area('Base de datos', 'ok', '41 % de conexiones'), area('Procesos', 'aviso', '312 grupos por proyectar'),
+      area('Frescura', 'aviso', 'Madrid sin lote en 52 h'), area('Calidad', 'ok', '1,8 % actas a revisar'), area('Rendimiento', 'ok', 'todo en presupuesto'), area('Copias', 'ok', 'hoy 3:42')];
+    const sev = (s) => `font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: ${C[s][1]}; color: ${C[s][0]}; border: 1px solid ${C[s][2]}`;
+    const alertas = [
+      { nivel: 'Aviso', sev: sev('aviso'), t: 'Madrid lleva 52 h sin un lote publicado', d: 'El recolector de Madrid está en pausa por cupo diario; vuelve a las 6:00.', desde: 'desde ayer 19:10' },
+      { nivel: 'Aviso', sev: sev('aviso'), t: '312 grupos pendientes de proyectar', d: 'Tras la migración 0029 se reproyecta todo: es esperado durante esta noche.', desde: 'desde hace 3 h' },
+    ];
+    const pill = (s, t) => `font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: ${C[s][1]}; color: ${C[s][0]}`;
+    const feds = [
+      { n: 'Castilla y León', l: 'hace 2 h', ls: pill('ok'), p: 0, m: '94 %', ms: pill('ok') },
+      { n: 'Madrid', l: 'hace 52 h', ls: pill('aviso'), p: 0, m: '91 %', ms: pill('ok') },
+      { n: 'Valencia', l: 'hace 5 h', ls: pill('ok'), p: 140, m: '89 %', ms: pill('ok') },
+      { n: 'Cataluña', l: 'hace 1 h', ls: pill('ok'), p: 172, m: '0 % (sin cambios ni tarjetas)', ms: pill('fallo') },
+      { n: 'Andalucía', l: 'hace 3 h', ls: pill('ok'), p: 0, m: '93 %', ms: pill('ok') },
+      { n: 'Bizkaia', l: 'hace 7 h', ls: pill('ok'), p: 0, m: '96 %', ms: pill('ok') },
+    ];
+    const t = [['búsqueda', 42, 150], ['ficha de jugador', 61, 150], ['minutos por equipo', 38, 150], ['clasificación', 55, 200], ['ojeo', 410, 800], ['panel de equipo', 120, 300], ['comparación de ligas', 540, 600]];
+    const tiempos = t.map(([n, v, p]) => ({ n, v: v + ' ms', vs: `font-weight: 700; text-align: right; color: ${v > p ? '#C0453B' : v > 0.8 * p ? '#8A4B0F' : '#1A2027'}`,
+      barra: `position: absolute; left: 0; top: 0; height: 12px; border-radius: 6px; width: ${Math.min(100, v / 800 * 100).toFixed(0)}%; background: ${v > p ? '#C0453B' : v > 0.8 * p ? '#E08A2E' : '#0B7285'}`,
+      raya: `position: absolute; top: -3px; width: 2px; height: 18px; background: #11181F; left: ${Math.min(100, p / 800 * 100).toFixed(0)}%` }));
+    const calidad = [
+      { t: 'Actas a revisar', v: '1,8 %' }, { t: 'Goles del acta que no cuadran con el marcador', v: '23 partidos' },
+      { t: 'Amarillas duplicadas (mismo minuto)', v: '7' }, { t: 'Titular en dos partidos a la vez', v: '0' },
+      { t: 'Expulsados que jugaron el partido siguiente', v: '31' }, { t: 'Personas unidas con edad incoherente', v: '4' },
+    ];
+    const errores = [
+      { h: '03:12', o: 'proyector', m: 'grupo 88231 (valencia 2025-26): canceling statement due to statement timeout' },
+      { h: 'ayer', o: 'web', m: 'consulta_fallida · comparacion-de-ligas · connection terminated unexpectedly' },
+    ];
+    return { areas, alertas, feds, tiempos, calidad, errores };
+  }
+}
+</script>
+</body>
+</html>
