@@ -17,6 +17,17 @@ const config: NextConfig = {
    */
   output: 'standalone',
   outputFileTracingRoot: join(import.meta.dirname, '..', '..'),
+  /*
+   * ── LAS COLAS DE DESCARGA NO VAN EN EL PAQUETE (24/10/2026) ────────────────────────────────────────
+   *
+   * La web vieja todavía lee las SQLite de `descargas-*` para las URL con slug (se retira en W9). En este PC
+   * esas carpetas son enlaces a `E:\facylf-archivo`, y el trazado de Next los sigue: el `standalone` salía
+   * de **13 GB**, con una copia de cada cola. `outputFileTracingExcludes` no lo evita porque Next resuelve
+   * el enlace y compara contra la ruta del proyecto, no contra `E:\`.
+   *
+   * La solución es podar el artefacto después del build (`postbuild` → `scripts/limpia-standalone.mjs`).
+   * El original no se toca y la web local sigue leyendo las colas por su ruta normal.
+   */
   // esos paquetes importan con extensión `.js` (lo correcto en ESM) pero los ficheros
   // son `.ts`. Sin esto, el empaquetador no los encuentra.
   turbopack: { resolveExtensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.json'] },

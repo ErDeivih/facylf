@@ -4,14 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "//build": "Next 16 usa Turbopack por defecto; en este PC (Windows + enlaces descargas-*) pide más memoria nativa de la que hay y aborta. Webpack compila las 20 rutas con 8 GB de heap (NODE_OPTIONS=--max-old-space-size=8192).",
+    "build": "next build --webpack",
+    "postbuild": "node ../../scripts/limpia-standalone.mjs",
+    "build:turbopack": "next build",
     "start": "next start",
     "test": "echo 'la web no tiene tests todavía'"
   },
   "dependencies": {
     "@facylf/dominio": "workspace:*",
     "@facylf/ingesta": "workspace:*",
-    "next": "^15.1.3",
+    "next": "^16.4.3",
     "pg": "^8.23.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
