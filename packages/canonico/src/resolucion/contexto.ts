@@ -16,7 +16,9 @@ export type FuenteFederacion = { codigo: string; nombre: string; portal: string;
 
 export function leeFederaciones(raiz: string): FuenteFederacion[] {
   const crudo = JSON.parse(readFileSync(join(raiz, 'config', 'federaciones-espana.json'), 'utf8').replace(/^\uFEFF/, ''));
-  const lista = (crudo?.fuentes ?? []) as FuenteFederacion[];
+  // `nacionales` (27/10/2026): la RFEF como fuente de las competiciones nacionales. Va aparte de `fuentes` para que
+  // las pantallas y la flota sigan contando las 19 territoriales y sus 5 provinciales.
+  const lista = [...(crudo?.fuentes ?? []), ...(crudo?.nacionales ?? [])] as FuenteFederacion[];
   return lista.filter((f) => f && typeof f.codigo === 'string');
 }
 

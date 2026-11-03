@@ -1,0 +1,100 @@
+{
+  "ventana": {
+    "desde": "2026-09-26",
+    "hasta": "2026-09-27"
+  },
+  "cuando": "2026-09-29T08:26:51.574Z",
+  "soloInforme": false,
+  "totales": {
+    "federaciones": 4,
+    "jornadas": 599,
+    "comprobadas": 475,
+    "planificadas": 453,
+    "reabiertas": 279,
+    "partidos": 2521,
+    "actas": 3502,
+    "actasHechas": 1003,
+    "actasPendientes": 2499
+  },
+  "federaciones": [
+    {
+      "federacion": "cataluna",
+      "jornadasDelFinde": 221,
+      "jornadasComprobadas": 221,
+      "planificadas": 161,
+      "reabiertas": 161,
+      "clasificaciones": 161,
+      "partidos": 478,
+      "actas": 1459,
+      "actasPorEstado": {
+        "hecha": 184,
+        "pendiente": 1275
+      },
+      "faltan": [
+        "22/58161856/58161859/J2 (sin actas encoladas)",
+        "22/58161869/58161870/J2 (sin actas encoladas)",
+        "22/58161869/58161872/J2 (sin actas encoladas)",
+        "22/58161869/58161882/J2 (sin actas encoladas)",
+        "22/58161888/58161889/J2 (sin actas encoladas)",
+        "22/58161888/58161891/J2 (sin actas encoladas)",
+        "22/58161888/58161903/J2 (sin actas encoladas)",
+        "22/58161888/58161907/J2 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "federacion",
+      "jornadasDelFinde": 124,
+      "jornadasComprobadas": 0,
+      "planificadas": 124,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [
+        "22/24218932/24218933/J4 (sin actas encoladas)",
+        "22/24218934/24218935/J3 (sin actas encoladas)",
+        "22/24218936/24218937/J2 (sin actas encoladas)",
+        "22/24218938/24218939/J3 (sin actas encoladas)",
+        "22/24218938/24218940/J3 (sin actas encoladas)",
+        "22/24218941/24218942/J2 (sin actas encoladas)",
+        "22/24218941/24218943/J3 (sin actas encoladas)",
+        "22/24218941/24218944/J3 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "madrid",
+      "jornadasDelFinde": 129,
+      "jornadasComprobadas": 129,
+      "planificadas": 121,
+      "reabiertas": 71,
+      "clasificaciones": 92,
+      "partidos": 1039,
+      "actas": 1039,
+      "actasPorEstado": {
+        "hecha": 108,
+        "pendiente": 931
+      },
+      "faltan": [],
+      "fallo": null
+    },
+    {
+      "federacion": "valencia",
+      "jornadasDelFinde": 125,
+      "jornadasComprobadas": 125,
+      "planificadas": 47,
+      "reabiertas": 47,
+      "clasificaciones": 46,
+      "partidos": 1004,
+      "actas": 1004,
+      "actasPorEstado": {
+        "pendiente": 293,
+        "hecha": 711
+      },
+      "faltan": [],
+      "fallo": null
+    }
+  ]
+}

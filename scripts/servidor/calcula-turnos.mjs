@@ -30,7 +30,7 @@ const RAIZ = resolve(arg('raiz', '.'));
 const SALIDA = resolve(arg('salida', join(RAIZ, 'docker', 'compose-turnos.yml')));
 const REPARTO_MIN = Number(arg('reparto', 240));   // turno de una federación «media»
 const MINIMO = Number(arg('minimo', 60));
-const MAXIMO = Number(arg('maximo', 480));
+const MAXIMO = Number(arg('maximo', 120)); // David 30/10: circular sin monopolizar una plaza ocho horas.
 /*
  * ── Y LA CUOTA DE PROCESADOR, CON EL MISMO CRITERIO (21/09/2026) ────────────────────────────────────────
  *

@@ -78,6 +78,21 @@ export async function resuelveEdicion(
   // La columna `division` llega con la migración 0025. Si el código se despliega antes que la migración,
   // el importador sigue funcionando sin ella en vez de pararse.
   const conDivision = await tieneColumnaDivision(cliente);
+  /*
+   * ── PROCEDENCIA (migración 0051, 26/10/2026) ──────────────────────────────────────────────────────────────
+   * Lo que llega de La Preferente (scripts/lapreferente/cola-lp.mjs) se importa con FACYLF_ORIGEN=lapreferente y
+   * queda marcado: la web lo enseña como «dato no oficial» y, cuando llega el grupo de la federación,
+   * externo/empareja.mjs pone `reemplazada_por` y deja de verse. Sin la variable, todo igual que siempre.
+   * Por seguridad, con la variable sólo se aceptan códigos «lp…»: nunca se marca como LP una edición de federación.
+   */
+  const origenLp = process.env.FACYLF_ORIGEN === 'lapreferente';
+  if (origenLp && !/^lp\d/.test(competicion.codigo)) {
+    throw new Error(`FACYLF_ORIGEN=lapreferente con una competición que no es de La Preferente (${competicion.codigo}).`);
+  }
+  if (!origenLp && /^lp\d/.test(competicion.codigo)) {
+    throw new Error(`La competición ${competicion.codigo} es de La Preferente: impórtala con FACYLF_ORIGEN=lapreferente.`);
+  }
+  const conOrigen = origenLp && await tieneColumnaOrigen(cliente);
   const id = await repo.upsert(
     'core.competition_edition',
     {
@@ -93,6 +108,7 @@ export async function resuelveEdicion(
       provincia: provinciaDesdeNombre(nombre),
       nivel: division.nivel,
       ...(conDivision ? { division: division.division } : {}),
+      ...(conOrigen ? { origen: 'lapreferente' } : {}),
       estado: estadoEdicion(entrada.fechas),
       classification_confidence: Number(confianza.toFixed(2)),
       data_version: 1,
@@ -102,6 +118,19 @@ export async function resuelveEdicion(
   await registraRef(repo, { federacionId, entityType: 'competition_edition', externalId: competicion.codigo, contextKey, canonicalId: id });
   if (existente === null) await normalizador.normaliza(nombre);
   return id;
+}
+
+let columnaOrigen: Promise<boolean> | null = null;
+/** ¿Existe `core.competition_edition.origen` (migración 0051)? Sin ella, importar desde LP se niega. */
+function tieneColumnaOrigen(cliente: ClienteCanonico): Promise<boolean> {
+  columnaOrigen ??= cliente.query<{ ok: boolean }>(
+    `select exists (select 1 from information_schema.columns
+                     where table_schema = 'core' and table_name = 'competition_edition' and column_name = 'origen') as ok`,
+  ).then((r) => {
+    if (!r.rows[0]?.ok) throw new Error('Falta la migración 0051 (core.competition_edition.origen): no se importa La Preferente sin ella.');
+    return true;
+  });
+  return columnaOrigen;
 }
 
 let columnaDivision: Promise<boolean> | null = null;

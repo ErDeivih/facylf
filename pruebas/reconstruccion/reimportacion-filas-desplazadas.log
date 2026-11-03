@@ -1,0 +1,34 @@
+=== 2026-09-25T11:28:26.122Z ===
+[castilla-leon 2021-22 38613] RESUMEN: 1 grupo(s) · 0 filas insertadas · 559 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2022-23 48007] RESUMEN: 1 grupo(s) · 0 filas insertadas · 11680 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2022-23 48354] RESUMEN: 1 grupo(s) · 0 filas insertadas · 2320 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2024-25 21734954] RESUMEN: 1 grupo(s) · 0 filas insertadas · 5913 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2025-26 22911208] RESUMEN: 1 grupo(s) · 0 filas insertadas · 5095 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6827344] RESUMEN: 1 grupo(s) · 337 filas insertadas · 11 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 22689022] RESUMEN: 1 grupo(s) · 227 filas insertadas · 11 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23129689] RESUMEN: 1 grupo(s) · 618 filas insertadas · 14 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2020-21 1629265] RESUMEN: 1 grupo(s) · 8155 filas insertadas · 25 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2021-22 1992177] RESUMEN: 1 grupo(s) · 11376 filas insertadas · 29 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2023-24 18031586] RESUMEN: 1 grupo(s) · 9841 filas insertadas · 11 actualizadas · 0 rechazadas · validación correcta en 1/1
+=== fin 2026-09-25T11:29:52.463Z ===
+=== 2026-09-25T12:40:34.037Z ===
+[castilla-leon 2021-22 38613] RESUMEN: 1 grupo(s) · 0 filas insertadas · 549 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2022-23 48007] RESUMEN: 1 grupo(s) · 0 filas insertadas · 11666 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2022-23 48354] RESUMEN: 1 grupo(s) · 0 filas insertadas · 2312 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2024-25 21734954] RESUMEN: 1 grupo(s) · 0 filas insertadas · 5905 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2025-26 22911208] RESUMEN: 1 grupo(s) · 0 filas insertadas · 5087 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6827344] RESUMEN: 1 grupo(s) · 0 filas insertadas · 301 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 22689022] RESUMEN: 1 grupo(s) · 0 filas insertadas · 190 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23129689] RESUMEN: 1 grupo(s) · 0 filas insertadas · 550 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2020-21 1629265] RESUMEN: 1 grupo(s) · 0 filas insertadas · 7712 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2021-22 1992177] RESUMEN: 1 grupo(s) · 0 filas insertadas · 10221 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2023-24 18031586] RESUMEN: 1 grupo(s) · 0 filas insertadas · 9018 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2025-26 22296395] RESUMEN: 1 grupo(s) · 0 filas insertadas · 8327 actualizadas · 1 rechazadas · validación correcta en 1/1
+[navarra 2025-26 22198618] RESUMEN: 1 grupo(s) · 0 filas insertadas · 12496 actualizadas · 1 rechazadas · validación correcta en 1/1
+[cantabria 2024-25 21718054] RESUMEN: 1 grupo(s) · 0 filas insertadas · 9425 actualizadas · 1 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22001535] RESUMEN: 1 grupo(s) · 2787 filas insertadas · 9 actualizadas · 1 rechazadas · validación correcta en 1/1
+[extremadura 2024-25 21994637] RESUMEN: 1 grupo(s) · 3845 filas insertadas · 20 actualizadas · 1 rechazadas · validación correcta en 1/1
+[rioja 2023-24 2037187] RESUMEN: 1 grupo(s) · 2144 filas insertadas · 17 actualizadas · 1 rechazadas · validación correcta en 1/1
+[castilla-leon 2024-25 21735262] ✗ La validación del lote 36876 ha fallado: actas analizadas 83≠84, participaciones 1750≠1774, eventos 746≠753
+[castilla-leon 2025-26 22911386] ✗ La validación del lote 36877 ha fallado: actas analizadas 107≠108, participaciones 2137≠2159, eventos 902≠913
+=== fin 2026-09-25T12:43:12.042Z ===

@@ -1,0 +1,243 @@
+{
+  "ciclos": [
+    {
+      "cuando": "2026-09-25T17:14:22.815Z",
+      "federacion": null,
+      "aplicado": false,
+      "segundosTotales": 230,
+      "importacion": null,
+      "medidas": {
+        "antes": {
+          "enElCanonico": 28587,
+          "pendientes": 635,
+          "fallidos": 561,
+          "gruposConDatosEnLasColas": 29221,
+          "gruposQueLaColaConoce": 73991,
+          "sinDatosRecolectados": 44770,
+          "partidos": 836787,
+          "actas": 424717,
+          "apariciones": 11700561,
+          "personas": 1176190,
+          "tablaOficial": {
+            "importada": 5021,
+            "rechazada": 777,
+            "sinArchivar": 15435,
+            "sinImportar": 7354
+          },
+          "actasEnLasColas": {
+            "hecha": 425821,
+            "pendiente": 228249,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3354,
+            "ausenteWeb": 863
+          },
+          "actasHechasSinInforme": 4296,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 26777,
+          "partidosDeMenoresSinActa": 64521,
+          "plan": null
+        },
+        "despues": {
+          "enElCanonico": 28587,
+          "pendientes": 644,
+          "fallidos": 561,
+          "gruposConDatosEnLasColas": 29230,
+          "gruposQueLaColaConoce": 73991,
+          "sinDatosRecolectados": 44761,
+          "partidos": 836787,
+          "actas": 424717,
+          "apariciones": 11700561,
+          "personas": 1176190,
+          "tablaOficial": {
+            "importada": 5021,
+            "rechazada": 777,
+            "sinArchivar": 15448,
+            "sinImportar": 7341
+          },
+          "actasEnLasColas": {
+            "hecha": 425838,
+            "pendiente": 228231,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3355,
+            "ausenteWeb": 863
+          },
+          "actasHechasSinInforme": 4310,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 26777,
+          "partidosDeMenoresSinActa": 64521,
+          "plan": null
+        }
+      }
+    },
+    {
+      "cuando": "2026-09-25T17:14:59.056Z",
+      "federacion": "ceuta",
+      "aplicado": false,
+      "segundosTotales": 18,
+      "importacion": null,
+      "medidas": {
+        "antes": {
+          "enElCanonico": 536,
+          "pendientes": 0,
+          "fallidos": 0,
+          "gruposConDatosEnLasColas": 536,
+          "gruposQueLaColaConoce": 536,
+          "sinDatosRecolectados": 0,
+          "partidos": 21252,
+          "actas": 17608,
+          "apariciones": 353722,
+          "personas": 23030,
+          "tablaOficial": {
+            "importada": 467,
+            "rechazada": 0,
+            "sinArchivar": 0,
+            "sinImportar": 69
+          },
+          "actasEnLasColas": {
+            "hecha": 17607,
+            "pendiente": 257,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3,
+            "ausenteWeb": 0
+          },
+          "actasHechasSinInforme": 2,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 288,
+          "partidosDeMenoresSinActa": 0,
+          "plan": null
+        },
+        "despues": {
+          "enElCanonico": 536,
+          "pendientes": 0,
+          "fallidos": 0,
+          "gruposConDatosEnLasColas": 536,
+          "gruposQueLaColaConoce": 536,
+          "sinDatosRecolectados": 0,
+          "partidos": 21252,
+          "actas": 17608,
+          "apariciones": 353722,
+          "personas": 23030,
+          "tablaOficial": {
+            "importada": 467,
+            "rechazada": 0,
+            "sinArchivar": 0,
+            "sinImportar": 69
+          },
+          "actasEnLasColas": {
+            "hecha": 17607,
+            "pendiente": 257,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3,
+            "ausenteWeb": 0
+          },
+          "actasHechasSinInforme": 2,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 288,
+          "partidosDeMenoresSinActa": 0,
+          "plan": null
+        }
+      }
+    },
+    {
+      "cuando": "2026-09-25T18:34:32.502Z",
+      "federacion": null,
+      "aplicado": false,
+      "segundosTotales": 374,
+      "importacion": null,
+      "medidas": {
+        "antes": {
+          "enElCanonico": 28785,
+          "pendientes": 564,
+          "fallidos": 561,
+          "gruposConDatosEnLasColas": 29348,
+          "gruposQueLaColaConoce": 73991,
+          "sinDatosRecolectados": 44643,
+          "partidos": 836869,
+          "actas": 426016,
+          "apariciones": 11735900,
+          "personas": 1179068,
+          "tablaOficial": {
+            "importada": 5027,
+            "rechazada": 1527,
+            "sinArchivar": 15122,
+            "sinFilas": 926,
+            "ilegible": 5621,
+            "sinCorte": 391,
+            "sinImportar": 171
+          },
+          "actasEnLasColas": {
+            "hecha": 427341,
+            "pendiente": 226745,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3356,
+            "ausenteWeb": 863
+          },
+          "actasHechasSinInforme": 4517,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 26777,
+          "partidosDeMenoresSinActa": 64521,
+          "plan": {
+            "gruposEnElPlan": 29348,
+            "yaEnElCanonico": 28785,
+            "porHacer": 313,
+            "crecidos": 405,
+            "sinTablaOficial": 85,
+            "noSeReintentan": 741,
+            "conActas": 240,
+            "totalConActas": 240,
+            "segundos": 103
+          }
+        },
+        "despues": {
+          "enElCanonico": 28785,
+          "pendientes": 573,
+          "fallidos": 561,
+          "gruposConDatosEnLasColas": 29357,
+          "gruposQueLaColaConoce": 73991,
+          "sinDatosRecolectados": 44634,
+          "partidos": 836869,
+          "actas": 426016,
+          "apariciones": 11735900,
+          "personas": 1179068,
+          "tablaOficial": {
+            "importada": 5027,
+            "rechazada": 1527,
+            "sinArchivar": 15122,
+            "sinFilas": 926,
+            "ilegible": 5621,
+            "sinCorte": 391,
+            "sinImportar": 171
+          },
+          "actasEnLasColas": {
+            "hecha": 427357,
+            "pendiente": 226729,
+            "pendienteAmbito": 0,
+            "pendientePermiso": 0,
+            "sinDatos": 3356,
+            "ausenteWeb": 863
+          },
+          "actasHechasSinInforme": 4532,
+          "actasSinInformeQueElPlanNoVe": 0,
+          "gruposDeMenoresSinRecoger": 26777,
+          "partidosDeMenoresSinActa": 64521,
+          "plan": {
+            "gruposEnElPlan": 29367,
+            "yaEnElCanonico": 28785,
+            "porHacer": 336,
+            "crecidos": 406,
+            "sinTablaOficial": 88,
+            "noSeReintentan": 741,
+            "conActas": 241,
+            "totalConActas": 241,
+            "segundos": 76
+          }
+        }
+      }
+    }
+  ]
+}

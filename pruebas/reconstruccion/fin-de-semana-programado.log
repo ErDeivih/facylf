@@ -151,3 +151,159 @@ Node.js v24.21.0
   informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.json
   legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.md
 2026-09-21 09:40:43  --- fin (codigo 0) ---
+2026-09-24 15:33:28  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-19 (sábado) → 2026-09-20 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 104 · comprobadas 104 · faltan por repasar   0 (reabiertas 0) · partidos  801 · actas 1422 (hecha=1422)
+  federacion           jornadas 124 · comprobadas  40 · faltan por repasar  98 (reabiertas 0) · partidos  731 · actas  267 (hecha=193 pendiente=74)
+  madrid               jornadas   8 · comprobadas   8 · faltan por repasar   4 (reabiertas 4) · partidos   70 · actas   70 (hecha=60 pendiente=10)
+  valencia             jornadas  62 · comprobadas  62 · faltan por repasar  37 (reabiertas 37) · partidos  485 · actas  485 (pendiente=262 hecha=223)
+
+  TOTAL: 4 federaciones con jornadas del finde · 298 jornadas (214 comprobadas) · 2087 partidos · 2244 actas (1898 hechas, 346 pendientes) · faltan por repasar 139 jornadas (41 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.md
+2026-09-24 15:33:30  --- fin (codigo 0) ---
+2026-09-24 17:18:28  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-19 (sábado) → 2026-09-20 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 104 · comprobadas 104 · faltan por repasar   0 (reabiertas 0) · partidos  801 · actas 1422 (hecha=1422)
+  federacion           jornadas 124 · comprobadas 124 · faltan por repasar  45 (reabiertas 45) · partidos  794 · actas  772 (hecha=517 pendiente=255)
+  madrid               jornadas   8 · comprobadas   8 · faltan por repasar   4 (reabiertas 3) · partidos   70 · actas   70 (hecha=60 pendiente=10)
+  valencia             jornadas  62 · comprobadas  62 · faltan por repasar  37 (reabiertas 37) · partidos  485 · actas  485 (pendiente=262 hecha=223)
+
+  TOTAL: 4 federaciones con jornadas del finde · 298 jornadas (298 comprobadas) · 2150 partidos · 2749 actas (2222 hechas, 527 pendientes) · faltan por repasar 86 jornadas (85 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.md
+2026-09-24 17:19:42  --- fin (codigo 0) ---
+2026-09-25 10:47:01  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-19 (sábado) → 2026-09-20 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 104 · comprobadas 104 · faltan por repasar   0 (reabiertas 0) · partidos  801 · actas 1422 (hecha=1422)
+  federacion           jornadas 124 · comprobadas 124 · faltan por repasar  45 (reabiertas 0) · partidos  794 · actas  772 (hecha=517 pendiente=255)
+  madrid               jornadas   8 · comprobadas   8 · faltan por repasar   4 (reabiertas 4) · partidos   70 · actas   70 (hecha=60 pendiente=10)
+  valencia             jornadas  62 · comprobadas  62 · faltan por repasar  35 (reabiertas 35) · partidos  485 · actas  485 (pendiente=260 hecha=225)
+
+  TOTAL: 4 federaciones con jornadas del finde · 298 jornadas (298 comprobadas) · 2150 partidos · 2749 actas (2224 hechas, 525 pendientes) · faltan por repasar 84 jornadas (39 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-19.md
+2026-09-25 10:47:05  --- fin (codigo 0) ---
+2026-09-26 10:24:53  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-26 (sábado) → 2026-09-27 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 225 · comprobadas   0 · faltan por repasar 225 (reabiertas 225) · partidos  869 · actas    0 (sin actas encoladas)
+  federacion           jornadas 124 · comprobadas   0 · faltan por repasar 124 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  madrid               jornadas 126 · comprobadas   0 · faltan por repasar 126 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  valencia             jornadas  57 · comprobadas   0 · faltan por repasar  57 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+
+  TOTAL: 4 federaciones con jornadas del finde · 532 jornadas (0 comprobadas) · 869 partidos · 0 actas (0 hechas, 0 pendientes) · faltan por repasar 532 jornadas (225 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.md
+2026-09-26 10:25:01  --- fin (codigo 0) ---
+2026-09-27 10:06:26  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-26 (sábado) → 2026-09-27 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 223 · comprobadas 206 · faltan por repasar 166 (reabiertas 150) · partidos 1458 · actas 1363 (hecha=184 pendiente=1179)
+  federacion           jornadas 124 · comprobadas   0 · faltan por repasar 124 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  madrid               jornadas 129 · comprobadas  13 · faltan por repasar 125 (reabiertas 9) · partidos   76 · actas   76 (hecha=43 pendiente=33)
+  valencia             jornadas  57 · comprobadas   0 · faltan por repasar  57 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+
+  TOTAL: 4 federaciones con jornadas del finde · 533 jornadas (219 comprobadas) · 1534 partidos · 1439 actas (227 hechas, 1212 pendientes) · faltan por repasar 472 jornadas (159 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.md
+2026-09-27 10:06:36  --- fin (codigo 0) ---
+2026-09-28 11:07:57  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-26 (sábado) → 2026-09-27 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 222 · comprobadas 218 · faltan por repasar 165 (reabiertas 156) · partidos 1474 · actas 1459 (hecha=184 pendiente=1275)
+  federacion           jornadas 124 · comprobadas   0 · faltan por repasar 124 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  madrid               jornadas 129 · comprobadas  80 · faltan por repasar 126 (reabiertas 0) · partidos  607 · actas  607 (pendiente=553 hecha=54)
+  valencia             jornadas  57 · comprobadas   4 · faltan por repasar  56 (reabiertas 3) · partidos   34 · actas   34 (hecha=9 pendiente=25)
+
+  TOTAL: 4 federaciones con jornadas del finde · 532 jornadas (302 comprobadas) · 2115 partidos · 2100 actas (247 hechas, 1853 pendientes) · faltan por repasar 471 jornadas (159 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.md
+2026-09-28 11:08:06  --- fin (codigo 0) ---
+2026-09-29 10:26:41  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-09-26 (sábado) → 2026-09-27 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 221 · comprobadas 221 · faltan por repasar 161 (reabiertas 161) · partidos  478 · actas 1459 (hecha=184 pendiente=1275)
+  federacion           jornadas 124 · comprobadas   0 · faltan por repasar 124 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  madrid               jornadas 129 · comprobadas 129 · faltan por repasar 121 (reabiertas 71) · partidos 1039 · actas 1039 (hecha=108 pendiente=931)
+  valencia             jornadas 125 · comprobadas 125 · faltan por repasar  47 (reabiertas 47) · partidos 1004 · actas 1004 (pendiente=293 hecha=711)
+
+  TOTAL: 4 federaciones con jornadas del finde · 599 jornadas (475 comprobadas) · 2521 partidos · 3502 actas (1003 hechas, 2499 pendientes) · faltan por repasar 453 jornadas (279 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-09-26.md
+2026-09-29 10:26:51  --- fin (codigo 0) ---
+2026-10-05 10:52:05  --- pasada del fin de semana (excluidas: melilla,andalucia,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-10-03 (sábado) → 2026-10-04 (domingo)
+   (se dejan fuera 15 federación(es) de otro equipo: andalucia, aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  cataluna             jornadas 526 · comprobadas   0 · faltan por repasar 526 (reabiertas 526) · partidos 2113 · actas    0 (sin actas encoladas)
+  federacion           jornadas 140 · comprobadas   0 · faltan por repasar 140 (reabiertas 0) · partidos   87 · actas    0 (sin actas encoladas)
+  madrid               jornadas 171 · comprobadas  49 · faltan por repasar 144 (reabiertas 22) · partidos  327 · actas  327 (hecha=278 pendiente=49)
+  valencia             jornadas 130 · comprobadas   4 · faltan por repasar 127 (reabiertas 1) · partidos   34 · actas   34 (hecha=33 pendiente=1)
+
+  TOTAL: 4 federaciones con jornadas del finde · 967 jornadas (53 comprobadas) · 2561 partidos · 361 actas (311 hechas, 50 pendientes) · faltan por repasar 937 jornadas (549 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-03.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-03.md
+2026-10-05 10:52:40  --- fin (codigo 0) ---
+2026-10-12 12:24:25  --- pasada del fin de semana (excluidas: melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-10-10 (sábado) → 2026-10-11 (domingo)
+   (se dejan fuera 14 federación(es) de otro equipo: aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  andalucia            jornadas 548 · comprobadas  79 · faltan por repasar 509 (reabiertas 40) · partidos 1197 · actas  464 (hecha=241 pendiente=223)
+  cataluna             jornadas 653 · comprobadas   3 · faltan por repasar 650 (reabiertas 648) · partidos 3233 · actas    8 (hecha=8)
+  federacion           jornadas 122 · comprobadas   0 · faltan por repasar 122 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  madrid               jornadas 334 · comprobadas 205 · faltan por repasar 302 (reabiertas 173) · partidos 1426 · actas 1426 (hecha=869 pendiente=557)
+  valencia             jornadas  25 · comprobadas   0 · faltan por repasar  25 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+
+  TOTAL: 5 federaciones con jornadas del finde · 1682 jornadas (287 comprobadas) · 5856 partidos · 1898 actas (1118 hechas, 780 pendientes) · faltan por repasar 1608 jornadas (861 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-10.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-10.md
+2026-10-12 12:29:43  --- fin (codigo 0) ---
+2026-10-19 07:30:03  --- pasada del fin de semana (excluidas: melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-10-17 (sábado) → 2026-10-18 (domingo)
+   (se dejan fuera 14 federación(es) de otro equipo: aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  andalucia            jornadas 731 · comprobadas 370 · faltan por repasar 579 (reabiertas 218) · partidos 2359 · actas 1966 (hecha=885 pendiente=1081)
+  araba                jornadas  61 · comprobadas  61 · faltan por repasar   7 (reabiertas 7) · partidos  335 · actas  120 (hecha=103 pendiente=17)
+  bizkaia              jornadas  56 · comprobadas  56 · faltan por repasar  21 (reabiertas 21) · partidos  420 · actas  398 (hecha=352 pendiente=46)
+  cataluna             jornadas 673 · comprobadas   3 · faltan por repasar 670 (reabiertas 658) · partidos 1051 · actas 1051 (hecha=1045 pendiente=6)
+  federacion           jornadas 140 · comprobadas   0 · faltan por repasar 140 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  gipuzkoa             jornadas 141 · comprobadas 141 · faltan por repasar   4 (reabiertas 4) · partidos  538 · actas  389 (hecha=385 pendiente=4)
+  laspalmas            jornadas 135 · comprobadas 135 · faltan por repasar  11 (reabiertas 11) · partidos  587 · actas  559 (hecha=544 pendiente=15)
+  madrid               jornadas 496 · comprobadas 322 · faltan por repasar 481 (reabiertas 92) · partidos 2058 · actas 2058 (hecha=913 pendiente=1145)
+  tenerife             jornadas 133 · comprobadas 133 · faltan por repasar   0 (reabiertas 0) · partidos  597 · actas  535 (hecha=535)
+  valencia             jornadas 170 · comprobadas   0 · faltan por repasar 170 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+
+  TOTAL: 10 federaciones con jornadas del finde · 2736 jornadas (1221 comprobadas) · 7945 partidos · 7076 actas (4762 hechas, 2314 pendientes) · faltan por repasar 2083 jornadas (1011 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-17.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-17.md
+2026-10-19 07:34:30  --- fin (codigo 0) ---
+2026-10-26 10:29:25  --- pasada del fin de semana (excluidas: melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja) ---
+═══ ingesta del fin de semana · ventana 2026-10-24 (sábado) → 2026-10-25 (domingo)
+   (se dejan fuera 14 federación(es) de otro equipo: aragon, asturias, baleares, canarias, cantabria, castilla-la-mancha, ceuta, euskadi, extremadura, galicia, melilla, murcia, navarra, rioja)
+  andalucia            jornadas 753 · comprobadas 378 · faltan por repasar 635 (reabiertas 268) · partidos 2300 · actas 2090 (hecha=757 pendiente=1333)
+  araba                jornadas  62 · comprobadas  62 · faltan por repasar   6 (reabiertas 6) · partidos  341 · actas  119 (hecha=96 pendiente=23)
+  bizkaia              jornadas  89 · comprobadas  89 · faltan por repasar  19 (reabiertas 19) · partidos  568 · actas  545 (hecha=517 pendiente=28)
+  cataluna             jornadas 675 · comprobadas   0 · faltan por repasar 675 (reabiertas 521) · partidos 3813 · actas 3765 (hecha=133 pendiente=3632)
+  federacion           jornadas 140 · comprobadas   0 · faltan por repasar 140 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  gipuzkoa             jornadas 111 · comprobadas 111 · faltan por repasar   1 (reabiertas 1) · partidos  464 · actas  391 (hecha=390 pendiente=1)
+  laspalmas            jornadas 141 · comprobadas 129 · faltan por repasar  24 (reabiertas 12) · partidos  544 · actas  514 (hecha=500 pendiente=14)
+  madrid               jornadas 517 · comprobadas 362 · faltan por repasar 389 (reabiertas 234) · partidos 2295 · actas 2295 (hecha=1352 pendiente=943)
+  tenerife             jornadas 138 · comprobadas 138 · faltan por repasar   0 (reabiertas 0) · partidos  617 · actas  567 (hecha=567)
+  valencia             jornadas 170 · comprobadas   4 · faltan por repasar 166 (reabiertas 2) · partidos   50 · actas   42 (hecha=34 pendiente=8)
+
+  TOTAL: 10 federaciones con jornadas del finde · 2796 jornadas (1273 comprobadas) · 10992 partidos · 10328 actas (4346 hechas, 5982 pendientes) · faltan por repasar 2055 jornadas (1063 reabiertas ahora)
+
+  informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-24.json
+  legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-24.md
+2026-10-26 10:34:09  --- fin (codigo 0) ---

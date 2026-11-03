@@ -1,0 +1,609 @@
+{
+  "cuando": "2026-09-24T21:16:20.167Z",
+  "total": 67,
+  "detalle": [
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161577",
+      "grupo": "48161581",
+      "nombre": "CORDOBA C.F.",
+      "codigos": 2,
+      "citas": 15
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161359",
+      "grupo": "48196699",
+      "nombre": "ATLETICO CORDOBES C.F. \"A\"",
+      "codigos": 2,
+      "citas": 12
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48292537",
+      "grupo": "48292831",
+      "nombre": "C.D. U.D. CIUDAD DE TORREDONJIMENO",
+      "codigos": 2,
+      "citas": 10
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48292537",
+      "grupo": "48292831",
+      "nombre": "C.D. UBEDA VIVA",
+      "codigos": 3,
+      "citas": 10
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161359",
+      "grupo": "48196699",
+      "nombre": "C.D. LOS CALIFAS BALOMPIE",
+      "codigos": 2,
+      "citas": 8
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "47714029",
+      "grupo": "47714045",
+      "nombre": "C.D. S.M. MIRADOR",
+      "codigos": 2,
+      "citas": 7
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48288016",
+      "grupo": "48288018",
+      "nombre": "ATLETICO JAEN F.C.",
+      "codigos": 2,
+      "citas": 7
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48296260",
+      "grupo": "48296309",
+      "nombre": "C.D. UBEDA VIVA",
+      "codigos": 2,
+      "citas": 6
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161577",
+      "grupo": "48161581",
+      "nombre": "ATLETICO CORDOBES C.F.",
+      "codigos": 2,
+      "citas": 6
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161577",
+      "grupo": "48161581",
+      "nombre": "C.D. LOS CALIFAS BALOMPIE",
+      "codigos": 2,
+      "citas": 6
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48287941",
+      "grupo": "48287946",
+      "nombre": "BEGIJAR C.F.",
+      "codigos": 2,
+      "citas": 5
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48287941",
+      "grupo": "48287946",
+      "nombre": "ATLETICO JAEN F.C.",
+      "codigos": 2,
+      "citas": 5
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48270665",
+      "grupo": "48270724",
+      "nombre": "C.D. UBEDA VIVA",
+      "codigos": 2,
+      "citas": 5
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48161359",
+      "grupo": "48196699",
+      "nombre": "C.D. ASOC. DE FUTBOLISTAS ESPAÑOLES CORDOBA",
+      "codigos": 2,
+      "citas": 4
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48270665",
+      "grupo": "48270724",
+      "nombre": "C.D. TORREPEROGIL",
+      "codigos": 2,
+      "citas": 4
+    },
+    {
+      "federacion": "canarias",
+      "temporada": "20",
+      "competicion": "999",
+      "grupo": "113654",
+      "nombre": "U.D. IBARRA",
+      "codigos": 2,
+      "citas": 4
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48292537",
+      "grupo": "48292831",
+      "nombre": "ATLETICO JAEN F.C. \"A\"",
+      "codigos": 2,
+      "citas": 3
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48287868",
+      "grupo": "48287875",
+      "nombre": "ATLETICO JAEN F.C. \"A\"",
+      "codigos": 2,
+      "citas": 3
+    },
+    {
+      "federacion": "andalucia",
+      "temporada": "21",
+      "competicion": "48292537",
+      "grupo": "48292831",
+      "nombre": "C.D. ALCAUDETE JUNIORS",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "15",
+      "competicion": "7539",
+      "grupo": "24542",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "15",
+      "competicion": "7536",
+      "grupo": "24519",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "14",
+      "competicion": "6362",
+      "grupo": "20617",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "13",
+      "competicion": "5210",
+      "grupo": "17023",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "12",
+      "competicion": "3480",
+      "grupo": "11682",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "11",
+      "competicion": "2290",
+      "grupo": "9937",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "11",
+      "competicion": "2288",
+      "grupo": "8547",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "10",
+      "competicion": "1187",
+      "grupo": "5934",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "10",
+      "competicion": "1200",
+      "grupo": "5977",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "14",
+      "competicion": "6367",
+      "grupo": "20659",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "13",
+      "competicion": "5209",
+      "grupo": "18719",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "12",
+      "competicion": "3465",
+      "grupo": "11624",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "asturias",
+      "temporada": "10",
+      "competicion": "1202",
+      "grupo": "5988",
+      "nombre": "C. D. LANGREO EULALIA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "cantabria",
+      "temporada": "12",
+      "competicion": "5586244",
+      "grupo": "5586245",
+      "nombre": "C.F.S. CASTRO URDIALES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "cantabria",
+      "temporada": "12",
+      "competicion": "5548351",
+      "grupo": "5548372",
+      "nombre": "C.F.S. CASTRO URDIALES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "cantabria",
+      "temporada": "11",
+      "competicion": "5311144",
+      "grupo": "5311148",
+      "nombre": "C.F.S. CASTRO URDIALES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "cantabria",
+      "temporada": "11",
+      "competicion": "5215033",
+      "grupo": "5215042",
+      "nombre": "C.F.S. CASTRO URDIALES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "cantabria",
+      "temporada": "10",
+      "competicion": "5019780",
+      "grupo": "5019782",
+      "nombre": "RIBAMONTAN AL MAR C.F. \"A\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-la-mancha",
+      "temporada": "14",
+      "competicion": "1150424",
+      "grupo": "1150530",
+      "nombre": "C.D.E. AL-BASIT \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "17",
+      "competicion": "10367",
+      "grupo": "38111",
+      "nombre": "U.D. SAN LORENZO C.D.",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "15",
+      "competicion": "7743",
+      "grupo": "25772",
+      "nombre": "U.D. SAN LORENZO C.D.",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "14",
+      "competicion": "6443",
+      "grupo": "20917",
+      "nombre": "C.D. CALASANZ DE SORIA \"C\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "13",
+      "competicion": "5277",
+      "grupo": "17293",
+      "nombre": "C.D. MANUEL RUIZ ZORRILLA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "13",
+      "competicion": "6106",
+      "grupo": "19960",
+      "nombre": "C.D. ZONA NORTE \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "13",
+      "competicion": "5239",
+      "grupo": "17103",
+      "nombre": "C.D. EL ESPINAR-SAN RAFAEL",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "12",
+      "competicion": "3739",
+      "grupo": "12753",
+      "nombre": "C.D. ZONA NORTE",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "12",
+      "competicion": "3753",
+      "grupo": "12818",
+      "nombre": "C.D. MANUEL RUIZ ZORRILLA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "12",
+      "competicion": "3747",
+      "grupo": "14714",
+      "nombre": "C.D. EL ESPINAR-SAN RAFAEL",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "12",
+      "competicion": "3747",
+      "grupo": "14715",
+      "nombre": "LA LASTRILLA C.D.",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "11",
+      "competicion": "2304",
+      "grupo": "8617",
+      "nombre": "C.D. MANUEL RUIZ ZORRILLA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "17",
+      "competicion": "10437",
+      "grupo": "38604",
+      "nombre": "C.D. NUESTRA SEÑORA DE BELÉN",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "15",
+      "competicion": "7808",
+      "grupo": "26094",
+      "nombre": "ARANDINA C.F. \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "14",
+      "competicion": "6417",
+      "grupo": "20790",
+      "nombre": "C.D. MILAGROSA - LAS NIEVES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "14",
+      "competicion": "6441",
+      "grupo": "20898",
+      "nombre": "ARANDINA C.F. \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "17",
+      "competicion": "10431",
+      "grupo": "38537",
+      "nombre": "C.D. NUESTRA SEÑORA DE BELÉN",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "castilla-leon",
+      "temporada": "15",
+      "competicion": "7791",
+      "grupo": "26018",
+      "nombre": "C.D. LA SALLE \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "murcia",
+      "temporada": "11",
+      "competicion": "1100192",
+      "grupo": "2838",
+      "nombre": "A.D. SANGONERA LA SECA \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "murcia",
+      "temporada": "12",
+      "competicion": "5700410",
+      "grupo": "5700413",
+      "nombre": "E.F. SANTA ANA \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "murcia",
+      "temporada": "13",
+      "competicion": "6402350",
+      "grupo": "6402356",
+      "nombre": "E.F. NUEVA CARTAGENA \"B\"",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "murcia",
+      "temporada": "13",
+      "competicion": "6402350",
+      "grupo": "6402356",
+      "nombre": "FUNDACION F.C. CARTAGENA",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "10",
+      "competicion": "1306",
+      "grupo": "6530",
+      "nombre": "C.D. LOURDES",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "11",
+      "competicion": "2406",
+      "grupo": "9075",
+      "nombre": "C.D. SAN JAVIER",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "13",
+      "competicion": "5655",
+      "grupo": "19031",
+      "nombre": "S.D. LAGUNAK",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "13",
+      "competicion": "5655",
+      "grupo": "19072",
+      "nombre": "S.D. LAGUNAK",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "14",
+      "competicion": "6582",
+      "grupo": "21405",
+      "nombre": "S.D. LAGUNAK",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "14",
+      "competicion": "6582",
+      "grupo": "22956",
+      "nombre": "S.D. LAGUNAK",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "16",
+      "competicion": "9709",
+      "grupo": "36464",
+      "nombre": "A.D. MENDILLORRI",
+      "codigos": 2,
+      "citas": 2
+    },
+    {
+      "federacion": "navarra",
+      "temporada": "16",
+      "competicion": "9709",
+      "grupo": "36568",
+      "nombre": "A.D. MENDILLORRI",
+      "codigos": 2,
+      "citas": 2
+    }
+  ]
+}

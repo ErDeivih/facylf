@@ -1,0 +1,6167 @@
+{
+ "resumen": {
+  "cuando": "2026-09-25T14:21:34.307Z",
+  "parejas": 181,
+  "aplicables": 181,
+  "saltadas": 0,
+  "filasAMover": 1278,
+  "partidosAMover": 209,
+  "grupos": 96
+ },
+ "parejas": [
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA FEDERACIÓ",
+   "grupo": "54323273",
+   "fase": 10058,
+   "mala": {
+    "id": 269110,
+    "nombre": "GIMNASTIC TARRAGONA, C.",
+    "equipoTemporada": 265840,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 73470,
+    "nombre": "GIMNASTIC TARRAGONA, C. A",
+    "codigo": "3001",
+    "equipoTemporada": 71683
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54324825",
+   "fase": 10122,
+   "mala": {
+    "id": 268725,
+    "nombre": "ESCOLA F. CERVERA,C",
+    "equipoTemporada": 265839,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 74522,
+    "nombre": "ESCOLA F. CERVERA,C A",
+    "codigo": "4185",
+    "equipoTemporada": 71795
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "54486961",
+   "fase": 10125,
+   "mala": {
+    "id": 269804,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C",
+    "equipoTemporada": 265832,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74570,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C A",
+    "codigo": "5117",
+    "equipoTemporada": 2675
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 9,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "54486961",
+   "fase": 10125,
+   "mala": {
+    "id": 269803,
+    "nombre": "PALAFRUGELL, F.C.",
+    "equipoTemporada": 266295,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 74568,
+    "nombre": "PALAFRUGELL, F.C. A",
+    "codigo": "5021",
+    "equipoTemporada": 74568
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 4,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54682446",
+   "fase": 10129,
+   "mala": {
+    "id": 269189,
+    "nombre": "RACING BLANENC F.C.",
+    "equipoTemporada": 266094,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 74631,
+    "nombre": "RACING BLANENC F.C. A",
+    "codigo": "5219",
+    "equipoTemporada": 71728
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54695794",
+   "fase": 10130,
+   "mala": {
+    "id": 269702,
+    "nombre": "GRANOLLERS, E.C.",
+    "equipoTemporada": 120169,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 74645,
+    "nombre": "GRANOLLERS, E.C. A",
+    "codigo": "1018",
+    "equipoTemporada": 2677
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 16,
+    "core.match_event": 3,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54695794",
+   "fase": 10130,
+   "mala": {
+    "id": 269701,
+    "nombre": "L'ESCALA, F.C.",
+    "equipoTemporada": 265831,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74640,
+    "nombre": "L'ESCALA, F.C. A",
+    "codigo": "5018",
+    "equipoTemporada": 71607
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 11,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54695794",
+   "fase": 10130,
+   "mala": {
+    "id": 269703,
+    "nombre": "MANLLEU, A.E.C.",
+    "equipoTemporada": 266259,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74648,
+    "nombre": "MANLLEU, A.E.C. A",
+    "codigo": "1023",
+    "equipoTemporada": 74417
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 14,
+    "core.match_event": 2,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54695975",
+   "fase": 10131,
+   "mala": {
+    "id": 269720,
+    "nombre": "DAMM, C.F.",
+    "equipoTemporada": 266260,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 74658,
+    "nombre": "DAMM, C.F. C",
+    "codigo": "1207",
+    "equipoTemporada": 74658
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696163",
+   "fase": 10132,
+   "mala": {
+    "id": 269739,
+    "nombre": "ANDORRA, F.C.",
+    "equipoTemporada": 266263,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 74672,
+    "nombre": "ANDORRA, F.C. A",
+    "codigo": "6001",
+    "equipoTemporada": 74672
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 16,
+    "core.match_event": 1,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696163",
+   "fase": 10132,
+   "mala": {
+    "id": 269741,
+    "nombre": "ATLETIC SANT JUST . F. C.",
+    "equipoTemporada": 266254,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 74679,
+    "nombre": "ATLETIC SANT JUST . F. C. A",
+    "codigo": "6380",
+    "equipoTemporada": 74430
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 15,
+    "core.match_event": 2,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696163",
+   "fase": 10132,
+   "mala": {
+    "id": 269740,
+    "nombre": "CERDANYOLA VALLES, F.C.",
+    "equipoTemporada": 266026,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 74673,
+    "nombre": "CERDANYOLA VALLES, F.C. A",
+    "codigo": "6283",
+    "equipoTemporada": 71621
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 13,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696163",
+   "fase": 10132,
+   "mala": {
+    "id": 269737,
+    "nombre": "JOANENC, F.C.",
+    "equipoTemporada": 265833,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74670,
+    "nombre": "JOANENC, F.C. A",
+    "codigo": "1375",
+    "equipoTemporada": 43212
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 13,
+    "core.match_event": 3,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696163",
+   "fase": 10132,
+   "mala": {
+    "id": 269738,
+    "nombre": "SANT QUIRZE VALLES, F.C.",
+    "equipoTemporada": 266262,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74671,
+    "nombre": "SANT QUIRZE VALLES, F.C. A",
+    "codigo": "1206",
+    "equipoTemporada": 43278
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 14,
+    "core.match_event": 2,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696230",
+   "fase": 10133,
+   "mala": {
+    "id": 269759,
+    "nombre": "ESCOLA F. GAVA, C.",
+    "equipoTemporada": 265838,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74695,
+    "nombre": "ESCOLA F. GAVA, C. A",
+    "codigo": "1255",
+    "equipoTemporada": 74597
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 12,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696230",
+   "fase": 10133,
+   "mala": {
+    "id": 269758,
+    "nombre": "SANTBOIA, F.C.",
+    "equipoTemporada": 266266,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 74693,
+    "nombre": "SANTBOIA, F.C. A",
+    "codigo": "1027",
+    "equipoTemporada": 74693
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 29,
+    "core.match_event": 2,
+    "core.match_staff": 6,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT JUVENILS",
+   "grupo": "54696230",
+   "fase": 10133,
+   "mala": {
+    "id": 269760,
+    "nombre": "SANTFELIUENC, F.C.",
+    "equipoTemporada": 266268,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74701,
+    "nombre": "SANTFELIUENC, F.C. A",
+    "codigo": "1033",
+    "equipoTemporada": 74419
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 33,
+    "core.match_event": 2,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722099",
+   "fase": 10145,
+   "mala": {
+    "id": 270822,
+    "nombre": "CARDEDEU, F.C.",
+    "equipoTemporada": 122260,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 74881,
+    "nombre": "CARDEDEU, F.C. A",
+    "codigo": "1030",
+    "equipoTemporada": 43243
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 1,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722110",
+   "fase": 10146,
+   "mala": {
+    "id": 268688,
+    "nombre": "GRANOLLERS, E.C.",
+    "equipoTemporada": 120169,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 74901,
+    "nombre": "GRANOLLERS, E.C. A",
+    "codigo": "1018",
+    "equipoTemporada": 2677
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722110",
+   "fase": 10146,
+   "mala": {
+    "id": 268687,
+    "nombre": "JOANENC, F.C.",
+    "equipoTemporada": 265833,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74900,
+    "nombre": "JOANENC, F.C. A",
+    "codigo": "1375",
+    "equipoTemporada": 43212
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722113",
+   "fase": 10147,
+   "mala": {
+    "id": 270839,
+    "nombre": "CAN BUXERES, F.C.",
+    "equipoTemporada": 265836,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74915,
+    "nombre": "CAN BUXERES, F.C. A",
+    "codigo": "6278",
+    "equipoTemporada": 45261
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722113",
+   "fase": 10147,
+   "mala": {
+    "id": 270840,
+    "nombre": "MARTINENC, F.C.",
+    "equipoTemporada": 265837,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 74919,
+    "nombre": "MARTINENC, F.C. A",
+    "codigo": "1032",
+    "equipoTemporada": 43562
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722113",
+   "fase": 10147,
+   "mala": {
+    "id": 270841,
+    "nombre": "SANTFELIUENC, F.C.",
+    "equipoTemporada": 266268,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74925,
+    "nombre": "SANTFELIUENC, F.C. A",
+    "codigo": "1033",
+    "equipoTemporada": 74419
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722132",
+   "fase": 10148,
+   "mala": {
+    "id": 268705,
+    "nombre": "BARCELONA, F.C.",
+    "equipoTemporada": 265835,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74926,
+    "nombre": "BARCELONA, F.C. A",
+    "codigo": "1001",
+    "equipoTemporada": 71676
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722132",
+   "fase": 10148,
+   "mala": {
+    "id": 268706,
+    "nombre": "CAN BUXERES, F.C.",
+    "equipoTemporada": 265836,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74927,
+    "nombre": "CAN BUXERES, F.C. A",
+    "codigo": "6278",
+    "equipoTemporada": 45261
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722132",
+   "fase": 10148,
+   "mala": {
+    "id": 268708,
+    "nombre": "ESCOLA F. GAVA, C.",
+    "equipoTemporada": 265838,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74932,
+    "nombre": "ESCOLA F. GAVA, C. A",
+    "codigo": "1255",
+    "equipoTemporada": 74597
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54722132",
+   "fase": 10148,
+   "mala": {
+    "id": 268707,
+    "nombre": "MARTINENC, F.C.",
+    "equipoTemporada": 265837,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 74931,
+    "nombre": "MARTINENC, F.C. A",
+    "codigo": "1032",
+    "equipoTemporada": 43562
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722143",
+   "fase": 10149,
+   "mala": {
+    "id": 270858,
+    "nombre": "NATACIO TERRASSA, C",
+    "equipoTemporada": 265864,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 74943,
+    "nombre": "NATACIO TERRASSA, C A",
+    "codigo": "2976",
+    "equipoTemporada": 367
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S16",
+   "grupo": "54722171",
+   "fase": 10150,
+   "mala": {
+    "id": 270875,
+    "nombre": "ESCOLA F. GAVA, C.",
+    "equipoTemporada": 265838,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 74968,
+    "nombre": "ESCOLA F. GAVA, C. A",
+    "codigo": "1255",
+    "equipoTemporada": 74597
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722211",
+   "fase": 10151,
+   "mala": {
+    "id": 271666,
+    "nombre": "CARDEDEU, F.C.",
+    "equipoTemporada": 122260,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 74986,
+    "nombre": "CARDEDEU, F.C. A",
+    "codigo": "1030",
+    "equipoTemporada": 43243
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722211",
+   "fase": 10151,
+   "mala": {
+    "id": 271665,
+    "nombre": "MANLLEU, A.E.C.",
+    "equipoTemporada": 266259,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 74976,
+    "nombre": "MANLLEU, A.E.C. A",
+    "codigo": "1023",
+    "equipoTemporada": 74417
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722238",
+   "fase": 10153,
+   "mala": {
+    "id": 271684,
+    "nombre": "CAN BUXERES, F.C.",
+    "equipoTemporada": 265836,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75014,
+    "nombre": "CAN BUXERES, F.C. A",
+    "codigo": "6278",
+    "equipoTemporada": 45261
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722238",
+   "fase": 10153,
+   "mala": {
+    "id": 271683,
+    "nombre": "MARTINENC, F.C.",
+    "equipoTemporada": 265837,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75010,
+    "nombre": "MARTINENC, F.C. A",
+    "codigo": "1032",
+    "equipoTemporada": 43562
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722238",
+   "fase": 10153,
+   "mala": {
+    "id": 271685,
+    "nombre": "SANTFELIUENC, F.C.",
+    "equipoTemporada": 266268,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75019,
+    "nombre": "SANTFELIUENC, F.C. A",
+    "codigo": "1033",
+    "equipoTemporada": 74419
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722254",
+   "fase": 10155,
+   "mala": {
+    "id": 271703,
+    "nombre": "NATACIO TERRASSA, C",
+    "equipoTemporada": 265864,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 75048,
+    "nombre": "NATACIO TERRASSA, C A",
+    "codigo": "2976",
+    "equipoTemporada": 367
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722254",
+   "fase": 10155,
+   "mala": {
+    "id": 271702,
+    "nombre": "SANTBOIA, F.C.",
+    "equipoTemporada": 266266,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75042,
+    "nombre": "SANTBOIA, F.C. A",
+    "codigo": "1027",
+    "equipoTemporada": 74693
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT CADET S15",
+   "grupo": "54722264",
+   "fase": 10156,
+   "mala": {
+    "id": 271720,
+    "nombre": "ESCOLA F. GAVA, C.",
+    "equipoTemporada": 265838,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75057,
+    "nombre": "ESCOLA F. GAVA, C. A",
+    "codigo": "1255",
+    "equipoTemporada": 74597
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "54783893",
+   "fase": 10157,
+   "mala": {
+    "id": 269990,
+    "nombre": "MAS PELLICER, U.D.C.",
+    "equipoTemporada": 265881,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75078,
+    "nombre": "MAS PELLICER, U.D.C. A",
+    "codigo": "3270",
+    "equipoTemporada": 43591
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 12,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "54783893",
+   "fase": 10157,
+   "mala": {
+    "id": 269989,
+    "nombre": "TORREFORTA, C.D.C.",
+    "equipoTemporada": 265906,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75074,
+    "nombre": "TORREFORTA, C.D.C. A",
+    "codigo": "3042",
+    "equipoTemporada": 43306
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 12,
+    "core.match_event": 3,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "54784474",
+   "fase": 10158,
+   "mala": {
+    "id": 271131,
+    "nombre": "MAS PELLICER, U.D.C.",
+    "equipoTemporada": 265881,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75101,
+    "nombre": "MAS PELLICER, U.D.C. A",
+    "codigo": "3270",
+    "equipoTemporada": 43591
+   },
+   "candidatas": 1,
+   "partidos": 3,
+   "movidas": {
+    "core.match": 3,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "54784594",
+   "fase": 10159,
+   "mala": {
+    "id": 271148,
+    "nombre": "MAS PELLICER, U.D.C.",
+    "equipoTemporada": 265881,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75105,
+    "nombre": "MAS PELLICER, U.D.C. A",
+    "codigo": "3270",
+    "equipoTemporada": 43591
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "54784594",
+   "fase": 10159,
+   "mala": {
+    "id": 271150,
+    "nombre": "TARRAGONA, F.C.",
+    "equipoTemporada": 266186,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75110,
+    "nombre": "TARRAGONA, F.C. A",
+    "codigo": "3351",
+    "equipoTemporada": 75110
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 1,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "54784594",
+   "fase": 10159,
+   "mala": {
+    "id": 271149,
+    "nombre": "TORREFORTA, C.D.C.",
+    "equipoTemporada": 265906,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75109,
+    "nombre": "TORREFORTA, C.D.C. A",
+    "codigo": "3042",
+    "equipoTemporada": 43306
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54817850",
+   "fase": 10160,
+   "mala": {
+    "id": 269591,
+    "nombre": "RIALP, F.C.",
+    "equipoTemporada": 266162,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75132,
+    "nombre": "RIALP, F.C. A",
+    "codigo": "4104",
+    "equipoTemporada": 75132
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54817850",
+   "fase": 10160,
+   "mala": {
+    "id": 269593,
+    "nombre": "RIBERA D'ONDARA, F.C.",
+    "equipoTemporada": 266164,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75131,
+    "nombre": "RIBERA D'ONDARA, F.C. A",
+    "codigo": "4114",
+    "equipoTemporada": 75131
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 16,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54817850",
+   "fase": 10160,
+   "mala": {
+    "id": 269590,
+    "nombre": "SANT RAMON , F.C.",
+    "equipoTemporada": 266161,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75125,
+    "nombre": "SANT RAMON , F.C. A",
+    "codigo": "47011333",
+    "equipoTemporada": 75125
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 14,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "54854353",
+   "fase": 10165,
+   "mala": {
+    "id": 268742,
+    "nombre": "GIMNASTIC TARRAGONA, C.",
+    "equipoTemporada": 265840,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75200,
+    "nombre": "GIMNASTIC TARRAGONA, C. A",
+    "codigo": "3001",
+    "equipoTemporada": 71683
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54885030",
+   "fase": 10169,
+   "mala": {
+    "id": 269221,
+    "nombre": "OLOST, F.C.",
+    "equipoTemporada": 266110,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75270,
+    "nombre": "OLOST, F.C. A",
+    "codigo": "1436",
+    "equipoTemporada": 75270
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54885476",
+   "fase": 10170,
+   "mala": {
+    "id": 269236,
+    "nombre": "VILADRAU F.C.",
+    "equipoTemporada": 266111,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75277,
+    "nombre": "VILADRAU F.C. A",
+    "codigo": "5084",
+    "equipoTemporada": 75277
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54885644",
+   "fase": 10171,
+   "mala": {
+    "id": 269255,
+    "nombre": "AMETLLA ASSOC. ESP..C",
+    "equipoTemporada": 266114,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75295,
+    "nombre": "AMETLLA ASSOC. ESP..C A",
+    "codigo": "6263",
+    "equipoTemporada": 75295
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 17,
+    "core.match_event": 4,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54885644",
+   "fase": 10171,
+   "mala": {
+    "id": 269253,
+    "nombre": "VALLGORGUINA, F.C.",
+    "equipoTemporada": 266112,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75305,
+    "nombre": "VALLGORGUINA, F.C. A",
+    "codigo": "6061",
+    "equipoTemporada": 75305
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 7,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54885842",
+   "fase": 10172,
+   "mala": {
+    "id": 269271,
+    "nombre": "PALAU SOLITA I PLEGAMANS,F.C.",
+    "equipoTemporada": 126129,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75317,
+    "nombre": "PALAU SOLITA I PLEGAMANS,F.C. A",
+    "codigo": "1020",
+    "equipoTemporada": 75317
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 14,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54886188",
+   "fase": 10174,
+   "mala": {
+    "id": 269305,
+    "nombre": "CANET, F.C.",
+    "equipoTemporada": 266012,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75347,
+    "nombre": "CANET, F.C. A",
+    "codigo": "1037",
+    "equipoTemporada": 75347
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54886188",
+   "fase": 10174,
+   "mala": {
+    "id": 269304,
+    "nombre": "JUVENTUS, A.C.",
+    "equipoTemporada": 126118,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75340,
+    "nombre": "JUVENTUS, A.C. A",
+    "codigo": "1220",
+    "equipoTemporada": 75340
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54886705",
+   "fase": 10177,
+   "mala": {
+    "id": 269354,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C.",
+    "equipoTemporada": 128912,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75393,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C. A",
+    "codigo": "50596320",
+    "equipoTemporada": 44569
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54886834",
+   "fase": 10178,
+   "mala": {
+    "id": 269371,
+    "nombre": "MONTMAJOR F.C.",
+    "equipoTemporada": 266123,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75403,
+    "nombre": "MONTMAJOR F.C. A",
+    "codigo": "7001544",
+    "equipoTemporada": 69775
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54887201",
+   "fase": 10180,
+   "mala": {
+    "id": 269404,
+    "nombre": "ONA SANT ADRIA, F.C.",
+    "equipoTemporada": 266124,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75433,
+    "nombre": "ONA SANT ADRIA, F.C. A",
+    "codigo": "54319880",
+    "equipoTemporada": 69781
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54887201",
+   "fase": 10180,
+   "mala": {
+    "id": 269405,
+    "nombre": "ZODIAC ELEVEN, F.C.",
+    "equipoTemporada": 266125,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75445,
+    "nombre": "ZODIAC ELEVEN, F.C. A",
+    "codigo": "29264724",
+    "equipoTemporada": 75445
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54887407",
+   "fase": 10181,
+   "mala": {
+    "id": 269422,
+    "nombre": "GÒTIC, F.C",
+    "equipoTemporada": 266126,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75457,
+    "nombre": "GÒTIC, F.C A",
+    "codigo": "2056",
+    "equipoTemporada": 75457
+   },
+   "candidatas": 1,
+   "partidos": 3,
+   "movidas": {
+    "core.match": 3,
+    "core.appearance": 31,
+    "core.match_event": 6,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54887553",
+   "fase": 10182,
+   "mala": {
+    "id": 269443,
+    "nombre": "RIERASPORT, F.C.",
+    "equipoTemporada": 266132,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75467,
+    "nombre": "RIERASPORT, F.C. A",
+    "codigo": "37848472",
+    "equipoTemporada": 75467
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54887553",
+   "fase": 10182,
+   "mala": {
+    "id": 269439,
+    "nombre": "ZODIAC ELEVEN, F.C.",
+    "equipoTemporada": 266125,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75462,
+    "nombre": "ZODIAC ELEVEN, F.C. A",
+    "codigo": "29264724",
+    "equipoTemporada": 75445
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270800,
+    "nombre": "BARCELONA, F.C.",
+    "equipoTemporada": 265835,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75492,
+    "nombre": "BARCELONA, F.C. A",
+    "codigo": "1001",
+    "equipoTemporada": 71676
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270801,
+    "nombre": "CERDANYOLA VALLES, F.C.",
+    "equipoTemporada": 266026,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 75493,
+    "nombre": "CERDANYOLA VALLES, F.C. A",
+    "codigo": "6283",
+    "equipoTemporada": 71621
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270804,
+    "nombre": "GIMNASTIC MANRESA C.",
+    "equipoTemporada": 266537,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75499,
+    "nombre": "GIMNASTIC MANRESA C. A",
+    "codigo": "50599707",
+    "equipoTemporada": 43218
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270803,
+    "nombre": "GIMNASTIC TARRAGONA, C.",
+    "equipoTemporada": 265840,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75496,
+    "nombre": "GIMNASTIC TARRAGONA, C. A",
+    "codigo": "3001",
+    "equipoTemporada": 71683
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270802,
+    "nombre": "GIRONA, F.C.",
+    "equipoTemporada": 266253,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75495,
+    "nombre": "GIRONA, F.C. A",
+    "codigo": "5282",
+    "equipoTemporada": 71674
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S16",
+   "grupo": "54887766",
+   "fase": 10184,
+   "mala": {
+    "id": 270805,
+    "nombre": "GRANOLLERS, E.C.",
+    "equipoTemporada": 120169,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75500,
+    "nombre": "GRANOLLERS, E.C. A",
+    "codigo": "1018",
+    "equipoTemporada": 2677
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271645,
+    "nombre": "BARCELONA, F.C.",
+    "equipoTemporada": 265835,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75518,
+    "nombre": "BARCELONA, F.C. A",
+    "codigo": "1001",
+    "equipoTemporada": 71676
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271642,
+    "nombre": "CERDANYOLA VALLES, F.C.",
+    "equipoTemporada": 266026,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 75508,
+    "nombre": "CERDANYOLA VALLES, F.C. A",
+    "codigo": "6283",
+    "equipoTemporada": 71621
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271644,
+    "nombre": "GIMNASTIC MANRESA C.",
+    "equipoTemporada": 266537,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75514,
+    "nombre": "GIMNASTIC MANRESA C. A",
+    "codigo": "50599707",
+    "equipoTemporada": 43218
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271643,
+    "nombre": "GIMNASTIC TARRAGONA, C.",
+    "equipoTemporada": 265840,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75513,
+    "nombre": "GIMNASTIC TARRAGONA, C. A",
+    "codigo": "3001",
+    "equipoTemporada": 71683
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271646,
+    "nombre": "GIRONA, F.C.",
+    "equipoTemporada": 266253,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75520,
+    "nombre": "GIRONA, F.C. A",
+    "codigo": "5282",
+    "equipoTemporada": 71674
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "DIVISIÓ HONOR CADET S15",
+   "grupo": "54887839",
+   "fase": 10185,
+   "mala": {
+    "id": 271641,
+    "nombre": "GRANOLLERS, E.C.",
+    "equipoTemporada": 120169,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 75507,
+    "nombre": "GRANOLLERS, E.C. A",
+    "codigo": "1018",
+    "equipoTemporada": 2677
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54888652",
+   "fase": 10186,
+   "mala": {
+    "id": 269492,
+    "nombre": "CAN CLOTA- LA PLANA-CAN CERVERA F.C.",
+    "equipoTemporada": 266153,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 75529,
+    "nombre": "CAN CLOTA- LA PLANA-CAN CERVERA F.C. A",
+    "codigo": "28485641",
+    "equipoTemporada": 75529
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54888652",
+   "fase": 10186,
+   "mala": {
+    "id": 269489,
+    "nombre": "CASABLANCA , F.C.",
+    "equipoTemporada": 128933,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75531,
+    "nombre": "CASABLANCA , F.C. A",
+    "codigo": "2905",
+    "equipoTemporada": 75531
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54889148",
+   "fase": 10187,
+   "mala": {
+    "id": 269506,
+    "nombre": "CASABLANCA , F.C.",
+    "equipoTemporada": 128933,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75537,
+    "nombre": "CASABLANCA , F.C. A",
+    "codigo": "2905",
+    "equipoTemporada": 75531
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 16,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54889483",
+   "fase": 10188,
+   "mala": {
+    "id": 269524,
+    "nombre": "CASABLANCA , F.C.",
+    "equipoTemporada": 128933,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75563,
+    "nombre": "CASABLANCA , F.C. A",
+    "codigo": "2905",
+    "equipoTemporada": 75531
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54889956",
+   "fase": 10190,
+   "mala": {
+    "id": 269557,
+    "nombre": "MASQUEFA, F.C.",
+    "equipoTemporada": 266159,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75593,
+    "nombre": "MASQUEFA, F.C. A",
+    "codigo": "1182",
+    "equipoTemporada": 69815
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "QUARTA CATALANA",
+   "grupo": "54890017",
+   "fase": 10191,
+   "mala": {
+    "id": 269573,
+    "nombre": "PUIGDÀLBER, F.C.",
+    "equipoTemporada": 266160,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75601,
+    "nombre": "PUIGDÀLBER, F.C. A",
+    "codigo": "2696",
+    "equipoTemporada": 69817
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55348159",
+   "fase": 10193,
+   "mala": {
+    "id": 270910,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C",
+    "equipoTemporada": 265832,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75635,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C A",
+    "codigo": "5117",
+    "equipoTemporada": 2675
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55348159",
+   "fase": 10193,
+   "mala": {
+    "id": 270908,
+    "nombre": "L'ESCALA, F.C.",
+    "equipoTemporada": 265831,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75627,
+    "nombre": "L'ESCALA, F.C. A",
+    "codigo": "5018",
+    "equipoTemporada": 71607
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55348159",
+   "fase": 10193,
+   "mala": {
+    "id": 270909,
+    "nombre": "PALAFRUGELL, F.C.",
+    "equipoTemporada": 266295,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75628,
+    "nombre": "PALAFRUGELL, F.C. A",
+    "codigo": "5021",
+    "equipoTemporada": 74568
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55350886",
+   "fase": 10194,
+   "mala": {
+    "id": 271737,
+    "nombre": "ESCOLA M.F.CALONGE-SANTANTONI,C",
+    "equipoTemporada": 265853,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75645,
+    "nombre": "ESCOLA M.F.CALONGE-SANTANTONI,C A",
+    "codigo": "5304",
+    "equipoTemporada": 75645
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55350923",
+   "fase": 10195,
+   "mala": {
+    "id": 271754,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C",
+    "equipoTemporada": 265832,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75664,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C A",
+    "codigo": "5117",
+    "equipoTemporada": 2675
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55350923",
+   "fase": 10195,
+   "mala": {
+    "id": 271755,
+    "nombre": "L'ESCALA, F.C.",
+    "equipoTemporada": 265831,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75666,
+    "nombre": "L'ESCALA, F.C. A",
+    "codigo": "5018",
+    "equipoTemporada": 71607
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55376097",
+   "fase": 10202,
+   "mala": {
+    "id": 271772,
+    "nombre": "JUVENTUS, A.C.",
+    "equipoTemporada": 126118,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75782,
+    "nombre": "JUVENTUS, A.C. A",
+    "codigo": "1220",
+    "equipoTemporada": 75340
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55376982",
+   "fase": 10205,
+   "mala": {
+    "id": 271821,
+    "nombre": "SANT QUIRZE VALLES, F.C.",
+    "equipoTemporada": 266262,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75821,
+    "nombre": "SANT QUIRZE VALLES, F.C. A",
+    "codigo": "1206",
+    "equipoTemporada": 43278
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377066",
+   "fase": 10206,
+   "mala": {
+    "id": 271839,
+    "nombre": "ONA SANT ADRIA, F.C.",
+    "equipoTemporada": 266124,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75846,
+    "nombre": "ONA SANT ADRIA, F.C. A",
+    "codigo": "54319880",
+    "equipoTemporada": 69781
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377149",
+   "fase": 10207,
+   "mala": {
+    "id": 271855,
+    "nombre": "BUFALA, C.F.",
+    "equipoTemporada": 120350,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75859,
+    "nombre": "BUFALA, C.F. C",
+    "codigo": "1140",
+    "equipoTemporada": 75859
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377282",
+   "fase": 10209,
+   "mala": {
+    "id": 271890,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C.",
+    "equipoTemporada": 128912,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 75891,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C. A",
+    "codigo": "50596320",
+    "equipoTemporada": 44569
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377282",
+   "fase": 10209,
+   "mala": {
+    "id": 271889,
+    "nombre": "FRUITOSENC, F.C.",
+    "equipoTemporada": 266536,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75886,
+    "nombre": "FRUITOSENC, F.C. A",
+    "codigo": "1424",
+    "equipoTemporada": 44565
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377282",
+   "fase": 10209,
+   "mala": {
+    "id": 271891,
+    "nombre": "JOANENC, F.C.",
+    "equipoTemporada": 265833,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 75892,
+    "nombre": "JOANENC, F.C. A",
+    "codigo": "1375",
+    "equipoTemporada": 43212
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377282",
+   "fase": 10209,
+   "mala": {
+    "id": 271892,
+    "nombre": "PIRINAICA, F.C.",
+    "equipoTemporada": 266302,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 75896,
+    "nombre": "PIRINAICA, F.C. A",
+    "codigo": "2036",
+    "equipoTemporada": 43208
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377344",
+   "fase": 10210,
+   "mala": {
+    "id": 271911,
+    "nombre": "HOSPITALENSE, AT.C.",
+    "equipoTemporada": 265968,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 75912,
+    "nombre": "HOSPITALENSE, AT.C. A",
+    "codigo": "1305",
+    "equipoTemporada": 43472
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377344",
+   "fase": 10210,
+   "mala": {
+    "id": 271909,
+    "nombre": "VALLDOREIX, F.C.",
+    "equipoTemporada": 265941,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 75903,
+    "nombre": "VALLDOREIX, F.C. A",
+    "codigo": "43918619",
+    "equipoTemporada": 75903
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55377415",
+   "fase": 10211,
+   "mala": {
+    "id": 271927,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C.",
+    "equipoTemporada": 266542,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 75921,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C. A",
+    "codigo": "6153",
+    "equipoTemporada": 75921
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA DIVISIÓ BENJAMÍ S10",
+   "grupo": "55382394",
+   "fase": 10246,
+   "mala": {
+    "id": 268857,
+    "nombre": "NATACIO TERRASSA, C",
+    "equipoTemporada": 265864,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 76471,
+    "nombre": "NATACIO TERRASSA, C A",
+    "codigo": "2976",
+    "equipoTemporada": 367
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA DIVISIÓ BENJAMÍ S10",
+   "grupo": "55382394",
+   "fase": 10246,
+   "mala": {
+    "id": 268858,
+    "nombre": "PARETS, C.F.",
+    "equipoTemporada": 120166,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 76484,
+    "nombre": "PARETS, C.F. C",
+    "codigo": "1123",
+    "equipoTemporada": 76294
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "55458444",
+   "fase": 10265,
+   "mala": {
+    "id": 268670,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C",
+    "equipoTemporada": 265832,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 76784,
+    "nombre": "ESCOLA F. BOSC DE TOSCA, C A",
+    "codigo": "5117",
+    "equipoTemporada": 2675
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PREFERENT BENJAMÍ S10",
+   "grupo": "55458444",
+   "fase": 10265,
+   "mala": {
+    "id": 268669,
+    "nombre": "L'ESCALA, F.C.",
+    "equipoTemporada": 265831,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 76781,
+    "nombre": "L'ESCALA, F.C. A",
+    "codigo": "5018",
+    "equipoTemporada": 71607
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515350",
+   "fase": 10269,
+   "mala": {
+    "id": 269853,
+    "nombre": "BELLAVISTA MILAN, C.",
+    "equipoTemporada": 266297,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 76839,
+    "nombre": "BELLAVISTA MILAN, C. A",
+    "codigo": "1514",
+    "equipoTemporada": 43377
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 12,
+    "core.match_event": 1,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515350",
+   "fase": 10269,
+   "mala": {
+    "id": 269854,
+    "nombre": "CARDEDEU, F.C.",
+    "equipoTemporada": 122260,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 76841,
+    "nombre": "CARDEDEU, F.C. A",
+    "codigo": "1030",
+    "equipoTemporada": 43243
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 10,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515830",
+   "fase": 10272,
+   "mala": {
+    "id": 269903,
+    "nombre": "BUFALÀ, C.F.",
+    "equipoTemporada": 266299,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 76891,
+    "nombre": "BUFALÀ, C.F. C",
+    "codigo": "1140",
+    "equipoTemporada": 76891
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 19,
+    "core.match_event": 5,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515830",
+   "fase": 10272,
+   "mala": {
+    "id": 269904,
+    "nombre": "HOSPITALENSE, AT.C.",
+    "equipoTemporada": 265968,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 76897,
+    "nombre": "HOSPITALENSE, AT.C. A",
+    "codigo": "1305",
+    "equipoTemporada": 43472
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 11,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515900",
+   "fase": 10273,
+   "mala": {
+    "id": 269921,
+    "nombre": "CAN BUXERES, F.C.",
+    "equipoTemporada": 265836,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 76905,
+    "nombre": "CAN BUXERES, F.C. A",
+    "codigo": "6278",
+    "equipoTemporada": 45261
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 7,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515985",
+   "fase": 10274,
+   "mala": {
+    "id": 269939,
+    "nombre": "NATACIO TERRASSA, C",
+    "equipoTemporada": 265864,
+    "inscripciones": 8
+   },
+   "buena": {
+    "id": 76920,
+    "nombre": "NATACIO TERRASSA, C A",
+    "codigo": "2976",
+    "equipoTemporada": 367
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55515985",
+   "fase": 10274,
+   "mala": {
+    "id": 269938,
+    "nombre": "PIRINAICA, F.C.",
+    "equipoTemporada": 266302,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 76915,
+    "nombre": "PIRINAICA, F.C. A",
+    "codigo": "2036",
+    "equipoTemporada": 43208
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL PRIMERA DIVISIÓ",
+   "grupo": "55516059",
+   "fase": 10275,
+   "mala": {
+    "id": 269956,
+    "nombre": "ONA SANT ADRIA, F.C.",
+    "equipoTemporada": 266124,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 76938,
+    "nombre": "ONA SANT ADRIA, F.C. A",
+    "codigo": "54319880",
+    "equipoTemporada": 69781
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 8,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516277",
+   "fase": 10277,
+   "mala": {
+    "id": 270945,
+    "nombre": "BCN PRO, F.C.",
+    "equipoTemporada": 266683,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 76971,
+    "nombre": "BCN PRO, F.C. A",
+    "codigo": "43918556",
+    "equipoTemporada": 75961
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516277",
+   "fase": 10277,
+   "mala": {
+    "id": 270943,
+    "nombre": "MANLLEU, A.E.C.",
+    "equipoTemporada": 266259,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 76963,
+    "nombre": "MANLLEU, A.E.C. A",
+    "codigo": "1023",
+    "equipoTemporada": 74417
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516468",
+   "fase": 10279,
+   "mala": {
+    "id": 270979,
+    "nombre": "SANT QUIRZE VALLES, F.C.",
+    "equipoTemporada": 266262,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77009,
+    "nombre": "SANT QUIRZE VALLES, F.C. A",
+    "codigo": "1206",
+    "equipoTemporada": 43278
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516630",
+   "fase": 10281,
+   "mala": {
+    "id": 271012,
+    "nombre": "BUFALA, C.F.",
+    "equipoTemporada": 120350,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 77040,
+    "nombre": "BUFALA, C.F. C",
+    "codigo": "1140",
+    "equipoTemporada": 75859
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516780",
+   "fase": 10283,
+   "mala": {
+    "id": 271044,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C.",
+    "equipoTemporada": 128912,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 77059,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C. A",
+    "codigo": "50596320",
+    "equipoTemporada": 44569
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516780",
+   "fase": 10283,
+   "mala": {
+    "id": 271047,
+    "nombre": "FRUITOSENC, F.C.",
+    "equipoTemporada": 266536,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 77071,
+    "nombre": "FRUITOSENC, F.C. A",
+    "codigo": "1424",
+    "equipoTemporada": 44565
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516780",
+   "fase": 10283,
+   "mala": {
+    "id": 271046,
+    "nombre": "JOANENC, F.C.",
+    "equipoTemporada": 265833,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77066,
+    "nombre": "JOANENC, F.C. A",
+    "codigo": "1375",
+    "equipoTemporada": 43212
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516934",
+   "fase": 10284,
+   "mala": {
+    "id": 271065,
+    "nombre": "HOSPITALENSE, AT.C.",
+    "equipoTemporada": 265968,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 77089,
+    "nombre": "HOSPITALENSE, AT.C. A",
+    "codigo": "1305",
+    "equipoTemporada": 43472
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516934",
+   "fase": 10284,
+   "mala": {
+    "id": 271063,
+    "nombre": "SANTBOIA, F.C.",
+    "equipoTemporada": 266266,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 77086,
+    "nombre": "SANTBOIA, F.C. A",
+    "codigo": "1027",
+    "equipoTemporada": 74693
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55516934",
+   "fase": 10284,
+   "mala": {
+    "id": 271064,
+    "nombre": "VALLDOREIX, F.C.",
+    "equipoTemporada": 265941,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77088,
+    "nombre": "VALLDOREIX, F.C. A",
+    "codigo": "43918619",
+    "equipoTemporada": 75903
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S16",
+   "grupo": "55517140",
+   "fase": 10286,
+   "mala": {
+    "id": 271098,
+    "nombre": "IGUALADA, C.F.",
+    "equipoTemporada": 266061,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 77115,
+    "nombre": "IGUALADA, C.F. C",
+    "codigo": "1035",
+    "equipoTemporada": 76394
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA DIVISIÓ BENJAMÍ S10",
+   "grupo": "55685751",
+   "fase": 10296,
+   "mala": {
+    "id": 268763,
+    "nombre": "HOSTALRIC, AT.C.",
+    "equipoTemporada": 265845,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 77268,
+    "nombre": "HOSTALRIC, AT.C. A",
+    "codigo": "5041",
+    "equipoTemporada": 43411
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA DIVISIÓ BENJAMÍ S10",
+   "grupo": "55685974",
+   "fase": 10299,
+   "mala": {
+    "id": 268810,
+    "nombre": "PERALADA, C.F.",
+    "equipoTemporada": 265849,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 77309,
+    "nombre": "PERALADA, C.F. C",
+    "codigo": "5038",
+    "equipoTemporada": 77309
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "PRIMERA DIVISIÓ BENJAMÍ S10",
+   "grupo": "55685974",
+   "fase": 10299,
+   "mala": {
+    "id": 268809,
+    "nombre": "VILAMALLA, F.C.",
+    "equipoTemporada": 265848,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77308,
+    "nombre": "VILAMALLA, F.C. A",
+    "codigo": "5208",
+    "equipoTemporada": 72008
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55690345",
+   "fase": 10306,
+   "mala": {
+    "id": 270674,
+    "nombre": "ESCOLA F. CERVERA,C",
+    "equipoTemporada": 265839,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 77423,
+    "nombre": "ESCOLA F. CERVERA,C A",
+    "codigo": "4185",
+    "equipoTemporada": 71795
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 2,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55690365",
+   "fase": 10307,
+   "mala": {
+    "id": 271976,
+    "nombre": "TARRAGONA, F.C.",
+    "equipoTemporada": 266186,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77434,
+    "nombre": "TARRAGONA, F.C. A",
+    "codigo": "3351",
+    "equipoTemporada": 75110
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55690365",
+   "fase": 10307,
+   "mala": {
+    "id": 271975,
+    "nombre": "TORREFORTA, C.D.C.",
+    "equipoTemporada": 265906,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 77429,
+    "nombre": "TORREFORTA, C.D.C. A",
+    "codigo": "3042",
+    "equipoTemporada": 43306
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55690427",
+   "fase": 10308,
+   "mala": {
+    "id": 271993,
+    "nombre": "LA SELVA DEL CAMP, F.C.",
+    "equipoTemporada": 265887,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77457,
+    "nombre": "LA SELVA DEL CAMP, F.C. A",
+    "codigo": "3038",
+    "equipoTemporada": 75228
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET PRIMERA DIVISIÓ S15",
+   "grupo": "55690427",
+   "fase": 10308,
+   "mala": {
+    "id": 271994,
+    "nombre": "MAS PELLICER, U.D.C.",
+    "equipoTemporada": 265881,
+    "inscripciones": 9
+   },
+   "buena": {
+    "id": 77450,
+    "nombre": "MAS PELLICER, U.D.C. A",
+    "codigo": "3270",
+    "equipoTemporada": 43591
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "55724720",
+   "fase": 10318,
+   "mala": {
+    "id": 271247,
+    "nombre": "BASCARA, F.C.",
+    "equipoTemporada": 266075,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77605,
+    "nombre": "BASCARA, F.C. A",
+    "codigo": "5035",
+    "equipoTemporada": 77605
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "55724720",
+   "fase": 10318,
+   "mala": {
+    "id": 271249,
+    "nombre": "BORRASSA, F.C.",
+    "equipoTemporada": 266077,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77610,
+    "nombre": "BORRASSA, F.C. A",
+    "codigo": "5098",
+    "equipoTemporada": 77610
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "55724720",
+   "fase": 10318,
+   "mala": {
+    "id": 271248,
+    "nombre": "VILAMALLA, F.C.",
+    "equipoTemporada": 265848,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77609,
+    "nombre": "VILAMALLA, F.C. A",
+    "codigo": "5208",
+    "equipoTemporada": 72008
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55765600",
+   "fase": 10329,
+   "mala": {
+    "id": 270037,
+    "nombre": "BORRASSA, F.C.",
+    "equipoTemporada": 266077,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77778,
+    "nombre": "BORRASSA, F.C. A",
+    "codigo": "5098",
+    "equipoTemporada": 77610
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55765600",
+   "fase": 10329,
+   "mala": {
+    "id": 270036,
+    "nombre": "VILAMALLA, F.C.",
+    "equipoTemporada": 265848,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 77773,
+    "nombre": "VILAMALLA, F.C. A",
+    "codigo": "5208",
+    "equipoTemporada": 72008
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55765890",
+   "fase": 10330,
+   "mala": {
+    "id": 270069,
+    "nombre": "BASCARA, F.C.",
+    "equipoTemporada": 266075,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77791,
+    "nombre": "BASCARA, F.C. A",
+    "codigo": "5035",
+    "equipoTemporada": 77605
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 8,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55765890",
+   "fase": 10330,
+   "mala": {
+    "id": 270068,
+    "nombre": "BORRASSA, F.C.",
+    "equipoTemporada": 266077,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 77792,
+    "nombre": "BORRASSA, F.C. A",
+    "codigo": "5098",
+    "equipoTemporada": 77610
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55765890",
+   "fase": 10330,
+   "mala": {
+    "id": 270066,
+    "nombre": "PERALADA, C.F.",
+    "equipoTemporada": 265849,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 77786,
+    "nombre": "PERALADA, C.F. C",
+    "codigo": "5038",
+    "equipoTemporada": 77309
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 4,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55933877",
+   "fase": 10342,
+   "mala": {
+    "id": 270085,
+    "nombre": "ALZAMORA, C.F.",
+    "equipoTemporada": 265931,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 77978,
+    "nombre": "ALZAMORA, C.F. C",
+    "codigo": "1696",
+    "equipoTemporada": 77978
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 1,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55933877",
+   "fase": 10342,
+   "mala": {
+    "id": 270086,
+    "nombre": "MARTINENC, F.C.",
+    "equipoTemporada": 265837,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 77979,
+    "nombre": "MARTINENC, F.C. D",
+    "codigo": "1032",
+    "equipoTemporada": 77979
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 5,
+    "core.match_event": 3,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "55933977",
+   "fase": 10343,
+   "mala": {
+    "id": 271530,
+    "nombre": "ESCOLA F PONT RIBAGORÇA,C",
+    "equipoTemporada": 266844,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 77984,
+    "nombre": "ESCOLA F PONT RIBAGORÇA,C A",
+    "codigo": "4197",
+    "equipoTemporada": 77852
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934128",
+   "fase": 10345,
+   "mala": {
+    "id": 270174,
+    "nombre": "MARTINENC, F.C.",
+    "equipoTemporada": 265837,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 78026,
+    "nombre": "MARTINENC, F.C. A",
+    "codigo": "1032",
+    "equipoTemporada": 43562
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934128",
+   "fase": 10345,
+   "mala": {
+    "id": 270171,
+    "nombre": "MONTAÑESA, C.F.",
+    "equipoTemporada": 106012,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78021,
+    "nombre": "MONTAÑESA, C.F. C",
+    "codigo": "1084",
+    "equipoTemporada": 78021
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 3,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934337",
+   "fase": 10346,
+   "mala": {
+    "id": 270190,
+    "nombre": "HOSPITALENSE, AT.C.",
+    "equipoTemporada": 265968,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 78036,
+    "nombre": "HOSPITALENSE, AT.C. D",
+    "codigo": "1305",
+    "equipoTemporada": 78036
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 2,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934427",
+   "fase": 10348,
+   "mala": {
+    "id": 270206,
+    "nombre": "VALLDOREIX, F.C.",
+    "equipoTemporada": 265941,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 78061,
+    "nombre": "VALLDOREIX, F.C. A",
+    "codigo": "43918619",
+    "equipoTemporada": 75903
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934509",
+   "fase": 10349,
+   "mala": {
+    "id": 270135,
+    "nombre": "ESCOLA ESPORTIVA GUINEUETA C.F",
+    "equipoTemporada": 265946,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78072,
+    "nombre": "ESCOLA ESPORTIVA GUINEUETA C.F C",
+    "codigo": "6390",
+    "equipoTemporada": 78072
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934509",
+   "fase": 10349,
+   "mala": {
+    "id": 270137,
+    "nombre": "ONA SANT ADRIA, F.C.",
+    "equipoTemporada": 266124,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 78085,
+    "nombre": "ONA SANT ADRIA, F.C. A",
+    "codigo": "54319880",
+    "equipoTemporada": 69781
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934509",
+   "fase": 10349,
+   "mala": {
+    "id": 270136,
+    "nombre": "SINGUERLIN, C.F.",
+    "equipoTemporada": 265930,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78073,
+    "nombre": "SINGUERLIN, C.F. C",
+    "codigo": "1198",
+    "equipoTemporada": 78073
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "55934669",
+   "fase": 10350,
+   "mala": {
+    "id": 270154,
+    "nombre": "SISTRELLS C.F.",
+    "equipoTemporada": 265935,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78092,
+    "nombre": "SISTRELLS C.F. C",
+    "codigo": "6221",
+    "equipoTemporada": 78092
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 1,
+    "core.match_event": 1,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034628",
+   "fase": 10357,
+   "mala": {
+    "id": 270312,
+    "nombre": "PRADENC,F.C.",
+    "equipoTemporada": 265990,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 78211,
+    "nombre": "PRADENC,F.C. A",
+    "codigo": "1059",
+    "equipoTemporada": 43361
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034628",
+   "fase": 10357,
+   "mala": {
+    "id": 270313,
+    "nombre": "TORELLO, C.F.",
+    "equipoTemporada": 265985,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78209,
+    "nombre": "TORELLO, C.F. C",
+    "codigo": "1034",
+    "equipoTemporada": 78209
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034761",
+   "fase": 10358,
+   "mala": {
+    "id": 270330,
+    "nombre": "REMEI, F.C.",
+    "equipoTemporada": 266432,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 78222,
+    "nombre": "REMEI, F.C. A",
+    "codigo": "55082170",
+    "equipoTemporada": 78222
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034899",
+   "fase": 10359,
+   "mala": {
+    "id": 270347,
+    "nombre": "CANET, F.C.",
+    "equipoTemporada": 266012,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 78233,
+    "nombre": "CANET, F.C. A",
+    "codigo": "1037",
+    "equipoTemporada": 75347
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034899",
+   "fase": 10359,
+   "mala": {
+    "id": 270348,
+    "nombre": "JUVENTUS, A.C.",
+    "equipoTemporada": 126118,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 78241,
+    "nombre": "JUVENTUS, A.C. A",
+    "codigo": "1220",
+    "equipoTemporada": 75340
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56034954",
+   "fase": 10360,
+   "mala": {
+    "id": 270365,
+    "nombre": "ARGENTONA, C.F.",
+    "equipoTemporada": 128873,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 78246,
+    "nombre": "ARGENTONA, C.F. C",
+    "codigo": "1054",
+    "equipoTemporada": 78246
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 2,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56035113",
+   "fase": 10361,
+   "mala": {
+    "id": 270382,
+    "nombre": "CALELLA, C.F.",
+    "equipoTemporada": 128855,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 78269,
+    "nombre": "CALELLA, C.F. C",
+    "codigo": "1072",
+    "equipoTemporada": 78269
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56035707",
+   "fase": 10362,
+   "mala": {
+    "id": 270497,
+    "nombre": "ARTES, F.C.",
+    "equipoTemporada": 266535,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78286,
+    "nombre": "ARTES, F.C. A",
+    "codigo": "1052",
+    "equipoTemporada": 44572
+   },
+   "candidatas": 1,
+   "partidos": 4,
+   "movidas": {
+    "core.match": 4,
+    "core.appearance": 9,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56036073",
+   "fase": 10363,
+   "mala": {
+    "id": 270513,
+    "nombre": "FRUITOSENC, F.C.",
+    "equipoTemporada": 266536,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78291,
+    "nombre": "FRUITOSENC, F.C. A",
+    "codigo": "1424",
+    "equipoTemporada": 44565
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56036073",
+   "fase": 10363,
+   "mala": {
+    "id": 270514,
+    "nombre": "GIMNASTIC MANRESA C.",
+    "equipoTemporada": 266537,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78294,
+    "nombre": "GIMNASTIC MANRESA C. D",
+    "codigo": "50599707",
+    "equipoTemporada": 78294
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56036073",
+   "fase": 10363,
+   "mala": {
+    "id": 270515,
+    "nombre": "SANT VICENÇ 2018, F.C.",
+    "equipoTemporada": 266538,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 78305,
+    "nombre": "SANT VICENÇ 2018, F.C. A",
+    "codigo": "34731175",
+    "equipoTemporada": 44562
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56046702",
+   "fase": 10366,
+   "mala": {
+    "id": 271426,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C.",
+    "equipoTemporada": 128912,
+    "inscripciones": 7
+   },
+   "buena": {
+    "id": 78351,
+    "nombre": "ESCOLA DE FUTBOL VILADECAVALLS, C. A",
+    "codigo": "50596320",
+    "equipoTemporada": 44569
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56046702",
+   "fase": 10366,
+   "mala": {
+    "id": 271423,
+    "nombre": "JUNIOR,C.F.",
+    "equipoTemporada": 266465,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 78339,
+    "nombre": "JUNIOR,C.F. C",
+    "codigo": "1056",
+    "equipoTemporada": 78339
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 4,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56046702",
+   "fase": 10366,
+   "mala": {
+    "id": 271424,
+    "nombre": "MATADEPERA, F.C.",
+    "equipoTemporada": 128897,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 78341,
+    "nombre": "MATADEPERA, F.C. A",
+    "codigo": "1928",
+    "equipoTemporada": 76179
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56053039",
+   "fase": 10367,
+   "mala": {
+    "id": 270533,
+    "nombre": "SANT ESTEVE SESROVIRES, F.C.",
+    "equipoTemporada": 266540,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 78365,
+    "nombre": "SANT ESTEVE SESROVIRES, F.C. A",
+    "codigo": "2577",
+    "equipoTemporada": 43506
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56053039",
+   "fase": 10367,
+   "mala": {
+    "id": 270532,
+    "nombre": "SANTFELIUENC, F.C.",
+    "equipoTemporada": 266268,
+    "inscripciones": 4
+   },
+   "buena": {
+    "id": 78363,
+    "nombre": "SANTFELIUENC, F.C. D",
+    "codigo": "1033",
+    "equipoTemporada": 78363
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56053405",
+   "fase": 10368,
+   "mala": {
+    "id": 270551,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C.",
+    "equipoTemporada": 266542,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78379,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C. A",
+    "codigo": "6153",
+    "equipoTemporada": 75921
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56053405",
+   "fase": 10368,
+   "mala": {
+    "id": 270550,
+    "nombre": "MARTORELL C.F.",
+    "equipoTemporada": 266541,
+    "inscripciones": 1
+   },
+   "buena": {
+    "id": 78370,
+    "nombre": "MARTORELL C.F. C",
+    "codigo": "6187",
+    "equipoTemporada": 76119
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 2,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56054785",
+   "fase": 10369,
+   "mala": {
+    "id": 270570,
+    "nombre": "CASABLANCA , F.C.",
+    "equipoTemporada": 128933,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 78391,
+    "nombre": "CASABLANCA , F.C. A",
+    "codigo": "2905",
+    "equipoTemporada": 75531
+   },
+   "candidatas": 1,
+   "partidos": 4,
+   "movidas": {
+    "core.match": 4,
+    "core.appearance": 38,
+    "core.match_event": 7,
+    "core.match_staff": 8,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56054785",
+   "fase": 10369,
+   "mala": {
+    "id": 270569,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C.",
+    "equipoTemporada": 266542,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78401,
+    "nombre": "COLEGIO ALEMAN S.ALBERTO,A.C. A",
+    "codigo": "6153",
+    "equipoTemporada": 75921
+   },
+   "candidatas": 1,
+   "partidos": 4,
+   "movidas": {
+    "core.match": 4,
+    "core.appearance": 10,
+    "core.match_event": 0,
+    "core.match_staff": 11,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56054785",
+   "fase": 10369,
+   "mala": {
+    "id": 270568,
+    "nombre": "TERLENKA BARCELONISTA C. F.",
+    "equipoTemporada": 266543,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78393,
+    "nombre": "TERLENKA BARCELONISTA C. F. C",
+    "codigo": "2924",
+    "equipoTemporada": 78393
+   },
+   "candidatas": 1,
+   "partidos": 4,
+   "movidas": {
+    "core.match": 4,
+    "core.appearance": 23,
+    "core.match_event": 3,
+    "core.match_staff": 6,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56054968",
+   "fase": 10370,
+   "mala": {
+    "id": 270587,
+    "nombre": "CAN VIDALET, C.F.",
+    "equipoTemporada": 266546,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78404,
+    "nombre": "CAN VIDALET, C.F. C",
+    "codigo": "1372",
+    "equipoTemporada": 78404
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 11,
+    "core.match_event": 2,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56056546",
+   "fase": 10372,
+   "mala": {
+    "id": 270623,
+    "nombre": "FATIMA, F.C.",
+    "equipoTemporada": 128742,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 78443,
+    "nombre": "FATIMA, F.C. A",
+    "codigo": "1302",
+    "equipoTemporada": 43270
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 15,
+    "core.match_event": 0,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56056546",
+   "fase": 10372,
+   "mala": {
+    "id": 270624,
+    "nombre": "IGUALADA, C.F.",
+    "equipoTemporada": 266061,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78444,
+    "nombre": "IGUALADA, C.F. C",
+    "codigo": "1035",
+    "equipoTemporada": 76394
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 5,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56056546",
+   "fase": 10372,
+   "mala": {
+    "id": 270622,
+    "nombre": "MASQUEFA, F.C.",
+    "equipoTemporada": 266159,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78437,
+    "nombre": "MASQUEFA, F.C. A",
+    "codigo": "1182",
+    "equipoTemporada": 69815
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 3,
+    "core.match_event": 1,
+    "core.match_staff": 2,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56056849",
+   "fase": 10373,
+   "mala": {
+    "id": 270639,
+    "nombre": "BLANCA SUBUR, C.F.",
+    "equipoTemporada": 122112,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78456,
+    "nombre": "BLANCA SUBUR, C.F. C",
+    "codigo": "1764",
+    "equipoTemporada": 78456
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "JUVENIL SEGONA DIVISIÓ",
+   "grupo": "56056849",
+   "fase": 10373,
+   "mala": {
+    "id": 270640,
+    "nombre": "PUIGDÀLBER, F.C.",
+    "equipoTemporada": 266160,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78458,
+    "nombre": "PUIGDÀLBER, F.C. A",
+    "codigo": "2696",
+    "equipoTemporada": 69817
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 1,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56145958",
+   "fase": 10391,
+   "mala": {
+    "id": 271442,
+    "nombre": "CAN VIDALET, C.F.",
+    "equipoTemporada": 266546,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78728,
+    "nombre": "CAN VIDALET, C.F. C",
+    "codigo": "1372",
+    "equipoTemporada": 78404
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56145958",
+   "fase": 10391,
+   "mala": {
+    "id": 271443,
+    "nombre": "TERLENKA BARCELONISTA C. F.",
+    "equipoTemporada": 266543,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78730,
+    "nombre": "TERLENKA BARCELONISTA C. F. C",
+    "codigo": "2924",
+    "equipoTemporada": 78393
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56146241",
+   "fase": 10392,
+   "mala": {
+    "id": 271460,
+    "nombre": "CASABLANCA , F.C.",
+    "equipoTemporada": 128933,
+    "inscripciones": 6
+   },
+   "buena": {
+    "id": 78756,
+    "nombre": "CASABLANCA , F.C. A",
+    "codigo": "2905",
+    "equipoTemporada": 75531
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 1,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56147915",
+   "fase": 10393,
+   "mala": {
+    "id": 271478,
+    "nombre": "CUBELLES, C.F.",
+    "equipoTemporada": 122127,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78761,
+    "nombre": "CUBELLES, C.F. C",
+    "codigo": "1294",
+    "equipoTemporada": 71830
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56147915",
+   "fase": 10393,
+   "mala": {
+    "id": 271479,
+    "nombre": "FATIMA, F.C.",
+    "equipoTemporada": 128742,
+    "inscripciones": 5
+   },
+   "buena": {
+    "id": 78764,
+    "nombre": "FATIMA, F.C. A",
+    "codigo": "1302",
+    "equipoTemporada": 43270
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 5,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56147915",
+   "fase": 10393,
+   "mala": {
+    "id": 271480,
+    "nombre": "HORTONENC, F.C.",
+    "equipoTemporada": 266548,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78765,
+    "nombre": "HORTONENC, F.C. A",
+    "codigo": "1705",
+    "equipoTemporada": 43507
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 7,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56147915",
+   "fase": 10393,
+   "mala": {
+    "id": 271481,
+    "nombre": "MASQUEFA, F.C.",
+    "equipoTemporada": 266159,
+    "inscripciones": 3
+   },
+   "buena": {
+    "id": 78770,
+    "nombre": "MASQUEFA, F.C. A",
+    "codigo": "1182",
+    "equipoTemporada": 69815
+   },
+   "candidatas": 1,
+   "partidos": 2,
+   "movidas": {
+    "core.match": 2,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 3,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  },
+  {
+   "federacion": "Federación Catalana de Fútbol",
+   "temporada": "2025-26",
+   "competicion": "CADET SEGONA DIVISIÓ S16",
+   "grupo": "56148112",
+   "fase": 10394,
+   "mala": {
+    "id": 271498,
+    "nombre": "LES CABANYES, F.C.",
+    "equipoTemporada": 266843,
+    "inscripciones": 2
+   },
+   "buena": {
+    "id": 78782,
+    "nombre": "LES CABANYES, F.C. A",
+    "codigo": "2314",
+    "equipoTemporada": 78782
+   },
+   "candidatas": 1,
+   "partidos": 1,
+   "movidas": {
+    "core.match": 1,
+    "core.appearance": 0,
+    "core.match_event": 0,
+    "core.match_staff": 0,
+    "core.standing_snapshot": 0,
+    "analytics.team_edition_summary": 0,
+    "analytics.player_team_season_summary": 0
+   },
+   "alias": 1,
+   "derivadas": 0,
+   "seEnfrentan": 0,
+   "aplicable": true
+  }
+ ]
+}

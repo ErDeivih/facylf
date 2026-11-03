@@ -1,0 +1,11 @@
+﻿[
+    {
+        "federacion":  "galicia",
+        "temporada":  "2025-26",
+        "competicion":  "24123388",
+        "grupo":  "25421292",
+        "nombre":  "COPA GALICIA ",
+        "motivo":  "✗ El acta 1414593 (25421292 J1) no se corresponde con la fila del calendario que la cita: el calendario dice «SILVA S.D. ARBOCO vs ALTO DO VENTO F.S.- FINK ORFEBRES» y el acta dice «RIBEIRA F.S. Meizoso Fernández vs A.D. CODIMA - GRÁFICAS ESTEIRO». El lote se detiene: hay que revisar la fuente.",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-galicia-2025-26-25421292.txt"
+    }
+]

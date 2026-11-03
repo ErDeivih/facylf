@@ -1,0 +1,23 @@
+{
+  "_nota": "Recolectores multideporte que mantiene vivos el supervisor (lo relee cada 10 min: añadir uno aquí lo arranca sin reiniciar nada). Quitar uno NO lo para: para eso, reiniciar-multideporte.ps1.",
+  "activos": [
+    "isquad-balonmano",
+    "isquad-voleibol",
+    "serversports",
+    "feb",
+    "mygol",
+    "isquad-tenis",
+    "fmvoley",
+    "gesdeportiva",
+    "owbasket",
+    "playooz",
+    "totalfutbol",
+    "apuntamelo",
+    "lapreferente-federado",
+    "mytorneo",
+    "siguetuliga",
+    "portalrivas",
+    "vistahermosa",
+    "febauto"
+  ]
+}

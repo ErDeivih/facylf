@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import {
   repartePlazas, cabeOtroNavegador, tocaReciclar, decideEsperaDePlaza,
   decideTurnoDePlaza, plazaAbandonada, RESERVA_GB, TURNO_PLAZA_MIN,
-  PLAZA_PRIORITARIA, plazasCompartidas, cedePorPrioridad,
+  PLAZA_PRIORITARIA, plazasCompartidas, cedePorPrioridad, nombreFichaEspera,
 } from './lib/presupuesto-memoria.mjs';
 import { freemem, hostname, totalmem } from 'node:os';
 import { Builder, By, until } from 'selenium-webdriver';
@@ -23,6 +23,7 @@ import {
   reactiva, registraPeticion, resumen, seleccionaMuestrasCompeticion,
   rutaGrupo, rutaJsonDeArchivo, siguienteTrabajo, ultimaPeticion, urlActa, urlCalendario,
   urlClasificacion, urlGrupos, urlJornada, validaPagina, setPerfil, perfil as perfilActivo, urlEnPortal,
+  corrigeMarcadorDesdeActa, corrigeMarcadoresDesdeActas, marcadorConGolesDeActa,
 } from './lib/recolector-local.mjs';
 // El reparto por temporadas entre el PC y el servidor: lo necesitan tanto el plan como la reparación de actas
 // sin trabajo, que sólo debe tocar las temporadas asignadas a ESTA máquina.
@@ -56,7 +57,7 @@ const CARPETA_SLOTS_CHROME = join(RAIZ, '.estado-workers', 'slots-chrome');
 // Castilla y León es la prioridad del proyecto (David, 15/10/2026): plaza de navegador RESERVADA que no se cede
 // por turno, y mientras la usa las demás reparten una plaza menos (ver `PLAZA_PRIORITARIA`). Es una función
 // porque el perfil se lee después (`--perfil`). `FACYLF_PRIORITARIA=1` permite dar la prioridad a otra.
-const esPrioritaria = () => PERFIL_NOMBRE === 'castilla-leon' || process.env.FACYLF_PRIORITARIA === '1';
+const esPrioritaria = () => process.env.FACYLF_PRIORITARIA === '1' || (process.env.FACYLF_PRIORITARIA !== '0' && PERFIL_NOMBRE === 'castilla-leon');
 // Un navegador por federación PNFG. En este equipo de 32 GB caben los 14
 // perfiles genéricos con margen; Castilla y León conserva además su plaza
 // reservada para que la prioridad del proyecto no dependa de la cola general.
@@ -121,7 +122,7 @@ const TURNO_PLAZA_MS = Number(process.env.FACYLF_TURNO_PLAZA_MIN) > 0
 // Esperar en la cola cuesta casi nada y conserva el puesto; cada relanzamiento abre la cola y el catálogo otra vez.
 const TOPE_ESPERA_NAVEGADOR_MS = Number(process.env.FACYLF_TOPE_ESPERA_MS) > 0
   ? Number(process.env.FACYLF_TOPE_ESPERA_MS)
-  : 180 * 60_000;
+  : (Number(process.env.FACYLF_MEMORIA_GB) > 0 ? 480 : 180) * 60_000;
 
 /**
  * Tope de memoria del navegador de un worker: a partir de aquí se recicla aunque no toque por trabajos.
@@ -241,8 +242,8 @@ async function adquiereSlotChrome(db) {
    * diferencia entre esperar y bloquearse.
    */
   const inicioEspera = Date.now();
-  const prefijoFicha = PERFIL_NOMBRE === 'castilla-leon' ? 'espera-prioridad-' : 'espera-pnfg-';
-  const nombreMiFicha = `${prefijoFicha}${process.pid}.ficha`;
+  const prefijoFicha = esPrioritaria() ? 'espera-prioridad-' : 'espera-pnfg-';
+  const nombreMiFicha = nombreFichaEspera(prefijoFicha, process.pid, MI_CONTENEDOR);
   const miFicha = join(CARPETA_SLOTS_CHROME, nombreMiFicha);
   /*
    * La ficha de espera guarda `pid contenedor`, igual que la de la plaza, y por el mismo motivo: dentro de Docker
@@ -250,7 +251,11 @@ async function adquiereSlotChrome(db) {
    * que dejó un contenedor muerto podía parecer viva —el pid 42 existe en todos los contenedores— y los demás
    * cedían su turno por un fantasma (ver `hayFederacionesEsperando`). Medido el 19/09/2026.
    */
-  if (!existsSync(miFicha)) writeFileSync(miFicha, `${process.pid} ${MI_CONTENEDOR} ${Date.now()}`);
+  if (!existsSync(miFicha)) {
+    const heredada = Number(process.env.FACYLF_ESPERA_DESDE_MS);
+    const llegada = Number.isFinite(heredada) && heredada > 0 && heredada <= Date.now() ? heredada : Date.now();
+    writeFileSync(miFicha, `${process.pid} ${MI_CONTENEDOR} ${llegada}`);
+  }
   let aviso = false;
   while (true) {
     /*
@@ -447,7 +452,7 @@ async function adquiereSlotChrome(db) {
 function liberaSlotChrome(ruta) {
   if (ruta) rmSync(ruta, { force: true });
   for (const prefijo of ['espera-', 'espera-pnfg-', 'espera-prioridad-']) {
-    rmSync(join(CARPETA_SLOTS_CHROME, `${prefijo}${process.pid}.ficha`), { force: true });
+    rmSync(join(CARPETA_SLOTS_CHROME, nombreFichaEspera(prefijo, process.pid, MI_CONTENEDOR)), { force: true });
   }
 }
 
@@ -1717,6 +1722,9 @@ function registraJornada(db, trabajo, html, ruta, hash) {
     }
     for (const [orden, p] of partidos.entries()) {
       const d = p.detalle;
+      // Si la jornada dice 0-0 (o nada) y el acta ya leída tiene goles, manda el acta (ver `marcadorConGolesDeActa`):
+      // sin esto, cada relectura de la jornada volvería a escribir el 0-0 falso encima del resultado calculado.
+      const marcador = marcadorConGolesDeActa(db, { ...trabajo, acta: p.codActa }, d?.golesLocal ?? null, d?.golesVisitante ?? null);
       db.prepare(`insert into partidos(temporada,competicion,grupo,jornada,orden,codigo_acta,
         equipo_local_codigo,equipo_visitante_codigo,local,visitante,goles_local,goles_visitante,
         fecha,hora,campo,campo_codigo,arbitro,actualizado_en)
@@ -1730,7 +1738,7 @@ function registraJornada(db, trabajo, html, ruta, hash) {
         .run(trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, orden,
           p.codActa, p.codLocal ?? d?.codLocal ?? null,
           p.codVisitante ?? d?.codVisitante ?? null, p.local, p.visitante,
-          d?.golesLocal ?? null, d?.golesVisitante ?? null, d?.fecha ?? fecha,
+          marcador.golesLocal, marcador.golesVisitante, d?.fecha ?? fecha,
           d?.hora ?? null, d?.campo ?? null, d?.codCampo ?? null, d?.arbitro ?? null,
           new Date().toISOString());
       for (const [codigo, nombre] of [[p.codLocal, p.local], [p.codVisitante, p.visitante]]) {
@@ -2141,6 +2149,7 @@ function reparaActasDesactualizadas(db, limite = Infinity) {
       const calidad = evaluaCalidadActa(db, acta, parseada, html);
       guardaJson(rutaJsonDeArchivo(acta.archivo), parseada, db, 'acta');
       guardaActaEstructura(db, acta, acta, parseada);
+      corrigeMarcadorDesdeActa(db, acta); // 0-0 de la jornada que el acta desmiente (ver lib)
       reconciliaEnlaceActa(db, acta, parseada);
       // Si la ficha se cerró como 'sin_datos' (publicada sin alineaciones) y ahora el parser SÍ saca
       // algo, vuelve a 'hecha': es la vía de recuperación sin red que justifica guardar el HTML.
@@ -2501,6 +2510,7 @@ async function procesa(driver, ritmo, db, trabajo) {
     // transacción de `guardaActaEstructura` (que en WAL puede incluir un punto de control automático, y eso sí
     // escribe en el disco duro) y la confirmación del `update` final.
     guardaActaEstructura(db, trabajo, acta, parseada);
+    corrigeMarcadorDesdeActa(db, trabajo); // 0-0 de la jornada que el acta desmiente (ver lib)
     perfMarca('acta_guardar_estructura');
     reconciliaEnlaceActa(db, trabajo, parseada);
     perfMarca('acta_reconciliar');
@@ -2557,6 +2567,8 @@ async function ejecutar(db) {
   }
   const vaciasEnCurso = repasaJornadasVaciasEnCurso(db);
   if (vaciasEnCurso) console.log(`  · ${vaciasEnCurso} jornadas ya jugadas de la temporada en curso se leyeron vacías o sin marcadores: se vuelven a pedir.`);
+  const marcadoresCorregidos = corrigeMarcadoresDesdeActas(db);
+  if (marcadoresCorregidos) console.log(`  · ${marcadoresCorregidos} partidos con «0-0» (o sin resultado) en la jornada toman el resultado que dan los goles de su acta.`);
   const repaso = preparaRepasoJornadasRecientes(db);
   if (repaso.jornadas || repaso.clasificaciones) {
     console.log(`  · Repaso reciente: ${repaso.jornadas} jornadas y ` +
@@ -3151,6 +3163,7 @@ function reprocesaDescargas(db, filtro = {}) {
       const calidad = evaluaCalidadActa(db, acta, parseada, html);
       guardaJson(rutaJsonDeArchivo(acta.archivo), parseada, db, 'acta');
       guardaActaEstructura(db, acta, acta, parseada);
+      corrigeMarcadorDesdeActa(db, acta); // 0-0 de la jornada que el acta desmiente (ver lib)
       reconciliaEnlaceActa(db, acta, parseada);
       // Un acta que se archivó sin analizar (porque el parser no entendía su maquetación) se queda
       // en 'pendiente' —o en 'sin_datos' si la ficha venía vacía— y sin marca de hecha, así que no se
@@ -3218,6 +3231,7 @@ function reprocesaDescargas(db, filtro = {}) {
         acta.menores, 'hecha', archivo, JSON.stringify(parseada), new Date().toISOString(),
         VERSION_PARSER_ACTA, calidad.calidad, JSON.stringify(calidad.incidencias));
     guardaActaEstructura(db, trabajo, acta, parseada);
+    corrigeMarcadorDesdeActa(db, trabajo); // 0-0 de la jornada que el acta desmiente (ver lib)
     reconciliaEnlaceActa(db, trabajo, parseada);
     legacyProcesadas++;
   }

@@ -1,0 +1,252 @@
+{
+  "cuando": "2026-09-27T10:23:32.063Z",
+  "porCodigo": [
+    {
+      "codigo": "clasificacion_oficial_importada",
+      "n": 11900
+    },
+    {
+      "codigo": "clasificacion_oficial_vs_reconstruida",
+      "n": 6544
+    },
+    {
+      "codigo": "clasificacion_oficial_sin_jornada_de_corte",
+      "n": 5932
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "n": 5875
+    },
+    {
+      "codigo": "clasificacion_oficial_anclada_a_jornada_incompleta",
+      "n": 2225
+    },
+    {
+      "codigo": "clasificacion_oficial_con_ajuste",
+      "n": 2065
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "n": 454
+    }
+  ],
+  "porMotivo": [
+    {
+      "codigo": "clasificacion_oficial_importada",
+      "motivo": null,
+      "grupos": 10041,
+      "avisos": 11900
+    },
+    {
+      "codigo": "clasificacion_oficial_vs_reconstruida",
+      "motivo": null,
+      "grupos": 1176,
+      "avisos": 6544
+    },
+    {
+      "codigo": "clasificacion_oficial_sin_jornada_de_corte",
+      "motivo": "la fuente publica tabla oficial pero el canónico no tiene ninguna jornada completa que sirva de corte",
+      "grupos": 2542,
+      "avisos": 5932
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "grupos": 1364,
+      "avisos": 4768
+    },
+    {
+      "codigo": "clasificacion_oficial_anclada_a_jornada_incompleta",
+      "motivo": "la federación publica la tabla y el canónico no tiene ninguna jornada completa: se ancla a la última jornada existente, que NO está confirmada, y la salvedad queda en la cobertura",
+      "grupos": 2225,
+      "avisos": 2225
+    },
+    {
+      "codigo": "clasificacion_oficial_con_ajuste",
+      "motivo": null,
+      "grupos": 1149,
+      "avisos": 2065
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R1: la posición publicada no es coherente",
+      "grupos": 373,
+      "avisos": 670
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "motivo": "el HTML archivado trae tabla y el lector no saca filas",
+      "grupos": 120,
+      "avisos": 314
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R5: todas las filas traen 0 puntos aunque haya victorias y empates",
+      "grupos": 139,
+      "avisos": 233
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "motivo": "el archivo trae tabla de clasificación y el lector no saca filas",
+      "grupos": 35,
+      "avisos": 140
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "dos filas de la tabla oficial apuntan al mismo equipo del grupo",
+      "grupos": 34,
+      "avisos": 128
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R4: la puntuación publicada supera la que dan los resultados",
+      "grupos": 42,
+      "avisos": 61
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R7: hay un valor no entero en la tabla oficial",
+      "grupos": 8,
+      "avisos": 15
+    }
+  ],
+  "porEstado": [
+    {
+      "estado": "sin_archivar",
+      "n": 14799
+    },
+    {
+      "estado": "importada",
+      "n": 10052
+    },
+    {
+      "estado": "sin_filas",
+      "n": 3896
+    },
+    {
+      "estado": "rechazada",
+      "n": 719
+    },
+    {
+      "estado": "(sin calcular)",
+      "n": 166
+    },
+    {
+      "estado": "ilegible",
+      "n": 57
+    },
+    {
+      "estado": "sin_corte",
+      "n": 4
+    }
+  ],
+  "gruposConEquiposSinResolver": [
+    {
+      "federacion": "madrid",
+      "avisos": 1222
+    },
+    {
+      "federacion": "valencia",
+      "avisos": 868
+    },
+    {
+      "federacion": "aragon",
+      "avisos": 746
+    },
+    {
+      "federacion": "cataluna",
+      "avisos": 616
+    },
+    {
+      "federacion": "castilla-leon",
+      "avisos": 377
+    },
+    {
+      "federacion": "navarra",
+      "avisos": 286
+    },
+    {
+      "federacion": "andalucia",
+      "avisos": 189
+    },
+    {
+      "federacion": "murcia",
+      "avisos": 162
+    },
+    {
+      "federacion": "asturias",
+      "avisos": 89
+    },
+    {
+      "federacion": "castilla-la-mancha",
+      "avisos": 70
+    },
+    {
+      "federacion": "euskadi",
+      "avisos": 58
+    },
+    {
+      "federacion": "extremadura",
+      "avisos": 41
+    },
+    {
+      "federacion": "cantabria",
+      "avisos": 30
+    },
+    {
+      "federacion": "ceuta",
+      "avisos": 12
+    },
+    {
+      "federacion": "baleares",
+      "avisos": 2
+    }
+  ],
+  "ejemplos": [
+    {
+      "grupo": "57984888",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "cataluna c57984880 g57984888: 4 de 4 sin resolver («PRADENC,F.C. A», «SANT QUIRZE BESORA, U.D. A», «CALLDETENES, C.F. A», «GURB, U.E. B»). Fuente json: F:\\EspacioCodigo\\facylf\\descargas-cataluna\\recolector-local\\t21-2025-26\\comp-57984880\\grupo-57984888\\clasificacion.json",
+      "federacion": "cataluna",
+      "competicion": "57984880",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    },
+    {
+      "grupo": "57943883",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "cataluna c57943878 g57943883: 4 de 4 sin resolver («ALCANAR, C.D. A», «JESUS I MARIA, U.D. B», «ULLDECONA, C.F. B», «L'AMETLLA DE MAR, S.C.E.R. B»). Fuente json: F:\\EspacioCodigo\\facylf\\descargas-cataluna\\recolector-local\\t21-2025-26\\comp-57943878\\grupo-57943883\\clasificacion.json",
+      "federacion": "cataluna",
+      "competicion": "57943878",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    },
+    {
+      "grupo": "58081279",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "cataluna c57984884 g58081279: 1 de 4 sin resolver («MONTAÑESA, C.F. B»). Fuente json: F:\\EspacioCodigo\\facylf\\descargas-cataluna\\recolector-local\\t21-2025-26\\comp-57984884\\grupo-58081279\\clasificacion.json",
+      "federacion": "cataluna",
+      "competicion": "57984884",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    }
+  ],
+  "resolutorPorCodigoPublicado": {
+    "importaciones_que_lo_usaron": 437,
+    "grupos": 437,
+    "filas_por_codigo": 516,
+    "importaciones_desde_que_existe": 4397,
+    "filas_de_descanso": 15
+  },
+  "porCorte": [
+    {
+      "corte": "(sin tabla)",
+      "n": 27153
+    },
+    {
+      "corte": "false",
+      "n": 2225
+    },
+    {
+      "corte": "true",
+      "n": 315
+    }
+  ]
+}

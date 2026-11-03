@@ -1,0 +1,20 @@
+﻿[
+    {
+        "federacion":  "madrid",
+        "temporada":  "2026-27",
+        "competicion":  "26738071",
+        "grupo":  "27671519",
+        "nombre":  "GRUPO 46- SERRANILLOS DEL VALLE",
+        "motivo":  "✗ El acta 5733887 (27671519 J1) no se corresponde con la fila del calendario que la cita: el calendario dice «E.F. CIUDAD DE GETAFE \u0027E\u0027 vs ESC.FUT.AT. CASARRUBUELOS \u0027B\u0027» y el acta dice «ESCUELA FUTBOL CIUDAD DE GETAFE \u0027E\u0027 vs ESC.FUT.AT. CASARRUBUELOS \u0027B\u0027». El lote se detiene: hay que revisar la fuente.",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-madrid-2026-27-27671519.txt"
+    },
+    {
+        "federacion":  "madrid",
+        "temporada":  "2026-27",
+        "competicion":  "26738300",
+        "grupo":  "26738312",
+        "nombre":  "Grupo 12",
+        "motivo":  "✗ El acta 5630718 (26738312 J1) no se corresponde con la fila del calendario que la cita: el calendario dice «C.D. VILLA DEL PRADO \u0027B\u0027 vs C.D. DUX INTERNACIONAL DE MADRID FOOTBALL ACADEMY VILLAVICIOSA DE ODO» y el acta dice «C.D. VILLA DEL PRADO \u0027B\u0027 vs C.D. DUX INTERNACIONAL DE MADRID FOOTBALL ACADEMY VILLAVICIOSA DE ODON». El lote se detiene: hay que revisar la fuente.",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-madrid-2026-27-26738312.txt"
+    }
+]

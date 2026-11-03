@@ -1,0 +1,55 @@
+﻿=== 2026-09-25T11:42:31.1422621+02:00 ===
+[57874692 2025-26] ✗ La validación del lote 22784 ha fallado: participaciones 29≠58
+[56046568 2025-26] ✗ La validación del lote 22786 ha fallado: participaciones 213≠426
+[58058302 2025-26] ✗ La validación del lote 22787 ha fallado: participaciones 38≠76
+[54722061 2025-26] ✗ La validación del lote 22789 ha fallado: participaciones 276≠552
+[55381115 2025-26] ✗ La validación del lote 22794 ha fallado: participaciones 242≠484
+[54327911 2025-26] ✗ La validación del lote 22798 ha fallado: participaciones 133≠266
+[56639555 2025-26] ✗ La validación del lote 22801 ha fallado: participaciones 157≠314
+[57989256 2025-26] ✗ La validación del lote 22803 ha fallado: participaciones 54≠108
+[58055841 2025-26] ✗ La validación del lote 22804 ha fallado: participaciones 58≠116
+[54492383 2025-26] ✗ La validación del lote 22805 ha fallado: participaciones 260≠520
+[57957169 2025-26] ✗ La validación del lote 22806 ha fallado: participaciones 68≠120
+[54757767 2025-26] ✗ La validación del lote 22808 ha fallado: participaciones 183≠366
+[55462711 2025-26] ✗ La validación del lote 22809 ha fallado: participaciones 154≠308
+[55764830 2025-26] ✗ La validación del lote 22810 ha fallado: participaciones 214≠428
+[55765438 2025-26] ✗ La validación del lote 22811 ha fallado: participaciones 185≠370
+[54322948 2025-26] ✗ La validación del lote 22813 ha fallado: participaciones 348≠696
+[54491773 2025-26] ✗ La validación del lote 22814 ha fallado: participaciones 211≠422
+[54817775 2025-26] ✗ La validación del lote 22815 ha fallado: participaciones 228≠424
+[56056953 2025-26] ✗ La validación del lote 22816 ha fallado: participaciones 450≠900
+[58058218 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 118 actualizadas · 0 rechazadas · validación correcta en 1/1
+[56380523 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 355 actualizadas · 0 rechazadas · validación correcta en 1/1
+[56474287 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 513 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58095949 2025-26] ✗ La validación del lote 22821 ha fallado: participaciones 42≠84
+[58047477 2025-26] ✗ La validación del lote 22823 ha fallado: participaciones 37≠74
+[54322937 2025-26] ✗ La validación del lote 22824 ha fallado: participaciones 1573≠3146
+[58057251 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 133 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58057256 2025-26] RESUMEN: 1 grupo(s) · 3 filas insertadas · 163 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58057258 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 162 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58081278 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 99 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58081279 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 92 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058488 2025-26] RESUMEN: 1 grupo(s) · 2 filas insertadas · 54 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058495 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 57 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058502 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 56 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125467 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 111 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125471 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 52 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058510 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 54 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058517 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 55 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058527 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 99 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058535 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 95 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058543 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 53 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058550 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 95 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058554 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 106 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125480 2025-26] RESUMEN: 1 grupo(s) · 3 filas insertadas · 107 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125485 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 102 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125489 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 57 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125493 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 56 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125497 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 53 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125501 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 55 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125509 2025-26] RESUMEN: 1 grupo(s) · 0 filas insertadas · 62 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58125513 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 102 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058562 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 55 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058567 2025-26] RESUMEN: 1 grupo(s) · 1 filas insertadas · 103 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55458432 2025-26] ✗ La validación del lote 22856 ha fallado: participaciones 150≠300
+=== fin 2026-09-25T11:45:49.3589371+02:00 ===

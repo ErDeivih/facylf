@@ -767,6 +767,63 @@ export function guardaActaEstructura(db, referencia, acta, parseada) {
   return resumenActa;
 }
 
+/*
+ * ── EL MARCADOR «0-0» DE LA JORNADA QUE EL ACTA DESMIENTE (24/10/2026) ──────────────────────────────────────
+ *
+ * En las primeras temporadas de Castilla y León la página de la jornada publica «0-0» en (casi) todos los partidos,
+ * pero el acta trae los goles uno a uno. Medido en la cola del PC, 2013-14: 8.400 de 8.451 partidos con acta salen
+ * 0-0 y 8.179 de ellos tienen goles en el acta. Ese 0-0 no es un dato: es un hueco. Cuando la jornada dice 0-0 (o
+ * no dice nada) y el acta ya leída tiene goles, el resultado se CALCULA de los goles del acta, contando cada gol
+ * para el equipo beneficiado (un gol en propia puerta suma al rival). Un 0-0 de verdad no tiene goles en el acta y
+ * no se toca.
+ */
+export function golesDeActaEnCola(db, ref) {
+  // Equipo beneficiado: el guardado; si falta (eventos anteriores a esa columna), el del goleador, al revés si fue en propia.
+  const ben = `case when lado_beneficiado is not null then lado_beneficiado
+    when subtipo = 'propia-puerta' then (case lado when 'local' then 'visitante' when 'visitante' then 'local' end) else lado end`;
+  const r = db.prepare(`select sum(${ben} = 'local') l, sum(${ben} = 'visitante') v,
+      count(*) n from eventos_acta where temporada=? and competicion=? and grupo=? and jornada=? and acta=? and tipo='gol'`)
+    .get(ref.temporada, ref.competicion, ref.grupo, ref.jornada, ref.acta);
+  if (!r?.n) return null;
+  // Si algún gol no tiene equipo, el marcador calculado saldría corto: mejor no calcularlo.
+  if (Number(r.l ?? 0) + Number(r.v ?? 0) !== Number(r.n)) return null;
+  return { local: Number(r.l ?? 0), visitante: Number(r.v ?? 0), goles: Number(r.n) };
+}
+
+/** El marcador que se guarda: el de la jornada, salvo que sea 0-0 (o falte) y el acta tenga goles. */
+export function marcadorConGolesDeActa(db, ref, golesLocal, golesVisitante) {
+  const hueco = (golesLocal == null && golesVisitante == null) || (golesLocal === 0 && golesVisitante === 0);
+  if (!hueco || !ref.acta) return { golesLocal, golesVisitante, calculado: false };
+  const g = golesDeActaEnCola(db, ref);
+  if (!g || g.local + g.visitante === 0) return { golesLocal, golesVisitante, calculado: false };
+  return { golesLocal: g.local, golesVisitante: g.visitante, calculado: true };
+}
+
+/** Tras guardar un acta: si su partido tiene un 0-0 (o nada) y el acta tiene goles, el resultado pasa a ser el calculado. */
+export function corrigeMarcadorDesdeActa(db, ref) {
+  const g = golesDeActaEnCola(db, ref);
+  if (!g || g.local + g.visitante === 0) return 0;
+  return Number(db.prepare(`update partidos set goles_local=?, goles_visitante=? where temporada=? and competicion=? and grupo=?
+      and jornada=? and codigo_acta=? and ((goles_local is null and goles_visitante is null) or (goles_local=0 and goles_visitante=0))`)
+    .run(g.local, g.visitante, ref.temporada, ref.competicion, ref.grupo, ref.jornada, ref.acta).changes ?? 0);
+}
+
+/** Una vez por cola (marca en `metadatos`): corrige los 0-0 ya guardados cuyas actas tienen goles. */
+export function corrigeMarcadoresDesdeActas(db) {
+  if (leeMetadato(db, 'marcadores_desde_actas_en')) return 0;
+  const filas = db.prepare(`select p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta acta from partidos p
+    where p.codigo_acta is not null and p.codigo_acta <> ''
+      and ((p.goles_local is null and p.goles_visitante is null) or (p.goles_local=0 and p.goles_visitante=0))
+      and exists (select 1 from eventos_acta e where e.temporada=p.temporada and e.competicion=p.competicion and e.grupo=p.grupo
+        and e.jornada=p.jornada and e.acta=p.codigo_acta and e.tipo='gol')`).all();
+  let corregidos = 0;
+  enTransaccion(db, () => {
+    for (const f of filas) corregidos += corrigeMarcadorDesdeActa(db, f);
+    guardaMetadato(db, 'marcadores_desde_actas_en', new Date().toISOString());
+  });
+  return corregidos;
+}
+
 /** ¿Esta temporada entra en el plan? Dos suelos: el histórico del catálogo y el suelo de trabajo. */
 function temporadaEnElPlan(temporada, desdeAnio) {
   // Y una excepción, por encima de los dos suelos: lo que se ha asignado a mano (ver `encola`). El suelo del
@@ -858,7 +915,17 @@ export function siguienteTrabajo(db) {
     where estado in ('pendiente', 'bloqueado')
       and (siguiente_intento is null or siguiente_intento <= ?)
       and ${filtroTemporadas}
-    order by prioridad, coalesce(cast(temporada as integer), -1) desc,
+    order by
+      -- LAS ACTAS PRIMERO (David, 23/10/2026: «prioriza actas, para todas las federaciones; pero para obtener las
+      -- actas hay que conocer la jornada»). Lo que DESCUBRE —catálogo de temporada, grupos, índice de jornadas y
+      -- calendario— lleva prioridades muy negativas (CARRIL_CATALOGO, CARRIL_DESCUBRIMIENTO) y sigue yendo por
+      -- delante, que es lo que descubre jornadas nuevas; detrás de eso, TODAS las actas van antes que cualquier
+      -- jornada suelta. Se hace aquí y no cambiando los datos de la cola porque el recolector reencola trabajos
+      -- nuevos con su prioridad normal, y la banda de scripts/claude/prioriza-actas.mjs se deshacía sola.
+      case when tipo='acta'
+             then case when prioridad < -1399000000 then prioridad else -1399000000 end
+           else prioridad end,
+      coalesce(cast(temporada as integer), -1) desc,
       case when tipo='acta' then 0 else 1 end, creado_en
     limit 1
   `).get(...parametros);

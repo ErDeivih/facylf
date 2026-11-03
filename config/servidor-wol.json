@@ -1,0 +1,6 @@
+{
+  "mac": "68:F7:28:9E:8C:0A",
+  "ip": "192.168.1.139",
+  "interfaz": "enp2s0",
+  "nota": "MAC de la tarjeta de cable del servidor (enp2s0), leída el 24/10/2026. El Wi-Fi es f4:06:69:67:25:69 y NO sirve para despertar. Con esto, `node scripts/servidor/enciende-servidor.mjs` sin argumentos enciende el servidor."
+}

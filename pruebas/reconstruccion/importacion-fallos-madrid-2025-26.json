@@ -1,0 +1,11 @@
+﻿[
+    {
+        "federacion":  "madrid",
+        "temporada":  "2025-26",
+        "competicion":  "24037935",
+        "grupo":  "24037961",
+        "nombre":  "GRUPO 37",
+        "motivo":  "✗ La validación del lote 97881 ha fallado: actas analizadas 102≠101, participaciones 2431≠2406, eventos 981≠972, técnicos 358≠355 [origen≠canónico]",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-madrid-2025-26-24037961.txt"
+    }
+]

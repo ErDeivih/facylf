@@ -82,13 +82,21 @@ if (!existe.rows[0].ok) {
   process.exit(2);
 }
 
+// La Preferente (0051/0053, decisión D2): los grupos de una edición reemplazada por la de la federación no se proyectan
+// nunca, y los de una edición sólo de LP, sólo con FACYLF_LP_PUBLICO=true. Así no entran en búsqueda, carreras ni ojeo.
+const hay0051 = (await cliente.query(`select exists (select 1 from information_schema.columns where table_schema = 'core'
+  and table_name = 'competition_edition' and column_name = 'reemplazada_por') as ok`)).rows[0].ok;
+const LP_PUBLICO = /^(1|true|si|sí|on)$/i.test((process.env.FACYLF_LP_PUBLICO ?? '').trim());
+const SQL_SIN_LP = !hay0051 ? '' : LP_PUBLICO ? ' and ce.reemplazada_por is null'
+  : " and ce.reemplazada_por is null and ce.origen = 'federacion'";
+
 const FILTRO = `
   from analytics.proyeccion_pendiente pp
   join core.phase_group pg on pg.id = pp.phase_group_id
   join core.competition_edition ce on ce.id = pg.competition_edition_id
   join core.federation f on f.id = ce.federation_id
   join core.season s on s.id = ce.season_id
- where ($1::text is null or f.codigo = $1)`;
+ where ($1::text is null or f.codigo = $1)${SQL_SIN_LP}`;
 
 let detener = false;
 process.on('SIGINT', () => {

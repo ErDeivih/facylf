@@ -19,7 +19,7 @@
  * Uso a mano: node scripts/claude/enlace-claude.mjs
  */
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, statfsSync, writeFileSync, unlinkSync } from 'node:fs';
 import { hostname, freemem, totalmem, uptime } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -189,6 +189,48 @@ async function vigia() {
   writeFileSync(join(DIR, 'vigia.txt'), `${local.salida.trim()}\n\n${textoServidor.trim()}\n`);
 }
 
+/**
+ * «El servidor no contesta» (ESTADO-OPERACION-2026-10-25 §4.5, apuntado a Claude): si las métricas del servidor llevan
+ * más de 60 min sin renovarse (se renuevan cada ~30), se apunta un CRÍTICO en estado/vigia/alertas.log (y en servidor-ausente.json), una vez
+ * al abrirse y otra al resolverse. Así el vigía avisa también de la máquina ausente, no sólo de sus federaciones.
+ * Claude, 26/10/2026.
+ */
+function vigilaServidorAusente() {
+  const metricas = join(RAIZ, 'estado', 'vigia', 'servidor-metricas.json');
+  const estado = join(RAIZ, 'estado', 'vigia', 'servidor-ausente.json');   // propio: vigia-colas reescribe servidor-estado.json
+  const log = join(RAIZ, 'estado', 'vigia', 'alertas.log');
+  const minutos = existsSync(metricas) ? Math.round((Date.now() - statSync(metricas).mtimeMs) / 60_000) : 9999;
+  let actual = {};
+  try { actual = JSON.parse(readFileSync(estado, 'utf8')); } catch { actual = {}; }
+  const clave = 'servidor|sin_datos';
+  const ahora = new Date().toISOString();
+  const linea = (txt) => { try { writeFileSync(log, `${ahora.slice(0, 16)}  ${txt}\n`, { flag: 'a' }); } catch {} };
+  if (minutos > 60) {
+    const texto = `el servidor no ha dado métricas desde hace ${minutos} min (¿apagado, sin red o ssh colgado?)`;
+    if (!actual[clave]) linea(`NUEVO     CRÍTICO servidor/máquina sin_datos — ${texto}`);
+    actual[clave] = { primeraVez: actual[clave]?.primeraVez ?? ahora, ultimoAviso: ahora, nivel: 'critico', texto };
+  } else if (actual[clave]) {
+    linea(`RESUELTO          servidor/máquina sin_datos (desde ${actual[clave].primeraVez})`);
+    delete actual[clave];
+  } else return;
+  writeFileSync(estado, JSON.stringify(actual, null, 2));
+}
+
+/** Disco del PC donde viven el repositorio y las colas (30/10/2026: F: llegó a 5,3 GB libres). Aviso por debajo de 15 GB. */
+function vigilaDiscoPc() {
+  const s = statfsSync(RAIZ);
+  const libres = (s.bavail * s.bsize) / 1024 ** 3;
+  const estado = join(RAIZ, 'estado', 'vigia', 'pc-disco.json');
+  const log = join(RAIZ, 'estado', 'vigia', 'alertas.log');
+  let previo = null;
+  try { previo = JSON.parse(readFileSync(estado, 'utf8')); } catch { previo = null; }
+  const ahora = new Date().toISOString();
+  const mal = libres < 15;
+  if (mal && !previo?.abierta) writeFileSync(log, `${ahora.slice(0, 16)}  NUEVO     ${libres < 5 ? 'CRÍTICO' : 'aviso  '} pc/máquina disco — ${libres.toFixed(1)} GB libres en el disco del repositorio y las colas (umbral 15 GB)\n`, { flag: 'a' });
+  if (!mal && previo?.abierta) writeFileSync(log, `${ahora.slice(0, 16)}  RESUELTO          pc/máquina disco (${libres.toFixed(1)} GB libres)\n`, { flag: 'a' });
+  writeFileSync(estado, JSON.stringify({ abierta: mal, libresGb: Number(libres.toFixed(1)), medido: ahora }, null, 2));
+}
+
 async function fotoServidor() {
   const r = await enServidor(join(RAIZ, 'scripts', 'servidor', 'foto-para-revision.sh'));
   writeFileSync(join(DIR, 'servidor.txt'),
@@ -224,6 +266,8 @@ try {
   await fotoPc().catch((e) => writeFileSync(join(DIR, 'pc.txt'), `error: ${e?.stack ?? e}\n`));
   await fotoServidor().catch((e) => writeFileSync(join(DIR, 'servidor.txt'), `error: ${e?.stack ?? e}\n`));
   await vigia().catch((e) => writeFileSync(join(DIR, 'vigia.txt'), `error del vigía: ${e?.stack ?? e}\n`));
+  try { vigilaServidorAusente(); } catch (e) { writeFileSync(join(DIR, 'error-ausente.txt'), String(e?.stack ?? e)); }
+  try { vigilaDiscoPc(); } catch (e) { writeFileSync(join(DIR, 'error-disco.txt'), String(e?.stack ?? e)); }
   writeFileSync(join(DIR, 'ultima-pasada.txt'), new Date().toISOString() + '\n');
 } finally {
   try { unlinkSync(CERROJO); } catch {}

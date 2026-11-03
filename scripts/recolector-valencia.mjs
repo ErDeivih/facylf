@@ -1568,7 +1568,11 @@ async function procesa(ritmo, db, trabajo) {
         ruta, guardado.hash, JSON.stringify(['la ficha existe pero todavía no publica datos']), ahoraIso(),
         trabajo.temporada, trabajo.competicion, trabajo.grupo, trabajo.jornada, trabajo.acta,
       );
-      throw new PendientePublicacion('la ficha del acta existe pero todavía no publica datos', 2);
+      // 24/10/2026: antes era `PendientePublicacion` a 2 días PARA SIEMPRE, también en temporadas cerradas: al
+      // abrir la historia de Valencia (2015-16 en adelante) eran ~1.100 fichas vacías pedidas cada dos días y el 46 %
+      // de lo pedido salía «aún no publicado». Con `ActaSinDatos`, en una temporada cerrada se cierra como «sin datos»
+      // a la segunda comprobación (`decideActaSinDatos`); en la temporada en curso se sigue mirando cada 2 días.
+      throw new ActaSinDatos('la ficha del acta existe pero todavía no publica datos');
     }
     guardaActaEstructura(db, trabajo, acta, parseada);
     if (arbitroPrincipal) {

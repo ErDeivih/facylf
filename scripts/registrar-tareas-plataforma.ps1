@@ -1,3 +1,5 @@
+param([switch]$Quitar)
+
 $ErrorActionPreference = 'Stop'
 
 # Registra en el Programador de tareas de Windows las tareas de mantenimiento de la plataforma (21/10/2026).
@@ -16,7 +18,6 @@ $ErrorActionPreference = 'Stop'
 #   powershell -NoProfile -ExecutionPolicy Bypass -File scripts\registrar-tareas-plataforma.ps1 -Quitar
 # Rehacerlo es seguro: cada tarea se sustituye. -Quitar las borra todas (no toca las del recolector).
 
-param([switch]$Quitar)
 
 $raiz = Split-Path -Parent $PSScriptRoot
 $vbs = Join-Path $PSScriptRoot 'ejecutar-oculto-nodo.vbs'

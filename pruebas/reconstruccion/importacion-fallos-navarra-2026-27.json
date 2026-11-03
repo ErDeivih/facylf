@@ -1,0 +1,9 @@
+﻿{
+    "federacion":  "navarra",
+    "temporada":  "2026-27",
+    "competicion":  "22972897",
+    "grupo":  "23018560",
+    "nombre":  "Grupo 2º",
+    "motivo":  "✗ La validación del lote 87154 ha fallado: partidos 4≠5 [origen≠canónico] (el ORIGEN trae menos que el canónico: ¿cola vieja? Importa desde el paquete del servidor; el canónico queda como estaba)",
+    "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-navarra-2026-27-23018560.txt"
+}

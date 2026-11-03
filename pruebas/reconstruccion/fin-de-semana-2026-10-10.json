@@ -1,0 +1,139 @@
+{
+  "ventana": {
+    "desde": "2026-10-10",
+    "hasta": "2026-10-11"
+  },
+  "cuando": "2026-10-12T10:29:43.282Z",
+  "soloInforme": false,
+  "totales": {
+    "federaciones": 5,
+    "jornadas": 1682,
+    "comprobadas": 287,
+    "planificadas": 1608,
+    "reabiertas": 861,
+    "partidos": 5856,
+    "actas": 1898,
+    "actasHechas": 1118,
+    "actasPendientes": 780
+  },
+  "federaciones": [
+    {
+      "federacion": "andalucia",
+      "jornadasDelFinde": 548,
+      "jornadasComprobadas": 79,
+      "planificadas": 509,
+      "reabiertas": 40,
+      "clasificaciones": 356,
+      "partidos": 1197,
+      "actas": 464,
+      "actasPorEstado": {
+        "hecha": 241,
+        "pendiente": 223
+      },
+      "faltan": [
+        "22/48465902/48465903/J2 (sin actas encoladas)",
+        "22/48465914/48465915/J4 (sin actas encoladas)",
+        "22/48465914/48465916/J4 (sin actas encoladas)",
+        "22/48465917/48465918/J3 (sin actas encoladas)",
+        "22/48465917/48465919/J3 (sin actas encoladas)",
+        "22/48465920/48465921/J5 (sin actas encoladas)",
+        "22/48465922/48901198/J5 (sin actas encoladas)",
+        "22/48465922/48901352/J5 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "cataluna",
+      "jornadasDelFinde": 653,
+      "jornadasComprobadas": 3,
+      "planificadas": 650,
+      "reabiertas": 648,
+      "clasificaciones": 647,
+      "partidos": 3233,
+      "actas": 8,
+      "actasPorEstado": {
+        "hecha": 8
+      },
+      "faltan": [
+        "22/58161856/58161858/J4 (sin actas encoladas)",
+        "22/58161856/58161859/J4 (sin actas encoladas)",
+        "22/58161860/58161861/J4 (sin actas encoladas)",
+        "22/58161862/58161863/J4 (sin actas encoladas)",
+        "22/58161862/58161864/J4 (sin actas encoladas)",
+        "22/58161862/58161865/J4 (sin actas encoladas)",
+        "22/58161862/58161866/J4 (sin actas encoladas)",
+        "22/58161862/58161867/J4 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "federacion",
+      "jornadasDelFinde": 122,
+      "jornadasComprobadas": 0,
+      "planificadas": 122,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [
+        "22/24218932/24218933/J6 (sin actas encoladas)",
+        "22/24218934/24218935/J5 (sin actas encoladas)",
+        "22/24218936/24218937/J4 (sin actas encoladas)",
+        "22/24218938/24218939/J5 (sin actas encoladas)",
+        "22/24218938/24218940/J5 (sin actas encoladas)",
+        "22/24218941/24218942/J4 (sin actas encoladas)",
+        "22/24218941/24218943/J5 (sin actas encoladas)",
+        "22/24218941/24218944/J5 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "madrid",
+      "jornadasDelFinde": 334,
+      "jornadasComprobadas": 205,
+      "planificadas": 302,
+      "reabiertas": 173,
+      "clasificaciones": 290,
+      "partidos": 1426,
+      "actas": 1426,
+      "actasPorEstado": {
+        "hecha": 869,
+        "pendiente": 557
+      },
+      "faltan": [
+        "22/26737706/26737707/J5 (sin actas encoladas)",
+        "22/26737706/26737708/J5 (sin actas encoladas)",
+        "22/26737706/26737709/J5 (sin actas encoladas)",
+        "22/26737706/26737710/J5 (sin actas encoladas)",
+        "22/26737706/26737711/J5 (sin actas encoladas)",
+        "22/26737706/26737712/J5 (sin actas encoladas)",
+        "22/26737706/26737713/J5 (sin actas encoladas)",
+        "22/26737706/26737714/J5 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "valencia",
+      "jornadasDelFinde": 25,
+      "jornadasComprobadas": 0,
+      "planificadas": 25,
+      "reabiertas": 0,
+      "clasificaciones": 1,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [
+        "22/905431518/905431519/J5 (sin actas encoladas)",
+        "22/905431604/905431605/J6 (sin actas encoladas)",
+        "22/905431620/905431630/J4 (sin actas encoladas)",
+        "22/905431620/905431634/J4 (sin actas encoladas)",
+        "22/905431663/905431664/J4 (sin actas encoladas)",
+        "22/905431663/905431665/J4 (sin actas encoladas)",
+        "22/905431688/905431694/J3 (sin actas encoladas)",
+        "22/905431701/905431706/J3 (sin actas encoladas)"
+      ],
+      "fallo": null
+    }
+  ]
+}

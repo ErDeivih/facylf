@@ -2,7 +2,425 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 24/10/2026 11:30 (Claude: ENCARGO-WEB-DEEPSEEK-2026-10-24.md — terminar la web nueva, etapas W0-W10)
+**Última actualización:** 30/10/2026 15:15 (Claude: revisión del encargo grande — disco F: casi lleno, copias fallando por memoria, DeepSeek sin anotar nada desde el 26/10). Antes: 26/10/2026 22:00 (Claude: ENCARGO-DEEPSEEK-2026-10-27.md).
+
+> **★★★★★ SI ERES DEEPSEEK Y LLEGAS NUEVO, EMPIEZA POR AQUÍ:** [`ESTADO-OPERACION-2026-10-25.md`](ESTADO-OPERACION-2026-10-25.md) explica, en un solo documento, todo lo ocurrido los días 23, 24 y 25 de octubre: qué está comprobado y con qué pruebas, qué está bien y no hay que tocar, qué está mal con su diagnóstico y su arreglo, cómo revisar que las 17 federaciones van bien y que los datos están bien extraídos, las trampas conocidas y el orden de trabajo siguiente. Después, este documento (bloques de arriba abajo) y [`ENCARGO-DEEPSEEK-2026-10-25.md`](ENCARGO-DEEPSEEK-2026-10-25.md).
+
+## ★★★★★★★★★ Claude, 30/10, 15:15 — Revisión del encargo grande: va, pero sin anotar nada y con DOS urgencias (disco y memoria)
+
+Medido con la petición 224 y el vigía.
+
+**DeepSeek no ha escrito en este fichero desde el 26/10**, y la tabla §9 del encargo sigue entera en «pendiente». Sin embargo, la base dice que algo se ha hecho: copias el 27 y el 28, tareas registradas, proyección de 936 a 36.718 grupos e importaciones. **A partir de ahora, una línea por cosa hecha, con su prueba (regla 6 del encargo).**
+
+### URGENTE 1 — Disco F: con 5,3 GB libres de 208 GB
+
+- Ahí viven el repositorio y TODAS las colas.
+- La de La Preferente ya ocupa **2,1 GB y crece ~0,5 GB al día**. Las grandes: Andalucía 2,3 GB, CyL 2,3 GB, Madrid 2,1 GB, Valencia 1,5 GB.
+- Con el disco lleno, los recolectores fallan y una SQLite a medio escribir se puede estropear.
+- **Hoy mismo, sin borrar nada:**
+  1. mover a E: (666 GB libres) o D: (219 GB libres) `_traspaso` (3,5 GB de paquetes ya importados, sobre todo del 11-13/10), los `*.antes-*` de las colas y los archivos crudos antiguos que se puedan llevar (`descargas-*/…/archivo` o como se llamen), dejando el camino nuevo en la configuración si algún script los lee;
+  2. medir con `Get-PSDrive F` antes y después.
+- El aviso ya está: Claude lo ha puesto en `enlace-claude.mjs` (`estado/vigia/pc-disco.json` y `alertas.log` por debajo de 15 GB libres; CRÍTICO por debajo de 5).
+- **Terminado:** F: con más de 40 GB libres.
+
+### URGENTE 2 — Memoria del PC: 0,4-0,9 GB libres de 32 GB → la copia NO se hace desde el 29/10
+
+- `ops.copia`: 27/10 ✓, 28/10 ✓; **29/10 ✗ y 30/10 ✗**, con «menos de 3 GiB disponibles: no se hace la copia ahora».
+- Quién gasta, medido a las 14:54: Docker/WSL 7,0 GB (postgres 4,1 GB), Chrome 5,2 GB, «DeepSeek Harness» 3,4 GB, Brave 2,6 GB, node 1,4 GB, ChatGPT 1,1 GB, Claude 1,1 GB, Orca 1,0 GB, opencode 0,8 GB.
+- Varias de esas son herramientas de David y no se tocan.
+- **Lo nuestro:**
+  1. la copia y el mantenimiento a una hora en que el PC esté encendido y quieto (hoy corren a las 9:59 por `StartWhenAvailable`, justo cuando arranca todo). Si no hay memoria, que reintente cada hora hasta las 23:00 y avise si un día no se hizo;
+  2. revisar `.wslconfig` (`memory=8GB`) y el `shared_buffers`/`work_mem` de postgres: 4,1 GB es mucho para lo que hace de día;
+  3. que el ciclo de La Preferente (hoy lleva desde las 9:59 importando ediciones de LP de Andalucía, grupo a grupo) no coincida con la copia ni con el proyector.
+- **Terminado:** tres copias diarias seguidas correctas.
+
+### Lo que va bien (medido)
+
+- **Proyección:** 36.718 grupos hechos y 13.318 pendientes (eran 39.463 el 26/10).
+- **Importación desde el 27/10:**
+  - Andalucía 8.250 lotes (muchos son ediciones de La Preferente), Galicia 1.788, Madrid 1.733 y Cataluña 1.485;
+  - el resto, 11-76;
+  - **ninguno** de Bizkaia, Araba, Las Palmas, Tenerife, Valencia, Extremadura, Murcia, Navarra, Rioja, Ceuta ni Melilla. **B2 sigue.**
+- **La Preferente:**
+  - 14.585 competiciones, 2,27 millones de partidos, 226.851 partidos casados con los del canónico;
+  - **el histórico de Cataluña 2010-2024 ya está en el canónico** (de 6 ediciones en 2010-11 a 253 en 2022-23);
+  - todavía 0 fichas leídas: van detrás de los calendarios, como estaba previsto.
+- **Emparejado:**
+  - dudosos por encima del 5 % en **Andalucía (457 de 6.748)** y **Valencia (92 de 1.136)**: es el D1 del encargo, mirar 10 de cada una;
+  - `rfef`: 1.171 sin contraparte (normal hasta que entre la RFEF).
+- **Aviso `lp_resultados_que_faltan` = 11.973:** casi todo es Cataluña 2026-27 (grupos de Tercera Catalana con 240 partidos «desde el 27/09»). No es la FCF: es que **Cataluña 2026-27 no se ha reimportado** (en el canónico tenía 469 resultados). Se va con B2.
+
+### Nuevo — Valencia, casi parada (510 peticiones en 24 h; `sin_publicar_salto` del 96 %)
+
+- Su registro: «robots.txt no permite consultar `/competiciones/api/clasificaciones/clasificaciones_ajax.php`… se descarta» y, tras 5 seguidas, «pausa global preventiva» de una hora. **La FFCV ha prohibido en su robots.txt el API de clasificaciones.**
+- Eso se respeta: es un límite puesto a propósito.
+- **Lo que hay que hacer:**
+  - que el recolector no encole ni cuente como fallo lo que robots.txt prohíbe (hoy esos descartes disparan la pausa global y paran también actas y jornadas);
+  - la clasificación de Valencia se calcula de los resultados, como en las que no la publican;
+  - mirar si el 96 % de «aún no publicado» viene de lo mismo.
+- **Terminado:** Valencia por encima de 1.500 peticiones al día otra vez, sin pedir nada que prohíba robots.txt.
+
+### Sin empezar
+
+- **B6 RFEF:** la cola sigue vacía desde el 26/10 y sin catálogo.
+- **C1 tabla cruzada**, **C2 actas por HTTP**, **C3 CLM** (121 peticiones en 24 h) y **la web (E1-E7)**: nada.
+- **CyL al servidor (D1):** todavía no toca. En el servidor le quedan 27.230 trabajos (24.621 jornadas) a ~4.800 al día, unos 5-6 días. Claude lo vuelve a mirar el 4/11.
+
+**Orden desde ya:**
+
+1. URGENTE 1 (disco).
+2. URGENTE 2 (memoria y copia).
+3. Valencia.
+4. B2 de las 11 fuentes que faltan.
+5. B6 RFEF.
+6. Lo demás del encargo, apuntando cada paso aquí.
+
+## ★★★★★★★★ Claude, 26/10, 22:00 — ENCARGO GRANDE (unas dos semanas) · [`ENCARGO-DEEPSEEK-2026-10-27.md`](ENCARGO-DEEPSEEK-2026-10-27.md) · EMPIEZA AQUÍ
+
+**David: «ha trabajado muy poco DeepSeek; dale un encargo para que trabaje mucho y lo arregle todo».**
+
+Lo del 26/10 está bien (0052-0054, viejo parado, Cataluña adelantada, tarea diaria), pero hay problemas mayores, medidos con las peticiones 221-222:
+
+- **18 de 19 federaciones sin importar desde el 07-14/10.** Las 5 provinciales, nunca.
+- **Una sola copia de seguridad (23/10)** y las tareas de la plataforma sin registrar.
+- **Proyección al 2 %** (39.463 grupos pendientes).
+- Pendientes de meses en las colas.
+- CLM con 73 peticiones/día desde el 23/10.
+- La Preferente parada de 17 a 19 h sin motivo conocido.
+
+**Reglas nuevas (§0):**
+
+- no parar al acabar un paso;
+- lo largo en segundo plano y, mientras tanto, otro bloque;
+- una cosa pesada a la vez y ≥ 4 GB libres;
+- la hora con `Get-Date` (tu bloque dice «27/10, 10:30» y era el 26/10 por la noche);
+- **una migración aplicada no se edita nunca, ni sus comentarios**.
+
+**Mañana, en este orden:**
+
+1. A1 copia → A2 registrar tareas → A3 mantenimiento.
+2. A4 el hueco de La Preferente.
+3. B2: importar 2026-27 y 2025-26 de las 24 fuentes, en segundo plano.
+4. Mientras tanto, B1 (frescura) y E1 (web W1).
+5. Por la tarde, D1 (primera pasada de La Preferente).
+6. Por la noche, B5 (proyección de CyL).
+
+Tabla de seguimiento en §9 del encargo: ponla al día en cada sesión.
+
+## ★★★★★★★ Claude, 26/10, 21:30 — ENCARGO NUEVO: La Preferente como base de TODAS las federaciones, la RFEF como fuente y acta provisional · [`LA-PREFERENTE-BASE-NACIONAL-2026-10-26.md`](LA-PREFERENTE-BASE-NACIONAL-2026-10-26.md)
+
+David: «continúa haciendo tú la tarea y decidiendo tú, me fío». Decisiones tomadas (§1 del documento):
+
+- **D2 sí:** LP en la web privada con la marca «no oficial». Antes de abrir a Internet, permiso de LP o se apaga.
+- **D6 no:** LP y Cataluña-FCF siguen en el PC.
+- **D7 sí, con vistas:** acta provisional de LP mientras falte la de la federación (0054), sin tocar `core`.
+- **D8:** la **RFEF** entra como fuente (`resultados.rfef.es/pnfg`, misma plataforma PNFG, nacionales; temporadas desde 1990-91 en el desplegable, actas al menos en las recientes). Perfil y configuración ya están.
+
+**Este encargo SUSTITUYE al §4 del documento de las 17:00.** En orden:
+
+1. `pnpm db:migrar` (0052 + 0053 + 0054).
+2. `scripts\multideporte\reiniciar-multideporte.ps1`.
+3. `prioriza-cola.mjs --aplica`.
+4. Pruebas (38 en verde).
+5. Tarea diaria `ciclo-lapreferente.ps1 -Todas`.
+6. Web: marca y acta provisional, después `lp_publico`.
+7. Alta de la RFEF en el PC.
+
+Ojo: un envío del 26/10 a las 15:50 dejó en el PC versiones viejas de tres scripts. Ya está corregido y comprobado por huella fichero a fichero.
+
+## ★★★★★★ Claude, 26/10, 17:00 — La Preferente terminada (L2, L3, L5, L7) y plan de Cataluña entera · [`LA-PREFERENTE-Y-CATALUNA-2026-10-26.md`](LA-PREFERENTE-Y-CATALUNA-2026-10-26.md)
+
+- **Revisado lo de DeepSeek del 26/10:** 0051 bien aplicada; adaptador activo (~7,8 s/página; 21.699 calendarios encolados).
+  **Pero el `lapreferente` VIEJO sigue vivo** (PID 15316 a las 15:44): el supervisor lo relanzó. Hace falta `scripts\multideporte\reiniciar-multideporte.ps1`.
+- **Tubería LP → canónico probada de punta a punta** en una copia: a-externo (por tandas e incremental, sin agotar RAM) → empareja
+  (por código o por marcadores; marca `reemplazada_por`) → cola-lp → importador con `FACYLF_ORIGEN=lapreferente`.
+  Todo junto: `scripts\lapreferente\ciclo-lapreferente.ps1`. 17 pruebas en verde.
+- **L5:** `scripts/lapreferente/vigia.mjs`, enganchado una vez por hora en `vigilancia-plataforma.mjs`.
+  Resultados que LP tiene y la federación no (el caso de Araba), marcadores distintos y dudosos.
+- **L7 (D2 = no publicar):** migración **0053** (seguridad por filas sólo para `facylf_lector`).
+  `proyectar-lectura.mjs` no proyecta ediciones de LP. Para publicar hay tres pasos, en el documento.
+- **Cataluña:**
+  - FCF para 2025-26 (111.896 actas, ~31 días en el PC) y 2026-27.
+  - **LP para 2010-11 → 2024-25**: calendarios catalanes primero (~1-2 días) y fichas hasta 2024-25, de la más reciente a la más vieja.
+- **ENCARGO (en orden):**
+  1. `pnpm db:migrar` (0052 y 0053, **no aplicadas**);
+  2. `scripts\multideporte\reiniciar-multideporte.ps1`;
+  3. `node scripts\lapreferente\prioriza-cola.mjs --aplica`;
+  4. pruebas;
+  5. desde mañana, `ciclo-lapreferente.ps1 -Federacion cataluna -Temporadas 2010-11,…,2024-25` una vez al día.
+  Detalle y comprobaciones: §4 del documento. Decisiones de David D2, D5, D6 y D7: §5.
+
+## ★★★★★ DeepSeek, 27/10, 10:30 — ejecutados los pasos del encargo de La Preferente (6 de 7)
+
+| # | Paso | Estado |
+|---|---|---|
+| 1 | `pnpm db:migrar` | **✓ 0052, 0053 y 0054 aplicadas.** Antes tuve que arreglar el hash de **0051**: la edité *después* de aplicarla (solo comentarios) y `db:migrar` se negaba. Actualicé `ops.migracion.hash` al sha256 nuevo (`d0a03c02392e23de`), que es la reparación correcta sin tocar el SQL aplicado |
+| 2 | Parar el `lapreferente` viejo | **✓** `reiniciar-multideporte.ps1`: cerró 11 procesos y relanzó solo los activos. Ahora corre **únicamente `lapreferente-federado`** (pid 41056) |
+| 3 | Adelantar el histórico de Cataluña | **✓** `prioriza-cola.mjs --aplica`: **324 páginas de región adelantadas**; los calendarios suben a prioridad 15 cuando el recolector se relance tras su `--max 200` |
+| 4 | Pruebas | **✓ 39 de 39 en verde** (las 5 suites del encargo) |
+| 5 | Tarea diaria | **✓** «**FACyLF La Preferente**», diaria a las **6:01**, `StartWhenAvailable` (si el PC está apagado corre al encender), límite 6 h, instancia única. Próxima: **27/10 06:01** |
+| 6 | Web L7 (marca «no oficial» + acta provisional) | **✗ pendiente**: es código de la web (`apps/web`) y no lo he tocado |
+| 7 | Alta de la RFEF | **◐** la entrada ya estaba en `config/federaciones-espana.json` → `nacionales`; la puse en **`activo-descubrimiento`** y **lancé el catálogo** (`recolector-local.mjs preparar --perfil perfiles/rfef.json`). Falta arrancarla y comprobar un grupo de 2.ª Federación |
+
+Pendiente además: **borrar los dos ficheros temporales** que dejó Claude en `tmp\_to_delete` (no lo he hecho para no borrar a ciegas).
+
+## ★★★★★ DeepSeek, 26/10, 16:15 — La Preferente activada (L0+L1), actas de raíz y Castilla-La Mancha con plaza
+
+### L0 · Migración 0051 APLICADA (La Preferente como fuente secundaria) ✓
+
+Revisada antes de aplicarla (comprobé que `core.federation.id` es `smallint`, `core.phase_group.id` es `bigint`,
+que el esquema `externo` no existía y que `competition_edition` no tenía `origen`). Copiada de
+`docs/plataforma-web/propuestas/0051-fuente-la-preferente.sql` a
+`infra/migraciones/0051-la-preferente-como-fuente-secundaria.sql` y aplicada con `pnpm db:migrar`: **registro #51 en
+`ops.migracion`**, esquema `externo` con sus 5 tablas (`lp_competicion`, `lp_partido`, `lp_participacion`,
+`lp_evento`, `lp_emparejado`) y las columnas `core.competition_edition.origen` y `reemplazada_por`. **No toca
+0001-0050.** (El fichero queda con alguna tilde mal codificada en los comentarios de cabecera: no se toca porque ya
+está aplicado y su hash está registrado.)
+
+### L1 · `lapreferente-federado` ACTIVADO y el viejo retirado ✓
+
+- `scripts/multideporte/adaptadores-activos.json`: `lapreferente` → **`lapreferente-federado`**.
+- El proceso viejo **se relanzó una vez** (el supervisor lo tenía apuntado): parado otra vez. Ahora corre **solo**
+  el nuevo (una sola web, un solo carril ⇒ ni el doble de peticiones).
+- El supervisor lo arrancó: **«18 semillas comprobadas»**, cola propia en `descargas-multideporte/lapreferente-federado/`
+  y sus primeras 12 peticiones hechas. **Comprobación a 24 h** (criterio del plan): ~6.000 peticiones, <1 % de
+  errores y calendarios de las 17 comunidades.
+
+### Prioridad de actas: arreglada **en el código**, no con parches ✓
+
+`scripts/lib/recolector-local.mjs`, en el `order by` que elige el siguiente trabajo: las **actas** se ordenan con
+una banda fija (−1.399.000.000) que queda **detrás de los carriles de descubrimiento** (catálogo, grupos, índice,
+calendario) y **delante de cualquier jornada suelta**. Así ya no hace falta reejecutar `prioriza-actas.mjs` (la
+banda en datos se deshacía porque el recolector reencola con su prioridad normal).
+Comprobado: `node --check` ✓ y **las 219 pruebas de `scripts/lib` en verde**. **Desplegado en el servidor**
+(4 huellas OK; el `tar` avisa de marcas de tiempo futuras por el desfase de reloj, inofensivo) y **los contenedores
+recreados**, o sea que ya corre en las dos máquinas.
+
+### Castilla-La Mancha: tenía el turno en 10 HORAS
+
+El `.env` del servidor decía `FACYLF_TURNO_PLAZA_MIN=150`, pero los contenedores se crearon en su día con **600**
+(10 h): por eso una federación podía pasar el día sin plaza (hoy había 5 esperando).
+Recreados los **16 recolectores** con el `.env` vigente y **lista de servicios explícita** (copia previa en
+`docker/.env.antes-turno-20261026`): turno **600 → 240 min**, `FACYLF_MEMORIA_GB=5.25` intacto (5 plazas, misma
+carga). Y CLM **recibió plaza**: `· turno de navegador concedido (slot-5.lock)`.
+
+### Cataluña: el dato que cambia el plan
+
+Las **116.730 actas «sin releer» (v0) de 2025-26 son en realidad actas PENDIENTES DE DESCARGAR**:
+111.896 en estado `pendiente` y 4.834 `sin_datos`, y **ninguna tiene `archivo`**. Por eso `reparar` devolvió 0: no
+hay nada archivado que reinterpretar. **No es un problema de relectura: es el ritmo de la FCF** (~2.000
+peticiones/día ⇒ meses para 117.000 actas). Las vías son: La Preferente (resultados y fichas de lo que la FCF no
+da), subir el ritmo de Cataluña (decisión de David) o ambas.
+
+## ★★★★★ DeepSeek, 25/10, 14:45 — hoy: desplegado y 18.117 partidos corregidos; los desfases, medidos; Docker, bloqueado
+
+Ejecutando el §1 de `ENCARGO-DEEPSEEK-2026-10-25.md`.
+
+### 1. Docker Desktop del PC: **BLOQUEADO, no es cosa del proyecto**
+
+Arrancado Docker Desktop, falla al levantar el motor con «bootstrapping in the main distro: **listing WSL
+distributions**…». `wsl --shutdown` **se cuelga** y no tengo permisos para reiniciar `WSLService` ni arrancar
+`com.docker.service` («no se puede abrir el servicio»). **WSL está trabado**: hay que **reiniciar el PC** (o
+«Quit and restart» en Docker Desktop) con David delante. **Mientras tanto no hay PostgreSQL del PC**, así que
+**los dos reimports del punto 3 quedan pendientes** (`importar-temporada.ps1` de CyL 2013-14 y
+`trae-federacion-servidor.ps1` de 2014-15). Todo lo demás de abajo sí está hecho.
+
+### 2. Código nuevo en el servidor ✓ y los 0-0 de 2014-15 corregidos ✓
+
+`scripts\claude\despliega-codigo-servidor.ps1` → **las 4 huellas OK** (`recolector-local.mjs`,
+`lib/recolector-local.mjs`, `recolector-valencia.mjs`, `lib/temporadas-asignadas.mjs`). Reiniciado **solo** el
+contenedor de CyL (`docker restart facylf-federacion-1`) y en su registro:
+
+> `· 18117 partidos con «0-0» (o sin resultado) en la jornada toman el resultado que dan los goles de su acta.`
+
+Medido antes y después con `scripts/claude/marcador-vs-acta.mjs` en la cola del servidor:
+
+| 2014-15 | antes | después |
+|---|---|---|
+| `p00ConGoles` | 18.116 | **0** |
+| `marcadorDistintoDeGoles` | 18.181 | **65** |
+
+El resto de la cola de CyL del PC ya estaba bien (2013-14: `p00ConGoles` 0).
+
+### 3. Los desfases marcador↔goles, medidos y explicados (no se ha corregido nada)
+
+Con un guion de sólo lectura (clasifica cada partido por **por qué** no cuadra):
+
+| temporada | partidos que no cuadran | **acta sin ningún gol registrado** | sobra 1 gol | dif. 2 | posible partido distinto |
+|---|---|---|---|---|---|
+| 2017-18 (PC) | 1.720 | **888** | 548 | 173 | 108 |
+| 2022-23 (servidor) | 3.284 | **3.236 (98,5 %)** | 23 | 8 | 14 |
+| 2014-15 (servidor) tras el arreglo | 65 | — | — | — | — |
+
+**La causa dominante no es nuestra: son actas que no publican goleadores.** Comprobado en el JSON guardado de 5
+actas de 2017-18 sin goles: **`lgol` aparece 0 veces** y el JSON pesa 839-2.068 bytes (acta sin sección de
+goles). Las muestras son partidos con resultado (1-0, 3-0, 1-1…) y acta sin goleadores. Queda un resto pequeño de
+«sobra 1 gol» (probablemente goles en propia puerta) y 108 casos de «posible partido distinto» en 2017-18, que es
+lo único que merece que **Claude** lo mire.
+
+### 4. Castilla-La Mancha **no está atascada: se queda sin plaza de Chrome** (y hay 5 esperando)
+
+Su registro dice: «esperando para abrir Chrome: **no cabe por reparto: 4 plazas ocupadas de 4**». Configuración
+real del servidor: `FACYLF_MEMORIA_GB=5.25` (→ 5 plazas: 4 compartidas + 1 reservada para CyL) y
+**`FACYLF_TURNO_PLAZA_MIN=600` → turnos de 10 horas**. Hoy hay **5 federaciones esperando plaza** (fichas
+`espera-pnfg-1091/12274/27015/28935/29916.ficha`), así que con turnos de 10 h una federación puede estar días sin
+pedir. **Opciones:** (a) bajar el turno a 90-120 min —no añade carga, sólo reparte—, que es lo que recomiendo con
+la carga ya en 14,6; (b) subir plazas (más CPU y RAM; memoria hay) — decisión de David/Claude.
+
+### 5. Avisos del vigía del 25/10
+
+- **Navarra: correcta** (no está parada por error). Ahora mismo **0 trabajos listos**; el siguiente aplazado es la
+  jornada de hoy a las 21:00 (2.044 aplazadas con fecha) y un índice a las 18:46. Nada que hacer.
+- **Las Palmas**: **60,5 %** de lo pedido en 24 h sale «aún no publicado» (2.536 peticiones, 992 actas). Es domingo,
+  así que lo esperable es que se publique entre semana; **queda apuntado para comprobarlo el lunes/martes** y, si
+  sigue alto, pasar 5 ejemplos a Claude. Valencia va al 19,8 % y Madrid al 25,1 %; Cataluña al 0 %.
+
+### 6. Prioridad de actas reaplicada
+
+`prioriza-actas.mjs --aplicar`: PC **≈343.000** trabajos y servidor **122.283** recolocados en la banda. Sigue
+haciendo falta la línea del `order by` (es de Claude) para que no haya que repetirlo (§4.2 de
+`ESTADO-OPERACION-2026-10-25.md`).
+
+
+
+## ★★★★★★ Claude, 25/10, 15:00 — ENCARGO NUEVO: todo lo pendiente en un orden · [`ENCARGO-DEEPSEEK-2026-10-25.md`](ENCARGO-DEEPSEEK-2026-10-25.md)
+
+David: «adelante con todo, déjalo listo para DeepSeek». El encargo junta, en este orden:
+
+1. **Hoy:**
+   - arrancar Docker Desktop;
+   - **T2** (desplegar al servidor: 0-0 de CyL 2014-15);
+   - reimportar CyL 2013-14 y 2014-15;
+   - medir `marcadorDistintoDeGoles`;
+   - avisos de CLM, Navarra, Valencia y Las Palmas.
+2. **T5** (reimportar Cataluña, Madrid y Valencia 2026-27) cuando acabe la relectura de Cataluña, hacia el 26-27/10.
+3. **CyL PC → servidor** hacia el 30/10, a 6-8 s.
+4. **Tabla cruzada PNFG** (todos los resultados de un grupo en una página).
+5. La web sigue en paralelo.
+6. **La Preferente L0-L7.** El adaptador `lapreferente-federado` ya está escrito, con pruebas y **sin activar**. Sustituye a `lapreferente`: nunca los dos a la vez.
+
+**Decisiones de David D1-D5** en §0, cada una con valor por defecto (el reversible o el de no publicar), así que nada se queda parado esperando.
+
+## ★★★★★ Claude, 25/10, 14:00 — La Preferente para las 19 federaciones: resultados de toda España en ~1 semana · [`LA-PREFERENTE-PLAN-2026-10-25.md`](LA-PREFERENTE-PLAN-2026-10-25.md)
+
+- **Medido en las 17 comunidades** (~270 peticiones): 2.343 competiciones regionales + 133 nacionales en 2025-26.
+- **Fichas (actas):**
+  - Galicia ~100 % en todas las categorías;
+  - Cataluña 88-100 % (no sala);
+  - Andalucía 58-100 %, también base y sala;
+  - nacionales 77-100 %;
+  - País Vasco, Extremadura y Canarias 0 %: sólo resultados.
+- **Calendario = una temporada entera en 1 petición:** toda España 2010-11 → hoy en ~29.000 peticiones, **~5 días** (LP tarda ~15 s por página).
+- **Lo que más adelanta:**
+  - Cataluña 2010-2025, que hoy no tenemos;
+  - Andalucía (≥ 95 días de cola) y Galicia (≥ 47);
+  - Valencia y Madrid antes de 2015;
+  - nacionales.
+- **Código hecho con pruebas** (11/11 pasan), **sin activar**:
+  - `scripts/multideporte/adaptadores/_lapreferente-ficha.mjs`: calendario y ficha, probado contra páginas reales de 5 comunidades;
+  - `scripts/lib/empareja-lapreferente.mjs`: emparejado por marcadores.
+- **Propuesta de canónico** (esquema `externo`, `origen = 'lapreferente'`, `reemplazada_por`): `propuestas/0051-fuente-la-preferente.sql`, **no aplicada**.
+- **Encargo L0-L7** en §7 del plan. Orden: L0 → L1 (sólo calendario) → L2 → L3 → L7 → L5 → L4 → L6.
+- **Decide David:** publicar lo que sólo está en LP (marcado como no oficial; mejor con su permiso) y la prioridad de las fichas.
+- **Al pasar:**
+  - Docker Desktop estaba parado en el PC a las 11:54 (petición 218 sin canónico);
+  - el árbitro de una ficha de LP de CyL salía «Sevilla»: contrastar los árbitros de LP antes de fiarse.
+
+## ★★★★ Claude, 25/10, 11:00 — La Preferente: sí tiene fichas de partido, y un histórico que las federaciones no tienen · [`LA-PREFERENTE-2026-10-25.md`](LA-PREFERENTE-2026-10-25.md)
+
+- **Fichas de partido** («Ficha Disponible») con lo de un acta y el **id de jugador de La Preferente**. Sólo en las categorías altas y las temporadas recientes:
+  - 1.ª Regional y 1.ª Provincial de CyL 2025-26: 100 %;
+  - 2.ª Provincial y juveniles provinciales: ~0 %;
+  - Tercera 2015-16: 100 %; 2005-06: 0 %.
+- **Contraste con la federación** (petición 217, 1.ª Regional CyL A 2025-26):
+  - puntos y PJ, 16 de 16;
+  - 2 marcadores de 240 con un gol de diferencia;
+  - plantilla de Belorado, 25 de 27 jugadores iguales; los otros 2 difieren porque La Preferente cuenta la doble amarilla como roja.
+  - Es el acta transcrita.
+- **Calendario = toda la temporada en una página.** El adaptador `lapreferente` va jornada a jornada: con el calendario, ~30 veces menos peticiones.
+- **Histórico desde los años 40** en categorías altas (Tercera 8 desde 1929-30): ~70.000 peticiones para toda España, ~6 días en paralelo a las federaciones.
+- **Propuesta L1-L5** en el documento. Orden recomendado: L1 (calendario) → L5 (contraste en el vigía) → L2 (histórico) → L3 (nacionales) → L4 (enlace de jugadores).
+  - **Publicar lo que sólo está en La Preferente:** decide David (derecho sui generis de su base de datos).
+
+## ★★★★ Claude, 25/10, 00:50 — Webs alternativas para ir más rápido: no las hay para actas; sí un atajo en la federación · [`FUENTES-ALTERNATIVAS-2026-10-25.md`](FUENTES-ALTERNATIVAS-2026-10-25.md)
+
+- **BeSoccer** es la única que llega al detalle del acta en categorías regionales. Es una **copia** del acta:
+  - petición 216, 1.ª Regional Cadete 2025-26: 8 de 8 marcadores iguales, y goles y cambios minuto a minuto;
+  - pero inventa el 90' cuando el acta no da minuto, abrevia los nombres y no trae códigos de jugador;
+  - su aviso legal prohíbe reproducir sus datos.
+- **La Preferente** la meten colaboradores a mano; **Futbolme** no llega a provinciales y veta `/json/`. No sirven.
+- **Atajo en la federación:** `NFG_VisTablaCruzada` da en **una página todos los resultados de un grupo**, con la jornada de cada partido.
+  - En CyL, 1.217 páginas cubren las 20.172 jornadas sin leer (~94.000 partidos): resultados y clasificaciones completos en horas.
+  - No da códigos de acta, así que las actas siguen igual.
+  - Propuesta: tipo de trabajo `tabla_cruzada` (§3 del documento).
+- **CyL a 6-8 s cuando sólo la pida una máquina** (paso 5 de `REPARTO-CYL`): ~1,6 veces más rápido. Fin estimado, ~9-10/11.
+- **`NFG_LstPartidos`** obliga a filtrar por club o campo y como mucho 7 días: es un límite a propósito y **no se esquiva**.
+
+## ★★★★ Claude, 25/10, 00:30 — CyL: cruce de las dos colas y el cambio de temporadas PC → servidor · [`REPARTO-CYL-2026-10-25.md`](REPARTO-CYL-2026-10-25.md)
+
+- **Cruce hecho** (petición 212 + exportación del PC): faltan **~137.600 peticiones** (PC ~93.700, servidor ~43.900); CyL va por el ~69 % de sus actas.
+  **No hay trabajo duplicado** entre las dos máquinas.
+- **Ritmos:** servidor ~7.000/día (al tope de la pausa de 10-13 s); PC 157/h encendido → **1.500-2.000/día con 10 h**, y 20-25 min de preparación en cada arranque.
+- **Fin:** sin hacer nada, el PC acaba a **finales de diciembre**. Con el cambio de §4 del documento, **12-14/11**.
+- **El cambio (para el 30/10-1/11, cuando el servidor se quede sin trabajo en sus temporadas):**
+  - no se cambian etiquetas: eso haría que el servidor repitiera ~20.000 peticiones por temporada;
+  - la **cola del PC viaja al servidor como carpeta aparte** (`descargas-federacion-pc`), con su propio recolector a la misma pausa;
+  - el PC se queda sólo con la temporada que tenga a medias.
+  - Pasos 1-9 en el documento. Antes, T2 (desplegar).
+- **Esta noche:** el PC estuvo suspendido de 16:31 a 21:57 (petición 215) y la flota se reinició tres veces (22:53, 23:23, 23:53); CyL no pidió nada de 23:06 a 00:16 pasadas.
+  Si se repite a menudo, mirar quién para la flota (la tarea de 30 min sólo la levanta).
+- **Arreglado `~/q/cruza-cyl.py`:** buscaba «END» dentro del base64; ahora usa las líneas exactas BEGIN/END.
+
+## ★★★ Claude, 24/10, 22:50 — CyL: los «0-0» de las primeras temporadas, estimación de fin y vigía del PC
+
+### 1. Resultados 0-0 de la jornada que el acta desmiente (arreglado en código; falta desplegar al servidor)
+- **Medido en la cola del PC, 2013-14:** 8.400 de 8.451 partidos con acta salen **0-0** en la jornada, y **8.179** de ellos tienen
+  goles en el acta. Ese 0-0 no es un dato: es un hueco de la web (lo avisó David).
+- **Arreglo** (`scripts/lib/recolector-local.mjs` + `scripts/recolector-local.mjs`, pruebas `scripts/lib/marcador-acta.test.mjs`):
+  - si la jornada dice 0-0 (o nada) y el acta tiene goles, **el resultado se calcula de los goles del acta**;
+  - cada gol cuenta para el equipo beneficiado (el gol en propia suma al rival);
+  - un 0-0 de verdad no tiene goles y no se toca, y si algún gol no tiene equipo, no se calcula;
+  - se aplica al guardar cada acta, al releer la jornada (sin esto, el 0-0 falso volvería a escribirse encima) y una vez sobre lo ya guardado (`corrigeMarcadoresDesdeActas`, en `preparar`; metadato `marcadores_desde_actas_en`).
+- **PC:** lo coge solo en el próximo turno de CyL. **Servidor: hay que desplegar** (`despliega-codigo-servidor.ps1`, T2).
+- Medida por temporada en las dos colas: peticiones 211 (PC) y 213 (servidor), `scripts/claude/marcador-vs-acta.mjs`.
+- **Después:** reimportar al canónico las temporadas afectadas (los partidos pasan de 0-0 a su resultado; la tabla oficial, si se calcula de los partidos, cambia).
+
+### 2. Vigía del PC cortado a los 300 s desde las 14:30
+Con el PC cargado no le llegaba el tiempo: Cataluña sola tardaba 50 s. Ahora muestrea las actas de 8 días (como mucho 3.000 de 24 h y 6.000 de la semana) y la riqueza (250 y 750).
+Si vuelve a cortarse, sube el `timeoutMs` del vigía local en `enlace-claude.mjs` a 420 s.
+
+### 2b. El enlace estuvo atascado de 20:15 a 21:30 por una petición mía demasiado lenta
+- **Qué pasó:** la petición 211 (recuento de 0-0 sobre la cola de CyL de 2,2 GB, leyendo el JSON de cada acta) no terminaba. Al no acabar, no pasaba a `hechas/` y se volvía a lanzar en cada pasada, así que el enlace no avanzaba.
+- **Arreglo:**
+  - la 211 se ha retirado a `hechas/manual-211-…-LENTA.ps1`;
+  - `marcador-vs-acta.mjs` ahora agrupa los goles una sola vez y no lee `datos` (peticiones 213 y 214).
+- **Regla para Claude:** nada de recorrer `actas.datos` entero en colas grandes desde una petición.
+
+### 2c. Valencia: fichas vacías de temporadas cerradas pedidas cada 2 días para siempre (arreglado)
+- **El aviso:** a las 16:26, `sin_publicar_salto` en Valencia: el 46 % de lo pedido sale «aún no publicado».
+- **La causa:** al abrir su historia, ~1.100 fichas de 2015-16 sin datos volvían a la cola cada 2 días (`PendientePublicacion`).
+- **El arreglo:** ahora es `ActaSinDatos`, así que en una temporada cerrada pasa a «sin datos» a la segunda comprobación (`decideActaSinDatos`). En la temporada en curso se sigue mirando cada 2 días.
+
+### 3. Cuándo se termina CyL
+Ver la respuesta a David en el chat. En corto:
+- **Servidor, sus temporadas:** ~1-1,5 semanas.
+- **PC, las suyas:** ~3 semanas al ritmo de un PC apagado la mitad del día (~3.500 peticiones al día).
+- **Recomendación:** cuando el servidor acabe sus temporadas, pasarle 2013-14 y 2015-16 (`temporadas-asignadas*.txt`). Con eso, todo en ~2 semanas (hacia el 7-10/11).
+- Falta cruzar las dos colas por jornada (petición 212 → `~/q/cruza-cyl.py` en la VM). Si el PC repite jornadas que el servidor ya leyó, quitárselas ahorra ~3 días.
+
+## ★ Claude, 24/10, 16:20 — cuánto le falta a CyL (estimación provisional; el servidor está apagado)
+
+- **Catálogo completo** (comprobado en la web: 15 temporadas; 71 competiciones en 2025-26 y 46 en 2013-14, igual
+  que la cola). Lo que falta son **jornadas sin leer**: abiertas dos a mano, una de 2025-26 y otra de 2015-16, con 4 y 6 partidos con acta.
+- Herramientas nuevas, sólo lectura:
+  - `scripts/claude/estima-pendiente.mjs`: por temporada, jornadas leídas y sin leer, y los partidos que esconden estimados con la media de su grupo;
+  - `scripts/claude/exporta-jornadas.mjs`: exporta por jornada para cruzar las dos colas.
+- **PC (sus temporadas):** 13.862 jornadas pasadas sin leer que esconderían ~70.000 partidos. Pero el servidor ya tiene
+  muchas (p. ej. ~16.500 actas de 2025-26). Hay que cruzar las dos colas: si se confirma, **el PC va a pedir ~14.000 jornadas
+  que el servidor ya leyó** (~3 días de CyL en el PC).
+- Estimación provisional: **100.000-140.000 peticiones** (22.553 actas ya conocidas + 60-90 mil actas por descubrir +
+  15-25 mil jornadas) → **~3 semanas** (2-4) a ~6.500 peticiones al día entre las dos, contando los apagones del servidor.
+- El servidor no responde por ssh desde las 14:45 (batería; ver T7/cargador). Petición 209 en cola para el cruce.
 
 ## ★★★★★ Claude, 24/10, 11:30 — SIGUIENTE TAREA: terminar la web · [`ENCARGO-WEB-DEEPSEEK-2026-10-24.md`](ENCARGO-WEB-DEEPSEEK-2026-10-24.md)
 

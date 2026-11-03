@@ -188,7 +188,14 @@ function mideCola(fed, ruta, ahora) {
       from participaciones where temporada=? and competicion=? and grupo=? and jornada=? and acta=?`);
     const riqueza = new Map();
     let muestra24 = 0; let muestra7 = 0;
+    // Muestra acotada (24/10/2026): con el PC cargado, recorrer TODAS las actas de 8 días (40.000+ en las colas grandes)
+    // llevó al vigía por encima de sus 300 s. Se toman como mucho 3.000 de las últimas 24 h y 6.000 de los 7 días
+    // anteriores, repartidas por todo el periodo (una de cada k), que para proporciones es de sobra.
+    const n24 = pet8.filter((f) => f.reciente).length; const n7 = pet8.length - n24;
+    const paso24 = Math.max(1, Math.ceil(n24 / 3000)); const paso7 = Math.max(1, Math.ceil(n7 / 6000));
+    let i24 = 0; let i7 = 0;
     for (const f of pet8) {
+      if (f.reciente ? (i24++ % paso24) : (i7++ % paso7)) continue;
       if (vistas.has(f.trabajo)) continue; vistas.add(f.trabajo);
       const [, t, c, g, j, cod] = String(f.trabajo).split('|');
       const a = unaActa.get(t, c, g, Number(j), cod);
@@ -200,7 +207,7 @@ function mideCola(fed, ruta, ahora) {
       const x = porComp.get(k) ?? { t, n24: 0, m24: 0, n7: 0, m7: 0 };
       if (f.reciente) { x.n24 += 1; x.m24 += mala ? 1 : 0; } else { x.n7 += 1; x.m7 += mala ? 1 : 0; }
       porComp.set(k, x);
-      if (a.estado === 'hecha' && !mala && (f.reciente ? muestra24 < 400 : muestra7 < 1200)) {
+      if (a.estado === 'hecha' && !mala && (f.reciente ? muestra24 < 250 : muestra7 < 750)) {
         const tipos = Object.fromEntries(tiposDe.all(t, c, g, Number(j), cod).map((r) => [r.tipo, r.n]));
         const js = jugadoresDe.get(t, c, g, Number(j), cod);
         if (js?.n) {

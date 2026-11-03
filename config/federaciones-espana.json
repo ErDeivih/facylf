@@ -177,5 +177,15 @@
       "pertenece_a": "canarias"
     }
   ],
-  "nota_provinciales": "16/10/2026: Bizkaia, Gipuzkoa y Araba pertenecen a Euskadi, y Las Palmas y Tenerife a Canarias (`pertenece_a`). Se importan como federaciones propias en el canónico (cada portal PNFG tiene sus propios códigos de competición y grupo, y mezclarlos bajo una sola federación haría chocar sus claves externas), y los informes las cuentan DENTRO de su autonomía: elegir Euskadi incluye a las tres forales. `total` sigue contando las 19 autonómicas."
+  "nota_provinciales": "16/10/2026: Bizkaia, Gipuzkoa y Araba pertenecen a Euskadi, y Las Palmas y Tenerife a Canarias (`pertenece_a`). Se importan como federaciones propias en el canónico (cada portal PNFG tiene sus propios códigos de competición y grupo, y mezclarlos bajo una sola federación haría chocar sus claves externas), y los informes las cuentan DENTRO de su autonomía: elegir Euskadi incluye a las tres forales. `total` sigue contando las 19 autonómicas.",
+  "nacionales": [
+    {
+      "codigo": "rfef",
+      "nombre": "Real Federación Española de Fútbol (competiciones nacionales)",
+      "portal": "https://resultados.rfef.es/pnfg/",
+      "adaptador": "pnfg",
+      "estado": "activo-descubrimiento",
+      "nota": "27/10/2026 (Claude): misma plataforma PNFG que las territoriales, cod_primaria 1000120. Temporadas en el desplegable: 2026-27 → 1990-91 y 1946-47 → 1953-54. Competiciones nacionales: 1.ª/2.ª Federación, Copa del Rey y Copa Federación, femenino nacional, División de Honor juvenil, fútbol sala y playa nacionales. La Tercera Federación y la Liga Nacional juvenil las llevan las territoriales. Va en `nacionales` y no en `fuentes` para no cambiar las cuentas de 19+5. Perfil: perfiles/rfef.json."
+    }
+  ]
 }

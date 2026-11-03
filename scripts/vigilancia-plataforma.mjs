@@ -114,6 +114,10 @@ function lineaAlerta(a) {
 async function pasada(cliente) {
   // Los chequeos del equipo se guardan como eventos y como alertas igual que los de SQL.
   const delEquipo = await chequeosDelEquipo();
+  // La Preferente (L5): resultados que LP ya tiene y la federación no, marcadores distintos y emparejados dudosos.
+  // Una vez por hora (la pasada es cada 15 min): la consulta recorre externo.lp_partido entero.
+  if (new Date().getMinutes() < 15) try { const { chequeosLaPreferente } = await import('./lapreferente/vigia.mjs'); delEquipo.push(...await chequeosLaPreferente(cliente)); }
+  catch (e) { console.error(`(vigía de La Preferente: ${e.message})`); }
   const transiciones = [];
   await cliente.query('begin');
   try {

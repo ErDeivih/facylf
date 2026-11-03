@@ -1,0 +1,1316 @@
+{
+  "cuando": "2026-09-24T19:53:14.159Z",
+  "totalGrupos": 28386,
+  "totalActas": 7201,
+  "federaciones": [
+    {
+      "federacion": "andalucia",
+      "grupos": 1506,
+      "gruposConActas": 660,
+      "porTemporada": [
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 134,
+          "con_actas": 43
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 71,
+          "con_actas": 71
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 68,
+          "con_actas": 68
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 89,
+          "con_actas": 89
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 57,
+          "con_actas": 57
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 855,
+          "con_actas": 258
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 232,
+          "con_actas": 74
+        }
+      ]
+    },
+    {
+      "federacion": "aragon",
+      "grupos": 2861,
+      "gruposConActas": 450,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 174,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 167,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 186,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 191,
+          "con_actas": 0
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 223,
+          "con_actas": 0
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 106,
+          "con_actas": 0
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 127,
+          "con_actas": 0
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 250,
+          "con_actas": 0
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 224,
+          "con_actas": 0
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 247,
+          "con_actas": 71
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 394,
+          "con_actas": 63
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 413,
+          "con_actas": 261
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 159,
+          "con_actas": 55
+        }
+      ]
+    },
+    {
+      "federacion": "asturias",
+      "grupos": 2139,
+      "gruposConActas": 319,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 129,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 127,
+          "con_actas": 1
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 119,
+          "con_actas": 15
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 125,
+          "con_actas": 15
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 127,
+          "con_actas": 15
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 97,
+          "con_actas": 13
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 362,
+          "con_actas": 42
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 282,
+          "con_actas": 22
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 128,
+          "con_actas": 9
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 129,
+          "con_actas": 16
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 178,
+          "con_actas": 61
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 227,
+          "con_actas": 101
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 109,
+          "con_actas": 9
+        }
+      ]
+    },
+    {
+      "federacion": "baleares",
+      "grupos": 475,
+      "gruposConActas": 445,
+      "porTemporada": [
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 206,
+          "con_actas": 203
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 226,
+          "con_actas": 226
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 43,
+          "con_actas": 16
+        }
+      ]
+    },
+    {
+      "federacion": "canarias",
+      "grupos": 48,
+      "gruposConActas": 31,
+      "porTemporada": [
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 1,
+          "con_actas": 1
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 7,
+          "con_actas": 6
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 8,
+          "con_actas": 8
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 11,
+          "con_actas": 1
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 12,
+          "con_actas": 10
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 9,
+          "con_actas": 5
+        }
+      ]
+    },
+    {
+      "federacion": "cantabria",
+      "grupos": 1614,
+      "gruposConActas": 224,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 89,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 111,
+          "con_actas": 4
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 138,
+          "con_actas": 9
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 121,
+          "con_actas": 7
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 119,
+          "con_actas": 7
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 88,
+          "con_actas": 10
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 128,
+          "con_actas": 26
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 124,
+          "con_actas": 13
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 110,
+          "con_actas": 10
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 153,
+          "con_actas": 41
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 158,
+          "con_actas": 40
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 216,
+          "con_actas": 42
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 59,
+          "con_actas": 15
+        }
+      ]
+    },
+    {
+      "federacion": "castilla-la-mancha",
+      "grupos": 2328,
+      "gruposConActas": 427,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 157,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 135,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 212,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 194,
+          "con_actas": 0
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 270,
+          "con_actas": 0
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 129,
+          "con_actas": 11
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 104,
+          "con_actas": 29
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 148,
+          "con_actas": 17
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 154,
+          "con_actas": 29
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 195,
+          "con_actas": 75
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 264,
+          "con_actas": 76
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 317,
+          "con_actas": 178
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 49,
+          "con_actas": 12
+        }
+      ]
+    },
+    {
+      "federacion": "castilla-leon",
+      "grupos": 2325,
+      "gruposConActas": 340,
+      "porTemporada": [
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 207,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 200,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 191,
+          "con_actas": 0
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 216,
+          "con_actas": 0
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 170,
+          "con_actas": 0
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 194,
+          "con_actas": 0
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 211,
+          "con_actas": 3
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 205,
+          "con_actas": 53
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 204,
+          "con_actas": 49
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 193,
+          "con_actas": 47
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 193,
+          "con_actas": 108
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 141,
+          "con_actas": 80
+        }
+      ]
+    },
+    {
+      "federacion": "cataluna",
+      "grupos": 1623,
+      "gruposConActas": 209,
+      "porTemporada": [
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 1145,
+          "con_actas": 83
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 478,
+          "con_actas": 126
+        }
+      ]
+    },
+    {
+      "federacion": "ceuta",
+      "grupos": 536,
+      "gruposConActas": 497,
+      "porTemporada": [
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 39,
+          "con_actas": 18
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 69,
+          "con_actas": 59
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 51,
+          "con_actas": 47
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 23,
+          "con_actas": 21
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 55,
+          "con_actas": 53
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 76,
+          "con_actas": 76
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 78,
+          "con_actas": 78
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 77,
+          "con_actas": 77
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 68,
+          "con_actas": 68
+        }
+      ]
+    },
+    {
+      "federacion": "euskadi",
+      "grupos": 876,
+      "gruposConActas": 315,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 102,
+          "con_actas": 29
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 85,
+          "con_actas": 28
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 90,
+          "con_actas": 34
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 90,
+          "con_actas": 27
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 91,
+          "con_actas": 33
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 40,
+          "con_actas": 8
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 81,
+          "con_actas": 23
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 69,
+          "con_actas": 14
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 92,
+          "con_actas": 35
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 41,
+          "con_actas": 28
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 32,
+          "con_actas": 24
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 39,
+          "con_actas": 25
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 24,
+          "con_actas": 7
+        }
+      ]
+    },
+    {
+      "federacion": "extremadura",
+      "grupos": 2138,
+      "gruposConActas": 488,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 151,
+          "con_actas": 21
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 133,
+          "con_actas": 22
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 133,
+          "con_actas": 13
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 137,
+          "con_actas": 24
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 136,
+          "con_actas": 27
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 103,
+          "con_actas": 10
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 224,
+          "con_actas": 52
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 132,
+          "con_actas": 20
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 154,
+          "con_actas": 29
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 187,
+          "con_actas": 98
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 294,
+          "con_actas": 86
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 302,
+          "con_actas": 83
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 52,
+          "con_actas": 3
+        }
+      ]
+    },
+    {
+      "federacion": "galicia",
+      "grupos": 2366,
+      "gruposConActas": 374,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 67,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 70,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 73,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 136,
+          "con_actas": 0
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 156,
+          "con_actas": 0
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 42,
+          "con_actas": 0
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 48,
+          "con_actas": 0
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 166,
+          "con_actas": 0
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 102,
+          "con_actas": 0
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 98,
+          "con_actas": 98
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 520,
+          "con_actas": 87
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 837,
+          "con_actas": 144
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 51,
+          "con_actas": 45
+        }
+      ]
+    },
+    {
+      "federacion": "madrid",
+      "grupos": 660,
+      "gruposConActas": 308,
+      "porTemporada": [
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 85,
+          "con_actas": 0
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 76,
+          "con_actas": 0
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 84,
+          "con_actas": 0
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 112,
+          "con_actas": 59
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 119,
+          "con_actas": 119
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 119,
+          "con_actas": 119
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 65,
+          "con_actas": 11
+        }
+      ]
+    },
+    {
+      "federacion": "melilla",
+      "grupos": 86,
+      "gruposConActas": 86,
+      "porTemporada": [
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 2,
+          "con_actas": 2
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 54,
+          "con_actas": 54
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 30,
+          "con_actas": 30
+        }
+      ]
+    },
+    {
+      "federacion": "murcia",
+      "grupos": 1131,
+      "gruposConActas": 305,
+      "porTemporada": [
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 43,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 111,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 108,
+          "con_actas": 15
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 131,
+          "con_actas": 28
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 72,
+          "con_actas": 11
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 66,
+          "con_actas": 14
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 65,
+          "con_actas": 14
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 67,
+          "con_actas": 10
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 87,
+          "con_actas": 13
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 173,
+          "con_actas": 19
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 174,
+          "con_actas": 174
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 34,
+          "con_actas": 7
+        }
+      ]
+    },
+    {
+      "federacion": "navarra",
+      "grupos": 2101,
+      "gruposConActas": 331,
+      "porTemporada": [
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 31,
+          "con_actas": 0
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 50,
+          "con_actas": 0
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 129,
+          "con_actas": 0
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 227,
+          "con_actas": 0
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 227,
+          "con_actas": 23
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 172,
+          "con_actas": 9
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 110,
+          "con_actas": 23
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 196,
+          "con_actas": 41
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 225,
+          "con_actas": 32
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 192,
+          "con_actas": 20
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 230,
+          "con_actas": 25
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 226,
+          "con_actas": 131
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 86,
+          "con_actas": 27
+        }
+      ]
+    },
+    {
+      "federacion": "rioja",
+      "grupos": 2364,
+      "gruposConActas": 456,
+      "porTemporada": [
+        {
+          "temporada": "4",
+          "etiqueta": "2008-09",
+          "grupos": 140,
+          "con_actas": 0
+        },
+        {
+          "temporada": "5",
+          "etiqueta": "2009-10",
+          "grupos": 143,
+          "con_actas": 0
+        },
+        {
+          "temporada": "6",
+          "etiqueta": "2010-11",
+          "grupos": 110,
+          "con_actas": 0
+        },
+        {
+          "temporada": "7",
+          "etiqueta": "2011-12",
+          "grupos": 94,
+          "con_actas": 0
+        },
+        {
+          "temporada": "8",
+          "etiqueta": "2012-13",
+          "grupos": 93,
+          "con_actas": 0
+        },
+        {
+          "temporada": "9",
+          "etiqueta": "2013-14",
+          "grupos": 115,
+          "con_actas": 5
+        },
+        {
+          "temporada": "10",
+          "etiqueta": "2014-15",
+          "grupos": 115,
+          "con_actas": 12
+        },
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 131,
+          "con_actas": 22
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 136,
+          "con_actas": 13
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 148,
+          "con_actas": 15
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 146,
+          "con_actas": 15
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 146,
+          "con_actas": 12
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 43,
+          "con_actas": 13
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 138,
+          "con_actas": 15
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 162,
+          "con_actas": 14
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 183,
+          "con_actas": 105
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 151,
+          "con_actas": 117
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 146,
+          "con_actas": 94
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 24,
+          "con_actas": 4
+        }
+      ]
+    },
+    {
+      "federacion": "valencia",
+      "grupos": 1209,
+      "gruposConActas": 936,
+      "porTemporada": [
+        {
+          "temporada": "11",
+          "etiqueta": "2015-16",
+          "grupos": 58,
+          "con_actas": 8
+        },
+        {
+          "temporada": "12",
+          "etiqueta": "2016-17",
+          "grupos": 171,
+          "con_actas": 117
+        },
+        {
+          "temporada": "13",
+          "etiqueta": "2017-18",
+          "grupos": 21,
+          "con_actas": 20
+        },
+        {
+          "temporada": "14",
+          "etiqueta": "2018-19",
+          "grupos": 117,
+          "con_actas": 110
+        },
+        {
+          "temporada": "15",
+          "etiqueta": "2019-20",
+          "grupos": 34,
+          "con_actas": 27
+        },
+        {
+          "temporada": "16",
+          "etiqueta": "2020-21",
+          "grupos": 16,
+          "con_actas": 0
+        },
+        {
+          "temporada": "17",
+          "etiqueta": "2021-22",
+          "grupos": 22,
+          "con_actas": 21
+        },
+        {
+          "temporada": "18",
+          "etiqueta": "2022-23",
+          "grupos": 32,
+          "con_actas": 32
+        },
+        {
+          "temporada": "19",
+          "etiqueta": "2023-24",
+          "grupos": 41,
+          "con_actas": 41
+        },
+        {
+          "temporada": "20",
+          "etiqueta": "2024-25",
+          "grupos": 88,
+          "con_actas": 0
+        },
+        {
+          "temporada": "21",
+          "etiqueta": "2025-26",
+          "grupos": 535,
+          "con_actas": 530
+        },
+        {
+          "temporada": "22",
+          "etiqueta": "2026-27",
+          "grupos": 74,
+          "con_actas": 30
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+﻿[
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079506",
+        "grupo":  "1079512",
+        "nombre":  "JUVENIL FS LIGA",
+        "motivo":  "✗ La validación del lote 80466 ha fallado: actas analizadas 0≠43",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079512.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079523",
+        "grupo":  "1079528",
+        "nombre":  "COPA",
+        "motivo":  "✗ La validación del lote 80468 ha fallado: partidos 2≠12, partidos con resultado 2≠12, actas analizadas 0≠12",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079528.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079576",
+        "grupo":  "1079586",
+        "nombre":  "INFANTIL FS LIGA",
+        "motivo":  "✗ La validación del lote 80475 ha fallado: actas analizadas 0≠128",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079586.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079617",
+        "grupo":  "1079618",
+        "nombre":  "FEMENINO F-7 LIGA",
+        "motivo":  "✗ La validación del lote 80481 ha fallado: partidos 2≠12, partidos con resultado 2≠12",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079618.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079624",
+        "grupo":  "1079625",
+        "nombre":  "GRUPO A",
+        "motivo":  "✗ La validación del lote 80482 ha fallado: actas analizadas 0≠6",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079625.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079624",
+        "grupo":  "1079626",
+        "nombre":  "GRUPO B",
+        "motivo":  "✗ La validación del lote 80483 ha fallado: actas analizadas 0≠10",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079626.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079701",
+        "grupo":  "1079702",
+        "nombre":  "LIGA JUVENIL FS",
+        "motivo":  "✗ La validación del lote 80497 ha fallado: actas analizadas 0≠7",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079702.txt"
+    },
+    {
+        "federacion":  "ceuta",
+        "temporada":  "2017-18",
+        "competicion":  "1079753",
+        "grupo":  "1079759",
+        "nombre":  "FEMENINO SALA LIGA",
+        "motivo":  "✗ La validación del lote 80499 ha fallado: partidos 2≠20, partidos con resultado 2≠20, actas analizadas 0≠9, participaciones 0≠16, técnicos 0≠2, árbitros designados 0≠2",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-ceuta-2017-18-1079759.txt"
+    }
+]

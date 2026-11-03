@@ -285,3 +285,10 @@ export function cedePorPrioridad({ nombreSlot, plazas, prioritariaActiva = false
     ? { ceder: true, motivo: `la federación prioritaria ocupa su plaza reservada: se libera la plaza ${n} (quedan ${limite} compartidas)` }
     : { ceder: false, motivo: `plaza ${n} dentro de las ${limite} compartidas` };
 }
+/** PIDs repeat across Docker namespaces; queue tickets need the host as well. */
+export function nombreFichaEspera(prefijo, pid, host) {
+  if (!/^espera-[a-z-]*$/.test(prefijo) || !Number.isInteger(pid) || pid <= 0 || !/^[a-zA-Z0-9_.-]+$/.test(host)) {
+    throw new Error('Identidad de espera invalida');
+  }
+  return `${prefijo}${host}-${pid}.ficha`;
+}

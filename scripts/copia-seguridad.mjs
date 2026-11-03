@@ -59,8 +59,24 @@ async function registra(fila) {
   } catch (e) { console.error('  (no se pudo registrar en ops.copia:', e.message, ')'); } finally { await c.end().catch(() => {}); }
 }
 
+function memoriaDisponibleGb() {
+  // En Windows `os.freemem()` devuelve la RAM LIBRE, que es engañosa: Windows usa casi toda la que sobra
+  // como caché de reserva (el 27/10: 2,1 GB libres y 19,8 GB disponibles). La regla de los 3 GiB existe para
+  // no cargar la máquina, así que se mide lo DISPONIBLE, que es lo que de verdad se puede usar.
+  if (process.platform === 'win32') {
+    try {
+      const salida = execFileSync('powershell.exe', ['-NoProfile', '-Command',
+        '(Get-CimInstance Win32_PerfRawData_PerfOS_Memory).AvailableMBytes'], { encoding: 'utf8', timeout: 15000 });
+      const mb = Number(String(salida).trim());
+      if (Number.isFinite(mb) && mb > 0) return mb / 1024;
+    } catch { /* si falla, se usa freemem como antes */ }
+  }
+  return freemem() / 1024 ** 3;
+}
+
 function guardiaDelEquipo() {
-  if (freemem() < 3 * 1024 ** 3) throw new Error('menos de 3 GiB libres: no se hace la copia ahora (regla del servidor)');
+  const disponibleGb = memoriaDisponibleGb();
+  if (disponibleGb < 3) throw new Error(`menos de 3 GiB disponibles (${disponibleGb.toFixed(1)} GB): no se hace la copia ahora (regla del servidor)`);
   if (process.platform !== 'win32' && loadavg()[0] > 14) throw new Error('carga > 14: no se hace la copia ahora');
 }
 

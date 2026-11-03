@@ -1,0 +1,14 @@
+{
+ "cuando": "2026-09-25T12:51:13.973Z",
+ "resumen": {
+  "filasConActaQueNoCuadra": 0,
+  "reparables": 0,
+  "desenlazables": 0,
+  "movibles": 0,
+  "sinPruebaSuficiente": 0,
+  "grupos": 0,
+  "gruposReparables": 0,
+  "gruposDesenlazables": 0
+ },
+ "filas": []
+}

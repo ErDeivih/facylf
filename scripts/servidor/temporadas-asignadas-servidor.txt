@@ -1,0 +1,37 @@
+# ── TEMPORADAS QUE RECOGE EL SERVIDOR DE CASTILLA Y LEÓN ───────────────────────────────────────────────────
+#
+# El reparto con el PC (29/09/2026), alternando y sin compartir ninguna:
+#
+#     servidor  →  2026-27  ·  2024-25  ·  2022-23  ·  2020-21  ·  2018-19  ·  2016-17
+#     PC        →  2025-26  ·  2023-24  ·  2021-22  ·  2019-20  ·  2017-18  ·  2015-16
+#
+# El recolector empieza por la PRIMERA y, cuando la termina o se queda sin trabajo disponible, pasa a la
+# siguiente él solo. Por eso van de la más reciente a la más antigua.
+#
+# Las tres primeras de arriba ya estaban; las tres últimas (2020-21, 2018-19 y 2016-17) se añaden hoy, porque
+# las seis temporadas de 2015-16 a 2020-21 no las tenía asignadas NADIE. Medido el 29/09/2026 con
+# `scripts/diagnostica-cyl-temporadas.mjs`: esas seis temporadas tenían **0 trabajos disponibles** en el
+# servidor —todo su trabajo aplazado al año 2099 por el suelo de 2023-24— y entre 5 % y 12 % hecho.
+#
+# La 2022-23 está POR DEBAJO del suelo y el suelo la tenía aplazada al año 2099: al abrir la cola se le levanta
+# ese aplazamiento automáticamente, y sólo a las temporadas asignadas. Ver el fichero del PC para la explicación
+# completa de por qué eso era imprescindible y de qué tercera pieza faltaba (que la temporada asignada pueda
+# además CRECER, no sólo vaciarse).
+#
+# La 2013-14 se ha quitado de esta lista: con doce temporadas por delante, añadir historia más antigua sólo
+# reparte el mismo ritmo entre más sitio. Volverá cuando la serie 2015-16 → 2026-27 esté cerrada.
+#
+# Lo único manual: añadir temporadas nuevas cuando aparezcan, siempre alternando y en una sola de las dos listas.
+#
+# Este fichero lo lee `scripts/lib/temporadas-asignadas.mjs` al abrir la cola, desde dentro del contenedor (el
+# directorio de la federación va montado). Se copia a `/srv/data/facylf/descargas-federacion/recolector-local/`.
+2026-27
+2024-25
+2022-23
+2020-21
+2018-19
+2016-17
+# 11/10/2026: la web publica 2012-13 a 2014-15 y no las tenía nadie (ver REVISION-INGESTA-2026-10-11.md).
+# Alternando con el PC (que lleva 2013-14). Van al final: se empiezan cuando las de arriba se queden sin trabajo.
+2014-15
+2012-13

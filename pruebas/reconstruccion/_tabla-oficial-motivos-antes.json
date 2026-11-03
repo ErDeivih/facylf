@@ -1,0 +1,221 @@
+﻿{
+  "cuando": "2026-09-26T10:35:21.471Z",
+  "porCodigo": [
+    {
+      "codigo": "clasificacion_oficial_importada",
+      "n": 7503
+    },
+    {
+      "codigo": "clasificacion_oficial_vs_reconstruida",
+      "n": 5768
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "n": 5601
+    },
+    {
+      "codigo": "clasificacion_oficial_sin_jornada_de_corte",
+      "n": 2861
+    },
+    {
+      "codigo": "clasificacion_oficial_con_ajuste",
+      "n": 1519
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "n": 419
+    }
+  ],
+  "porMotivo": [
+    {
+      "codigo": "clasificacion_oficial_importada",
+      "motivo": null,
+      "grupos": 6048,
+      "avisos": 7503
+    },
+    {
+      "codigo": "clasificacion_oficial_vs_reconstruida",
+      "motivo": null,
+      "grupos": 1026,
+      "avisos": 5768
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "grupos": 1358,
+      "avisos": 4595
+    },
+    {
+      "codigo": "clasificacion_oficial_sin_jornada_de_corte",
+      "motivo": "la fuente publica tabla oficial pero el canónico no tiene ninguna jornada completa que sirva de corte",
+      "grupos": 947,
+      "avisos": 2861
+    },
+    {
+      "codigo": "clasificacion_oficial_con_ajuste",
+      "motivo": null,
+      "grupos": 791,
+      "avisos": 1519
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R1: la posición publicada no es coherente",
+      "grupos": 373,
+      "avisos": 640
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "motivo": "el HTML archivado trae tabla y el lector no saca filas",
+      "grupos": 120,
+      "avisos": 314
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R5: todas las filas traen 0 puntos aunque haya victorias y empates",
+      "grupos": 134,
+      "avisos": 222
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible_para_el_lector",
+      "motivo": "el archivo trae tabla de clasificación y el lector no saca filas",
+      "grupos": 35,
+      "avisos": 105
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "dos filas de la tabla oficial apuntan al mismo equipo del grupo",
+      "grupos": 17,
+      "avisos": 68
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R4: la puntuación publicada supera la que dan los resultados",
+      "grupos": 42,
+      "avisos": 61
+    },
+    {
+      "codigo": "clasificacion_oficial_ilegible",
+      "motivo": "R7: hay un valor no entero en la tabla oficial",
+      "grupos": 8,
+      "avisos": 15
+    }
+  ],
+  "porEstado": [
+    {
+      "estado": "sin_archivar",
+      "n": 14954
+    },
+    {
+      "estado": "importada",
+      "n": 6055
+    },
+    {
+      "estado": "sin_filas",
+      "n": 3785
+    },
+    {
+      "estado": "rechazada",
+      "n": 1894
+    },
+    {
+      "estado": "ilegible",
+      "n": 1380
+    },
+    {
+      "estado": "(sin calcular)",
+      "n": 856
+    },
+    {
+      "estado": "sin_corte",
+      "n": 702
+    }
+  ],
+  "gruposConEquiposSinResolver": [
+    {
+      "federacion": "madrid",
+      "avisos": 1222
+    },
+    {
+      "federacion": "valencia",
+      "avisos": 868
+    },
+    {
+      "federacion": "aragon",
+      "avisos": 746
+    },
+    {
+      "federacion": "cataluna",
+      "avisos": 443
+    },
+    {
+      "federacion": "castilla-leon",
+      "avisos": 377
+    },
+    {
+      "federacion": "navarra",
+      "avisos": 286
+    },
+    {
+      "federacion": "andalucia",
+      "avisos": 189
+    },
+    {
+      "federacion": "murcia",
+      "avisos": 162
+    },
+    {
+      "federacion": "asturias",
+      "avisos": 89
+    },
+    {
+      "federacion": "castilla-la-mancha",
+      "avisos": 70
+    },
+    {
+      "federacion": "euskadi",
+      "avisos": 58
+    },
+    {
+      "federacion": "extremadura",
+      "avisos": 41
+    },
+    {
+      "federacion": "cantabria",
+      "avisos": 30
+    },
+    {
+      "federacion": "ceuta",
+      "avisos": 12
+    },
+    {
+      "federacion": "baleares",
+      "avisos": 2
+    }
+  ],
+  "ejemplos": [
+    {
+      "grupo": "5199185",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "aragon c5199164 g5199185: 4 de 5 sin resolver («ACTUR PABLO IGLESIAS-C.D.», «VALDEFIERRO-C.D.», «MARIANISTAS-C.D.», «DESCANSA»). Fuente pnfg-html: F:\\EspacioCodigo\\facylf\\descargas-aragon\\recolector-local\\t17-2021-22\\comp-5199164\\grupo-5199185\\clasificacion.html.gz",
+      "federacion": "aragon",
+      "competicion": "5199164",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    },
+    {
+      "grupo": "4806661",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "aragon c4806659 g4806661: 4 de 11 sin resolver («OLIVAR-ESTADIO MIRALBUENO EL», «EL SALVADOR-S.D.», «UNIÓN LA JOTA VADORREY-C.D.», «DESCANSA»). Fuente pnfg-html: F:\\EspacioCodigo\\facylf\\descargas-aragon\\recolector-local\\t17-2021-22\\comp-4806659\\grupo-4806661\\clasificacion.html.gz",
+      "federacion": "aragon",
+      "competicion": "4806659",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    },
+    {
+      "grupo": "24897956",
+      "motivo": "la tabla oficial trae equipos que no se pueden resolver dentro de su propio grupo",
+      "detalle": "madrid c24897923 g24897956: 16 de 16 sin resolver («A.D. RAYO LATINA 'A'», «C.D. CAMPAMENTO», «S.A.D. ARC MARIANISTAS AMOROS 'A'», «C.F. AGUILAS DEL LUCERO 'A'», «CDE FC AURUM MADRID», «ESC.MUN.FUT. PVO. ALUCHE 'D'», «C.D. GOYA 'B'», «CDB UNION DEPORTIVA ARGANZUELA 'C'»). Fuente json: F:\\EspacioCodigo\\facylf\\descargas-madrid\\recolector-local\\t21-2025-26\\comp-24897923\\grupo-24897956\\clasificacion.json",
+      "federacion": "madrid",
+      "competicion": "24897923",
+      "consecuencia": "el grupo se importa igual; sólo se pierde la tabla oficial de este grupo"
+    }
+  ]
+}

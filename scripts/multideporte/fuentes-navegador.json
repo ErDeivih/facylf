@@ -1,0 +1,26 @@
+{
+  "_nota": "Webs que cargan los datos con JavaScript: se graba su API (sondeo del 01/10/2026).",
+  "fuentes": [
+    { "id": "mygol", "url": "https://futbol7amistad.mygol.es/tournaments", "seguir": "a[href*='/tournaments/']" },
+    { "id": "playooz", "url": "https://www.ligasfutbolsiete.com/", "seguir": "a[href*='clasificacion'], a[href*='resultados']" },
+    { "id": "owbasket-rioja", "url": "https://competicionesfrb.owbasket.com/", "seguir": "a[href*='/competicion/']" },
+    { "id": "owbasket-cyl-partido", "url": "https://competiciones.fbcyl.es/partido/90308" },
+    { "id": "isquad-tenis-cuadro", "url": "https://resultadostenis.isquad.es/20/cuadro/159545" },
+    { "id": "isquad-tenis-ranking", "url": "https://resultadostenis.isquad.es/15/ranking/1m" },
+    { "id": "isquad-tenis-campeonato", "url": "https://resultadostenis.isquad.es/19/campeonato/32663" },
+    { "id": "isquad-tenis-calendario", "url": "https://resultadostenis.isquad.es/19/calendario" },
+    { "id": "ftm-tenis", "url": "https://competicion.ftm.es/app/" },
+    { "id": "fct-tenis", "url": "https://portal.fctennis.cat/app/calendario/mensual" },
+    { "id": "ftcv-tenis", "url": "https://ftcv.pistacentral.es/torneos", "seguir": "a[href*='/torneos/']" },
+    { "id": "fep-padel", "url": "https://www.padelfederacion.es/", "seguir": "a[href*='Prueba.asp']" },
+    { "id": "fbm-baloncesto", "url": "https://www.fbm.es/es/horarios-y-resultados" },
+    { "id": "fab-baloncesto", "url": "https://www.andaluzabaloncesto.org/es/resultados-clubes" },
+    { "id": "fcbq-baloncesto", "url": "https://www.basquetcatala.cat/competicions" },
+    { "id": "fbcv-baloncesto", "url": "https://www.fbcv.es/competiciones/calendario-resultados-y-clasificacion/" },
+    { "id": "fegaba-baloncesto", "url": "https://fegaba.com/es/resultados-y-clasificaciones/" },
+    { "id": "fmvoley", "url": "https://fmvoley.com/clasificaciones-y-resultados" },
+    { "id": "fvbcv-voleibol", "url": "https://fvbcv.com/" },
+    { "id": "favoley", "url": "https://www.favoley.net/" },
+    { "id": "rffm-futsal", "url": "https://www.rffm.es/competicion/resultados-y-jornadas" }
+  ]
+}

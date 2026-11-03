@@ -1,0 +1,20 @@
+﻿[
+    {
+        "federacion":  "rioja",
+        "temporada":  "2018-19",
+        "competicion":  "1246042",
+        "grupo":  "1246043",
+        "nombre":  "Gº II",
+        "motivo":  "✗ el calendario de la cola es imposible: 38 partidos entre sólo 2 parejas distintas son más de 4 vueltas, y eso no lo juega ninguna liga. Es la huella del recolector que repetía jornadas; se repara reconstruyendo el calendario desde las actas",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-rioja-2018-19-1246043.txt"
+    },
+    {
+        "federacion":  "rioja",
+        "temporada":  "2018-19",
+        "competicion":  "1252793",
+        "grupo":  "1252794",
+        "nombre":  "Gº II",
+        "motivo":  "✗ el calendario de la cola es imposible: 26 partidos entre sólo 2 parejas distintas son más de 4 vueltas, y eso no lo juega ninguna liga. Es la huella del recolector que repetía jornadas; se repara reconstruyendo el calendario desde las actas",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-rioja-2018-19-1252794.txt"
+    }
+]

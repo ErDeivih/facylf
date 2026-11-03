@@ -1,0 +1,661 @@
+=== 2026-09-25T11:42:51.511Z · 345 grupo(s) ===
+[murcia 2025-26 23990980] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 23990221] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48222087] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48161741] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 23990883] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 21879357] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 23989398] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166980] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[rioja 2025-26 21907585] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 23990086] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2023-24 17145763] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26970815] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26970867] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 24006177] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23170320] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44375328] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6342899] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6342898] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2024-25 22775185] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6342895] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48166349] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24100670] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44374742] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44376077] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48220482] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[rioja 2024-25 21789814] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44375980] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21896180] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44065673] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44367546] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48125139] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48124987] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 47982607] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26954767] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38517744] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2025-26 22853309] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21896535] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21896479] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38679719] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21892778] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21892772] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[rioja 2023-24 1952407] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44375850] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 24123418] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26970918] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48288154] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48193391] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44349757] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6838022] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48349123] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 47576281] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48314381] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23160917] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175483] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7574120] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38651271] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38624054] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38516693] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2023-24 21416659] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2023-24 21274689] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2025-26 22578989] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2025-26 22582336] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23073702] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166914] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175442] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175387] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175515] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175494] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 24011603] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 24019514] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[rioja 2025-26 21941068] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48194459] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2024-25 22078868] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22198789] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2024-25 24014719] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2024-25 24021444] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2022-23 7101527] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33203122] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33202955] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7899601] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7894781] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7894779] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7894773] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7894771] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38685678] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58096166] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7899599] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2023-24 3174547] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 22181118] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2024-25 22078870] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6818293] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48348085] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6841814] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166915] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23074348] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23074334] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[navarra 2023-24 20243466] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2024-25 22180237] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6342883] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6342875] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2025-26 23163435] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23074353] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 47782601] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48093313] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7897844] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26962865] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2023-24 3186886] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2025-26 22577667] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 22185240] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2024-25 22159866] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 24123465] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48193278] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48379937] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24102073] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24101945] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2025-26 22866113] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2024-25 22180286] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48224011] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38701719] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38722890] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[valencia 2025-26 29509732] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 22812780] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2025-26 22849536] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26962881] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48301727] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24101830] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44387368] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2023-24 19955272] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[valencia 2025-26 29509733] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 22700867] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 22963721] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2026-27 48385428] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[murcia 2025-26 24005913] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2025-26 22866054] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48055305] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-leon 2025-26 22911458] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2025-26 22582274] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2025-26 22909822] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166920] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166921] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23166922] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2025-26 23304223] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2025-26 23304228] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26893104] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26956206] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26956211] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48057955] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48057970] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48193237] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48193245] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48198934] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48243555] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48243573] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48250925] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48250974] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48266553] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48283743] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48283807] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48286346] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48286631] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48286653] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48286981] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48287403] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48354486] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48354501] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48365785] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48376257] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48376261] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48379886] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48379897] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48403340] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48403347] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58022996] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58047473] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58047481] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58086095] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58086099] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095851] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095855] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095859] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095863] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095869] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095873] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095878] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095882] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095887] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095891] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095901] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095905] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095911] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095915] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095920] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095924] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095928] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095932] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095936] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095940] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095944] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095955] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095959] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095963] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095969] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58095976] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2025-26 58097533] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[canarias 2025-26 903513444] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2025-26 48287474] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 24123467] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26962857] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2025-26 26962861] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2024-25 22087099] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 22182297] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 22183762] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22304839] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22307063] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-leon 2024-25 22904058] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24100831] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44043213] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44043694] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44043789] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44043839] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44065661] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44145665] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44159682] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44194913] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44222740] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44224596] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44229704] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44359957] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44367335] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44378921] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44387346] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44390286] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44390373] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44436973] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24101812] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2024-25 24101820] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[galicia 2023-24 19968864] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38410792] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38410802] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38536600] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38623926] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38679523] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38679615] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38700194] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38700742] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38701278] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38701923] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38721359] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2023-24 38722384] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6344608] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6817866] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6817868] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6837552] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6840295] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6840740] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2023-24 6840743] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2023-24 7899597] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2023-24 6343245] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 32925682] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 32925746] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 32963287] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33010110] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33010153] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33010200] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33010214] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33133656] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33159223] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33159258] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33202772] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33227061] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33245153] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33267612] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[navarra 2022-23 43850] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2022-23 5737066] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2022-23 5739084] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2022-23 5739172] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2022-23 5739222] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cantabria 2022-23 7475233] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-leon 2022-23 10069230] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23175485] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[cataluna 2026-27 58101651] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2026-27 48379107] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2023-24 2928565] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2023-24 2928646] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[rioja 2026-27 21959361] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2026-27 48365492] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2025-26 23118036] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[canarias 2026-27 903611924] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33246614] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33262522] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2022-23 33268229] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[asturias 2022-23 46823] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2022-23 17119628] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2025-26 23105281] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23002967] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2025-26 22913880] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2025-26 22902452] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2025-26 22902450] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[ceuta 2025-26 21897803] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2025-26 23176030] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2023-24 21366861] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2023-24 21416691] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22314459] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22315655] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2024-25 22320195] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[extremadura 2024-25 22320199] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2024-25 23998776] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[madrid 2024-25 24014724] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44391738] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[andalucia 2024-25 44391743] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2024-25 22364301] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[baleares 2024-25 22511281] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[aragon 2024-25 22314456] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+[castilla-la-mancha 2024-25 22183583] ✗ nextval: reached maximum value of sequence "federation_id_seq" (32767)
+=== 2026-09-25T13:15:51.197Z · 344 grupo(s) ===
+[murcia 2025-26 23990221] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1402 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48222087] RESUMEN: 1 grupo(s) · 0 filas insertadas · 274 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48161741] RESUMEN: 1 grupo(s) · 0 filas insertadas · 284 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 23990883] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1030 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 21879357] RESUMEN: 1 grupo(s) · 0 filas insertadas · 127 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 23989398] RESUMEN: 1 grupo(s) · 0 filas insertadas · 694 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2025-26 21907585] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1084 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166980] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1500 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 23990086] RESUMEN: 1 grupo(s) · 0 filas insertadas · 808 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 17145763] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1329 actualizadas · 27 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26970815] RESUMEN: 1 grupo(s) · 0 filas insertadas · 164 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26970867] RESUMEN: 1 grupo(s) · 0 filas insertadas · 156 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2024-25 22775185] RESUMEN: 1 grupo(s) · 0 filas insertadas · 940 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44375328] RESUMEN: 1 grupo(s) · 0 filas insertadas · 579 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6342898] RESUMEN: 1 grupo(s) · 0 filas insertadas · 417 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6342899] RESUMEN: 1 grupo(s) · 0 filas insertadas · 377 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6342895] RESUMEN: 1 grupo(s) · 0 filas insertadas · 657 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 24006177] RESUMEN: 1 grupo(s) · 0 filas insertadas · 911 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23170320] RESUMEN: 1 grupo(s) · 0 filas insertadas · 647 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48166349] RESUMEN: 1 grupo(s) · 0 filas insertadas · 138 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24100670] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1157 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44374742] RESUMEN: 1 grupo(s) · 0 filas insertadas · 538 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44376077] RESUMEN: 1 grupo(s) · 0 filas insertadas · 427 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48220482] RESUMEN: 1 grupo(s) · 0 filas insertadas · 114 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2024-25 21789814] RESUMEN: 1 grupo(s) · 0 filas insertadas · 597 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44375980] RESUMEN: 1 grupo(s) · 0 filas insertadas · 362 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48125139] RESUMEN: 1 grupo(s) · 0 filas insertadas · 538 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 47982607] RESUMEN: 1 grupo(s) · 0 filas insertadas · 667 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26954767] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1045 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38517744] RESUMEN: 1 grupo(s) · 0 filas insertadas · 595 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44367546] RESUMEN: 1 grupo(s) · 0 filas insertadas · 695 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44065673] RESUMEN: 1 grupo(s) · 0 filas insertadas · 592 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21892772] RESUMEN: 1 grupo(s) · 0 filas insertadas · 521 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2025-26 22853309] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1123 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21896535] RESUMEN: 1 grupo(s) · 0 filas insertadas · 570 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21896479] RESUMEN: 1 grupo(s) · 0 filas insertadas · 521 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38679719] RESUMEN: 1 grupo(s) · 0 filas insertadas · 839 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21896180] RESUMEN: 1 grupo(s) · 0 filas insertadas · 518 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21892778] RESUMEN: 1 grupo(s) · 0 filas insertadas · 512 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48124987] RESUMEN: 1 grupo(s) · 0 filas insertadas · 546 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44375850] RESUMEN: 1 grupo(s) · 0 filas insertadas · 331 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2023-24 1952407] RESUMEN: 1 grupo(s) · 0 filas insertadas · 635 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 24123418] RESUMEN: 1 grupo(s) · 0 filas insertadas · 176 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26970918] RESUMEN: 1 grupo(s) · 0 filas insertadas · 106 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6838022] RESUMEN: 1 grupo(s) · 0 filas insertadas · 891 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48314381] RESUMEN: 1 grupo(s) · 0 filas insertadas · 628 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48349123] RESUMEN: 1 grupo(s) · 0 filas insertadas · 98 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48288154] RESUMEN: 1 grupo(s) · 0 filas insertadas · 582 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23160917] RESUMEN: 1 grupo(s) · 0 filas insertadas · 635 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 47576281] RESUMEN: 1 grupo(s) · 0 filas insertadas · 238 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44349757] RESUMEN: 1 grupo(s) · 0 filas insertadas · 613 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48193391] RESUMEN: 1 grupo(s) · 0 filas insertadas · 664 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175483] RESUMEN: 1 grupo(s) · 0 filas insertadas · 220 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38651271] RESUMEN: 1 grupo(s) · 0 filas insertadas · 354 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38624054] RESUMEN: 1 grupo(s) · 0 filas insertadas · 316 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38516693] RESUMEN: 1 grupo(s) · 0 filas insertadas · 324 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 21416659] RESUMEN: 1 grupo(s) · 0 filas insertadas · 302 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 21274689] RESUMEN: 1 grupo(s) · 0 filas insertadas · 305 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2025-26 22578989] RESUMEN: 1 grupo(s) · 0 filas insertadas · 337 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2025-26 22582336] RESUMEN: 1 grupo(s) · 0 filas insertadas · 538 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23073702] RESUMEN: 1 grupo(s) · 0 filas insertadas · 522 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166914] RESUMEN: 1 grupo(s) · 0 filas insertadas · 309 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175442] RESUMEN: 1 grupo(s) · 0 filas insertadas · 381 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175494] RESUMEN: 1 grupo(s) · 0 filas insertadas · 385 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175387] RESUMEN: 1 grupo(s) · 0 filas insertadas · 207 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7574120] RESUMEN: 1 grupo(s) · 0 filas insertadas · 540 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175515] RESUMEN: 1 grupo(s) · 0 filas insertadas · 212 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 24011603] RESUMEN: 1 grupo(s) · 0 filas insertadas · 266 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 24019514] RESUMEN: 1 grupo(s) · 0 filas insertadas · 256 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2025-26 21941068] RESUMEN: 1 grupo(s) · 0 filas insertadas · 63 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48194459] RESUMEN: 1 grupo(s) · 0 filas insertadas · 70 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2024-25 22078868] RESUMEN: 1 grupo(s) · 0 filas insertadas · 342 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22198789] RESUMEN: 1 grupo(s) · 0 filas insertadas · 525 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2024-25 24014719] RESUMEN: 1 grupo(s) · 0 filas insertadas · 306 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2024-25 24021444] RESUMEN: 1 grupo(s) · 0 filas insertadas · 313 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2022-23 7101527] RESUMEN: 1 grupo(s) · 0 filas insertadas · 527 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33203122] RESUMEN: 1 grupo(s) · 0 filas insertadas · 341 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33202955] RESUMEN: 1 grupo(s) · 0 filas insertadas · 329 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7899601] RESUMEN: 1 grupo(s) · 0 filas insertadas · 213 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7894781] RESUMEN: 1 grupo(s) · 0 filas insertadas · 217 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7894779] RESUMEN: 1 grupo(s) · 0 filas insertadas · 209 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7894773] RESUMEN: 1 grupo(s) · 0 filas insertadas · 202 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7894771] RESUMEN: 1 grupo(s) · 0 filas insertadas · 203 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58096166] RESUMEN: 1 grupo(s) · 0 filas insertadas · 2131 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38685678] RESUMEN: 1 grupo(s) · 0 filas insertadas · 663 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7899599] RESUMEN: 1 grupo(s) · 0 filas insertadas · 124 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2023-24 3174547] RESUMEN: 1 grupo(s) · 0 filas insertadas · 203 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2024-25 22078870] RESUMEN: 1 grupo(s) · 0 filas insertadas · 225 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22181118] RESUMEN: 1 grupo(s) · 0 filas insertadas · 188 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6818293] RESUMEN: 1 grupo(s) · 0 filas insertadas · 404 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6841814] RESUMEN: 1 grupo(s) · 0 filas insertadas · 171 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166915] RESUMEN: 1 grupo(s) · 0 filas insertadas · 470 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48348085] RESUMEN: 1 grupo(s) · 0 filas insertadas · 494 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23074348] RESUMEN: 1 grupo(s) · 0 filas insertadas · 2370 actualizadas · 0 rechazadas · validación correcta en 1/1
+[navarra 2023-24 20243466] RESUMEN: 1 grupo(s) · 0 filas insertadas · 248 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2024-25 22180237] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1851 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6342883] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1286 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6342875] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1358 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2025-26 23163435] RESUMEN: 1 grupo(s) · 0 filas insertadas · 3701 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23074353] RESUMEN: 1 grupo(s) · 0 filas insertadas · 2367 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23074334] RESUMEN: 1 grupo(s) · 0 filas insertadas · 417 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 47782601] RESUMEN: 1 grupo(s) · 0 filas insertadas · 64 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7897844] RESUMEN: 1 grupo(s) · 0 filas insertadas · 358 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48093313] RESUMEN: 1 grupo(s) · 0 filas insertadas · 64 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 24123465] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1437 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2023-24 3186886] RESUMEN: 1 grupo(s) · 0 filas insertadas · 88 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26962865] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1335 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22185240] RESUMEN: 1 grupo(s) · 0 filas insertadas · 30 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2024-25 22159866] RESUMEN: 1 grupo(s) · 0 filas insertadas · 30 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48193278] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1082 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48379937] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1100 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24102073] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1403 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24101945] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1246 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2025-26 22866113] RESUMEN: 1 grupo(s) · 0 filas insertadas · 94 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2025-26 22577667] RESUMEN: 1 grupo(s) · 0 filas insertadas · 270 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2024-25 22180286] RESUMEN: 1 grupo(s) · 0 filas insertadas · 745 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38701719] RESUMEN: 1 grupo(s) · 0 filas insertadas · 559 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38722890] RESUMEN: 1 grupo(s) · 0 filas insertadas · 699 actualizadas · 0 rechazadas · validación correcta en 1/1
+[valencia 2025-26 29509732] RESUMEN: 1 grupo(s) · 0 filas insertadas · 932 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 22812780] RESUMEN: 1 grupo(s) · 0 filas insertadas · 321 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2025-26 22849536] RESUMEN: 1 grupo(s) · 0 filas insertadas · 927 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26962881] RESUMEN: 1 grupo(s) · 0 filas insertadas · 950 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48301727] RESUMEN: 1 grupo(s) · 0 filas insertadas · 981 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24101830] RESUMEN: 1 grupo(s) · 0 filas insertadas · 874 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44387368] RESUMEN: 1 grupo(s) · 0 filas insertadas · 754 actualizadas · 0 rechazadas · validación correcta en 1/1
+[valencia 2025-26 29509733] RESUMEN: 1 grupo(s) · 0 filas insertadas · 960 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 22963721] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1244 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 22700867] RESUMEN: 1 grupo(s) · 0 filas insertadas · 1227 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2023-24 19955272] RESUMEN: 1 grupo(s) · 0 filas insertadas · 815 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48224011] RESUMEN: 1 grupo(s) · 0 filas insertadas · 52 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2025-26 22866054] RESUMEN: 1 grupo(s) · 0 filas insertadas · 438 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2026-27 48385428] RESUMEN: 1 grupo(s) · 0 filas insertadas · 362 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 24005913] RESUMEN: 1 grupo(s) · 0 filas insertadas · 521 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48057955] RESUMEN: 1 grupo(s) · 0 filas insertadas · 262 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2025-26 22911458] RESUMEN: 1 grupo(s) · 0 filas insertadas · 483 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2025-26 22582274] RESUMEN: 1 grupo(s) · 0 filas insertadas · 512 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2025-26 22909822] RESUMEN: 1 grupo(s) · 0 filas insertadas · 473 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166920] RESUMEN: 1 grupo(s) · 0 filas insertadas · 479 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166921] RESUMEN: 1 grupo(s) · 0 filas insertadas · 414 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23166922] RESUMEN: 1 grupo(s) · 0 filas insertadas · 481 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2025-26 23304223] RESUMEN: 1 grupo(s) · 0 filas insertadas · 493 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2025-26 23304228] RESUMEN: 1 grupo(s) · 0 filas insertadas · 508 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26893104] RESUMEN: 1 grupo(s) · 0 filas insertadas · 297 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26956206] RESUMEN: 1 grupo(s) · 0 filas insertadas · 323 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26956211] RESUMEN: 1 grupo(s) · 0 filas insertadas · 305 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48055305] RESUMEN: 1 grupo(s) · 0 filas insertadas · 263 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48057970] RESUMEN: 1 grupo(s) · 0 filas insertadas · 257 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48193237] RESUMEN: 1 grupo(s) · 0 filas insertadas · 304 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48193245] RESUMEN: 1 grupo(s) · 0 filas insertadas · 294 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48198934] RESUMEN: 1 grupo(s) · 0 filas insertadas · 262 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48243555] RESUMEN: 1 grupo(s) · 0 filas insertadas · 305 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48243573] RESUMEN: 1 grupo(s) · 0 filas insertadas · 280 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48250925] RESUMEN: 1 grupo(s) · 0 filas insertadas · 373 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48250974] RESUMEN: 1 grupo(s) · 0 filas insertadas · 392 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48266553] RESUMEN: 1 grupo(s) · 0 filas insertadas · 376 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48283743] RESUMEN: 1 grupo(s) · 0 filas insertadas · 369 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48283807] RESUMEN: 1 grupo(s) · 0 filas insertadas · 298 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48286346] RESUMEN: 1 grupo(s) · 0 filas insertadas · 370 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48286631] RESUMEN: 1 grupo(s) · 0 filas insertadas · 370 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48286653] RESUMEN: 1 grupo(s) · 0 filas insertadas · 374 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48286981] RESUMEN: 1 grupo(s) · 0 filas insertadas · 371 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48287403] RESUMEN: 1 grupo(s) · 0 filas insertadas · 322 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48354486] RESUMEN: 1 grupo(s) · 0 filas insertadas · 496 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48354501] RESUMEN: 1 grupo(s) · 0 filas insertadas · 526 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48365785] RESUMEN: 1 grupo(s) · 0 filas insertadas · 379 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48376257] RESUMEN: 1 grupo(s) · 0 filas insertadas · 323 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48376261] RESUMEN: 1 grupo(s) · 0 filas insertadas · 290 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48379886] RESUMEN: 1 grupo(s) · 0 filas insertadas · 367 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48379897] RESUMEN: 1 grupo(s) · 0 filas insertadas · 362 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48403340] RESUMEN: 1 grupo(s) · 0 filas insertadas · 381 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48403347] RESUMEN: 1 grupo(s) · 0 filas insertadas · 372 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58022996] RESUMEN: 1 grupo(s) · 0 filas insertadas · 353 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58047473] RESUMEN: 1 grupo(s) · 0 filas insertadas · 336 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58047481] RESUMEN: 1 grupo(s) · 0 filas insertadas · 337 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58086095] RESUMEN: 1 grupo(s) · 0 filas insertadas · 350 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58086099] RESUMEN: 1 grupo(s) · 0 filas insertadas · 359 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095851] RESUMEN: 1 grupo(s) · 0 filas insertadas · 345 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095855] RESUMEN: 1 grupo(s) · 0 filas insertadas · 365 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095859] RESUMEN: 1 grupo(s) · 0 filas insertadas · 363 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095863] RESUMEN: 1 grupo(s) · 0 filas insertadas · 379 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095869] RESUMEN: 1 grupo(s) · 0 filas insertadas · 356 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095873] RESUMEN: 1 grupo(s) · 0 filas insertadas · 350 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095878] RESUMEN: 1 grupo(s) · 0 filas insertadas · 357 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095882] RESUMEN: 1 grupo(s) · 0 filas insertadas · 339 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095887] RESUMEN: 1 grupo(s) · 0 filas insertadas · 357 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095891] RESUMEN: 1 grupo(s) · 0 filas insertadas · 340 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095901] RESUMEN: 1 grupo(s) · 0 filas insertadas · 343 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095905] RESUMEN: 1 grupo(s) · 0 filas insertadas · 344 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095911] RESUMEN: 1 grupo(s) · 0 filas insertadas · 337 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095915] RESUMEN: 1 grupo(s) · 0 filas insertadas · 351 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095920] RESUMEN: 1 grupo(s) · 0 filas insertadas · 348 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095924] RESUMEN: 1 grupo(s) · 0 filas insertadas · 373 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095928] RESUMEN: 1 grupo(s) · 0 filas insertadas · 359 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095932] RESUMEN: 1 grupo(s) · 0 filas insertadas · 337 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095936] RESUMEN: 1 grupo(s) · 0 filas insertadas · 359 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095940] RESUMEN: 1 grupo(s) · 0 filas insertadas · 362 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095944] RESUMEN: 1 grupo(s) · 0 filas insertadas · 359 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095955] RESUMEN: 1 grupo(s) · 0 filas insertadas · 384 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095959] RESUMEN: 1 grupo(s) · 0 filas insertadas · 365 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095963] RESUMEN: 1 grupo(s) · 0 filas insertadas · 369 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095969] RESUMEN: 1 grupo(s) · 0 filas insertadas · 383 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58095976] RESUMEN: 1 grupo(s) · 0 filas insertadas · 351 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2025-26 58097533] RESUMEN: 1 grupo(s) · 0 filas insertadas · 352 actualizadas · 0 rechazadas · validación correcta en 1/1
+[canarias 2025-26 903513444] RESUMEN: 1 grupo(s) · 0 filas insertadas · 514 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48287474] RESUMEN: 1 grupo(s) · 0 filas insertadas · 226 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 24123467] RESUMEN: 1 grupo(s) · 0 filas insertadas · 341 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26962857] RESUMEN: 1 grupo(s) · 0 filas insertadas · 328 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26962861] RESUMEN: 1 grupo(s) · 0 filas insertadas · 242 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2024-25 22087099] RESUMEN: 1 grupo(s) · 0 filas insertadas · 499 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22182297] RESUMEN: 1 grupo(s) · 0 filas insertadas · 455 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22183762] RESUMEN: 1 grupo(s) · 0 filas insertadas · 462 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22304839] RESUMEN: 1 grupo(s) · 0 filas insertadas · 443 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22307063] RESUMEN: 1 grupo(s) · 0 filas insertadas · 496 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2024-25 22904058] RESUMEN: 1 grupo(s) · 0 filas insertadas · 475 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24100831] RESUMEN: 1 grupo(s) · 0 filas insertadas · 491 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44043213] RESUMEN: 1 grupo(s) · 0 filas insertadas · 302 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44043694] RESUMEN: 1 grupo(s) · 0 filas insertadas · 256 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44043789] RESUMEN: 1 grupo(s) · 0 filas insertadas · 256 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44043839] RESUMEN: 1 grupo(s) · 0 filas insertadas · 290 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44065661] RESUMEN: 1 grupo(s) · 0 filas insertadas · 255 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44145665] RESUMEN: 1 grupo(s) · 0 filas insertadas · 312 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44159682] RESUMEN: 1 grupo(s) · 0 filas insertadas · 318 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44194913] RESUMEN: 1 grupo(s) · 0 filas insertadas · 354 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44222740] RESUMEN: 1 grupo(s) · 0 filas insertadas · 338 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44224596] RESUMEN: 1 grupo(s) · 0 filas insertadas · 301 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44229704] RESUMEN: 1 grupo(s) · 0 filas insertadas · 309 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44359957] RESUMEN: 1 grupo(s) · 0 filas insertadas · 364 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44367335] RESUMEN: 1 grupo(s) · 0 filas insertadas · 384 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44378921] RESUMEN: 1 grupo(s) · 0 filas insertadas · 321 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44387346] RESUMEN: 1 grupo(s) · 0 filas insertadas · 376 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44390286] RESUMEN: 1 grupo(s) · 0 filas insertadas · 457 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44390373] RESUMEN: 1 grupo(s) · 0 filas insertadas · 446 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44436973] RESUMEN: 1 grupo(s) · 0 filas insertadas · 374 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24101812] RESUMEN: 1 grupo(s) · 0 filas insertadas · 305 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2024-25 24101820] RESUMEN: 1 grupo(s) · 0 filas insertadas · 237 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2023-24 19968864] RESUMEN: 1 grupo(s) · 0 filas insertadas · 490 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38410792] RESUMEN: 1 grupo(s) · 0 filas insertadas · 306 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38410802] RESUMEN: 1 grupo(s) · 0 filas insertadas · 262 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38536600] RESUMEN: 1 grupo(s) · 0 filas insertadas · 280 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38623926] RESUMEN: 1 grupo(s) · 0 filas insertadas · 326 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38679523] RESUMEN: 1 grupo(s) · 0 filas insertadas · 380 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38679615] RESUMEN: 1 grupo(s) · 0 filas insertadas · 383 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38700194] RESUMEN: 1 grupo(s) · 0 filas insertadas · 381 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38700742] RESUMEN: 1 grupo(s) · 0 filas insertadas · 325 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38701278] RESUMEN: 1 grupo(s) · 0 filas insertadas · 450 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38701923] RESUMEN: 1 grupo(s) · 0 filas insertadas · 462 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38721359] RESUMEN: 1 grupo(s) · 0 filas insertadas · 398 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38722384] RESUMEN: 1 grupo(s) · 0 filas insertadas · 252 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6344608] RESUMEN: 1 grupo(s) · 0 filas insertadas · 490 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6817866] RESUMEN: 1 grupo(s) · 0 filas insertadas · 442 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6817868] RESUMEN: 1 grupo(s) · 0 filas insertadas · 448 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6837552] RESUMEN: 1 grupo(s) · 0 filas insertadas · 453 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6840295] RESUMEN: 1 grupo(s) · 0 filas insertadas · 481 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6840740] RESUMEN: 1 grupo(s) · 0 filas insertadas · 428 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6840743] RESUMEN: 1 grupo(s) · 0 filas insertadas · 455 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2023-24 7899597] RESUMEN: 1 grupo(s) · 0 filas insertadas · 491 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2023-24 6343245] RESUMEN: 1 grupo(s) · 0 filas insertadas · 400 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 32925682] RESUMEN: 1 grupo(s) · 0 filas insertadas · 250 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 32925746] RESUMEN: 1 grupo(s) · 0 filas insertadas · 249 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 32963287] RESUMEN: 1 grupo(s) · 0 filas insertadas · 269 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33010110] RESUMEN: 1 grupo(s) · 0 filas insertadas · 283 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33010153] RESUMEN: 1 grupo(s) · 0 filas insertadas · 297 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33010200] RESUMEN: 1 grupo(s) · 0 filas insertadas · 247 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33010214] RESUMEN: 1 grupo(s) · 0 filas insertadas · 250 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33133656] RESUMEN: 1 grupo(s) · 0 filas insertadas · 283 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33159223] RESUMEN: 1 grupo(s) · 0 filas insertadas · 331 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33159258] RESUMEN: 1 grupo(s) · 0 filas insertadas · 331 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33202772] RESUMEN: 1 grupo(s) · 0 filas insertadas · 256 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33227061] RESUMEN: 1 grupo(s) · 0 filas insertadas · 377 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33245153] RESUMEN: 1 grupo(s) · 0 filas insertadas · 373 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33267612] RESUMEN: 1 grupo(s) · 0 filas insertadas · 385 actualizadas · 0 rechazadas · validación correcta en 1/1
+[navarra 2022-23 43850] RESUMEN: 1 grupo(s) · 0 filas insertadas · 334 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2022-23 5737066] RESUMEN: 1 grupo(s) · 0 filas insertadas · 462 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2022-23 5739084] RESUMEN: 1 grupo(s) · 0 filas insertadas · 449 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2022-23 5739172] RESUMEN: 1 grupo(s) · 0 filas insertadas · 438 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2022-23 5739222] RESUMEN: 1 grupo(s) · 0 filas insertadas · 391 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cantabria 2022-23 7475233] RESUMEN: 1 grupo(s) · 0 filas insertadas · 486 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-leon 2022-23 10069230] RESUMEN: 1 grupo(s) · 0 filas insertadas · 166 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175485] RESUMEN: 1 grupo(s) · 0 filas insertadas · 101 actualizadas · 0 rechazadas · validación correcta en 1/1
+[cataluna 2026-27 58101651] RESUMEN: 1 grupo(s) · 0 filas insertadas · 282 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2026-27 48379107] RESUMEN: 1 grupo(s) · 0 filas insertadas · 82 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2023-24 2928565] RESUMEN: 1 grupo(s) · 0 filas insertadas · 33 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2023-24 2928646] RESUMEN: 1 grupo(s) · 0 filas insertadas · 33 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2026-27 21959361] RESUMEN: 1 grupo(s) · 0 filas insertadas · 181 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2026-27 48365492] RESUMEN: 1 grupo(s) · 0 filas insertadas · 147 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2025-26 23118036] RESUMEN: 1 grupo(s) · 0 filas insertadas · 255 actualizadas · 0 rechazadas · validación correcta en 1/1
+[canarias 2026-27 903611924] RESUMEN: 1 grupo(s) · 0 filas insertadas · 277 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33246614] RESUMEN: 1 grupo(s) · 0 filas insertadas · 212 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33262522] RESUMEN: 1 grupo(s) · 0 filas insertadas · 200 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2022-23 33268229] RESUMEN: 1 grupo(s) · 0 filas insertadas · 164 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2022-23 46823] RESUMEN: 1 grupo(s) · 0 filas insertadas · 209 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2022-23 17119628] RESUMEN: 1 grupo(s) · 0 filas insertadas · 36 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2025-26 23105281] RESUMEN: 1 grupo(s) · 0 filas insertadas · 244 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23002967] RESUMEN: 1 grupo(s) · 0 filas insertadas · 187 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2025-26 22913880] RESUMEN: 1 grupo(s) · 0 filas insertadas · 144 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2025-26 22902452] RESUMEN: 1 grupo(s) · 0 filas insertadas · 254 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2025-26 22902450] RESUMEN: 1 grupo(s) · 0 filas insertadas · 246 actualizadas · 0 rechazadas · validación correcta en 1/1
+[ceuta 2025-26 21897803] RESUMEN: 1 grupo(s) · 0 filas insertadas · 134 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23176030] RESUMEN: 1 grupo(s) · 0 filas insertadas · 97 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 21366861] RESUMEN: 1 grupo(s) · 0 filas insertadas · 143 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 21416691] RESUMEN: 1 grupo(s) · 0 filas insertadas · 157 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22314459] RESUMEN: 1 grupo(s) · 0 filas insertadas · 147 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22315655] RESUMEN: 1 grupo(s) · 0 filas insertadas · 238 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2024-25 22320195] RESUMEN: 1 grupo(s) · 0 filas insertadas · 256 actualizadas · 0 rechazadas · validación correcta en 1/1
+[extremadura 2024-25 22320199] RESUMEN: 1 grupo(s) · 0 filas insertadas · 262 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2024-25 23998776] RESUMEN: 1 grupo(s) · 0 filas insertadas · 141 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2024-25 24014724] RESUMEN: 1 grupo(s) · 0 filas insertadas · 164 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44391738] RESUMEN: 1 grupo(s) · 0 filas insertadas · 174 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2024-25 44391743] RESUMEN: 1 grupo(s) · 0 filas insertadas · 189 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2024-25 22364301] RESUMEN: 1 grupo(s) · 0 filas insertadas · 111 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2024-25 22511281] RESUMEN: 1 grupo(s) · 0 filas insertadas · 108 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2024-25 22314456] RESUMEN: 1 grupo(s) · 0 filas insertadas · 166 actualizadas · 0 rechazadas · validación correcta en 1/1
+[castilla-la-mancha 2024-25 22183583] RESUMEN: 1 grupo(s) · 0 filas insertadas · 33 actualizadas · 0 rechazadas · validación correcta en 1/1
+[navarra 2024-25 22180346] RESUMEN: 1 grupo(s) · 0 filas insertadas · 146 actualizadas · 0 rechazadas · validación correcta en 1/1
+[navarra 2024-25 22180304] RESUMEN: 1 grupo(s) · 0 filas insertadas · 140 actualizadas · 0 rechazadas · validación correcta en 1/1
+[baleares 2024-25 22087112] RESUMEN: 1 grupo(s) · 0 filas insertadas · 242 actualizadas · 0 rechazadas · validación correcta en 1/1
+[rioja 2024-25 2115494] RESUMEN: 1 grupo(s) · 0 filas insertadas · 242 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48407957] RESUMEN: 1 grupo(s) · 0 filas insertadas · 40 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26964242] RESUMEN: 1 grupo(s) · 0 filas insertadas · 36 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26964227] RESUMEN: 1 grupo(s) · 0 filas insertadas · 36 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26934916] RESUMEN: 1 grupo(s) · 0 filas insertadas · 73 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26934912] RESUMEN: 1 grupo(s) · 0 filas insertadas · 79 actualizadas · 0 rechazadas · validación correcta en 1/1
+[galicia 2025-26 26934908] RESUMEN: 1 grupo(s) · 0 filas insertadas · 65 actualizadas · 0 rechazadas · validación correcta en 1/1
+[valencia 2025-26 904950736] RESUMEN: 1 grupo(s) · 0 filas insertadas · 158 actualizadas · 0 rechazadas · validación correcta en 1/1
+[canarias 2025-26 903011024] RESUMEN: 1 grupo(s) · 0 filas insertadas · 261 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48287099] RESUMEN: 1 grupo(s) · 0 filas insertadas · 172 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2025-26 48287080] RESUMEN: 1 grupo(s) · 0 filas insertadas · 183 actualizadas · 0 rechazadas · validación correcta en 1/1
+[euskadi 2025-26 24038325] RESUMEN: 1 grupo(s) · 3 filas insertadas · 161 actualizadas · 0 rechazadas · validación correcta en 1/1
+[murcia 2025-26 24026668] RESUMEN: 1 grupo(s) · 0 filas insertadas · 123 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23176036] RESUMEN: 1 grupo(s) · 0 filas insertadas · 158 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175806] RESUMEN: 1 grupo(s) · 0 filas insertadas · 232 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175431] RESUMEN: 1 grupo(s) · 0 filas insertadas · 178 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175355] RESUMEN: 1 grupo(s) · 0 filas insertadas · 142 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175321] RESUMEN: 1 grupo(s) · 0 filas insertadas · 144 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175317] RESUMEN: 1 grupo(s) · 0 filas insertadas · 167 actualizadas · 0 rechazadas · validación correcta en 1/1
+[madrid 2023-24 21416806] RESUMEN: 1 grupo(s) · 0 filas insertadas · 158 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38677172] RESUMEN: 1 grupo(s) · 0 filas insertadas · 163 actualizadas · 0 rechazadas · validación correcta en 1/1
+[andalucia 2023-24 38677174] RESUMEN: 1 grupo(s) · 0 filas insertadas · 171 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6833828] RESUMEN: 1 grupo(s) · 0 filas insertadas · 205 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6841991] RESUMEN: 1 grupo(s) · 0 filas insertadas · 241 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6842026] RESUMEN: 1 grupo(s) · 0 filas insertadas · 172 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2023-24 6842044] RESUMEN: 1 grupo(s) · 0 filas insertadas · 144 actualizadas · 0 rechazadas · validación correcta en 1/1
+[asturias 2023-24 9730666] RESUMEN: 1 grupo(s) · 0 filas insertadas · 225 actualizadas · 0 rechazadas · validación correcta en 1/1
+[aragon 2025-26 23175486] RESUMEN: 1 grupo(s) · 0 filas insertadas · 109 actualizadas · 0 rechazadas · validación correcta en 1/1
+=== fin 2026-09-25T13:31:02.047Z · 344 con resumen · 0 sin él ===

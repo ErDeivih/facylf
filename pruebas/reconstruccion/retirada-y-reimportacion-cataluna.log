@@ -1,0 +1,24 @@
+﻿=== 2026-09-25T11:53:15.6203641+02:00 ===
+[57874692]   lote 22922: 62 filas retiradas con diario · se deshace con `pnpm importar --revertir 22922` | RESUMEN: 1 grupo(s) · 188 filas insertadas · 37 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58058302]   lote 22925: 55 filas retiradas con diario · se deshace con `pnpm importar --revertir 22925` | RESUMEN: 1 grupo(s) · 196 filas insertadas · 12 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54722061]   lote 22927: 403 filas retiradas con diario · se deshace con `pnpm importar --revertir 22927` | RESUMEN: 1 grupo(s) · 1419 filas insertadas · 99 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55381115]   lote 22929: 363 filas retiradas con diario · se deshace con `pnpm importar --revertir 22929` | RESUMEN: 1 grupo(s) · 1262 filas insertadas · 102 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54327911]   lote 22931: 252 filas retiradas con diario · se deshace con `pnpm importar --revertir 22931` | RESUMEN: 1 grupo(s) · 794 filas insertadas · 79 actualizadas · 0 rechazadas · validación correcta en 1/1
+[56639555]   lote 22933: 289 filas retiradas con diario · se deshace con `pnpm importar --revertir 22933` | RESUMEN: 1 grupo(s) · 917 filas insertadas · 91 actualizadas · 0 rechazadas · validación correcta en 1/1
+[57989256]   lote 22935: 116 filas retiradas con diario · se deshace con `pnpm importar --revertir 22935` | RESUMEN: 1 grupo(s) · 338 filas insertadas · 24 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58055841]   lote 22937: 108 filas retiradas con diario · se deshace con `pnpm importar --revertir 22937` | RESUMEN: 1 grupo(s) · 335 filas insertadas · 34 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54492383]   lote 22939: 377 filas retiradas con diario · se deshace con `pnpm importar --revertir 22939` | RESUMEN: 1 grupo(s) · 1346 filas insertadas · 89 actualizadas · 0 rechazadas · validación correcta en 1/1
+[57957169]   lote 22941: 101 filas retiradas con diario · se deshace con `pnpm importar --revertir 22941` | RESUMEN: 1 grupo(s) · 290 filas insertadas · 26 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54757767]   lote 22943: 276 filas retiradas con diario · se deshace con `pnpm importar --revertir 22943` | RESUMEN: 1 grupo(s) · 986 filas insertadas · 114 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55462711]   lote 22945: 221 filas retiradas con diario · se deshace con `pnpm importar --revertir 22945` | RESUMEN: 1 grupo(s) · 790 filas insertadas · 77 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55764830]   lote 22947: 319 filas retiradas con diario · se deshace con `pnpm importar --revertir 22947` | RESUMEN: 1 grupo(s) · 1126 filas insertadas · 89 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55765438]   lote 22949: 278 filas retiradas con diario · se deshace con `pnpm importar --revertir 22949` | RESUMEN: 1 grupo(s) · 972 filas insertadas · 103 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54322948]   lote 22951: 530 filas retiradas con diario · se deshace con `pnpm importar --revertir 22951` | RESUMEN: 1 grupo(s) · 1965 filas insertadas · 114 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54491773]   lote 22953: 326 filas retiradas con diario · se deshace con `pnpm importar --revertir 22953` | RESUMEN: 1 grupo(s) · 1103 filas insertadas · 78 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54817775]   lote 22955: 346 filas retiradas con diario · se deshace con `pnpm importar --revertir 22955` | RESUMEN: 1 grupo(s) · 1083 filas insertadas · 99 actualizadas · 0 rechazadas · validación correcta en 1/1
+[56056953]   lote 22957: 676 filas retiradas con diario · se deshace con `pnpm importar --revertir 22957` | RESUMEN: 1 grupo(s) · 1676 filas insertadas · 111 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58095949]   lote 22959: 60 filas retiradas con diario · se deshace con `pnpm importar --revertir 22959` | RESUMEN: 1 grupo(s) · 221 filas insertadas · 20 actualizadas · 0 rechazadas · validación correcta en 1/1
+[58047477]   lote 22961: 47 filas retiradas con diario · se deshace con `pnpm importar --revertir 22961` | RESUMEN: 1 grupo(s) · 179 filas insertadas · 16 actualizadas · 0 rechazadas · validación correcta en 1/1
+[54322937]   lote 22963: 2318 filas retiradas con diario · se deshace con `pnpm importar --revertir 22963` | RESUMEN: 1 grupo(s) · 3924 filas insertadas · 143 actualizadas · 0 rechazadas · validación correcta en 1/1
+[55458432]   lote 22965: 292 filas retiradas con diario · se deshace con `pnpm importar --revertir 22965` | RESUMEN: 1 grupo(s) · 897 filas insertadas · 102 actualizadas · 8 rechazadas · validación correcta en 1/1
+=== fin 2026-09-25T11:56:42.6292125+02:00 ===

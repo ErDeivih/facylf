@@ -1,0 +1,5 @@
+{ "fuentes": [
+  { "id": "playooz-eventos", "url": "https://www.ligasfutbolsiete.com/eventos", "seguir": "a[href*='/resultados'], a[href*='/clasificacion'], a[href*='/resumen']" },
+  { "id": "ftm-calendario", "url": "https://competicion.ftm.es/app/calendario/mensual", "seguir": "a[href*='torneos/']" },
+  { "id": "fct-calendario", "url": "https://portal.fctennis.cat/app/calendario/mensual", "seguir": "a[href*='torneos/']" }
+] }

@@ -123,7 +123,20 @@ $env:FACYLF_CHROME_HEADLESS = '1'
 # Por eso `federacion` YA NO está en esta lista: se recoge aquí, pero sólo la temporada que le toca. Si algún día
 # hay que pararla del todo en el PC, lo que se hace es volver a meterla en la lista, NO borrar su fichero de
 # asignación (borrarlo la dejaría trabajando todas las temporadas y duplicaría con el servidor).
-$env:FACYLF_EXCLUIR = 'melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja'
+# ── 02/11/2026: EL PC SE QUEDA SÓLO CON CASTILLA Y LEÓN (decisión de David) ────────────────────────────────
+#
+# David: «en PC sólo quiero CyL, no más federaciones». Así que aquí se excluyen TODAS menos `federacion`:
+# las 14 que ya se excluían (las del servidor) más Andalucía, Madrid, Cataluña, Valencia, Bizkaia, Gipuzkoa,
+# Araba, Las Palmas y Tenerife, que hasta hoy se recogían en este PC.
+#
+# El reparto de temporadas de CyL entre las dos máquinas NO cambia (lo lee cada máquina de su
+# `temporadas-asignadas.txt`, no de aquí): el PC sigue con 2025-26, 2023-24, 2021-22, 2019-20, 2017-18,
+# 2015-16 y 2013-14, y el servidor con el resto. Así las dos piden a rfcylf.es sin repetir temporada.
+#
+# OJO, CONSECUENCIA QUE HAY QUE TENER PRESENTE: con esta línea, Andalucía, Madrid, Cataluña, Valencia y las
+# cinco provinciales dejan de recogerse (el servidor tiene excluidas valencia, madrid y cataluna, y las demás
+# nunca estuvieron allí). Si algún día se quieren de vuelta, se quitan de esta lista y se reinicia el supervisor.
+$env:FACYLF_EXCLUIR = 'melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja,andalucia,madrid,cataluna,valencia,bizkaia,gipuzkoa,araba,laspalmas,tenerife'
 
 # ── SE RETOMA EL HISTÓRICO: EL SUELO BAJA DE 2023-24 A 2010-11 (06/10/2026) ───────────────────────────────
 #

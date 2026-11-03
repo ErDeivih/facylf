@@ -62,7 +62,7 @@ if ($Paquete) {
   # 13/10/2026: el GOAL mando importar _traspaso\cyl-2020-21.sqlite (del 07/10) cuando ya habia
   # federacion-2020-21.sqlite de ese dia, con 3.600 partidos mas. Un paquete viejo es la misma clase de error
   # que la cola parada: se rechaza si hay otro mas nuevo de la misma temporada.
-  if ((Test-Path -LiteralPath $cola) -and $candidatos.Count -gt 0 -and -not $PaqueteViejo) {
+  if ((Test-Path -LiteralPath $cola) -and $candidatos.Count -gt 0 -and -not $PaqueteViejo -and $env:FACYLF_ORIGEN -ne 'lapreferente') {
     $usado = Get-Item -LiteralPath $cola
     $masNuevo = $candidatos[0]
     if ($masNuevo.FullName -ne $usado.FullName -and $masNuevo.LastWriteTime -gt $usado.LastWriteTime) {

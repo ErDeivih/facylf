@@ -1,0 +1,19 @@
+{
+  "_nota": "Candidatas de la investigación del 30/09/2026 (docs/plataforma-web/MULTIDEPORTE.md). Una página pública por fuente; nada de recorrer. 'politica' manda: 'no' = no se pide nada (términos que prohíben la extracción o robots que veta a agentes automáticos).",
+  "fuentes": [
+    { "id": "voleibol-isquad-cataluna", "deporte": "voleibol", "plataforma": "isquad", "politica": "sondeo", "url": "https://resultadosvoleibol.isquad.es/competicion.php?id_superficie=1&seleccion=0&id_territorial=17" },
+    { "id": "tenis-isquad-rfet", "deporte": "tenis", "plataforma": "isquad", "politica": "sondeo", "url": "https://resultadostenis.isquad.es/" },
+    { "id": "baloncesto-feb-autonomicas-aragon", "deporte": "baloncesto", "plataforma": "feb-autonomicas", "politica": "sondeo", "url": "https://competiciones.feb.es/autonomicas/?a=3" },
+    { "id": "baloncesto-feb-autonomicas-cyl", "deporte": "baloncesto", "plataforma": "feb-autonomicas", "politica": "sondeo", "url": "https://competiciones.feb.es/autonomicas/?a=9" },
+    { "id": "baloncesto-feb-envivo-eba", "deporte": "baloncesto", "plataforma": "feb-envivo", "politica": "sondeo", "url": "https://baloncestoenvivo.feb.es/resultados/ligaeba/57/2025" },
+    { "id": "baloncesto-gesdeportiva-cyl", "deporte": "baloncesto", "plataforma": "gesdeportiva", "politica": "sondeo", "url": "https://www.fbcyl.es/competiciones/resultados/5430" },
+    { "id": "baloncesto-gesdeportiva-asturias", "deporte": "baloncesto", "plataforma": "gesdeportiva", "politica": "sondeo", "url": "https://www.fbpa.es/competicion-17432/" },
+    { "id": "voleibol-dataproject-sl2", "deporte": "voleibol", "plataforma": "dataproject", "politica": "sondeo", "url": "https://rfevb-web.dataproject.com/CompetitionHome.aspx?ID=153" },
+    { "id": "futbol-amateur-futormes", "deporte": "futbol", "plataforma": "serversports", "politica": "sondeo", "url": "https://www.futormes.com/mod/soccer/competitions.aspx" },
+    { "id": "futbol-amateur-futzaragoza", "deporte": "futbol", "plataforma": "serversports", "politica": "sondeo", "url": "https://www.futzaragoza.com/mod/soccer/competitions.aspx" },
+    { "id": "futsal-amateur-asofusa", "deporte": "futbol", "plataforma": "serversports", "politica": "sondeo", "url": "https://www.asofusa.com/mod/soccer/index.aspx" },
+    { "id": "municipal-madrid-datos-abiertos", "deporte": "multideporte", "plataforma": "datos-abiertos-madrid", "politica": "sondeo", "url": "https://datos.madrid.es/dataset/211549-0-juegos-deportivos-actual", "notaPolitica": "CC BY 4.0, pero robots.txt veta la descarga automática de /resource/: el CSV se baja a mano (semanal, los miércoles) o se pide al Ayuntamiento." },
+    { "id": "clupik-leverade", "deporte": "multideporte", "plataforma": "clupik", "politica": "no", "url": "https://clupik.pro/", "notaPolitica": "Términos 12.2.3 prohíben scraping y bots. Sólo por convenio." },
+    { "id": "competize", "deporte": "multideporte", "plataforma": "competize", "politica": "no", "url": "https://www.competize.com/", "notaPolitica": "robots.txt veta a ClaudeBot/GPTBot y el aviso legal prohíbe la reproducción. Sólo por convenio." }
+  ]
+}

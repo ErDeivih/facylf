@@ -1,0 +1,214 @@
+{
+ "cuando": "2026-09-25T08:54:04.863Z",
+ "totales": {
+  "colas": 20,
+  "filasDeActa": 783874,
+  "actasDistintas": 654251,
+  "copias": 129623,
+  "gruposConCopias": 1073,
+  "trabajosDeActaPendientes": 349482,
+  "trabajosCopiados": 129623
+ },
+ "colas": [
+  {
+   "federacion": "cataluna",
+   "filasDeActa": 144064,
+   "actasDistintas": 14460,
+   "copias": 129604,
+   "filasHechas": 13013,
+   "gruposConCopias": 1070,
+   "trabajosDeActaPendientes": 131051,
+   "trabajosCopiados": 129604
+  },
+  {
+   "federacion": "andalucia",
+   "filasDeActa": 67733,
+   "actasDistintas": 67718,
+   "copias": 15,
+   "filasHechas": 12407,
+   "gruposConCopias": 2,
+   "trabajosDeActaPendientes": 55326,
+   "trabajosCopiados": 15
+  },
+  {
+   "federacion": "aragon",
+   "filasDeActa": 35260,
+   "actasDistintas": 35256,
+   "copias": 4,
+   "filasHechas": 23544,
+   "gruposConCopias": 1,
+   "trabajosDeActaPendientes": 11712,
+   "trabajosCopiados": 4
+  },
+  {
+   "federacion": "asturias",
+   "filasDeActa": 44923,
+   "actasDistintas": 44923,
+   "copias": 0,
+   "filasHechas": 24787,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 19422,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "baleares",
+   "filasDeActa": 37407,
+   "actasDistintas": 37407,
+   "copias": 0,
+   "filasHechas": 22621,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 14785,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "canarias",
+   "filasDeActa": 1883,
+   "actasDistintas": 1883,
+   "copias": 0,
+   "filasHechas": 1837,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 0,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "cantabria",
+   "filasDeActa": 35971,
+   "actasDistintas": 35971,
+   "copias": 0,
+   "filasHechas": 27763,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 8079,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "castilla-la-mancha",
+   "filasDeActa": 35500,
+   "actasDistintas": 35500,
+   "copias": 0,
+   "filasHechas": 23720,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 11759,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "ceuta",
+   "filasDeActa": 17867,
+   "actasDistintas": 17867,
+   "copias": 0,
+   "filasHechas": 17607,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 257,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "euskadi",
+   "filasDeActa": 19798,
+   "actasDistintas": 19798,
+   "copias": 0,
+   "filasHechas": 17688,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 409,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "extremadura",
+   "filasDeActa": 37039,
+   "actasDistintas": 37039,
+   "copias": 0,
+   "filasHechas": 27821,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 9210,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "castilla-leon",
+   "filasDeActa": 54882,
+   "actasDistintas": 54882,
+   "copias": 0,
+   "filasHechas": 33164,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 16534,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "galicia",
+   "filasDeActa": 44250,
+   "actasDistintas": 44250,
+   "copias": 0,
+   "filasHechas": 22552,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 21013,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "madrid",
+   "filasDeActa": 53347,
+   "actasDistintas": 53347,
+   "copias": 0,
+   "filasHechas": 31934,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 21234,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "melilla",
+   "filasDeActa": 1112,
+   "actasDistintas": 1112,
+   "copias": 0,
+   "filasHechas": 894,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 218,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "murcia",
+   "filasDeActa": 36430,
+   "actasDistintas": 36430,
+   "copias": 0,
+   "filasHechas": 26078,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 10352,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "navarra",
+   "filasDeActa": 31474,
+   "actasDistintas": 31474,
+   "copias": 0,
+   "filasHechas": 19685,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 9551,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "prueba-10gb",
+   "filasDeActa": 356,
+   "actasDistintas": 356,
+   "copias": 0,
+   "filasHechas": 0,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 0,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "rioja",
+   "filasDeActa": 23234,
+   "actasDistintas": 23234,
+   "copias": 0,
+   "filasHechas": 21656,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 1383,
+   "trabajosCopiados": 0
+  },
+  {
+   "federacion": "valencia",
+   "filasDeActa": 61344,
+   "actasDistintas": 61344,
+   "copias": 0,
+   "filasHechas": 54142,
+   "gruposConCopias": 0,
+   "trabajosDeActaPendientes": 7187,
+   "trabajosCopiados": 0
+  }
+ ]
+}

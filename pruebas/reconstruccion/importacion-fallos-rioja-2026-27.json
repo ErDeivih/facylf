@@ -1,0 +1,20 @@
+﻿[
+    {
+        "federacion":  "rioja",
+        "temporada":  "2026-27",
+        "competicion":  "21959332",
+        "grupo":  "21959333",
+        "nombre":  "Grupo 5",
+        "motivo":  "✗ upsert en core.team_entry (team_season_id, phase_group_id): duplicate key value violates unique constraint \"team_entry_referencia_contextual_uq\"",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-rioja-2026-27-21959333.txt"
+    },
+    {
+        "federacion":  "rioja",
+        "temporada":  "2026-27",
+        "competicion":  "21959334",
+        "grupo":  "21959335",
+        "nombre":  "Grupo Único",
+        "motivo":  "✗ upsert en core.team_entry (team_season_id, phase_group_id): duplicate key value violates unique constraint \"team_entry_referencia_contextual_uq\"",
+        "salida":  "F:\\EspacioCodigo\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-rioja-2026-27-21959335.txt"
+    }
+]
