@@ -15,7 +15,7 @@ const comoRol = async (rol, sql, params = []) => {
 
 let total = 0; const fallos = []; const sinParametros = [];
 for (const f of readdirSync(DIR).filter((x) => x.endsWith('.ts') && x !== 'contratos.ts')) {
-  const src = readFileSync(join(DIR, f), 'utf8');
+  const src = readFileSync(join(DIR, f), 'utf8').replaceAll('\r\n', '\n');
   const params = {};
   const bloque = src.match(/export const PARAMETROS_\w+[^=]*= \{([\s\S]*?)\n\};/);
   if (bloque) for (const l of bloque[1].split('\n')) {

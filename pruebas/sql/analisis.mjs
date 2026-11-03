@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'analisis.ts'), 'utf8');
+const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'analisis.ts'), 'utf8').replaceAll('\r\n', '\n');
 const sqlDe = (n) => { const i = src.indexOf(`nombre: '${n}'`); const a = src.indexOf('sql: `', i) + 6; return src.slice(a, src.indexOf('`,\n};', a)); };
 const db = await base29(); const q = async (s, p) => (await db.query(s, p)).rows;
 // Equipo A (te 1) contra B (te 2) y C (te 3). Resultados de A, en orden: G G E P G G G; un partido futuro sin resultado.

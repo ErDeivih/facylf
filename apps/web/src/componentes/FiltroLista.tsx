@@ -23,7 +23,7 @@ export function FiltroLista({ entradas, etiqueta = 'Buscar' }: { entradas: Entra
         <label className="sr-only" htmlFor="filtro-lista">{etiqueta}</label>
         <input id="filtro-lista" value={consulta} onChange={(e) => setConsulta(e.target.value)}
           placeholder={`${etiqueta}…`}
-          className="w-full rounded border border-[var(--borde)] bg-white px-3 py-2 text-sm outline-none focus:border-club" />
+          className="w-full rounded border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 py-2 text-sm outline-none focus:border-[var(--accion)]" />
         <p className="mt-2 text-xs text-[var(--texto-suave)]">{visibles.length} resultados</p>
       </div>
       <ul>

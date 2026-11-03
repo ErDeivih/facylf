@@ -65,7 +65,14 @@ export function TablaDatos<F>({ filas, columnas, caption, clave, enlaceFila, col
   }
   const principal = columnaPrincipal ?? 0;
   return (
-    <div className="overflow-x-auto border border-[var(--borde)]">
+    <div
+      className="overflow-x-auto border border-[var(--borde)] focus-visible:outline-2 focus-visible:outline-[var(--foco)]"
+      // El contenedor es la única forma de llegar a las columnas de la derecha sin ratón: con foco,
+      // las flechas del teclado desplazan. `role="region"` le da al lector de pantalla un nombre.
+      tabIndex={0}
+      role="region"
+      aria-label={caption}
+    >
       <table className="w-full border-collapse text-left text-[0.8125rem] tabular-nums">
         <caption className="sr-only">{caption}</caption>
         <thead>

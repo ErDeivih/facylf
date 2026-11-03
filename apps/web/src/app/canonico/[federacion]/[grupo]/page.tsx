@@ -24,10 +24,10 @@ const marcador = (p: FilaPartidoCanonico): string =>
 function SinCanonico({ motivo }: { motivo: string }) {
   return <>
     <h2 className="font-display text-2xl uppercase">Detalle del grupo</h2>
-    <div className="mt-4 border-l-4 border-[#C6892B] bg-white p-4 text-[13px] leading-6">
+    <div className="mt-4 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-elevado)] p-4 text-sm leading-6">
       <b className="block">No se puede leer el canónico.</b>
-      <p className="mt-1 text-[#5C646C]">{motivo}</p>
-      <Link className="mt-3 inline-block text-[12px] text-club hover:underline"
+      <p className="mt-1 text-[var(--texto-suave)]">{motivo}</p>
+      <Link className="mt-3 inline-block text-xs text-[var(--accion)] hover:underline"
         href={'/canonico' as Route}>← Estado del canónico</Link>
     </div>
   </>;
@@ -58,13 +58,13 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
   if (!cabecera) {
     return <>
       <h2 className="font-display text-2xl uppercase">Ese grupo no está en el canónico</h2>
-      <p className="mt-2 text-[13px] leading-6 text-[#5C646C]">
+      <p className="mt-2 text-sm leading-6 text-[var(--texto-suave)]">
         No hay ningún grupo <b>{grupo}</b> de <b>{federacion}</b> importado. No es un error de la web:
-        el canónico se llena grupo a grupo con <code className="bg-[#F4F5F3] px-1">pnpm importar</code>,
+        el canónico se llena grupo a grupo con <code className="bg-[var(--fondo-sutil)] px-1">pnpm importar</code>,
         y hasta que un grupo no se importa, aquí no hay nada que enseñar. No se rellena con datos de
         ejemplo ni con ceros.
       </p>
-      <Link className="mt-3 inline-block text-[12px] text-club hover:underline"
+      <Link className="mt-3 inline-block text-xs text-[var(--accion)] hover:underline"
         href={'/canonico' as Route}>← Estado del canónico</Link>
     </>;
   }
@@ -88,13 +88,13 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
     gol.subtipo === 'penalti' ? ' (p)' : gol.subtipo === 'propia_puerta' ? ' (pp)' : '';
 
   return <>
-    <Link className="text-[12px] text-club hover:underline" href={'/canonico' as Route}>← Estado del canónico</Link>
+    <Link className="text-xs text-[var(--accion)] hover:underline" href={'/canonico' as Route}>← Estado del canónico</Link>
     <h2 className="mt-2 font-display text-2xl uppercase">{cabecera.grupo}</h2>
-    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[#5C646C]">
+    <p className="mt-1 text-sm text-[var(--texto-suave)]">
       {cabecera.federacion_nombre} · {cabecera.temporada} · {cabecera.edicion} · grupo {cabecera.grupo_codigo}
     </p>
 
-    <div className="my-4 grid grid-cols-2 gap-px border border-[#D6D6D4] bg-[#D6D6D4] sm:grid-cols-5">
+    <div className="my-4 grid grid-cols-2 gap-px border border-[var(--borde-fuerte)] bg-[var(--borde)] sm:grid-cols-5">
       {[
         ['Jornadas previstas', numero(cabecera.jornadas_previstas)],
         ['Partidos', numero(cabecera.partidos_conocidos)],
@@ -102,14 +102,14 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
         ['Actas', `${numero(cabecera.actas_parseadas)} / ${numero(cabecera.actas_disponibles)}`],
         ['Completo hasta', cabecera.complete_through_matchday === null ? '—' : `J${cabecera.complete_through_matchday}`],
       ].map(([t, v]) => (
-        <div key={String(t)} className="bg-white p-3">
+        <div key={String(t)} className="bg-[var(--fondo-elevado)] p-3">
           <p className="font-display text-xl tabular-nums">{v}</p>
-          <p className="text-[10px] uppercase tracking-wider text-[#5C646C]">{t}</p>
+          <p className="text-[0.6875rem] uppercase tracking-wider text-[var(--texto-suave)]">{t}</p>
         </div>
       ))}
     </div>
 
-    <p className="mb-4 border-l-4 border-club bg-white p-3 text-[12px] leading-5 text-[#5C646C]">
+    <p className="mb-4 border-l-4 border-[var(--accion)] bg-[var(--fondo-elevado)] p-3 text-xs leading-5 text-[var(--texto-suave)]">
       Estado de la cobertura: <b>{cabecera.visibility_state ?? 'sin punto de control'}</b>.
       {sinResultado > 0 && <> De {numero(cabecera.partidos_conocidos)} partidos, <b>{sinResultado}</b> todavía no
         tienen marcador publicado: se enseñan con un guion, no con un 0-0.</>}
@@ -118,29 +118,29 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
     </p>
 
     {clasificacion.length > 0 && (
-      <section className="mb-5 border border-[#D6D6D4] bg-white">
-        <header className="flex items-baseline justify-between gap-2 border-b border-[#EDF0ED] px-3 py-2">
-          <h3 className="font-display text-sm uppercase tracking-wider text-[#5C646C]">
+      <section className="mb-5 border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)]">
+        <header className="flex items-baseline justify-between gap-2 border-b border-[var(--borde)] px-3 py-2">
+          <h3 className="font-display text-sm uppercase tracking-wider text-[var(--texto-suave)]">
             Clasificación {usaOficial ? 'oficial' : 'reconstruida'} · hasta la jornada {tabla[0]!.jornada}
           </h3>
-          <span className="text-[11px] text-[#8A8E91]">
+          <span className="text-xs text-[var(--texto-tenue)]">
             {usaOficial ? 'publicada por la federación' : 'sumada desde los resultados'}
           </span>
         </header>
-        <table className="w-full text-[12px]">
-          <thead className="bg-[#F4F5F3] text-left text-[10px] uppercase tracking-wider text-[#5C646C]">
+        <table className="w-full text-xs">
+          <thead className="cabecera-tabla text-left">
             <tr>
-              <th className="px-3 py-2">#</th><th className="px-3 py-2">Equipo</th>
-              <th className="px-3 py-2 text-right">Pts</th><th className="px-3 py-2 text-right">J</th>
-              <th className="px-3 py-2 text-right">G</th><th className="px-3 py-2 text-right">E</th>
-              <th className="px-3 py-2 text-right">P</th>
-              {!usaOficial && <><th className="px-3 py-2 text-right">GF</th><th className="px-3 py-2 text-right">GC</th></>}
+              <th scope="col" className="px-3 py-2">#</th><th scope="col" className="px-3 py-2">Equipo</th>
+              <th scope="col" className="px-3 py-2 text-right">Pts</th><th scope="col" className="px-3 py-2 text-right">J</th>
+              <th scope="col" className="px-3 py-2 text-right">G</th><th scope="col" className="px-3 py-2 text-right">E</th>
+              <th scope="col" className="px-3 py-2 text-right">P</th>
+              {!usaOficial && <><th scope="col" className="px-3 py-2 text-right">GF</th><th scope="col" className="px-3 py-2 text-right">GC</th></>}
             </tr>
           </thead>
           <tbody>
             {tabla.map((fila) => (
-              <tr key={`${fila.equipo}-${fila.origen}`} className="border-t border-[#EDF0ED]">
-                <td className="px-3 py-2 tabular-nums text-[#8A8E91]">{fila.posicion}</td>
+              <tr key={`${fila.equipo}-${fila.origen}`} className="border-t border-[var(--borde)]">
+                <td className="px-3 py-2 tabular-nums text-[var(--texto-tenue)]">{fila.posicion}</td>
                 <td className="px-3 py-2">{fila.equipo}</td>
                 <td className="px-3 py-2 text-right font-display tabular-nums">{fila.puntos}</td>
                 <td className="px-3 py-2 text-right tabular-nums">{fila.jugados}</td>
@@ -156,14 +156,14 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
           </tbody>
         </table>
         {usaOficial ? (
-          <p className="border-t border-[#EDF0ED] px-3 py-2 text-[11px] text-[#8A8E91]">
+          <p className="border-t border-[var(--borde)] px-3 py-2 text-xs text-[var(--texto-tenue)]">
             Tabla tal y como la publica la federación, con sus sanciones incluidas en los puntos
             (la vista que se archiva no trae goles a favor y en contra, por eso no se enseñan).
             {' '}El importador también suma su propia tabla desde los resultados; cuando no cuadran,
             la diferencia queda registrada para poder mirarla, y aquí se enseña la oficial.
           </p>
         ) : (
-          <p className="border-t border-[#EDF0ED] px-3 py-2 text-[11px] text-[#8A8E91]">
+          <p className="border-t border-[var(--borde)] px-3 py-2 text-xs text-[var(--texto-tenue)]">
             Suma de los resultados de este grupo: 3 puntos por victoria, 1 por empate. El desempate es
             enfrentamiento directo (sólo cuando los empatados ya se han enfrentado todos entre sí),
             diferencia de goles y goles a favor; si sigue el empate, el reglamento manda sorteo y aquí
@@ -175,24 +175,24 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
     )}
 
     {partidos.length === 0 ? (
-      <p className="border border-[#D6D6D4] bg-white p-4 text-[13px]">
+      <p className="border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] p-4 text-sm">
         Este grupo está en el canónico pero todavía no tiene partidos importados.
       </p>
     ) : (
       <div className="space-y-5">
         {jornadas.map((jornada) => (
-          <section key={jornada} className="border border-[#D6D6D4] bg-white">
-            <header className="border-b border-[#EDF0ED] px-3 py-2 font-display text-sm uppercase tracking-wider text-[#5C646C]">
+          <section key={jornada} className="border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)]">
+            <header className="border-b border-[var(--borde)] px-3 py-2 font-display text-sm uppercase tracking-wider text-[var(--texto-suave)]">
               Jornada {jornada}
             </header>
-            <table className="w-full text-[12px]">
+            <table className="w-full text-xs">
               <tbody>
                 {partidos.filter((p) => p.jornada === jornada).map((p) => (
-                  <tr key={p.match_id} className="border-t border-[#EDF0ED] align-top">
+                  <tr key={p.match_id} className="border-t border-[var(--borde)] align-top">
                     <td className="w-[38%] px-3 py-2 text-right">{p.local}</td>
                     <td className="w-[8%] px-2 py-2 text-center font-display text-base tabular-nums">{marcador(p)}</td>
                     <td className="w-[38%] px-3 py-2">{p.visitante}</td>
-                    <td className="px-3 py-2 text-[11px] text-[#8A8E91]">
+                    <td className="px-3 py-2 text-xs text-[var(--texto-tenue)]">
                       {p.fecha ?? 'sin fecha'}
                       {p.campo ? ` · ${p.campo}` : ''}
                       {p.arbitro ? ` · ${p.arbitro}` : ' · sin árbitro publicado'}
@@ -204,8 +204,8 @@ export default async function GrupoDelCanonico({ params }: { params: Promise<{ f
                   const suyos = golesPorPartido.get(p.match_id);
                   if (!suyos || suyos.length === 0) return null;
                   return (
-                    <tr key={`g-${p.match_id}`} className="border-t border-[#EDF0ED] bg-[#FAFAF8]">
-                      <td colSpan={4} className="px-3 py-1 text-[11px] text-[#5C646C]">
+                    <tr key={`g-${p.match_id}`} className="border-t border-[var(--borde)] bg-[var(--fondo-sutil)]">
+                      <td colSpan={4} className="px-3 py-1 text-xs text-[var(--texto-suave)]">
                         {suyos.map((gol, i) => (
                           <span key={`${gol.match_id}-${i}`}>
                             {i > 0 && ' · '}

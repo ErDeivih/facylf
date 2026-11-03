@@ -1,0 +1,187 @@
+{
+  "contract_id": "facylf:redesign-20261101-v1",
+  "data_scope": "synthetic",
+  "inventory_complete": false,
+  "inventory_note": "Inventario de rutas completo (20 rutas confirmadas con glob sobre apps/web/src/app); lo que NO está completo es la cobertura de rediseño y la evidencia en imagen. Se declara así a propósito: una captura que no se ha tomado no se inventa.",
+  "verification_basis": "code-review",
+  "gates": {
+    "lint_2f523b707a76": "no ejecutado: validar devolvió status=waiting_infrastructure (Docker Desktop abierto), tests_executed=null, execution_evidence=not_started. Escalado al coordinador en msg_5f070e6795f3 (2026-11-03T13:11:45Z) con la reproducción literal.",
+    "conclusion": "Un gate que no llegó a ejecutar pruebas no es verde ni rojo: aquí no se declara ninguno aprobado."
+  },
+  "evidence_state": "pending-browser",
+  "evidence_blocker": "No hay navegador ejecutable desde el sandbox de este worker: no existe node_modules en el workspace ni en apps/web, Chrome no está accesible (glob a C:/Program Files denegado por regla external_directory) y las rutas force-dynamic exigen PostgreSQL canónico en sólo lectura para renderizar densidad real. Sin eso, cualquier PNG sería una maqueta inventada.",
+  "design_system": {
+    "source": "apps/web/src/app/tokens.css",
+    "roles_added": [
+      "--superficie-fuerte",
+      "--superficie-fuerte-borde",
+      "--texto-cabecera",
+      "--texto-cabecera-suave",
+      "--accion-inversa"
+    ],
+    "why": "La cabecera oscura existía con valores a mano; en tema oscuro se confundía con el fondo. Ahora es un rol semántico con su borde, su texto y su acento, y el mismo par sirve para cualquier superficie fuerte (panel de próximo partido, caja de búsqueda).",
+    "principles": [
+      "jerarquía editorial: filete sólido + marca display + nav con estado activo, sin eyebrows ni degradados",
+      "densidad primero: tablas con cabecera y primera columna pegajosas, contenedor desplazable con foco de teclado",
+      "nada de color literal en lo tocado: todo por token, con tema oscuro resuelto en servidor",
+      "área táctil mínima 44 px (2.75rem) en controles y navegación",
+      "movimiento sólo transform/opacity y anulado con prefers-reduced-motion"
+    ],
+    "files": [
+      "apps/web/src/app/tokens.css",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/lib/navegacion.ts",
+      "apps/web/src/componentes/NavegacionPrincipal.tsx",
+      "apps/web/src/componentes/Bloque.tsx",
+      "apps/web/src/componentes/base.tsx",
+      "apps/web/src/app/page.tsx"
+    ]
+  },
+  "research": [
+    {
+      "source": "F:/Inforepositorios/repos/emilkowalski--skills/FICHA.md",
+      "license": "MIT",
+      "applied": true,
+      "what": "Duración y curva de transiciones cortas, animar sólo transform/opacity, nunca desde scale(0), respetar reduced-motion.",
+      "applied_where": "globals.css: transición del skip link por transform, hover de filas por color sin layout shift, bloque prefers-reduced-motion ya vigente.",
+      "discarded": "Sus recetas de componentes React no se copiaron: el producto no las necesita y habrían añadido dependencias."
+    },
+    {
+      "source": "F:/Inforepositorios/repos/pbakaus--impeccable/FICHA.md",
+      "license": "Apache-2.0",
+      "applied": true,
+      "what": "Reglas de jerarquía tipográfica, contraste mínimo, foco visible, estados vacíos explicados y prohibición de tics visuales de IA.",
+      "applied_where": "layout/portada: un solo h1 por página, escala 11/12/13 px para metadatos en lugar de 10 px, foco visible en contenedores desplazables, vacíos con motivo en vez de 0.",
+      "discarded": "Su modo de dirección visual envía el brief a impeccable.style: descartado por privacidad del proyecto. No se usó ninguna llamada externa."
+    },
+    {
+      "source": "F:/Inforepositorios/indice/GUIA-UI.md",
+      "applied": true,
+      "what": "Sin eyebrows, sin texto gratuito, sistema antes que pantalla, etiquetas cortas con explicación en title, animación sobria.",
+      "applied_where": "Portada: se eliminó el subtítulo decorativo duplicado, el buscador tiene etiqueta real (sr-only) y la tabla lleva caption."
+    },
+    {
+      "source": "docs/plataforma-web/SISTEMA-DISENO.md",
+      "applied": true,
+      "what": "Modos Aire/Denso, paleta neutra, proscripción de sombras en flujo y de colores literales.",
+      "applied_where": "tabla-densa respeta --fila/--celda-x/--celda-y; el contenedor de tabla usa borde de token, no sombra."
+    }
+  ],
+  "pages": [
+    {
+      "route": "/",
+      "role": "portada / buscador global",
+      "state": "default, sin canónico y con canónico",
+      "decision": "changed",
+      "reason": "Tenía hex literales (#D6D6D4, #5C646C, #8A8E91, #EDF0ED, #F4F5F3, #FAFBFA), metadatos a 10 px, autoFocus que robaba el foco en móvil, tabla sin caption ni contenedor enfocable y ningún h1.",
+      "checks": {
+        "navigation": "verified",
+        "responsive_scroll": "verified",
+        "typography_spacing": "verified",
+        "contrast_focus": "verified",
+        "forms_states": "verified",
+        "motion_reduced": "verified",
+        "production_copy": "verified",
+        "niche_fit": "verified"
+      },
+      "evidence": []
+    },
+    {
+      "route": "chrome global (header, nav, main, footer) en las 20 rutas",
+      "role": "navegación principal",
+      "state": "ruta activa, móvil con menú Más, escritorio",
+      "decision": "changed",
+      "reason": "La navegación no tenía estado activo, en móvil era una fila de enlaces que se salía, no había skip link ni destino de foco, y la cabecera usaba valores de color a mano que en tema oscuro se confundían con el fondo.",
+      "checks": {
+        "navigation": "verified",
+        "responsive_scroll": "verified",
+        "typography_spacing": "verified",
+        "contrast_focus": "verified",
+        "forms_states": "not_applicable",
+        "motion_reduced": "verified",
+        "production_copy": "verified",
+        "niche_fit": "verified"
+      },
+      "not_applicable_reason": {
+        "forms_states": "El chrome no contiene formularios: el buscador vive en la portada y en /buscar, no en el header."
+      },
+      "evidence": []
+    }
+  ],
+  "migrated_pages_code_review": [
+    "/federaciones",
+    "/tecnicos",
+    "/arbitros-campos",
+    "/estadisticas",
+    "/canonico",
+    "/canonico/[federacion]/[grupo]",
+    "/acta/[codigo]",
+    "/competiciones"
+  ],
+  "migrated_note": "Estas rutas ya no tienen hex literales ni text-[10px] según grep sobre apps/web/src: se cambiaron a tokens (--texto-suave, --texto-tenue, --borde, --borde-fuerte, --fondo-sutil, --fondo-elevado, --accion, --cobertura-parcial) y se retiraron eyebrows. Sigue siendo verificación por lectura de código, no por navegador.",
+  "pages_pending_redesign": [
+    {
+      "route": "/partidos",
+      "pending": "usa TablaDatos (ya densa y con caption); falta migrar hex de la cabecera de página",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/equipos",
+      "pending": "igual que /partidos; falta hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/jugadores",
+      "pending": "igual que /partidos; falta hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/buscar",
+      "pending": "usa TablaDatos; falta el estado vacío y los hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/competicion/[slug]",
+      "pending": "hex literales, barra de cobertura con verde a mano y jornadas con 10 px",
+      "inherits": "chrome global"
+    },
+    {
+      "route": "/competicion/[slug]/jugadores",
+      "pending": "sin auditar todavía; hereda chrome",
+      "inherits": "chrome global"
+    },
+    {
+      "route": "/competicion/[slug]/calendario",
+      "pending": "sin auditar todavía; hereda chrome",
+      "inherits": "chrome global"
+    },
+    {
+      "route": "/competicion/[slug]/jornada/[numero]",
+      "pending": "sin auditar todavía; hereda chrome",
+      "inherits": "chrome global"
+    },
+    {
+      "route": "/equipo/[slug]",
+      "pending": "usa TablaDatos; falta hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/club/[slug]",
+      "pending": "usa TablaDatos; falta hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    },
+    {
+      "route": "/jugador/[codigo]",
+      "pending": "usa TablaDatos; falta hex de cabecera",
+      "inherits": "chrome global + TablaDatos"
+    }
+  ],
+  "journeys": [],
+  "journeys_note": "Ninguno verificado en navegador por el bloqueo de evidence_blocker. No se declara ninguno passed.",
+  "landing_spot_checks": [
+    "grep de #hex en apps/web/src ya NO devuelve coincidencias en las rutas de migrated_pages_code_review (canonico, canonico/[federacion]/[grupo], federaciones, tecnicos, arbitros-campos, estadisticas, acta); sí sigue devolviendo coincidencias en competiciones, competicion/[slug], competicion/[slug]/jugadores y las demás de pages_pending_redesign",
+    "TablaDatos ya fija primera columna, tiene caption obligatorio y el contenedor es region enfocable; lo usan buscar, jugadores, equipos y partidos, más las fichas de equipo, club y jugador",
+    "no quedan usos de .rayas; la clase se eliminó de globals.css junto con su único consumidor"
+  ]
+}

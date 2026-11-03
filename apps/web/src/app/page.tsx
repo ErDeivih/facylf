@@ -33,13 +33,13 @@ function Contador({ titulo, valor, destino, detalle }: {
   titulo: string; valor: number | null; destino?: Route; detalle?: string;
 }) {
   const contenido = <>
-    <p className="font-display text-xl tabular-nums">{numero(valor)}</p>
-    <p className="text-[10px] uppercase tracking-wider text-[#5C646C]">{titulo}</p>
-    {detalle && <p className="mt-0.5 text-[10px] text-[#8A8E91]">{detalle}</p>}
+    <p className="font-display text-2xl leading-none tabular-nums">{numero(valor)}</p>
+    <p className="mt-1 text-[0.6875rem] uppercase tracking-wider text-[var(--texto-suave)]">{titulo}</p>
+    {detalle && <p className="mt-0.5 text-[0.6875rem] text-[var(--texto-tenue)]">{detalle}</p>}
   </>;
   return destino
-    ? <Link href={destino} className="bg-white p-3 hover:bg-[#FAFBFA]">{contenido}</Link>
-    : <div className="bg-white p-3">{contenido}</div>;
+    ? <Link href={destino} className="bg-[var(--fondo-elevado)] p-3 hover:bg-[var(--fondo-sutil)]">{contenido}</Link>
+    : <div className="bg-[var(--fondo-elevado)] p-3">{contenido}</div>;
 }
 
 /** Una barra de avance. Sin medida, lo dice: nunca un 0 %. */
@@ -47,14 +47,14 @@ function Avance({ etiqueta: titulo, parte, total }: { etiqueta: string; parte: n
   const pct = porcentaje(parte, total);
   return (
     <div>
-      <div className="flex justify-between text-xs text-[#5C646C]">
+      <div className="flex justify-between gap-2 text-xs text-[var(--texto-suave)]">
         <span>{titulo}</span>
-        <b className="tabular-nums">
+        <b className="tabular-nums text-[var(--texto)]">
           {pct === null ? 'sin medir' : `${numero(parte)}/${numero(total)} · ${pct}%`}
         </b>
       </div>
-      <div className="mt-1 h-2 bg-[#EDF0ED]">
-        <div className="h-full bg-club" style={{ width: `${pct === null ? 0 : Math.min(100, pct)}%` }} />
+      <div className="mt-1 h-2 bg-[var(--fondo-sutil)]">
+        <div className="h-full bg-[var(--accion)]" style={{ width: `${pct === null ? 0 : Math.min(100, pct)}%` }} />
       </div>
     </div>
   );
@@ -95,42 +95,51 @@ export default async function Inicio() {
   ];
 
   return <>
-    <section className="border border-[#D6D6D4] bg-white p-5">
-      <h2 className="font-display text-2xl uppercase">Buscar en el archivo</h2>
-      <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[#5C646C]">
+    <h1 className="mb-1 font-display text-2xl uppercase tracking-tight sm:text-3xl">Observatorio de fútbol</h1>
+    <p className="mb-4 max-w-2xl text-sm text-[var(--texto-suave)]">
+      Archivo del fútbol federado no profesional: competiciones, jornadas, equipos y actas.
+      Cada ficha dice hasta dónde llega su cobertura.
+    </p>
+
+    <section className="border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:p-5">
+      <h2 className="font-display text-xl uppercase">Buscar en el archivo</h2>
+      <p className="mt-1 text-[0.6875rem] uppercase tracking-[0.14em] text-[var(--texto-suave)]">
         {numero(recuentos?.federaciones ?? null)} federaciones · {numero(recuentos?.ediciones ?? null)} ediciones ·{' '}
         {numero(recuentos?.partidos_conocidos ?? null)} partidos conocidos ·{' '}
         {numero(recuentos?.actas_parseadas ?? null)} actas analizadas
       </p>
-      <form action="/buscar" className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <input name="q" autoFocus className="control-filtro sm:flex-1" placeholder="Equipo, jugador, competición, técnico, árbitro…" />
-        <select name="federacion" className="control-filtro sm:w-56" defaultValue="todas">
+      <form action="/buscar" role="search" className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <label className="sr-only" htmlFor="portada-q">Buscar en el archivo</label>
+        <input id="portada-q" name="q" type="search" className="control-filtro sm:flex-1"
+          placeholder="Equipo, jugador, competición, técnico, árbitro…" />
+        <label className="sr-only" htmlFor="portada-federacion">Federación</label>
+        <select id="portada-federacion" name="federacion" className="control-filtro sm:w-56" defaultValue="todas">
           <option value="todas">Todas las federaciones</option>
           {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
         </select>
         <button className="boton-primario sm:w-40">Buscar</button>
       </form>
-      <p className="mt-2 text-[11px] text-[#8A8E91]">
+      <p className="mt-2 text-xs text-[var(--texto-tenue)]">
         La búsqueda por nombre la resuelven todavía las colas locales, no el canónico: puede no encontrar
         todo lo que se resume aquí. Los enlaces de esta portada sí leen el canónico.
       </p>
     </section>
 
-    <div className="my-5 grid grid-cols-2 gap-px border border-[#D6D6D4] bg-[#D6D6D4] sm:grid-cols-3 lg:grid-cols-6">
+    <div className="my-5 grid grid-cols-2 gap-px border border-[var(--borde)] bg-[var(--borde)] sm:grid-cols-3 lg:grid-cols-6">
       {contadores.map((c) => <Contador key={c.titulo} {...c} />)}
     </div>
 
-    <section className="mb-5 grid gap-4 border-l-4 border-club bg-white p-4 sm:grid-cols-2">
+    <section className="mb-5 grid gap-4 border-l-4 border-[var(--accion)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-2">
       <Avance etiqueta="Jornadas con calendario importado / previstas" parte={recuentos?.jornadas_publicadas ?? null} total={recuentos?.jornadas_esperadas ?? null} />
       <Avance etiqueta="Partidos con resultado / conocidos" parte={recuentos?.partidos_con_resultado ?? null} total={recuentos?.partidos_conocidos ?? null} />
       <Avance etiqueta="Actas analizadas / disponibles" parte={recuentos?.actas_parseadas ?? null} total={recuentos?.actas_disponibles ?? null} />
       <Avance etiqueta="Grupos completos / con punto de control" parte={recuentos?.grupos_completos ?? null} total={recuentos?.grupos_medidos ?? null} />
-      <p className="text-[12px] leading-5 text-[#5C646C] sm:col-span-2">
+      <p className="text-[0.8125rem] leading-5 text-[var(--texto-suave)] sm:col-span-2">
         Un catálogo completo no significa contenido completo: cada ficha indica su cobertura. Todas las
         cifras salen de PostgreSQL, leídas con el rol de sólo lectura: las de catálogo (federaciones,
-        ediciones, grupos, jornadas con calendario) son filas de <code className="bg-[#F4F5F3] px-1">core.*</code>;
+        ediciones, grupos, jornadas con calendario) son filas de <code className="bg-[var(--fondo-sutil)] px-1">core.*</code>;
         las de cobertura (partidos, actas, grupos completos) las mide el importador en{' '}
-        <code className="bg-[#F4F5F3] px-1">ops.coverage_checkpoint</code>, y la fecha de la última
+        <code className="bg-[var(--fondo-sutil)] px-1">ops.coverage_checkpoint</code>, y la fecha de la última
         medición es el <b>{medido}</b>. Lo que no está medido se enseña como «—», nunca como cero. La
         prioridad de análisis sigue siendo Castilla y León y Salamanca. Fuente: portales federativos
         oficiales.
@@ -139,35 +148,41 @@ export default async function Inicio() {
 
     <Bloque titulo={`Grupos con cobertura medida · ${numero(recuentos?.grupos_medidos ?? null)} en total`}
       pie={`Se enseñan los ${grupos.length} primeros del catálogo (por federación, temporada y grupo)`}>
-      <div className="overflow-x-auto"><table className="w-full text-sm tabular-nums">
-        <thead><tr className="border-b border-[#D6D6D4] text-left text-xs uppercase text-[#5C646C]">
-          <th className="p-2">Grupo</th><th className="p-2">Federación · temporada</th>
-          <th className="p-2 text-right">Jornadas</th><th className="p-2 text-right">Resultados</th>
-          <th className="p-2 text-right">Actas</th><th className="p-2">Cobertura</th>
+      <div className="desplazamiento-x" tabIndex={0} role="region"
+        aria-label="Grupos con cobertura medida">
+        <table className="tabla-densa">
+        <caption className="sr-only">
+          Grupos con cobertura medida: federación, temporada, jornadas previstas, resultados conocidos,
+          actas y punto de control de completitud.
+        </caption>
+        <thead><tr>
+          <th scope="col">Grupo</th><th scope="col">Federación · temporada</th>
+          <th scope="col" className="text-right">Jornadas</th><th scope="col" className="text-right">Resultados</th>
+          <th scope="col" className="text-right">Actas</th><th scope="col">Cobertura</th>
         </tr></thead>
         <tbody>{grupos.map((g) => (
-          <tr key={`${g.federacion}-${g.grupo_codigo}`} className="border-b border-[#EDF0ED] hover:bg-[#FAFBFA]">
-            <td className="p-2">
+          <tr key={`${g.federacion}-${g.grupo_codigo}`}>
+            <td>
               <Link href={`/canonico/${g.federacion}/${g.grupo_codigo}` as Route}
-                className="font-medium hover:text-club hover:underline">{g.edicion}</Link>
-              <span className="block text-[10px] text-[#8A8E91]">{g.grupo} · {etiqueta('categoria', g.categoria)}</span>
+                className="font-medium hover:text-[var(--accion)] hover:underline">{g.edicion}</Link>
+              <span className="block text-[0.6875rem] text-[var(--texto-tenue)]">{g.grupo} · {etiqueta('categoria', g.categoria)}</span>
             </td>
-            <td className="p-2 text-[12px] text-[#5C646C]">{g.federacion_nombre}<span className="block text-[10px] text-[#8A8E91]">{g.temporada}</span></td>
-            <td className="p-2 text-right">{numero(g.jornadas_previstas)}</td>
-            <td className="p-2 text-right font-semibold">{numero(g.partidos_con_resultado)}/{numero(g.partidos_conocidos)}</td>
-            <td className="p-2 text-right">{numero(g.actas_parseadas)}/{numero(g.actas_disponibles)}</td>
-            <td className="p-2 text-[12px] text-[#5C646C]">
+            <td className="text-[0.8125rem] text-[var(--texto-suave)]">{g.federacion_nombre}<span className="block text-[0.6875rem] text-[var(--texto-tenue)]">{g.temporada}</span></td>
+            <td className="text-right">{numero(g.jornadas_previstas)}</td>
+            <td className="text-right font-semibold">{numero(g.partidos_con_resultado)}/{numero(g.partidos_conocidos)}</td>
+            <td className="text-right">{numero(g.actas_parseadas)}/{numero(g.actas_disponibles)}</td>
+            <td className="text-[0.8125rem] text-[var(--texto-suave)]">
               {g.complete_through_matchday === null ? 'sin punto de control' : `completo hasta J${g.complete_through_matchday}`}
             </td>
           </tr>
         ))}</tbody>
       </table></div>
-      {!grupos.length && <p className="p-5 text-sm text-[#5C646C]">
+      {!grupos.length && <p className="p-5 text-sm text-[var(--texto-suave)]">
         El canónico está creado pero todavía no tiene ningún grupo con partidos medidos. No es un cero: es
         que no hay nada importado. Los grupos aparecen aquí en cuanto el importador los mide; su estado se
-        puede seguir en <Link className="text-club hover:underline" href={'/canonico' as Route}>el estado del canónico</Link>.
+        puede seguir en <Link className="text-[var(--accion)] hover:underline" href={'/canonico' as Route}>el estado del canónico</Link>.
       </p>}
-      <p className="border-t border-[#EDF0ED] p-3 text-[11px] text-[#8A8E91]">
+      <p className="border-t border-[var(--borde)] p-3 text-xs text-[var(--texto-tenue)]">
         Antes este bloque listaba los grupos de Salamanca: esa lista salía del repositorio local y el
         contenedor de la web no lo tiene montado. El canónico todavía no rellena la provincia de ninguna
         edición importada, así que en su lugar se listan los grupos con cobertura medida, que es lo que sí
@@ -175,15 +190,17 @@ export default async function Inicio() {
       </p>
     </Bloque>
 
-    <div className="mt-5 grid gap-3 sm:grid-cols-4">
+    <nav aria-label="Secciones del archivo" className="mt-5 grid gap-3 sm:grid-cols-4">
       {[['/federaciones', 'Federaciones', 'Cobertura por territorio, del canónico'],
         ['/competiciones', 'Competiciones', 'Por temporada, categoría y grupo'],
         ['/canonico', 'Estado del canónico', 'Qué hay importado y hasta dónde llega'],
         ['/equipos', 'Equipos', 'Partidos y continuidad (colas locales)']].map(([href, titulo, pie]) => (
-        <Link key={href} href={href as Route} className="border border-[#D6D6D4] bg-white p-3 hover:border-club">
-          <h3 className="font-display uppercase">{titulo}</h3><p className="mt-1 text-[11px] text-[#5C646C]">{pie}</p>
+        <Link key={href} href={href as Route}
+          className="border border-[var(--borde)] bg-[var(--fondo-elevado)] p-3 hover:border-[var(--accion)]">
+          <span className="block font-display uppercase">{titulo}</span>
+          <span className="mt-1 block text-xs text-[var(--texto-suave)]">{pie}</span>
         </Link>
       ))}
-    </div>
+    </nav>
   </>;
 }

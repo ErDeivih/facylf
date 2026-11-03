@@ -15,11 +15,30 @@
 
 a, button, input, select { transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease; }
 
+/* Salto al contenido: fuera de pantalla hasta que recibe el foco. */
+.saltar-al-contenido {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
+  z-index: var(--capa-modal);
+  transform: translateY(-150%);
+  background: var(--fondo-elevado);
+  color: var(--texto);
+  border: 2px solid var(--accion);
+  padding: .6rem .9rem;
+  font-size: .875rem;
+  font-weight: 600;
+}
+.saltar-al-contenido:focus { transform: translateY(0); }
+
+/* La cabecera es pegajosa: un ancla de la página no debe quedar tapada por ella. */
+main [id] { scroll-margin-top: 7rem; }
+
 .etiqueta-filtro {
   display: block;
   margin-bottom: .35rem;
   font-family: var(--font-display);
-  font-size: .68rem;
+  font-size: .6875rem;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--texto-suave);
@@ -27,7 +46,7 @@ a, button, input, select { transition: border-color 140ms ease, color 140ms ease
 
 .control-filtro {
   width: 100%;
-  min-height: 2.55rem;
+  min-height: 2.75rem;
   border: 1px solid var(--borde-fuerte);
   background: var(--fondo-elevado);
   color: var(--texto);
@@ -40,38 +59,97 @@ a, button, input, select { transition: border-color 140ms ease, color 140ms ease
 
 .boton-primario, .boton-secundario {
   display: inline-flex;
-  min-height: 2.45rem;
+  min-height: 2.75rem;
   align-items: center;
   justify-content: center;
   padding: .55rem .9rem;
   font-family: var(--font-display);
-  font-size: .75rem;
+  font-size: .8125rem;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
-.boton-primario { border: 1px solid var(--color-pizarra); background: var(--color-pizarra); color: var(--color-tinta-50); }
-.boton-primario:hover { border-color: var(--color-club); background: var(--color-club); }
+.boton-primario { border: 1px solid var(--superficie-fuerte); background: var(--superficie-fuerte); color: var(--texto-cabecera); }
+.boton-primario:hover { border-color: var(--accion); background: var(--accion); color: var(--color-tinta-50); }
 .boton-secundario { border: 1px solid var(--borde-fuerte); background: var(--fondo-elevado); color: var(--texto); }
-.boton-secundario:hover { border-color: var(--color-club); color: var(--color-club); }
+.boton-secundario:hover { border-color: var(--accion); color: var(--accion); }
 
 .insignia {
   display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
   border: 1px solid var(--borde);
   background: var(--fondo-sutil);
-  padding: .15rem .4rem;
-  font-size: .62rem;
+  padding: .2rem .45rem;
+  font-size: .6875rem;
   line-height: 1rem;
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--texto-suave);
 }
 
-.insignia-roja { border-color: var(--derrota); background: var(--color-club-claro); color: var(--color-club-oscuro); }
+.insignia-roja { border-color: var(--derrota); background: var(--accion-suave); color: var(--accion); }
 .insignia-verde { border-color: var(--victoria); background: var(--fondo-sutil); color: var(--victoria); }
 
 table th { white-space: nowrap; }
 table td { vertical-align: middle; }
+
+/* --- Tabla densa -------------------------------------------------------------
+   Cifras que se comparan en vertical: cabecera fija al desplazar en vertical y primera columna
+   fija al desplazar en horizontal (en 360 px una clasificación no cabe de otra forma).
+   `border-collapse: separate` es obligatorio: con `collapse`, Safari y Chrome ignoran el sticky. */
+.tabla-densa {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .8125rem;
+}
+
+.tabla-densa th,
+.tabla-densa td {
+  padding: var(--celda-y) var(--celda-x);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabla-densa thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--fondo-elevado);
+  border-bottom: 1px solid var(--borde-fuerte);
+  font-size: .6875rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.tabla-densa td {
+  border-bottom: 1px solid var(--borde);
+}
+
+.tabla-densa th:first-child,
+.tabla-densa td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--fondo-elevado);
+}
+
+.tabla-densa thead th:first-child { z-index: 3; }
+
+.tabla-densa tbody tr:hover td { background: var(--fondo-sutil); }
+
+/* Contenedor con desplazamiento horizontal: foco visible cuando se tabula, para poder desplazar
+   con las flechas sin ratón. */
+.desplazamiento-x {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  border: 1px solid var(--borde);
+}
+.desplazamiento-x:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
 
 .subnav {
   display: flex;
@@ -84,18 +162,63 @@ table td { vertical-align: middle; }
 }
 
 .subnav a {
+  display: flex;
   flex: 0 0 auto;
+  min-height: 2.75rem;
+  align-items: center;
   padding: .6rem .75rem;
   font-family: var(--font-display);
-  font-size: .72rem;
+  font-size: .75rem;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--texto-suave);
 }
 
-.subnav a:hover { background: var(--color-club-claro); color: var(--color-club-oscuro); }
+.subnav a:hover { background: var(--accion-suave); color: var(--accion); }
 
-/* Acento neutro de plataforma, no la equipación de un club concreto. */
-.rayas {
-  background: linear-gradient(90deg, var(--accion), var(--color-acento-500));
+/* --- Piezas compartidas por las fichas ---------------------------------------
+   Antes cada ficha repetía a mano `bg-white`, cuatro grises y un borde ámbar. Aquí quedan una vez;
+   si un color no tiene rol, se crea el rol en `tokens.css`, no un hexadecimal en la página. */
+
+/* Superficie de tarjeta en flujo. Sin sombra: el producto es plano por defecto. */
+.tarjeta {
+  border: 1px solid var(--borde);
+  background: var(--fondo-elevado);
+}
+
+/* Aviso al principio de una ficha: barra lateral de acento y texto secundario. */
+.aviso {
+  border-left: 4px solid var(--accion);
+  background: var(--fondo-elevado);
+  padding: .75rem 1rem;
+  font-size: .8125rem;
+  line-height: 1.5rem;
+  color: var(--texto-suave);
+}
+.aviso-atencion { border-left-color: var(--cobertura-parcial); }
+
+/* Rejilla de indicadores: las líneas son el fondo asomando por el hueco de 1 px. */
+.rejilla-datos {
+  display: grid;
+  gap: 1px;
+  border: 1px solid var(--borde);
+  background: var(--borde);
+}
+.rejilla-datos > * { background: var(--fondo-elevado); padding: .75rem; }
+
+.dato-valor { display: block; font-family: var(--font-display); font-size: 1.5rem; line-height: 1.15; }
+.dato-etiqueta { display: block; font-size: .75rem; color: var(--texto-suave); }
+
+/* Texto pequeño de apoyo (fechas, procedencia, notas al pie de una fila). */
+.meta { font-size: .75rem; color: var(--texto-suave); }
+
+code { background: var(--fondo-sutil); color: var(--texto); padding: 0 .25rem; }
+
+/* Cabecera de tabla densa reutilizable fuera de `.tabla-densa` (tablas propias de las fichas). */
+.cabecera-tabla {
+  border-bottom: 1px solid var(--borde-fuerte);
+  font-size: .6875rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
 }

@@ -69,7 +69,7 @@ console.log('5 · consultas del panel');
 const { readFileSync } = await import('node:fs');
 const { join, dirname } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
-const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8');
+const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8').replaceAll('\r\n', '\n');
 const sqlDe = (n) => { const i = src.indexOf(`nombre: '${n}'`); const a = src.indexOf('sql: `', i) + 6; return src.slice(a, src.indexOf('`,\n};', a)); };
 const cr = (await q(sqlDe('admin-cuentas-resumen')))[0];
 ok(cr.admins_sin_2fa === 1 && cr.invitaciones_vigentes === 0 && cr.caducan_en_30_dias === 1 && cr.pendientes === 0,

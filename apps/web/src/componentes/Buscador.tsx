@@ -63,7 +63,7 @@ export function Buscador({ inicial = '' }: { inicial?: string }) {
             <Link key={`${x.tipo}-${i}`} href={x.url as Route} onClick={() => setAbierto(false)}
               className="flex items-baseline justify-between gap-3 border-b border-[var(--borde)] px-3 py-2 text-sm hover:bg-[var(--fondo-elevado)]">
               <span className="min-w-0">
-                <span className="mr-2 text-[10px] uppercase tracking-wider text-club">{ETIQUETA[x.tipo] ?? x.tipo}</span>
+                <span className="mr-2 text-[var(--texto-tenue)]">{ETIQUETA[x.tipo] ?? x.tipo}</span>
                 <span className="font-medium">{x.titulo}</span>
                 <span className="block truncate text-[11px] text-[var(--texto-suave)]">{x.subtitulo}</span>
               </span>
@@ -72,7 +72,7 @@ export function Buscador({ inicial = '' }: { inicial?: string }) {
           ))}
           {res.total > 0 && (
             <Link href={`/buscar?q=${encodeURIComponent(q)}` as Route} onClick={() => setAbierto(false)}
-              className="block bg-[var(--texto-inverso)] px-3 py-2 text-center text-xs uppercase tracking-wider text-[var(--texto-suave)] hover:text-club">
+              className="block bg-[var(--texto-inverso)] px-3 py-2 text-center text-xs text-[var(--texto-suave)] hover:text-[var(--accion)]">
               Ver los {res.total} resultados →
             </Link>
           )}

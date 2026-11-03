@@ -41,7 +41,7 @@ ok(pu.avisos_leidos === 1 && 'eventos' in pu, 'purga une la de datos y la de pla
 ok((await q(`select count(*)::int n from app.notificacion`))[0].n === 2, 'el aviso sin leer de 200 días se queda (se borra a los 365)');
 
 console.log('3 · consultas de admin.ts');
-const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8');
+const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8').replaceAll('\r\n', '\n');
 const sqlDe = (n) => { const i = src.indexOf(`nombre: '${n}'`); const a = src.indexOf('sql: `', i) + 6; return src.slice(a, src.indexOf('`,\n};', a)); };
 const params = {
   'admin-panel-resumen': [], 'admin-usuarios': [null, null, 100], 'admin-invitaciones': [false, 100],

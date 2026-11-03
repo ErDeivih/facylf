@@ -61,7 +61,7 @@ let e = null; try { await q(`update app.campana_anuncio set precio_cpm = 3 where
 ok(e?.includes('campana_precio_check'), 'precio por CPM o importe fijo, no los dos');
 
 // Consultas del panel (admin.ts) sobre lo mismo
-const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8');
+const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'admin.ts'), 'utf8').replaceAll('\r\n', '\n');
 const sqlDe = (n) => { const i = src.indexOf(`nombre: '${n}'`); const a = src.indexOf('sql: `', i) + 6; return src.slice(a, src.indexOf('`,\n};', a)); };
 await q(`update app.campana_anuncio set importe_fijo = null, precio_cpm = 8, reparto = 'uniforme' where id = 1`);
 const ca = (await q(sqlDe('admin-campanas-anuncio')))[0];

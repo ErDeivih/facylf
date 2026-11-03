@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'entidades.ts'), 'utf8');
+const src = readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'entidades.ts'), 'utf8').replaceAll('\r\n', '\n');
 const i = src.indexOf("nombre: 'busqueda-por-nombre'"); const a = src.indexOf('sql: `', i) + 6;
 const sql = src.slice(a, src.indexOf('`,\n};', a)).replaceAll('${SQL_FEDERACION_NO_EXCLUIDA}', 'true');
 const db = await base29(); const q = async (s, p) => (await db.query(s, p)).rows;

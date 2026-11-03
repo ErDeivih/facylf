@@ -1,0 +1,19 @@
+{
+  "consulta": "admin-cuentas-resumen",
+  "presupuestoMs": 80,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "CTE Scan",
+      "Function Scan",
+      "Result",
+      "Seq Scan"
+    ],
+    "seqScans": [
+      "invitacion",
+      "usuario"
+    ],
+    "filas": 3
+  }
+}

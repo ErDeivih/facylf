@@ -25,8 +25,8 @@ import type { Signo } from '@facylf/dominio';
  * consultas a archivos federativos desde una petición de usuario»). Se retira cuando las páginas que
  * enlazan aquí estén migradas y el agregado por jugador exista.
  *
- * La firma cambió sólo para poder despachar desde la ruta: antes recibía `params` y ahora recibe el
- * slug ya resuelto. El cuerpo es el de siempre.
+ * Lo único que cambió el rediseño es la presentación: los grises y el ámbar a mano pasan a tokens y a
+ * las piezas compartidas de `globals.css`. Los números y el orden de lectura son los mismos.
  */
 export async function EquipoDesdeCola({ slug }: { slug: string }) {
   const e = equipoLocal(slug);
@@ -61,33 +61,35 @@ export async function EquipoDesdeCola({ slug }: { slug: string }) {
   const otrasCategorias = e.otrosContextos.filter((x) => !continuidad.some((c) => c.slug === x.slug));
   return (
     <>
-      <div className="mb-5 text-xs text-[#5C646C]">
-        <Link href={`/equipos?federacion=${e.federacion}`} className="hover:text-club hover:underline">Equipos</Link><span className="mx-2">/</span>
-        <Link href={`/competicion/${e.grupoSlug}`} className="hover:text-club hover:underline">{e.competicion}</Link><span className="mx-2">/</span>
-        <span>{e.nombre}</span>
-      </div>
-      <div className="mb-6">
+      <nav aria-label="Ruta" className="meta mb-5 flex flex-wrap items-center gap-2">
+        <Link href={`/equipos?federacion=${e.federacion}`} className="hover:text-[var(--accion)] hover:underline">Equipos</Link>
+        <span aria-hidden>/</span>
+        <Link href={`/competicion/${e.grupoSlug}`} className="hover:text-[var(--accion)] hover:underline">{e.competicion}</Link>
+        <span aria-hidden>/</span>
+        <span aria-current="page">{e.nombre}</span>
+      </nav>
+      <header className="mb-6">
         <div className="mb-2 flex flex-wrap gap-1.5">
           <span className="insignia">{e.temporada}</span><span className="insignia">{e.categoria}</span>
           <span className="insignia insignia-verde">{datosFederacion(e.federacion).nombre}</span>
           {e.provincias.map((x) => <span key={x} className="insignia insignia-roja">{x}</span>)}
         </div>
         <h2 className="font-display text-3xl uppercase">{e.nombre}</h2>
-        <p className="mt-1 text-sm text-[#5C646C]">
-          <Link className="hover:text-club hover:underline" href={`/competicion/${e.grupoSlug}`}>{e.competicion} · {e.grupo}</Link>
-          <span className="mx-2">·</span>
-          <Link className="font-medium text-club hover:underline" href={`/club/${slugClub(e.temporadaCodigo, e.codigo, e.federacion)}`}>Ficha del club en {e.temporada}</Link>
+        <p className="mt-1 text-sm text-[var(--texto-suave)]">
+          <Link className="hover:text-[var(--accion)] hover:underline" href={`/competicion/${e.grupoSlug}`}>{e.competicion} · {e.grupo}</Link>
+          <span className="mx-2" aria-hidden>·</span>
+          <Link className="font-medium text-[var(--accion)] hover:underline" href={`/club/${slugClub(e.temporadaCodigo, e.codigo, e.federacion)}`}>Ficha del club en {e.temporada}</Link>
         </p>
-      </div>
+      </header>
 
-      <div className="mb-6 border-l-4 border-club bg-white px-4 py-3 text-sm leading-6 text-[#5C646C]">
+      <p className="aviso mb-6">
         Esta ficha corresponde únicamente a este equipo, grupo y temporada. Otros equipos del mismo club
         en categorías distintas permanecen separados.
-      </div>
+      </p>
 
-      <div className="mb-6 grid grid-cols-2 gap-px border border-[#D6D6D4] bg-[#D6D6D4] sm:grid-cols-4">
+      <div className="rejilla-datos mb-6 grid-cols-2 sm:grid-cols-4">
         {([['Jugados', jugados.length], ['Victorias', victorias], ['Balance', `${victorias}G · ${empates}E · ${derrotas}P`], ['Goles', `${e.golesFavor}-${e.golesContra}`]] as const).map(([k, v]) => (
-          <div key={k} className="bg-white p-3"><p className="font-display text-2xl">{v}</p><p className="text-[11px] uppercase text-[#5C646C]">{k}</p></div>
+          <div key={k}><span className="dato-valor">{v}</span><span className="dato-etiqueta">{k}</span></div>
         ))}
       </div>
 
@@ -96,14 +98,14 @@ export async function EquipoDesdeCola({ slug }: { slug: string }) {
         <Bloque titulo="Posición jornada a jornada"><Evolucion partidos={e.partidosLista} equipo={e.nombre} /></Bloque>
         <Bloque titulo="Rendimiento">
           <div className="space-y-4 p-4"><Racha racha={racha} /><div className="grid grid-cols-2 gap-3 text-sm">
-            <p><span className="text-[#5C646C]">Porterías a cero:</span> {porteriasCero}</p>
-            <p><span className="text-[#5C646C]">Diferencia:</span> {e.golesFavor - e.golesContra > 0 ? '+' : ''}{e.golesFavor - e.golesContra}</p>
-            <p><span className="text-[#5C646C]">Media a favor:</span> {jugados.length ? (e.golesFavor / jugados.length).toFixed(2) : '—'}</p>
-            <p><span className="text-[#5C646C]">Media en contra:</span> {jugados.length ? (e.golesContra / jugados.length).toFixed(2) : '—'}</p>
+            <p><span className="text-[var(--texto-suave)]">Porterías a cero:</span> {porteriasCero}</p>
+            <p><span className="text-[var(--texto-suave)]">Diferencia:</span> {e.golesFavor - e.golesContra > 0 ? '+' : ''}{e.golesFavor - e.golesContra}</p>
+            <p><span className="text-[var(--texto-suave)]">Media a favor:</span> {jugados.length ? (e.golesFavor / jugados.length).toFixed(2) : '—'}</p>
+            <p><span className="text-[var(--texto-suave)]">Media en contra:</span> {jugados.length ? (e.golesContra / jugados.length).toFixed(2) : '—'}</p>
           </div></div>
         </Bloque>
         <Bloque titulo="Radiografía para preparar el rival" pie="Indicadores descriptivos del grupo y temporada seleccionados.">
-          <div className="grid grid-cols-2 gap-px bg-[#EDF0ED] text-sm sm:grid-cols-3">
+          <div className="rejilla-datos grid-cols-2 text-sm sm:grid-cols-3">
             {[
               ['Puntos/partido', jugados.length ? (puntos / jugados.length).toFixed(2) : '—'],
               ['% victorias', jugados.length ? `${Math.round(victorias / jugados.length * 100)}%` : '—'],
@@ -111,9 +113,9 @@ export async function EquipoDesdeCola({ slug }: { slug: string }) {
               ['% sin marcar', jugados.length ? `${Math.round(sinMarcar / jugados.length * 100)}%` : '—'],
               ['Ambos marcan', jugados.length ? `${Math.round(ambosMarcan / jugados.length * 100)}%` : '—'],
               ['Casa / fuera', `${casa.puntos}/${fuera.puntos} pts`],
-            ].map(([titulo, valor]) => <p key={titulo} className="bg-white p-3">
-              <b className="block font-display text-xl">{valor}</b><span className="text-xs text-[#5C646C]">{titulo}</span>
-            </p>)}
+            ].map(([titulo, valor]) => <div key={titulo}>
+              <span className="dato-valor text-xl">{valor}</span><span className="dato-etiqueta">{titulo}</span>
+            </div>)}
           </div>
         </Bloque>
       </div>
@@ -122,50 +124,52 @@ export async function EquipoDesdeCola({ slug }: { slug: string }) {
         pie="Se forma sólo con las actas de este equipo dentro de esta competición y grupo.">
         {e.plantilla.length > 0
           ? <div className="overflow-x-auto"><table className="w-full text-sm tabular-nums">
-              <thead><tr className="border-b border-[#D6D6D4] text-xs uppercase text-[#5C646C]">
-                <th className="p-2 text-left">Jugador</th><th className="p-2 text-right">Conv.</th>
-                <th className="p-2 text-right">PJ</th><th className="p-2 text-right">Tit.</th>
-                <th className="p-2 text-right">Min.</th><th className="p-2 text-right">Goles</th><th className="p-2 text-right">Tarjetas</th>
+              <caption className="sr-only">Plantilla de {e.nombre} en {e.competicion}, {e.grupo}, temporada {e.temporada}</caption>
+              <thead><tr className="cabecera-tabla">
+                <th scope="col" className="p-2 text-left">Jugador</th><th scope="col" className="p-2 text-right">Conv.</th>
+                <th scope="col" className="p-2 text-right">PJ</th><th scope="col" className="p-2 text-right">Tit.</th>
+                <th scope="col" className="p-2 text-right">Min.</th><th scope="col" className="p-2 text-right">Goles</th>
+                <th scope="col" className="p-2 text-right">Tarjetas</th>
               </tr></thead>
-              <tbody>{e.plantilla.map((j) => <tr key={j.codigo ?? j.nombre} className="border-b border-[#EDF0ED]">
-                <td className="p-2">{j.codigo ? <Link href={`/jugador/${slugJugador(j.codigo, e.federacion)}`} className="hover:text-club hover:underline">{j.nombre}</Link> : j.nombre}</td>
+              <tbody>{e.plantilla.map((j) => <tr key={j.codigo ?? j.nombre} className="border-b border-[var(--borde)]">
+                <td className="p-2">{j.codigo ? <Link href={`/jugador/${slugJugador(j.codigo, e.federacion)}`} className="hover:text-[var(--accion)] hover:underline">{j.nombre}</Link> : j.nombre}</td>
                 <td className="p-2 text-right">{j.convocatorias}</td><td className="p-2 text-right">{j.partidos}</td>
                 <td className="p-2 text-right">{j.titularidades}</td><td className="p-2 text-right">{j.minutosEstimados}</td>
                 <td className="p-2 text-right font-semibold">{j.goles}</td><td className="p-2 text-right">{j.tarjetas}</td>
               </tr>)}</tbody>
             </table></div>
-          : <p className="p-5 text-sm leading-6 text-[#5C646C]">Todavía no hay actas analizadas suficientes para formar esta plantilla.</p>}
+          : <p className="p-5 text-sm leading-6 text-[var(--texto-suave)]">Todavía no hay actas analizadas suficientes para formar esta plantilla.</p>}
       </Bloque>
 
       <Bloque titulo="Calendario y resultados">
         <ul>{e.partidosLista.map((p) => <li key={`${p.jornada}-${p.orden}`}
-          className="grid items-center gap-2 border-t border-[#EDF0ED] px-4 py-3 text-sm first:border-t-0 sm:grid-cols-[3rem_1fr_auto_1fr_5rem]">
-          <Link href={`/competicion/${e.grupoSlug}/jornada/${p.jornada}`} className="font-display text-xs text-club hover:underline">J{p.jornada}</Link>
+          className="grid items-center gap-2 border-t border-[var(--borde)] px-4 py-3 text-sm first:border-t-0 sm:grid-cols-[3rem_1fr_auto_1fr_5rem]">
+          <Link href={`/competicion/${e.grupoSlug}/jornada/${p.jornada}`} className="font-display text-xs text-[var(--accion)] hover:underline">J{p.jornada}</Link>
           <span className="text-left sm:text-right">{p.local}</span>
           <span className="text-center font-display">{p.golesLocal == null ? '–' : `${p.golesLocal}-${p.golesVisitante}`}</span>
           <span>{p.visitante}</span>
           <span className="text-right text-xs">{p.codActa && p.actaLista
-            ? <Link className="text-club hover:underline" href={`/acta/${slugActa(e.temporadaCodigo, e.competicionCodigo, e.grupoCodigo, p.jornada, p.codActa, e.federacion)}`}>Acta</Link> : ''}</span>
+            ? <Link className="text-[var(--accion)] hover:underline" href={`/acta/${slugActa(e.temporadaCodigo, e.competicionCodigo, e.grupoCodigo, p.jornada, p.codActa, e.federacion)}`}>Acta</Link> : ''}</span>
         </li>)}</ul>
       </Bloque>
 
       {continuidad.length > 0 && <Bloque titulo="Trayectoria en otras temporadas"
         pie="Mismo nombre, categoría y ámbito territorial; cada temporada mantiene su plantilla independiente.">
-        <div className="grid gap-px bg-[#EDF0ED] sm:grid-cols-2">
+        <div className="grid gap-px bg-[var(--borde)] sm:grid-cols-2">
           {continuidad.slice(0, 20).map((x) => <Link key={x.slug}
-            className="bg-white p-3 text-sm hover:text-club" href={`/equipo/${x.slug}`}>
+            className="bg-[var(--fondo-elevado)] p-3 text-sm hover:text-[var(--accion)]" href={`/equipo/${x.slug}`}>
             <span className="font-medium">{x.temporada} · {x.categoria}</span>
-            <span className="mt-1 block text-xs text-[#5C646C]">{x.competicion} · {x.grupo}</span>
+            <span className="mt-1 block text-xs text-[var(--texto-suave)]">{x.competicion} · {x.grupo}</span>
           </Link>)}
         </div>
       </Bloque>}
       {otrasCategorias.length > 0 && <Bloque titulo="Otros equipos del club"
         pie="Comparten nombre de club, pero son categorías o grupos diferentes: sus jugadores no son compañeros de esta plantilla.">
-        <div className="grid gap-px bg-[#EDF0ED] sm:grid-cols-2">
+        <div className="grid gap-px bg-[var(--borde)] sm:grid-cols-2">
           {otrasCategorias.slice(0, 30).map((x) => <Link key={x.slug}
-            className="bg-white p-3 text-sm hover:text-club" href={`/equipo/${x.slug}`}>
+            className="bg-[var(--fondo-elevado)] p-3 text-sm hover:text-[var(--accion)]" href={`/equipo/${x.slug}`}>
             <span className="font-medium">{x.temporada} · {x.categoria}</span>
-            <span className="mt-1 block text-xs text-[#5C646C]">{x.competicion} · {x.grupo}</span>
+            <span className="mt-1 block text-xs text-[var(--texto-suave)]">{x.competicion} · {x.grupo}</span>
           </Link>)}
         </div>
       </Bloque>}

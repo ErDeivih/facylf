@@ -195,7 +195,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
 
   console.log('4 · consultas web de ojeo.ts');
-  const src = (await import('node:fs')).readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'ojeo.ts'), 'utf8');
+  const src = (await import('node:fs')).readFileSync(join(RAIZ, 'apps', 'web', 'src', 'consultas', 'ojeo.ts'), 'utf8').replaceAll('\r\n', '\n');
   const sqlDe = (n) => { const i = src.indexOf(`nombre: '${n}'`); const a = src.indexOf('sql: `', i) + 6; return src.slice(a, src.indexOf('`,\n};', a)).replaceAll('${SQL_FEDERACION_NO_EXCLUIDA}', 'true'); };
   await db.exec(`update core.person set es_menor = true where id = 2;`);
   const oj2 = await q(sqlDe('ojeo-jugadores'), ['cyl', '2025-26', 2007, 2011, null, null, 0, null, null, null, null, 50, false]);

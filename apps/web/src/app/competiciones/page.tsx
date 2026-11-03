@@ -106,9 +106,8 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
   return (
     <>
       <div className="mb-6">
-        <p className="font-display text-xs uppercase tracking-[0.16em] text-club">Explorador del archivo</p>
-        <h2 className="mt-1 font-display text-3xl uppercase">Competiciones y grupos</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5C646C]">
+        <h1 className="font-display text-3xl uppercase">Competiciones y grupos</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--texto-suave)]">
           Estás consultando el catálogo del canónico
           {federacionElegida ? <> de <b>{nombreFederacion(federacionElegida)}</b></> : ' de todas las federaciones'}.
           Combina filtros para llegar directamente a una categoría concreta. Cada resultado es un grupo de
@@ -116,7 +115,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
         </p>
       </div>
 
-      <form action="/competiciones" className="mb-6 border border-[#D6D6D4] bg-white p-4">
+      <form action="/competiciones" className="mb-6 border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] p-4">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label><span className="etiqueta-filtro">Federación</span>
             <select name="federacion" defaultValue={federacionElegida} className="control-filtro">
@@ -167,7 +166,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
             </select>
           </label>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#EDF0ED] pt-4">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--borde)] pt-4">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="conDatos" value="1" defaultChecked={p.conDatos === '1'} />
             Sólo grupos con partidos conocidos
@@ -177,14 +176,14 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
             <button className="boton-primario">Aplicar filtros</button>
           </div>
         </div>
-        {facetas.provincias.length === 0 && <p className="mt-3 text-[11px] text-[#8A8E91]">
+        {facetas.provincias.length === 0 && <p className="mt-3 text-xs text-[var(--texto-tenue)]">
           El canónico todavía no rellena la provincia de ninguna edición importada, así que no hay
           provincias que ofrecer: el filtro existe y funcionará cuando el importador las rellene.
         </p>}
       </form>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="mr-1 font-display text-xs uppercase text-[#5C646C]">Accesos rápidos:</span>
+        <span className="mr-1 font-display text-xs uppercase text-[var(--texto-suave)]">Accesos rápidos:</span>
         <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?temporada=ultimas-5&conDatos=1">Últimas 5 temporadas</Link>
         <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?ambito=Importantes&conDatos=1">Regionales y nacionales</Link>
         <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?categoria=juvenil&conDatos=1">Juveniles</Link>
@@ -197,7 +196,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
           {filas.map((c) => (
             <li key={`${c.federacion}-${c.grupo_codigo}`}>
               <Link href={`/canonico/${c.federacion}/${c.grupo_codigo}` as Route}
-                className="group grid gap-2 border-t border-[#EDF0ED] px-4 py-4 first:border-t-0 hover:bg-[#FAFBFA] sm:grid-cols-[1fr_auto]">
+                className="group grid gap-2 border-t border-[var(--borde)] px-4 py-4 first:border-t-0 hover:bg-[var(--fondo-sutil)] sm:grid-cols-[1fr_auto]">
                 <div className="min-w-0">
                   <div className="mb-1 flex flex-wrap gap-1.5">
                     <span className="insignia">{c.temporada}</span>
@@ -207,14 +206,14 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
                     {c.provincia && <span className="insignia insignia-roja">{c.provincia}</span>}
                     <span className="insignia">{estadoVisibilidad(c.visibility_state)}</span>
                   </div>
-                  <p className="font-medium group-hover:text-club">{c.edicion} · {c.grupo}</p>
-                  <p className="mt-1 text-xs text-[#5C646C]">
+                  <p className="font-medium group-hover:text-[var(--accion)]">{c.edicion} · {c.grupo}</p>
+                  <p className="mt-1 text-xs text-[var(--texto-suave)]">
                     {etiqueta('tipo_grupo', c.grupo_tipo)} · {etiqueta('modalidad', c.modalidad)} ·{' '}
                     {etiqueta('genero', c.genero)} · edición {c.edicion_codigo} · grupo {c.grupo_codigo} ·
                     medido el {fechaCorta(c.calculado_en)}
                   </p>
                 </div>
-                <div className="self-center text-left font-display text-xs uppercase text-[#5C646C] sm:text-right">
+                <div className="self-center text-left font-display text-xs uppercase text-[var(--texto-suave)] sm:text-right">
                   {/* Un grupo sin punto de control no tiene resultados conocidos: sale un guion, no un 0/0. */}
                   <p>{numero(c.partidos_con_resultado)}/{numero(c.partidos_conocidos)} resultados</p>
                   <p>{numero(c.jornadas_previstas)} jornadas · {numero(c.inscripciones)} inscripciones</p>
@@ -224,7 +223,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
               </Link>
             </li>
           ))}
-          {filas.length === 0 && <li className="p-8 text-center text-sm text-[#5C646C]">
+          {filas.length === 0 && <li className="p-8 text-center text-sm text-[var(--texto-suave)]">
             No hay grupos que cumplan todos esos filtros <b>en el canónico</b>. Prueba a quitar uno de
             ellos; si esperabas encontrar aquí una competición concreta, puede que todavía no se haya
             importado: el catálogo se llena grupo a grupo y sólo enseña lo importado.
@@ -232,18 +231,18 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
         </ul>
       </Bloque>
 
-      <p className="mb-4 text-[11px] text-[#8A8E91]">
-        Procedencia: <code className="bg-[#F4F5F3] px-1">core.competition_edition</code>,{' '}
-        <code className="bg-[#F4F5F3] px-1">core.phase_group</code>,{' '}
-        <code className="bg-[#F4F5F3] px-1">core.team_entry</code> y{' '}
-        <code className="bg-[#F4F5F3] px-1">ops.coverage_checkpoint</code>. Las cifras de partidos y actas
+      <p className="mb-4 text-xs text-[var(--texto-tenue)]">
+        Procedencia: <code className="bg-[var(--fondo-sutil)] px-1">core.competition_edition</code>,{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">core.phase_group</code>,{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">core.team_entry</code> y{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">ops.coverage_checkpoint</code>. Las cifras de partidos y actas
         son las que el importador midió al cerrar cada lote; su fecha va en cada renglón. Un guion es un
         dato que no existe.
       </p>
 
       <nav className="flex items-center justify-between text-sm" aria-label="Paginación">
         {pagina > 1 ? <Link className="boton-secundario" href={urlPagina(pagina - 1) as Route}>← Anterior</Link> : <span />}
-        <span className="text-xs text-[#5C646C]">
+        <span className="text-xs text-[var(--texto-suave)]">
           {total ? `${desde + 1}–${Math.min(desde + POR_PAGINA, total)} de ${numero(total)}` : '0 resultados'}
         </span>
         {desde + POR_PAGINA < total ? <Link className="boton-secundario" href={urlPagina(pagina + 1) as Route}>Siguiente →</Link> : <span />}

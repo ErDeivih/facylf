@@ -144,3 +144,36 @@ en el publicador) para que una consulta mal planificada no bloquee una página i
 La misma imagen, las mismas migraciones y los mismos roles. Lo único que cambia en el servidor:
 PostgreSQL en red privada sin puerto publicado, copias con WAL/PITR, y el publicador ejecutándose
 como trabajo independiente. Ver [SEGURIDAD-OPERACION.md](SEGURIDAD-OPERACION.md) §7 y §9.
+
+## 8. Vista previa para revisión manual
+
+Para mirar la web sin desplegar nada y sin tocar el canónico del servidor:
+
+```bash
+node scripts/vista-previa.mjs                 # http://127.0.0.1:3000/
+PORT=4000 node scripts/vista-previa.mjs       # bash
+$env:PORT=4000; node scripts/vista-previa.mjs # PowerShell
+```
+
+Qué hace y por qué:
+
+- **Sólo escucha en `127.0.0.1`** en el puerto que se le pida (`PORT`, 3000 por defecto). No abre
+  el puerto a la red local.
+- **No toca el servidor original.** Si alguna `DATABASE_URL_*` apunta a un host que no es local, se
+  niega a arrancar. Esta vista previa es para la copia.
+- **No contacta con servicios externos**: la telemetría de Next queda desactivada.
+- **Arranca con webpack** (`next dev --webpack`), el mismo motor que `next build`. Con el servidor
+  de desarrollo de Turbopack la portada responde 500 con un `ENOENT` dentro de `.next/dev` cuando la
+  copia no tiene su caché de compilación; con webpack responde 200 aunque no haya base de datos
+  (enseña el aviso de canónico no disponible, que es lo esperado sin `DATABASE_URL_LECTOR`).
+- **Si faltan dependencias** instala una vez con `pnpm install --frozen-lockfile`; con
+  `FLUJO_VISTA_PREVIA_SALTAR_INSTALACION=1` no instala y lo dice.
+- **Deja el árbol como estaba**: `next dev` reescribe `apps/web/next-env.d.ts` y
+  `apps/web/tsconfig.json` al arrancar, y el guion los devuelve a su contenido original al salir.
+- **Se para con Ctrl+C** y cierra el servidor. Si algo quedó a medias por caché, borra
+  `apps/web/.next` y vuelve a lanzarlo.
+
+La puerta `pruebas/ci/_probar-vista-previa.mjs` automatiza lo comprobable: arranca el guion en un
+puerto libre, exige portada 200 sin canónico, pide la parada por el canal IPC (mismo cierre que
+Ctrl+C, sin depender de señales que Windows no entrega) y verifica que el puerto queda cerrado y que
+los ficheros reescritos por Next vuelven a su contenido anterior.

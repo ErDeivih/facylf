@@ -69,6 +69,14 @@
      ilegibles cuando el panel no era oscuro. */
   --texto-inverso: var(--color-tinta-50);
 
+  /* Superficie fuerte: la cabecera oscura del producto. Es un rol propio y no «tinta-950 a mano»:
+     en tema oscuro la cabecera no puede ser más oscura que el fondo o desaparece. */
+  --superficie-fuerte:        var(--color-tinta-950);
+  --superficie-fuerte-borde:  var(--color-tinta-800);
+  --texto-cabecera:           var(--color-tinta-50);
+  --texto-cabecera-suave:     var(--color-tinta-400);
+  --accion-inversa:           var(--color-acento-500);
+
   /* Escala del mapa de calor de puntos (0, 5, 15 y 30 puntos). Se DERIVA del rojo semántico: no es una
      paleta aparte, es el mismo rojo en cuatro intensidades. */
   --calor-0: var(--color-tinta-100);
@@ -129,6 +137,11 @@
 
   /* En oscuro, el texto sobre superficie fuerte es oscuro: la superficie fuerte ya es clara. */
   --texto-inverso: var(--color-tinta-950);
+  --superficie-fuerte:       var(--color-tinta-950);
+  --superficie-fuerte-borde: var(--color-tinta-800);
+  --texto-cabecera:          var(--color-tinta-50);
+  --texto-cabecera-suave:    var(--color-tinta-400);
+  --accion-inversa:          var(--color-acento-500);
   --calor-0: var(--color-tinta-800);
   --calor-1: color-mix(in oklab, var(--color-rojo-500) 38%, black);
   --calor-2: color-mix(in oklab, var(--color-rojo-500) 66%, black);

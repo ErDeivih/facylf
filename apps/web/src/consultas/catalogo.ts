@@ -80,40 +80,76 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
     'actas_disponibles', 'actas_parseadas', 'complete_through_matchday', 'visibility_state',
     'calculado_en', 'total'],
   sql: `
-    select f.codigo                             as federacion,
-           f.nombre                             as federacion_nombre,
-           s.etiqueta                           as temporada,
-           e.codigo_externo                     as edicion_codigo,
-           e.nombre_publicado                   as edicion,
+    /*
+     * ── SE PAGINA ANTES DE TRAER LAS COLUMNAS ANCHAS Y SE CUENTA SIN VENTANA (01/11/2026) ────────────
+     *
+     * Antes había dos costes medidos con EXPLAIN (ANALYZE, BUFFERS) sobre la copia de CI: 6786,7 ms
+     * para presupuesto de 1000 ms. El primero, la ventana count(*) over (), que obligaba a materializar
+     * las 50.268 filas filtradas antes del LIMIT (WindowAgg, 5562,4 ms con 50268 filas). El segundo, el
+     * agregado global de core.team_entry agrupando la tabla entera (unas 402.417 filas, cerca de 2 s)
+     * para devolver 80 renglones.
+     *
+     * Ahora la primera fase (filtrados) solo calcula el id del grupo y las claves del orden, que es lo
+     * único que necesita el OFFSET. El total se cuenta sobre esa misma fase con un agregado normal, sin
+     * ventana, y las inscripciones se agregan solo para los ids de la pagina. Las columnas anchas se
+     * unen despues, para 80 filas.
+     *
+     * El orden es el mismo que antes (misma clave, mismo sentido) y los filtros y el total significan
+     * exactamente lo mismo: el total sigue siendo cuantos grupos pasan los filtros, no cuantos se
+     * devuelven.
+     *
+     * OJO: este texto vive DENTRO de una plantilla de JavaScript. Nada de acentos graves aqui: cerrarian
+     * la plantilla y romperian el fichero entero.
+     */
+    with filtrados as materialized (
+      select g.id,
+             f.codigo            as federacion,
+             s.orden             as temporada_orden,
+             e.nombre_publicado  as edicion,
+             g.orden             as grupo_orden,
+             g.codigo_externo    as grupo_codigo
+        from core.phase_group g
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+        join core.season s on s.id = e.season_id
+        left join ops.coverage_checkpoint c on c.phase_group_id = g.id
+       where ($1::text is null or f.codigo = $1)
+         and ($2::text is null or s.etiqueta = $2)
+         and ($3::text is null or s.etiqueta >= $3)
+         and ($4::text[] is null or e.ambito = any($4::text[]))
+         and ($5::text is null or e.modalidad = $5)
+         and ($6::text is null or e.genero = $6)
+         and ($7::text is null or e.categoria = $7)
+         and ($8::text is null or e.provincia = $8)
+         and ($9::smallint is null or e.nivel = $9)
+         and (coalesce($10::text, '') = ''
+              or core.normaliza_nombre(e.nombre_publicado || ' ' || g.nombre || ' ' || s.etiqueta)
+                 like '%' || core.normaliza_nombre($10) || '%')
+         and (not coalesce($11::boolean, false) or c.partidos_conocidos > 0)
+    ),
+    total as (
+      select count(*)::int as total from filtrados
+    ),
+    pagina as materialized (
+      select * from filtrados
+       order by federacion, temporada_orden desc, edicion, grupo_orden, grupo_codigo
+       limit $12 offset $13
+    )
+    select f.codigo                              as federacion,
+           f.nombre                              as federacion_nombre,
+           s.etiqueta                            as temporada,
+           e.codigo_externo                      as edicion_codigo,
+           e.nombre_publicado                    as edicion,
            e.ambito,
            e.modalidad,
            e.genero,
            e.categoria,
            e.provincia,
-           g.codigo_externo                     as grupo_codigo,
-           g.nombre                             as grupo,
-           g.tipo                               as grupo_tipo,
+           g.codigo_externo                      as grupo_codigo,
+           g.nombre                              as grupo,
+           g.tipo                                as grupo_tipo,
            g.jornadas_previstas,
-           /*
-            * ── LAS INSCRIPCIONES SE CUENTAN UNA VEZ, NO UNA POR GRUPO (medido el 23/09/2026) ──────────────
-            *
-            * Aquí había una subconsulta correlacionada:
-            *
-            *     (select count(*) from core.team_entry te where te.phase_group_id = g.id)::int
-            *
-            * y el EXPLAIN (ANALYZE, BUFFERS) de la consulta real mostró que era el 60 % del tiempo de
-            * ejecución: SubPlan 1, 20,1 ms por grupo y 60 repeticiones. Veinte milisegundos por grupo, sesenta
-            * veces, para contar diez filas — y con lecturas de disco, en un servidor donde una lectura de
-            * página cuesta decenas de milisegundos.
-            *
-            * Con la tabla agregada aparte (left join sobre el recuento por grupo) el trabajo se hace UNA vez
-            * para toda la tabla y luego se une. Es el mismo número, pero sin repetir la cuenta por cada fila
-            * del resultado.
-            *
-            * OJO: este texto vive DENTRO de una plantilla de JavaScript. Nada de acentos graves aquí: cerrarían
-            * la plantilla y romperían el fichero entero. Pasó al escribir esta misma mejora el 23/09/2026.
-            */
-           coalesce(te.inscripciones, 0)::int   as inscripciones,
+           coalesce(te.inscripciones, 0)::int    as inscripciones,
            c.partidos_conocidos,
            c.partidos_con_resultado,
            c.actas_disponibles,
@@ -121,30 +157,20 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
            c.complete_through_matchday,
            c.visibility_state,
            c.calculado_en,
-           (count(*) over ())::int              as total
-      from core.phase_group g
+           t.total
+      from pagina p
+      join core.phase_group g on g.id = p.id
       join core.competition_edition e on e.id = g.competition_edition_id
-      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      join core.federation f on f.id = e.federation_id
       join core.season s on s.id = e.season_id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
-      -- El recuento de inscripciones, calculado UNA vez para toda la tabla (ver el comentario del select).
+      -- Solo se cuentan las inscripciones de los grupos de esta pagina, no las de todo el canonico.
       left join (select phase_group_id, count(*) as inscripciones
-                   from core.team_entry group by phase_group_id) te on te.phase_group_id = g.id
-     where ($1::text is null or f.codigo = $1)
-       and ($2::text is null or s.etiqueta = $2)
-       and ($3::text is null or s.etiqueta >= $3)
-       and ($4::text[] is null or e.ambito = any($4::text[]))
-       and ($5::text is null or e.modalidad = $5)
-       and ($6::text is null or e.genero = $6)
-       and ($7::text is null or e.categoria = $7)
-       and ($8::text is null or e.provincia = $8)
-       and ($9::smallint is null or e.nivel = $9)
-       and (coalesce($10::text, '') = ''
-            or core.normaliza_nombre(e.nombre_publicado || ' ' || g.nombre || ' ' || s.etiqueta)
-               like '%' || core.normaliza_nombre($10) || '%')
-       and (not coalesce($11::boolean, false) or c.partidos_conocidos > 0)
-     order by f.codigo, s.orden desc, e.nombre_publicado, g.orden, g.codigo_externo
-     limit $12 offset $13`,
+                   from core.team_entry
+                  where phase_group_id in (select id from pagina)
+                  group by phase_group_id) te on te.phase_group_id = p.id
+      cross join total t
+     order by p.federacion, p.temporada_orden desc, p.edicion, p.grupo_orden, p.grupo_codigo`,
 };
 
 /** Un valor de faceta: qué valores existen de verdad en el canónico para esa dimensión. */
@@ -324,15 +350,43 @@ export const RECUENTOS_DEL_CANONICO: Consulta<FilaRecuentos> = {
     'jornadas_cerradas', 'partidos_conocidos', 'partidos_con_resultado', 'actas_enlazadas',
     'actas_disponibles', 'actas_parseadas', 'actas_correctas', 'actas_a_revisar', 'calculado_en'],
   sql: `
-    with edicion_visible as (
+    /*
+     * ── LA COBERTURA SE AGREGA EN UNA SOLA PASADA (01/11/2026) ──────────────────────────────────────
+     *
+     * Antes cada suma de ops.coverage_checkpoint era una subconsulta escalar propia que volvia a unir
+     * el conjunto visible: nueve recorridos del mismo join para calcular nueve sumas. En la copia de
+     * CI eso pasaba de los 5000 ms del pool. Ahora un unico agregado calcula las nueve sumas y los dos
+     * recuentos, y las CTE visibles se materializan para que ese join se resuelva una vez.
+     *
+     * Los tipos y los nulos no cambian: sum(...) sobre cero filas sigue siendo null (sin medicion no
+     * hay cero) y los recuentos siguen siendo 0.
+     */
+    with edicion_visible as materialized (
       select e.id as edicion_id
         from core.competition_edition e
         join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
     ),
-    grupo_visible as (
+    grupo_visible as materialized (
       select g.id as grupo_id
         from core.phase_group g
         join edicion_visible ev on ev.edicion_id = g.competition_edition_id
+    ),
+    cobertura as (
+      select count(*)::int                                                  as grupos_medidos,
+             (count(*) filter (where c.visibility_state = 'completa'))::int  as grupos_completos,
+             sum(c.jornadas_esperadas)::int                                 as jornadas_esperadas,
+             sum(c.jornadas_descubiertas)::int                              as jornadas_descubiertas,
+             sum(c.jornadas_cerradas)::int                                  as jornadas_cerradas,
+             sum(c.partidos_conocidos)::int                                 as partidos_conocidos,
+             sum(c.partidos_con_resultado)::int                             as partidos_con_resultado,
+             sum(c.actas_enlazadas)::int                                    as actas_enlazadas,
+             sum(c.actas_disponibles)::int                                  as actas_disponibles,
+             sum(c.actas_parseadas)::int                                    as actas_parseadas,
+             sum(c.actas_correctas)::int                                    as actas_correctas,
+             sum(c.actas_a_revisar)::int                                    as actas_a_revisar,
+             max(c.calculado_en)                                            as calculado_en
+        from grupo_visible gv
+        join ops.coverage_checkpoint c on c.phase_group_id = gv.grupo_id
     )
     select (select count(*) from core.federation f where ${SQL_FEDERACION_NO_EXCLUIDA})::int as federaciones,
            (select count(distinct e.federation_id) from core.competition_edition e
@@ -341,33 +395,20 @@ export const RECUENTOS_DEL_CANONICO: Consulta<FilaRecuentos> = {
            (select count(*) from grupo_visible)::int                                as grupos,
            (select count(*) from core.matchday m
               join grupo_visible gv on gv.grupo_id = m.phase_group_id)::int         as jornadas_publicadas,
-           (select count(*) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as grupos_medidos,
-           (select count(*) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id
-             where c.visibility_state = 'completa')::int                            as grupos_completos,
-           (select sum(c.jornadas_esperadas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_esperadas,
-           (select sum(c.jornadas_descubiertas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_descubiertas,
-           (select sum(c.jornadas_cerradas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as jornadas_cerradas,
-           (select sum(c.partidos_conocidos) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as partidos_conocidos,
-           (select sum(c.partidos_con_resultado) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as partidos_con_resultado,
-           (select sum(c.actas_enlazadas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_enlazadas,
-           (select sum(c.actas_disponibles) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_disponibles,
-           (select sum(c.actas_parseadas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_parseadas,
-           (select sum(c.actas_correctas) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_correctas,
-           (select sum(c.actas_a_revisar) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)::int         as actas_a_revisar,
-           (select max(c.calculado_en) from ops.coverage_checkpoint c
-              join grupo_visible gv on gv.grupo_id = c.phase_group_id)              as calculado_en
+           cobertura.grupos_medidos,
+           cobertura.grupos_completos,
+           cobertura.jornadas_esperadas,
+           cobertura.jornadas_descubiertas,
+           cobertura.jornadas_cerradas,
+           cobertura.partidos_conocidos,
+           cobertura.partidos_con_resultado,
+           cobertura.actas_enlazadas,
+           cobertura.actas_disponibles,
+           cobertura.actas_parseadas,
+           cobertura.actas_correctas,
+           cobertura.actas_a_revisar,
+           cobertura.calculado_en
+      from cobertura
      limit 1`,
 };
 

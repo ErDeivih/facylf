@@ -1,0 +1,19 @@
+{
+  "consulta": "admin-auditoria",
+  "presupuestoMs": 150,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Function Scan",
+      "Limit",
+      "Result",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "auditoria"
+    ],
+    "filas": 31
+  }
+}

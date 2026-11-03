@@ -1,0 +1,16 @@
+{
+  "consulta": "admin-invitaciones",
+  "presupuestoMs": 80,
+  "plan": "agregado",
+  "forma": {
+    "nodos": [
+      "Limit",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "invitacion"
+    ],
+    "filas": 0
+  }
+}

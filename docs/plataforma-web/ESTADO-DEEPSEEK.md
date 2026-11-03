@@ -2,7 +2,1494 @@
 
 > Lo primero que se lee al llegar (manual: `TRABAJO-CONTINUO-DEEPSEEK.md`). Se actualiza al empezar, al terminar y al bloquearse. Lo que no está aquí no ha pasado.
 
-**Última actualización:** 24/10/2026 11:30 (Claude: ENCARGO-WEB-DEEPSEEK-2026-10-24.md — terminar la web nueva, etapas W0-W10)
+**Última actualización:** 02/11/2026 (DeepSeek: 38.º intento, dispatch `ctx_9823de25d72f`, task `task_c20167f3fcbe`,
+Run `run_517457d35a0e`; árbol `d822fb00…`, perfil `e91457fd…`). **Ejecutadas las 7 puertas registradas** sobre el
+árbol exacto: **5 verdes** (`2f523b707a76` lint, `6340c694e42c` build, `4013b847119b` SQL/PGlite, `51df9d75a0f5`
+listado, `593e89fd5bdf` explain) y **2 rojas por entorno** (`1824e75dbd39` `TimeoutError` a 300,97 s por
+`timeout_seconds=300` del `ci_contract`; `4532c4868add` code 1 en 567 s, 539/4/41, `failure_classes:[timeout]`,
+`database_codes:[]`). Decisión `msg_2928d7a2003a`: no tocar SQL/`catalogo.ts`/`conexion.ts`; bloquear como entorno y
+escalar al owner (`msg_6492d2022b5c`). `all_registered_gates_verified: false`; `production_authorized: false`;
+60/633/359 **no** se acreditan; sin commit ni push. Ver 38.º intento.
+
+## ★★★★★ DeepSeek, 02/11 (37.º intento, dispatch `ctx_e15a00d13feb`, task `task_7c6fa02d9209`) — tres recibos nuevos: el conjunto de rojos **rota entre ejecuciones**, que es lo que se espera de un límite de tiempo y no de un defecto de dato
+
+- **Árbol y perfil:** `8c9d6d2be686a4cc8e2d1ad06708ca1ee6a185609d7cac722f58d92627877663` (igual al de las tres
+  puertas de esta ronda; `subject_changed_after_gates: false`), HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`,
+  perfil `e91457fd…`. Sin ediciones de producto en esta ronda: `catalogo.ts` sigue con el parche del 35.º intento.
+- **`1824e75dbd39` (planes) → NO EJECUTABLE:** `validar` devuelve `ok:false`, `TimeoutError`, 301,6 s, `interrupted`,
+  `code: null`, evidencia `d87953ecd16cad6fd7d4ff0ef3c4045ed1382f4d0118b69234511982dd00477e`. No es un fallo del
+  producto: el `timeout_seconds` del contrato (300 s) es menor que la duración del propio suite, que otros árboles
+  ya midieron en 342-372 s. Nada en fuentes puede acortarlo: `scripts/planes.mjs` sólo compara con los JSON
+  versionados y el tope vive en `ci_contract`.
+- **`51df9d75a0f5` (listado, diagnóstico) → verde:** `ok:true`, `code 0`, 32,1 s, evidencia
+  `5662a691ff4f5937501d251c0aa283c08bd5524e9af2a89d1ae6f8aa2225af6e`. Es `_probar-listado.mjs`, que mide con
+  `explain (analyze)` y presupuesto ampliado de 120 s; **no** reproduce la ruta que falla (usa
+  `PARAMETROS_CATALOGO`, sin término de búsqueda) y el saneado devuelve `public_numeric_explain: []`, así que de
+  aquí no sale ninguna cifra utilizable. Verde de diagnóstico, no acredita el listado real.
+- **`4532c4868add` (pnpm test) → ROJO por entorno:** `code 1`, 578,1 s, evidencia
+  `3582704ed2fc15150aed523c225461cbbd590ebe8dbde1250f62cd9adefefd75`; `counts`: `tests_passed: 541`,
+  `tests_failed: 2`, `tests_skipped: 41` (=584), `test_files_passed: 44`, `test_files_failed: 5`,
+  `failure_classes: ["timeout"]`, `database_codes: []`, `real_data_log_local_only: true`. Los dos rojos con nombre
+  son «los filtros de vocabulario y el texto de búsqueda acotan de verdad» (`consultas.test.ts:402`) y «importa un
+  grupo SIN ningún código…» (`inscripcion-sin-codigo.test.ts:551`); además fallan a nivel de fichero (sin test
+  contado, traza en la línea 1) `lote.test.ts`, `retirada.test.ts` y `herramienta.test.ts`.
+- **Dato nuevo y decisivo: el conjunto de rojos NO es estable.** Mismo `task`, mismos gates, misma máquina, tres
+  ejecuciones sobre dos árboles:
+  | ejecución | árbol | duración | ficheros rojos | tests rojos | cuáles |
+  |---|---|---|---|---|---|
+  | 34.º | `c7964fe8…` | 477,5 s | 4 | 2 | `:332` (listado) y `:453` (recuentos) |
+  | 36.º | `35ebf670…` | 596,4 s | 5 | 5 | `:402` + 3 más de `consultas` + `inscripcion` |
+  | 37.º | `8c9d6d2b…` | 578,1 s | 5 | 2 | `:402` + `inscripcion` |
+  Si el defecto fuese determinista, el mismo test fallaría siempre; aquí `:332` pasa en 37.º y falla en 34.º, y
+  `:453` falla en 34.º y 36.º y pasa en 37.º. Eso encaja con **consultas pesadas que oscilan alrededor de su
+  presupuesto** en un anfitrión cargado, no con una consulta rota ni con un dato malo. Cero fallos de aserción y
+  cero errores de dato en las tres ejecuciones.
+- **Por qué no hay parche en fuentes esta ronda (y no es dejadez):** el predicado que falla,
+  `core.normaliza_nombre(e.nombre_publicado || ' ' || g.nombre || ' ' || s.etiqueta) like '%…%'`, se calcula **por
+  fila y sobre tres tablas**, así que no se puede indexar tal cual; y `core.normaliza_nombre` (0006) no tiene
+  columna almacenada en `core.phase_group` ni en `core.competition_edition` (sólo la tienen `core.club`,
+  `core.venue` y `core.persona`, comprobado en `infra/migraciones`). Las únicas salidas son (a) migración nueva que
+  desnormalice el texto buscable con disparadores y luego reescriba el `like`, o (b) cambiar el contrato de tiempo
+  del listado. Las dos son decisiones de alcance, no reparaciones locales, y la decisión vigente del coordinador
+  (`msg_b5f8907983d3`) prohíbe cambios de producto a ciegas sin poder medir. Sin forma de medir (`validar` es la
+  única herramienta y sanea las cifras), aplicar (a) sería adivinar.
+- **Puertas:** `green_gate_ids: []` sobre `8c9d6d2b…`; `all_registered_gates_verified: false`;
+  `production_authorized: false`. **60 (planes), 633 (test) y 359 (SQL) no se acreditan.** Los 584 recuentos del
+  test siguen sin cuadrar con los 633 declarados en todos los intentos.
+- **Sin tocar:** `conexion.ts`, `catalogo.ts`, aserciones, umbrales, presupuestos, migraciones, `.env`, Docker,
+  datos ni recolectores. Sin commit, push, merge ni despliegue. Único fichero modificado en la ronda: este estado.
+- **Lo que hace falta del owner del CI (concreto, no «revisad»):** (1) subir el tope de `1824e75dbd39` por encima
+  del suite (los 342-372 s verdes de otros árboles lo justifican) o permitir editar `scripts/planes.mjs`;
+  (2) exponer en el recibo de `4532c4868add` la duración de cada test y el `code` de PostgreSQL cuando la consulta
+  muere por presupuesto —con eso se distingue «5 s agotados» de «`pool.connect()` colgado» sin adivinar—;
+  (3) `ANALYZE` tras restaurar la copia, si el sandbox usa un volcado, porque un `pg_dump` restaurado no trae
+  estadísticas y eso solo afecta a las consultas de 50 268 filas.
+
+
+
+## ★★★★★ DeepSeek, 02/11 (36.º intento, dispatch `ctx_bb38efdd075d`, task `task_7c6fa02d9209`) — la puerta roja reproducida y descartada como cuelgue del entorno, no como dato
+
+- **Árbol y perfil:** `35ebf670416b3894d1a2edbb5e7e3108b11cbb4ee29c84e97804517c6f60eec9`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, perfil `e91457fd…`. Sobre este árbol no
+  queda ningún verde: las puertas verdes de `candidate_coverage` son de otros árboles o diagnósticos, no de `test`.
+- **Reproducción (evidencia `4ce430da881f7dce367e22c95ac4173faee36d953fe091fc7d0e3b95c6c68502`):**
+  `validar facylf 4532c4868add` → `ok=false`, 596,44 s, `status: gates_completed`, gate «pnpm test · 633
+  comprobaciones (contratos contra PostgreSQL real)», `code: 1`, `failure_classes: ["timeout"]`,
+  `database_codes: []`, `real_data_log_local_only: true`, 5 archivos rojos / 44 verdes, 5 tests rojos / 538 verdes /
+  41 saltados. Ningún fallo es de aserción ni de dato.
+- **Fallos:** «la cobertura por federación promete sus columnas y reparte todos los grupos sin perder ninguno», «los
+  filtros de vocabulario y el texto de búsqueda acotan de verdad», «las federaciones salen todas las declaradas, sin
+  duplicados y con sus invariantes», «los recuentos de la portada traen una sola fila, sus columnas y ninguna suma
+  inventada» (este en `apps/web/test/consultas.test.ts`, con trazas en `conexion.ts:132` y `:402`) e «importa un grupo
+  SIN ningún código: cada equipo tiene inscripción y código_externo nulo»; además fallan a nivel de archivo
+  `lote.test.ts`, `retirada.test.ts` y `herramienta.test.ts`, sin test contado.
+- **Hipótesis descartadas por lectura del código, sin ejecutar nada más:** (1) el `testTimeout` es 30 000 ms, no 5 s,
+  y `hookTimeout` 90 000 ms (`vitest.config.ts:55` y `:61`); (2) `fileParallelism: false` (línea 75), así que no hay
+  contención entre 44 ficheros; (3) los cinco rojos pertenecen a **dos pools distintos**: la web (`conexion.ts:55`)
+  con `statement_timeout: 5000` y el importador (`packages/canonico/src/destino/pool.ts:54`) con
+  `statement_timeout: false`; (4) con presupuesto en vigor, una consulta lenta habría dado `57014` (y
+  `database_codes` lo tendría) o un `CanonicoNoDisponible` inmediato, no 30 s. Por tanto el síntoma encaja con una
+  promesa que **nunca se resuelve** —`pool.connect()` sin `connectionTimeoutMillis`, o un bloqueo del PostgreSQL del
+  sandbox— y **no** con `catalogo.ts`.
+- **Decisión del coordinador (`msg_b5f8907983d3`):** opción A — cerrar como bloqueo de entorno con informe honesto y
+  sin declarar verdes. **No** autoriza tocar `conexion.ts` para añadir `connectionTimeoutMillis` (sería un cambio de
+  producto a ciegas que puede enmascarar el síntoma y obligaría a repetir cinco puertas) ni registrar una puerta
+  diagnóstica con los ficheros de prueba: `registrar_puerta` solo admite guiones públicos `pruebas/ci/_probar-*.mjs`
+  ya existentes, y **no** hay ninguno que ejecute el subconjunto de `consultas.test.ts` /
+  `inscripcion-sin-codigo.test.ts`. Se deja escalado al owner del harness con la reproducción exacta.
+- **Sin cambios de producto en esta ronda.** No se editó `catalogo.ts`, ni aserciones, ni umbrales, ni presupuestos,
+  ni `conexion.ts`, ni migraciones, ni `.env`, ni Docker, ni datos, ni recolectores. Sin commit, push, merge ni
+  despliegue. El parche de `LISTADO_DE_GRUPOS`/`RECUENTOS_DEL_CANONICO` del 35.º intento sigue **sin verificar**.
+- **Para el coordinador / owner del CI:** `1824e75dbd39` (planes) sigue **no ejecutable** por su tope de 300 s;
+  `4532c4868add` rojo por entorno. Reproducción: perfil `e91457fd…`, árbol `35ebf670…`, evidencia `4ce430da88…`; hace
+  falta que el harness exponga la causa del cuelgue (si es `connect()`, un lock o el PostgreSQL del sandbox) para
+  poder arreglarla sin adivinar.
+
+## ★★★★★ DeepSeek, 02/11 (35.º intento, dispatch `ctx_ecd186e1cae1`, task `task_7c6fa02d9209`) — reparación de las dos consultas pesadas aplicada y verificada solo por lectura; el arnés ya no emite recibo
+
+- **Árbol:** `dd373f16e0d23e3a92ec8bf9597172b6f9b7ec3af16191663cd25a01059ac192`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, perfil `7b1c8734…`. **Ninguna puerta se
+  ejecutó sobre este árbol**; el cambio de producto está **sin verificar**.
+- **Bloqueo de arnés (escalado, no repetido).** `validar facylf 4532c4868add` y
+  `diagnosticar facylf pruebas/ci/_probar-explain.mjs` devuelven, literalmente,
+  `Herramienta local sin recibo; no repetir una acción incierta` — el mismo síntoma de `ci_owner_exited` que ya se
+  escaló en `msg_8aad3238dc7d`. Se registró la escalada de arnés `msg_cc3d3a87d488` con reproducción exacta y el
+  coordinador respondió (`msg_a395b5cb9be2`) que **no** se repita ninguna de las dos hasta que el owner del CI
+  devuelva recibo o reconciliación. No es un fallo de pruebas y no se trata como tal.
+- **Cambio aplicado en `LISTADO_DE_GRUPOS`** (causa medida: 6 786,7 ms frente a 1 000 ms declarados; `WindowAgg`
+  5 562,4 ms sobre 50 268 filas y agregado global de `core.team_entry` ≈2 s para devolver 80 renglones): CTE `filtrados
+  as materialized` con solo `g.id` y las cinco claves de orden; `total` con `count(*)::int` normal, **sin ventana**;
+  `pagina as materialized` con `order by … limit $12 offset $13`; las columnas anchas y el `left join` de inscripciones
+  se resuelven después, y las inscripciones se agregan **solo** para los ids de la página.
+- **Verificación estática del listado, contra el diff de `HEAD`:** las **24 columnas** y su orden son idénticas
+  (`federacion`, `federacion_nombre`, `temporada`, `edicion_codigo`, `edicion`, `ambito`, `modalidad`, `genero`,
+  `categoria`, `provincia`, `grupo_codigo`, `grupo`, `grupo_tipo`, `jornadas_previstas`, `inscripciones`,
+  `partidos_conocidos`, `partidos_con_resultado`, `actas_disponibles`, `actas_parseadas`,
+  `complete_through_matchday`, `visibility_state`, `calculado_en`, `total`); la clave de orden y su sentido son las
+  mismas (`f.codigo`, `s.orden desc`, `e.nombre_publicado`, `g.orden`, `g.codigo_externo`); `total` sigue siendo
+  **cuántos grupos pasan los filtros**, no cuántos se devuelven, y sigue siendo `::int`; los filtros `$1..$11`,
+  `$12`/`$13` y `${SQL_FEDERACION_NO_EXCLUIDA}` se conservan, y el fichero no tiene acentos graves ni `${` nuevos
+  dentro de la plantilla.
+- **Cambio aplicado en `RECUENTOS_DEL_CANONICO`:** `edicion_visible` y `grupo_visible` pasan a `as materialized`; las
+  nueve subconsultas escalares que repetían el mismo join contra `ops.coverage_checkpoint` se sustituyen por una CTE
+  `cobertura` con **un solo** agregado. `jornadas_publicadas` sigue siendo su propio recuento contra `core.matchday`.
+- **Semántica de nulos: comprobada contra el original, y NO es la que advertías.** El original **no** usaba
+  `count(subcolumna)` en ningún sitio: `grupos_medidos` era `count(*)` sobre el join interno, `grupos_completos` era
+  `count(*) … where c.visibility_state = 'completa'`, las nueve restantes eran `sum(c.…)` y `calculado_en` era
+  `max(c.calculado_en)`. El equivalente exacto es, por tanto, `count(*) filter (where c.visibility_state = 'completa')`
+  —que es lo que hay escrito, **sin** `is not null` y sin `count(subcol)`— y `sum(…)`/`max(…)`, que sobre cero filas
+  siguen dando `null`; los recuentos siguen dando `0`. No hacía falta la corrección que planteabas y no se ha
+  introducido un cambio de semántica.
+- **Puertas registradas en esta ronda (registro, no evidencia):** `593e89fd5bdf` → `pruebas/ci/_probar-explain.mjs` y
+  `51df9d75a0f5` → `pruebas/ci/_probar-listado.mjs`. Ambas devolvieron `registered_only: true`,
+  `tests_executed: false`; **no se ejecutaron** y no acreditan nada.
+- **Puertas:** `green_gate_ids: []` sobre `dd373f16`, `all_registered_gates_verified: false`,
+  `production_authorized: false`. **60 (planes), 633 (test) y 359 (SQL) no se acreditan**, y el cambio **no** se
+  declara verificado. `1824e75dbd39` sigue **NO EJECUTABLE** por su tope de 300 s en el `ci_contract`.
+- **Sin tocar:** aserciones, umbrales, presupuestos, `conexion.ts`, migraciones, `.env`, Docker, datos ni
+  recolectores. Sin commit, push, merge ni despliegue.
+- **Para el coordinador:** (1) restaurar el turno CI y ejecutar **primero** `validar 4532c4868add` sobre `dd373f16` y
+  después `1824e75dbd39`, más las dos puertas nuevas (`593e89fd5bdf`, `51df9d75a0f5`) si se quieren como regresión;
+  (2) si el turno no vuelve, el cambio queda como entrega **no verificada** y no debe integrarse a ciegas.
+
+
+## ★★★★★ DeepSeek, 01/11 (34.º intento, dispatch `ctx_639bdaadfff5`, task `task_7c6fa02d9209`) — decisión del coordinador: no se toca `conexion.ts`; `test` baja a 2 rojos y la vía de medición queda escalada
+
+- **Árbol:** `c7964fe8a86ecec584e526b7db23a64d254dae120c117b3216275cb57e49a927`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, perfil `7b1c8734…`. **Sin cambio de
+  producto**: `apps/web/src/consultas/adaptadores/postgres/conexion.ts` queda exactamente como estaba, y tampoco se
+  tocan SQL, aserciones, umbrales, migraciones, `.env`, Docker, datos ni recolectores.
+- **Consulta al coordinador (resuelta, no timeout).** Se le llevó la contradicción con evidencia: las dos pruebas rojas
+  (`consultas.test.ts:332` y `:453`) llaman a `consulta()` **sin** tercer argumento, así que el presupuesto 0 significa
+  ruta del pool (5 000 ms) y ningún cambio de límite las afecta; y aplicar el presupuesto también por debajo de 5 000 ms
+  obligaría a abrir conexión propia (begin + `set local` + consulta + commit) en la ruta caliente, donde el catálogo
+  declara 50, 60, 80 y 100 ms (`federaciones.ts:23`, `estado-secciones`/`equipo`, `admin.ts`). **Respuesta:** opción **B**
+  — no tocar `conexion.ts`; la semántica documentada en `conexion.ts:102-104` (`presupuestoMs` sólo AMPLÍA) se conserva.
+- **`4532c4868add` pnpm test (esperado 633) → ROJO** sobre este árbol, `code 1`, **477,46 s**, evidencia
+  `57b0101bec54866f057e9beee003e8db1a7eb96645782cc1dabb34e76f9dfb08`. `counts`: **`tests_passed: 541`,
+  `tests_failed: 2`, `tests_skipped: 41`** (=584), `test_files_passed: 45`, `test_files_failed: 4`,
+  `failure_classes: ["timeout"]`, `database_codes: []`. Los dos rojos son el listado del catálogo (columnas y un
+  renglón por grupo, `:332`) y los recuentos de portada (`:453`); es decir, siguen cayendo **sólo** las dos consultas
+  pesadas, dependientes de `LISTADO_DE_GRUPOS` (1 000 ms declarados) y `RECUENTOS_DEL_CANONICO` (1 500 ms).
+- **Dato que no cuadra y no se disimula:** `test_files_failed: 4` con `tests_failed: 2`. La evidencia incluye
+  `packages/canonico/test/lote.test.ts:1`, `packages/canonico/test/retirada.test.ts:1` y
+  `packages/ingesta/test/reconstruccion-cola/herramienta.test.ts:6` en `public_source_locations`, pero no da el fallo
+  de esos ficheros. No se atribuye causa: se deja anotado como pendiente de la misma medición.
+- **Comparación honesta con el 33.er intento:** mismo árbol de producto y mismo perfil, de **6 fallos a 2** (antes
+  caían también las invariantes de cobertura del listado, los filtros de federación y `conDatos`, los de vocabulario y
+  búsqueda, y la paginación). El recuento 584 no se mueve, así que **633 sigue sin acreditarse**.
+- **`1824e75dbd39` planes (esperado 60) → NO EJECUTABLE, NO se reintenta.** Tope de 300 s en el `ci_contract` del
+  perfil (sólo lectura; `registrar_puerta` no edita topes), `TimeoutError` ya reproducido varias veces. **60 no se
+  acredita y no se declara verde.**
+- **Escalada de medición (registrada con reproducción exacta, como pediste).** `equipo-local diagnosticar` exige un
+  guion público `pruebas/ci/_probar-*.mjs` existente; **no hay ninguno** (glob sin coincidencias en `pruebas/ci/`, que
+  sólo contiene `_preparar-ci-explain.mjs`), y escribir uno devuelve
+  `'Ruta fuera de las fuentes publicas o memoria autorizadas'`. El artefacto existente `_preparar-ci-explain.mjs`
+  **no encaja** en el patrón `_probar-*.mjs` que exige el diagnóstico, y `registrar-preparacion` está denegado al
+  trabajador. Consecuencia: **no hay vía para medir `EXPLAIN (ANALYZE)` ni las estadísticas de `facylf-ci-pg`**, y tanto
+  el rojo de `test` como el tope de `planes` quedan bloqueados por capacidad del arnés, no por el producto.
+- **Hallazgo de producto, separado y NO reparado a ciegas:** las dos consultas pesadas del catálogo declaran 1 000 y
+  1 500 ms y en la copia de CI pasan de 5 s. Eso es una **incidencia de producto pendiente de decisión de alcance**
+  (¿índices, `ANALYZE`, o presupuesto/`statement_timeout`?), no algo que se arregle en esta tarea sin medir. Repararla
+  a ojo habría sido cambiar la puerta, no el producto.
+- **Los tres JSON sin seguimiento de `pruebas/planes/`:** `admin-auditoria`, `admin-cuentas-resumen` y
+  `admin-invitaciones`. Comprobado: los tres son nombres reales de `CONSULTAS_ADMIN` (`admin.ts:71`, `:113`, `:136`) y
+  `scripts/planes.mjs:59-60` importa ese arreglo, así que **el runner sí los recorre**: son esperados. **No se
+  versionan** en esta tarea y **no se acredita cobertura** de sus planes (la puerta de planes no terminó).
+- **Puertas:** `green_gate_ids: []` sobre este árbol exacto (sólo se ejecutó `test`, que sale rojo), `pending_gate_ids`
+  las cinco, `required_count: 5`, `all_registered_gates_verified: false`, `production_authorized: false`.
+- **Para el coordinador:** (1) habilitar la medición (`_probar-*.mjs` público registrado como puerta, o permitir
+  `_preparar-ci-explain.mjs`); (2) decidir alcance de las dos consultas pesadas; (3) subir el tope de `planes` por
+  encima de 300 s o declarar la puerta no ejecutable en el contrato. Sin (1) o (3), cualquier repetición de esta tarea
+  dará el mismo informe.
+
+## ★★★★★ DeepSeek, 01/11 (33.er intento, dispatch `ctx_7e77e38e59d8`, reintento de `ctx_b17c40d66db6`) — el entorno cambió y `test` empeoró: 6 fallos por tiempo, `planes` sigue sin pasar de 300 s
+
+- **Árbol:** `8c5345943c3730e829a8bdec19db4cc173a3c6618b8e6a5d0f6168afe5cc813b`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, task `task_72f5c3ea0a70`, perfil de
+  ejecución `7b1c8734…` en las cinco puertas (esta vez sin cambio a mitad de serie). `subject_changed_after_gates:
+  false` en todas: ninguna puerta modificó el árbol. Notas congeladas antes de la validación agregada.
+- **`2f523b707a76` lint → VERDE**, `code 0`, 5,77 s, evidencia
+  `1de0b6d5806af4e1cdb844ae7b9d09f23100547026913e6ba44413cfecbbc97e`.
+- **`6340c694e42c` build web → VERDE**, `code 0`, 65,46 s, evidencia
+  `e4a5849eb480fd89af1d625cc97209a4a62b59a6f813aa77bb78946d9b3a00ea`.
+- **`4013b847119b` SQL en PGlite (esperado 359) → VERDE**, `code 0`, 371,67 s, evidencia
+  `3b02ad3e2afbd93f6acba4afa2f66972eaaa0ec9eaa7769f14b6b8dce246bb60`. La evidencia viene saneada
+  (`counts: {}`): verde sin cifra interna; **359 no se acredita numéricamente** y no se inventa.
+- **`4532c4868add` pnpm test (esperado 633) → ROJO**, `code 1`, 515 s, evidencia
+  `c8b6b0763f2a8aa7413d48cfb61ce16a4331539f9d428a7e452dddff89c8a6a4`. `counts`: **`tests_passed: 537`,
+  `tests_failed: 6`, `tests_skipped: 41`** (=584), `test_files_passed: 45`, `test_files_failed: 4`,
+  `failure_classes: ["timeout"]`, `database_codes: []`. La puerta ya respeta el tope de 30 min (515 s frente a los
+  480 s del intento 32), pero **frente a los 3 fallos del intento 32 ahora fallan 6**, todos en
+  `apps/web/test/consultas.test.ts` (l. ~331, 348, 375, 391, 410, 452): listado con columnas y un renglón por grupo,
+  invariantes de cobertura del listado, filtros de federación y `conDatos`, filtros de vocabulario y búsqueda,
+  paginación sin repetir ni perder filas, y recuentos de portada. **Los cinco del listado dependen de
+  `LISTADO_DE_GRUPOS` y el sexto de `RECUENTOS_DEL_CANONICO`.** La evidencia está saneada y el mensaje literal no es
+  legible desde aquí (`equipo-local evidencia` con `offset 2298` devuelve `output: ""`), así que la causa se lee por
+  clase (`timeout`), no por texto.
+- **`1824e75dbd39` planes (esperado 60) → ROJO por TIMEOUT**, `code null`, 300,757 s (`interrupted: true`,
+  `error_type: "TimeoutError"`), `counts: {}`: **sin recuento, 60 no acreditado**. No se conserva el id de evidencia
+  de esta pasada en mi registro, así que no se cita.
+- **Diagnóstico (no verificado, sin mensaje real):** los dos rojos comparten forma de «lento». Las pruebas del
+  catálogo llaman a `consulta()` sin `presupuestoMs`, con lo que heredan el `statement_timeout` por defecto de 5 s
+  del adaptador (`apps/web/src/consultas/adaptadores/postgres/conexion.ts`), mientras que la consulta declara
+  1 000 ms de presupuesto; `LISTADO_DE_GRUPOS` ya agrega `core.team_entry` una sola vez y no recurre a tablas de
+  hechos, y `RECUENTOS_DEL_CANONICO` suma sobre `ops.coverage_checkpoint` y `core.matchday`. Si con los datos
+  reales del CI esas dos pasan de 5 s, el rojo es de **volumen/entorno**, no de forma del SQL; sería un fallo del
+  producto sólo si el plan estuviera mal, y eso no se puede afirmar sin medir.
+- **Por qué no se repara aquí:** cualquier reproducción pequeña exige un guion público `_probar-*.mjs` que cambie el
+  árbol (y obligue a repetir lint/build/SQL verdes) y `planes` no da mediciones porque muere a los 300 s; optimizar
+  el SQL a ciegas o subir el `statement_timeout` de las pruebas sería rebajar la puerta. Con dos intentos seguidos
+  con iguales fuentes y entorno, el diagnóstico independiente y el checkpoint pesan más que un tercer reintento
+  idéntico.
+- **Para el coordinador:** la reparación P0 de CI vive en `task_7c6fa02d9209`; si cubre el tope de `planes` y el
+  presupuesto de las consultas del catálogo, este rojo debería desaparecer sin tocar el producto. Falta además
+  explicar el recuento: **584 ≠ 633** en dos intentos seguidos con el mismo conjunto de ficheros (45+4=49), lo que
+  encaja con casos parametrizados que dependen de filas del canónico. Preguntas pendientes en el intento 33: qué
+  cubre exactamente el P0, cómo medir sin `_probar-*` y por qué fallan 6 y no 3.
+
+## ★★★★★ DeepSeek, 01/11 (32.º intento, dispatch `ctx_b17c40d66db6`) — 3 de 5 verdes; `test` deja por fin recuento real (584) y `planes` agota su tope
+
+- **Árbol:** `b895558481dc4f7bd1c6459b10ff19dfb61a6dc1b40abf1b11a241736d91ab83`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, task `task_72f5c3ea0a70`.
+  Ninguna puerta cambió el árbol (`subject_changed_after_gates: false` en las cinco). **Observación de arnés:** el
+  perfil de ejecución cambió a mitad de serie de `ad6ce4dc…` (contrato) a `7b1c8734…`; por eso se repitieron
+  `lint` y `build` al final para que las cinco evidencias compartan árbol **y** perfil `7b1c8734…`. El desajuste
+  entre el perfil real (`7b1c8734…`) y el declarado en el `ci_contract` (`ad6ce4dc…`) queda anotado.
+- **`2f523b707a76` lint → VERDE**, `code 0`, 8,48 s, evidencia `06d49abfd6ac18652fd9f8865dd589f2a58972722f4e6243fccfb7bf2a427a49`
+  (repetición bajo `7b1c8734…`; la primera pasada `a624ba39…` quedó bajo `ad6ce4dc…`).
+- **`4013b847119b` SQL en PGlite (esperado 359) → VERDE**, `code 0`, 372,02 s, evidencia
+  `b116d8c612e6b1ed11b0a9c49c7b24708c8cedb1930a63a5158cb453b736bc0f`. La evidencia viene saneada
+  (`counts: {}`): verde sin cifra interna; **359 no se acredita numéricamente** y no se inventa.
+- **`6340c694e42c` build web → VERDE**, `code 0`, 59,50 s, evidencia
+  `fd803eabe931e3bbb02792f6a3116983e33ad0c218c686892b7d443b3f85a074` (repetición bajo `7b1c8734…`; la primera
+  pasada `267b7f48…` quedó bajo `ad6ce4dc…`).
+- **`4532c4868add` pnpm test (esperado 633) → ROJO con recuento real**, `code 1`, 480,79 s, evidencia
+  `be13bde1d9cbea66c28a7865ffe71714802abceded4226dee51b833885a93d15`. `counts`: **`tests_passed: 540`,
+  `tests_failed: 3`, `tests_skipped: 41` (=584 ejecutadas), `test_files_passed: 45`, `test_files_failed: 4`**;
+  `failure_classes: ["timeout"]`. Fallos públicos en `apps/web/test/consultas.test.ts` («los filtros de vocabulario
+  y el texto de búsqueda acotan de verdad», «la paginación cuenta lo que cumple los filtros y no repite ni pierde
+  filas», «los recuentos de la portada traen una sola fila, sus columnas y ninguna suma inventada»), compatibles con
+  un canónico vacío; ubicaciones públicas adicionales en `packages/ingesta/test/reconstruccion-cola/herramienta.test.ts:6`.
+  **584 ≠ 633 y el resultado es rojo**: no se acredita la línea base.
+- **`1824e75dbd39` planes (esperado 60) → ROJO por TIMEOUT**, `code null`, 301,17 s (`interrupted: true`,
+  `error_type: "TimeoutError"`), evidencia `7d3d49613a306a32bd8650983e39850d3eecd82e9daf77415fafc703a5369bb3`.
+  `counts: {}` y `failure_classes: ["timeout"]`: **sin recuento, 60 no acreditado** y no se inventa cifra (el último
+  dato conocido de intentos previos eran 38 fallos de plan/presupuesto sobre tablas vacías).
+- **Reparación mínima: no aplicable desde fuentes autorizadas.** Las 3 aserciones rojas y los planes dependen de un
+  canónico que el sandbox migra y deja a cero; sembrarlo sería fabricar datos y `registrar-preparacion` está
+  denegado al trabajador; el `ci_contract` pide `pruebas/ci/_preparar-ci-fixtures.mjs`, que no existe ni tiene
+  convención documentada. El tope de la puerta de test (480 s medidos) tampoco cabe en una suite completa.
+  No se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos ni recolectores.
+- **Línea base:** 633 **no** (584 reales, rojo), 359 **verde sin cifra**, 60 **no** (timeout).
+  `all_registered_gates_verified: false`, `production_authorized: false`; sin commit, push, merge ni despliegue.
+- **Gasto:** el adaptador no expone recibo de coste; no se inventa cifra.
+- **Siguiente acción:** que infraestructura (a) siembre el canónico sintético o declare la base que debe medir
+  `1824e75dbd39` y las aserciones de `consultas.test.ts`; (b) suba el tope de `4532c4868add` por encima de la
+  duración real (~916 s según este mismo documento) y de `1824e75dbd39`; (c) alinee el perfil del `ci_contract`
+  (`ad6ce4dc…`) con el que devuelve el arnés (`7b1c8734…`). Después, repetir `test` y `planes` sobre un árbol
+  estable y pasar revisión independiente GLM. No reencolar otra reproducción idéntica del par timeout/base vacía.
+
+## ★★★★★ DeepSeek, 01/11 (31.er intento, dispatch `ctx_ae3814f49a81`) — 3 de 5 verdes; `test` repite el timeout del tope y `planes` da su detalle real (38 fallos de plan)
+
+- **Árbol:** `79664ce9ec48bc824a2e206c1fabf146501dbf49c3dadf5b32f3f60744896efa`, HEAD
+  `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, perfil `ad6ce4dc…`; sin cambios de producto
+  entre puertas y `tests_executed_by_this_lookup: false`.
+- **`4532c4868add` test (633) → ROJO**, `code null`, 361,55 s, evidencia `81b48fc8…`; `counts: {}`,
+  `failure_classes: []` → el pase agota el tope de 360 s y no deja recuento. **633 no acreditado**.
+- **`2f523b707a76` lint → VERDE**, `code 0`, 5,85 s, evidencia `f424cdce…`.
+- **`4013b847119b` SQL en PGlite (359) → VERDE**, `code 0`, 342,23 s, evidencia `8724b5b1…`. La puerta no expone
+  recuento: verde sin cifra acreditable.
+- **`1824e75dbd39` planes (60) → ROJO**, `code 1`, 261,72 s, evidencia `0ada2308…`,
+  `counts.query_plan_failures: 38`, `failure_classes: ["query_budget_or_plan_regression"]`. Entre los 20 fallos
+  visibles (la lista pública viene truncada; **no se inventa el resto**): 11 `over_budget` —
+  `busqueda-por-nombre` 11.571 ms/500, `equipos-por-federacion` 11.720/3.000, `ranking-goleadores` 5.986/500,
+  `admin-chequeos-ahora` 53.367/1.500, `admin-panel-resumen` 303/150, `admin-casos-resumen` 592/150,
+  `admin-casos-lista` 578/200, `admin-procesos` 675/200, `ficha-federacion` 1.098/300, `listado-de-grupos`
+  1.493/1.000, `arbitros` 640/200 — y 9 `plan_changed` (`goles-de-partidos`, `club-por-id`, `equipos-del-club`,
+  `trayectoria-de-persona`, `ranking-goleadores`, `evolucion-del-club`, `arbitros`, `admin-casos-lista`,
+  `cobertura-por-federacion`). **60 no acreditado**.
+- **`6340c694e42c` build → VERDE**, `code 0`, 62,89 s, evidencia `112e19f0…`.
+- **No hay reparación mínima permitida.** El producto no cambió (solo están modificados este documento y los
+  `pruebas/sql/*.mjs` de la reparación CRLF ya conocida, más los tres `pruebas/planes/*.json` que genera la propia
+  puerta). Los 38 fallos son de plan/presupuesto sobre la base del sandbox, repartidos por 9 módulos: optimizar 38
+  consultas (20 visibles) no es «reparación mínima», y reescribir las huellas de `pruebas/planes/*.json` con
+  `--guardar` sería debilitar la puerta. No se tocaron migraciones aplicadas.
+- **Línea base:** 633 **no** (timeout), 359 **verde sin recuento**, 60 **no** (code 1).
+  `all_registered_gates_verified: false`, `production_authorized: false`.
+- **Gasto:** la evidencia saneada no expone tokens ni coste; no se inventa cifra.
+- **Pendientes (infraestructura, fuera del workspace):** (a) subir el tope de `4532c4868add` a ≥960 s (el pase
+  completo ronda 916 s) para acreditar 633; (b) fijar qué base debe medir `1824e75dbd39` (la del sandbox frente al
+  banco de volumen); (c) decidir el destino de los tres `pruebas/planes/*.json` sin seguimiento. Después, revisión
+  independiente GLM sobre el árbol exacto. No reencolar otra reproducción idéntica del par timeout/planes.
+
+## ★★★★★ DeepSeek, 01/11 (30.º intento, dispatch `ctx_54b70897451e`) — 3 de 5 en verde sobre un árbol estable; `test` agota su tope de 360 s y `planes` sigue rojo
+
+**Fase:** verificación de la línea base. **Resultado:** 3 verdes y 2 rojos reales, los cinco sobre el **mismo árbol**
+`c2545f7fff4170e2dd4acaf5364f295fc2d7634595cf5320ade42984f7b382d7` (HEAD `01b0580d07099f172934c581d14daea4cdf2653c`,
+rama `ErDeivih/equipo-ia`). Task `task_72f5c3ea0a70`, Run `run_517457d35a0e`. `candidate_coverage` final:
+`green_gate_ids [2f523b707a76, 4013b847119b, 6340c694e42c]`,
+`pending_gate_ids [1824e75dbd39, 4532c4868add]`, `all_registered_gates_verified: false`,
+`production_authorized: false`.
+
+- **`2f523b707a76` lint → VERDE**, `code 0`, 5,97 s, evidencia `7fd6afac8cbc4e4befe7e16097ff293b630e27a6898b60018ea39d0554cfa3fc`.
+- **`4532c4868add` pnpm test (esperado 633) → ROJO por TIMEOUT**, `code null`, 361,01 s y 361,23 s en dos
+  ejecuciones, evidencia `25aa6688e3a3defb4aea5f85be4aed936107097bdb26a60fee362666a571c64b` (sin clase) y
+  `5f74bac82b08741552cc6364b9940f6c05d50ae6b054609908bf512c03ed8ff3` (`failure_classes: ["timeout"]`). La evidencia
+  viene saneada (`counts: {}`), así que **no hay recuento**: desconocido ≠ 0 y no se afirma 584/633. Causa real
+  medida: el tope registrado de la puerta es **360 s** (`timeout_seconds: 360`), mientras la propia documentación de
+  este fichero registra una pasada completa de 633 en **916 s** (entrada del 23/10, 23:55). El producto no falla: la
+  puerta no cabe en su presupuesto en este sandbox.
+- **`4013b847119b` SQL/PGlite (359) → VERDE**, `code 0`, 409,93 s, evidencia
+  `503a8ded87863ecf35e5058ddb25b29150100f97af771f9d3d1d93c9b22c35fa`. Confirma que la reparación CRLF de los
+  `pruebas/sql/*.mjs` (intento 28) sigue siendo válida y estable sobre este árbol.
+- **`1824e75dbd39` planes (60) → ROJO**, `code 1`, 274,08 s, evidencia
+  `5203db8e1033e8edd47e7bf34729f2fa7f50fdff0eef888b6262ca327ba55b`… La evidencia también viene saneada
+  (`counts: {}`): **no se inventa el número** de consultas fuera. Último dato conocido de intentos anteriores:
+  27 consultas fuera de presupuesto y cambios de forma de plan sobre tablas **vacías**; el árbol no cambió al
+  ejecutarla (`subject_changed_after_gates: false`).
+- **`6340c694e42c` build web → VERDE**, `code 0`, 78,51 s, evidencia
+  `eb3a19ef25661c17030c27089c7819b81035002080150262d3243665907278d8`.
+- **Comparación con lo esperado:** esperado 633/359/60. Observado: **359 acreditado por puerta verde** (recuento
+  interno no expuesto por la evidencia saneada), **60 no acreditado** (`planes` code 1) y **633 no acreditado**
+  (`test` timeout). No se fabrican recuentos.
+- **Sin reparación posible en fuentes autorizadas:** el tope de 360 s y el tiempo de la suite viven en el
+  `ci_contract`/arnés (fuera del workspace y no editable por el trabajador); el rojo de `planes` es consecuencia de
+  un canónico migrado a cero en el sandbox y sembrarlo está prohibido (datos privados/fabricados). No se tocaron
+  aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos ni recolectores; no se ejecutaron pruebas del
+  producto en Windows; **sin commit, push, merge ni despliegue**.
+- **Gasto:** el adaptador no expone recibo de coste; no se inventa cifra. Único cambio en el árbol: este documento.
+- **Siguiente acción:** que infraestructura suba el tope de `4532c4868add` a ≥ 960 s (o documente la duración real
+  medida) y siembre el canónico o declare no ejecutable `1824e75dbd39`; después repetir `test` y `planes` y pasar a
+  revisión independiente GLM sobre el árbol exacto. No reencolar otra reproducción idéntica del par timeout/planes
+  con estos mismos parámetros.
+
+## ★★★★★ DeepSeek, 31/10 (29.º intento, dispatch `ctx_ee227089da73`) — 3 de 5 puertas en verde; test y planes rojos, y el arnés cae con pydantic
+
+**Fase:** verificación de la línea base. **Resultado:** 3 verdes y 2 rojos reales; no se acredita la línea base
+633/359/60. Task `task_72f5c3ea0a70`, dispatch `ctx_ee227089da73` (reintento de `ctx_3277c3016061`), Run
+`run_517457d35a0e`, HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, árbol de las
+evidencias `c298c87bf0280b5f7423f3eeb944e420113dae816289810b3c5d84467510c0ad`.
+
+- **`git_estado` volvió a responder** pasando `file` + `offset`; el workspace sigue con este documento y los 8
+  `pruebas/sql/*.mjs` modificados, más `node_modules/` y los tres `pruebas/planes/*.json` sin seguimiento.
+- **`2f523b707a76` lint → VERDE**, `code 0`, 4,65 s, evidencia `de5d6b259d9f75f7bba6f76c6459a3c3643826c1b31745253712db4a7c65f098`.
+- **`4532c4868add` pnpm test (esperado 633) → `code null`**, 360,91 s, evidencia
+  `5fb595cadf052c14f527588e0d015a6939ca7eeda31f34022b16e89646110ec5`. No hay recuento de tests en la evidencia:
+  el contenido devuelto es solo el stub de saneado (`counts: {}`), así que **no se puede afirmar 584/7 ni 633** en
+  esta ejecución. El tiempo es compatible con un cuelgue/timeout del arranque de PostgreSQL, no con un rojo de
+  aserciones; desconocido ≠ 0.
+- **`4013b847119b` SQL/PGlite (359) → VERDE**, `code 0`, 363,09 s, evidencia
+  `4ccc8829cd2e7b66ebc8d35795cada26a1462d927e2d93082f5a372f680346ce`. Confirma que la reparación CRLF de los
+  `.mjs` sigue siendo válida en este árbol.
+- **`1824e75dbd39` planes (60) → `code 1`**, 185,45 s, evidencia
+  `b157d61f83b32e6501ad7a9a8757837a127aa0ecd9252943a10018676e20bacc`. La evidencia también viene saneada
+  (`counts: {}`), sin el número de consultas fuera de presupuesto; **no se inventa la cifra**. Último dato conocido
+  de intentos anteriores: 27 consultas fuera de presupuesto y cambios de forma de plan sobre tablas vacías.
+- **`6340c694e42c` build web → VERDE**, `code 0`, 58,96 s, evidencia
+  `7755d14c095c0c39cb0d7a24356e36606ea295469d6700c063ffecc004d06883`, 23 rutas.
+- **Cobertura de la candidata:** `green_gate_ids: [2f523b707a76, 4013b847119b, 6340c694e42c]`,
+  `pending_gate_ids: [1824e75dbd39, 4532c4868add]`, `all_registered_gates_verified: false`,
+  `production_authorized: false`.
+- **Reintento de `test` bloqueado por el arnés:** `validar` devolvió
+  `The installed pydantic-core version (2.46.5) is incompatible with the current pydantic version, which requires 2.50.1`.
+  Es un fallo del entorno del runner, no del producto; no se puede reintentar hasta repararlo.
+- **Pregunta al coordinador:** `msg_d57015d8d4fe` (thread `msg_d57015d8d4fe`) enviada y con `timedOut` a los
+  18,8 s; queda pendiente para reanudar con `--resume`.
+- **Sin verdes fabricados:** no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos,
+  recolectores ni el ritmo de peticiones; no se ejecutaron pruebas en Windows; **sin commit, push, merge ni
+  despliegue**. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+- **Pendientes:** (a) reparar el `pydantic` del runner y repetir `pnpm test`; (b) obtener el detalle real de
+  `planes` (la evidencia saneada lo oculta) y decidir sobre los `pruebas/planes/*.json`; (c) revisión independiente
+  GLM sobre el árbol exacto; después decidir si procede commit de David/controlador. La línea base 633/359/60 **no**
+  queda acreditada.
+
+## ★★★★★ DeepSeek, 31/10 (28.º intento, dispatch `ctx_3277c3016061`) — la puerta SQL en verde; el arnés deja de responder antes de medir el resto
+
+**Fase:** reparación mínima y verificación. **Resultado:** la puerta **SQL pasa de rojo a verde**; las otras cuatro
+no se pudieron reejecutar porque `validar` empezó a rechazar el workspace. Task `task_72f5c3ea0a70`, HEAD
+`01b0580d…`, rama `ErDeivih/equipo-ia`, árbol de la evidencia `c30c95a7c29af1b2f8463dc4c6bb9d505d1d2074b965dfebcfd29f5ed0a18500`.
+
+- **Causa raíz del rojo SQL, confirmada con evidencia directa:** los `.mjs` de `pruebas/sql/` leen
+  `apps/web/src/consultas/*.ts` con `readFileSync(..., 'utf8')` y localizan el final de cada consulta con el
+  marcador ``indexOf('`,\n};')``, que solo existe con LF. En un checkout Windows los ficheros llegan con CRLF, el
+  marcador no aparece (`-1`) y `slice(a, -1)` volcaba el módulo entero como si fuera SQL; de ahí el
+  `syntax error at or near "\`"`. Comprobación: el SQL volcado terminaba literalmente en ``as const;\r``.
+- **Reparación mínima aplicada, en fuentes autorizadas** (`pruebas/sql/*`): normalización de saltos de línea justo
+  después de leer cada `.ts`, con `.replaceAll('\r\n', '\n')`. Ficheros: `analisis.mjs`, `m29.mjs`, `m35.mjs`,
+  `m41.mjs`, `m42.mjs`, `m43.mjs`, `m45.mjs` y `m50.mjs` (`m50.mjs` también necesitaba tolerar el marcador en su
+  regex; `rendimiento.mjs` no usa el marcador y no se tocó). No se cambió ningún umbral, aserción ni migración.
+- **Puerta `4013b847119b` (SQL/PGlite, esperado 359) → `code 0`, VERDE**, 329,61 s, árbol `c30c95a7…`,
+  evidencia `e0ede54ff5180698cabbb14fb2f89e458160187ba730b1f4502ed54298f84aa5`
+  (`read_args`: `["equipo-local","evidencia","facylf","e0ede54ff5180698cabbb14fb2f89e458160187ba730b1f4502ed54298f84aa5"]`),
+  con `subject_changed_during_gates: false`. Es la primera vez que esta puerta sale verde en el sandbox.
+- **Bloqueo nuevo del arnés:** el primer intento de `4532c4868add` devolvió `waiting_resources`
+  (`capacidad ocupada: heavy`, `retry_after_seconds: 60`); un intento posterior dio `database is locked` y, desde
+  entonces, **todas** las llamadas a `validar` (probadas `4532c4868add`, `2f523b707a76`, `4013b847119b`,
+  `6340c694e42c`), a `contexto_proyecto` y a `git_estado` responden `{"ok":false,"error":"ruta no permitida"}`.
+  `read`/`edit` sobre el workspace y `orca` siguen funcionando, y la evidencia de la puerta 3 se sigue leyendo con
+  `equipo-local evidencia`, así que el registro del proyecto vive y lo que falla es la resolución de ruta del
+  ejecutor. No se tocó nada entre el verde de la puerta 3 y el primer `ruta no permitida`.
+- **Consultado al coordinador, sin respuesta:** pregunta pendiente `msg_2960cfbf64b1` (reanudada tres veces, los
+  `ask` vuelven con `timedOut` a los ~20 s) y escalada `msg_6b5831b6266c` con el detalle del bloqueo.
+- **Lo que sigue rojo y por qué no se arregla desde aquí:** `pnpm test` (633) arrastra el `SyntaxError` en `6:31`
+  que impide cargar `packages/ingesta/test/reconstruccion-cola/herramienta.test.ts` (49 `it` sin contarse:
+  633−584=49); el token inválido está en `scripts/reconstruir-cola.mjs`, que **no es legible** por el trabajador,
+  así que no se reescribe a ciegas. Las 7 aserciones restantes de `apps/web/test/consultas.test.ts` exigen canónico
+  real (grupo `11379752`, 300+ partidos, 19 federaciones) y el sandbox lo migra a cero. `planes` (60) no se
+  reejecutó, pero su último rojo conocido eran 27 consultas fuera de presupuesto y los tres
+  `pruebas/planes/*.json` sin seguimiento que genera la propia puerta.
+- **Sin verdes fabricados:** no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos,
+  recolectores, ni el ritmo de peticiones; no se ejecutaron pruebas en Windows; **sin commit, push, merge ni
+  despliegue**. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+- **Pendientes para quien recoja esto:** (a) arreglar la resolución de ruta de `validar`/`git_estado` para el
+  proyecto `facylf`; (b) leer y corregir el token de `scripts/reconstruir-cola.mjs:6:31` con acceso al árbol;
+  (c) sembrar el canónico en el sandbox; (d) decidir sobre los `pruebas/planes/*.json`; y después repetir
+  633/359/60 sobre un árbol estable, con revisión independiente GLM.
+
+## ★★★★★ DeepSeek, 31/10 (27.º intento, dispatch `ctx_4348dbb5cd9d`) — cinco puertas ejecutadas; mismo bloqueo de arnés y árbol derivado
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas ejecutadas con `validar`, una por
+llamada, sobre el árbol de partida `724c2cd1fc6f2a54f5ff202d75c59e60cadce17cecff56c19e96a1e2de00a3bc` (HEAD
+`01b0580d…`, rama `ErDeivih/equipo-ia`, Task `task_72f5c3ea0a70`). `git_estado` al empezar: solo este documento
+modificado, nada en stage.
+
+1. `2f523b707a76` **lint** → **`code 0`, VERDE**, 8,41 s, evidencia `13494e1fcb33…`, árbol `724c2cd1…`. El propio
+   log ya muestra `actualiza_recuento_canonico` con federaciones 0, partidos 0, personas 0.
+2. `4532c4868add` **pnpm test (633)** → `code 1`, 40,89 s, evidencia `5cad2e2706c6…`, árbol `724c2cd1…`;
+   `Test Files 2 failed | 47 passed (49)`, `Tests 7 failed | 576 passed | 1 skipped (584)`. Dos ficheros rojos:
+   `packages/ingesta/test/reconstruccion-cola/herramienta.test.ts` (suite no carga: `SyntaxError: Invalid or
+   unexpected token` en `6:31`) y `apps/web/test/consultas.test.ts` (7 aserciones contra el canónico vacío en
+   197, 223, 251, 262, 421 y 429). El fichero de prueba está en UTF-8 normal en el workspace; no se halló byte
+   corrupto legible y no se reescribió a ciegas.
+3. `4013b847119b` **SQL en PGlite (359)** → primer intento `preparation_failed` en `environment-smoke`
+   (`duplicate key value violates unique constraint "migracion_pkey"`, evidencia `2248eb0b59…`) por quedar arriba
+   el PostgreSQL efímero del intento anterior; **reintento una vez** ya limpio → `code 1`, 8,08 s, evidencia
+   `84d69ea61f1e…`, árbol `724c2cd1…`; `failure_signals: ["import"]`; error real `syntax error at or near "\`"`
+   al ejecutar `FORMA_DEL_EQUIPO` con `params: [1, 5]` (el runner pasa texto del módulo como SQL); sin recuento 359.
+4. `1824e75dbd39` **planes (60)** → `code 1`, 69,85 s, evidencia `65f6c4cb2700…`; «27 consulta(s) fuera de
+   presupuesto o con recorrido completo» frente a 60 y cambios de forma de plan (`Bitmap Heap Scan`/`Bitmap Index
+   Scan` sobre tablas vacías) en `goles-de-partidos`, `grupo-del-canónico`, `clasificación-del-grupo`,
+   `admin-procesos`, `admin-uso-por-pantalla`, `avisos-de-datos`, `ficha-federacion`; la evidencia marca
+   `subject_changed_during_gate: true`.
+5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 50,55 s, evidencia `6d10ada8bd24…`, árbol `292d4b9d…`
+   (ya derivado), 23 rutas.
+
+- **Deriva del árbol:** `git_estado` al terminar muestra, además del estado, tres ficheros **sin seguimiento**
+  `pruebas/planes/admin-auditoria.json`, `pruebas/planes/admin-cuentas-resumen.json` y
+  `pruebas/planes/admin-invitaciones.json`. Aparecieron durante la puerta de planes (no los creó el trabajador a
+  mano) y son la causa del `subject_changed_during_gate`. Por eso las evidencias de las puertas 1–4 pertenecen a
+  `724c2cd1…` y la 5 a `292d4b9d…`; **ninguna certifica el árbol posterior a esta anotación**.
+- **Causa raíz, idéntica a los intentos anteriores y ya diagnosticada por GLM:** el sandbox migra el canónico de
+  cero (sin sembrar) y el runner SQL vive en `/opt/flujo-runner/facylf-sql.mjs`, fuera del workspace; el
+  `ci_contract` exige `pruebas/ci/_preparar-ci-fixtures.mjs`, que no existe; `equipo-local`/`registrar-preparacion`
+  está denegado al trabajador. No hay reparación mínima permitida en fuentes autorizadas sin sembrar datos ni
+  rebajar umbrales.
+- **Sin verdes fabricados:** no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos,
+  recolectores ni el ritmo de peticiones; no se ejecutaron pruebas en Windows; **sin commit, push, merge ni
+  despliegue**.
+- **Pendientes:** infraestructura debe (a) sembrar el canónico en el sandbox, (b) corregir el runner SQL para que
+  pase la consulta y no el módulo, y (c) decidir sobre los `pruebas/planes/*.json` que genera la puerta; después
+  repetir 633/359/60 sobre un árbol estable, revisión independiente GLM y aprobación de David solo para despliegue.
+  **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+- **Nota:** la línea base 633/359/60 **no** queda acreditada en este intento.
+
+## ★★★★★ DeepSeek, 31/10 (26.º intento, dispatch `ctx_98960c3867ae`) — cinco puertas repetidas; mismo bloqueo de arnés
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas ejecutadas con `validar`, una por
+llamada, sobre el árbol `589dc7bb16f21444f3f17cd4e468a2c9a08eb1d4839c278af378fa4386500d19` (HEAD `01b0580d…`,
+rama `ErDeivih/equipo-ia`, Task `task_72f5c3ea0a70`). `git_estado` al empezar: solo este documento modificado, nada en
+stage. Las cinco evidencias declaran ese mismo `tree_hash` y `subject_changed_after_gates: false`.
+
+1. `4532c4868add` **pnpm test (633)** → `code 1`, 60,30 s, evidencia
+   `cda990e4df808d2fc1fa24b7cc1004b95ba919938258f03b16f4cd10b2fd5852.json`; `Test Files 2 failed | 47 passed (49)`,
+   `Tests 7 failed | 576 passed | 1 skipped (584)`. Fallos de aserción en `apps/web/test/consultas.test.ts` contra el
+   canónico vacío (`expected 0 to be greater than 300`/`0`/`10`, `Cannot read properties of undefined (reading 'total')`,
+   `expected 2 to be greater than or equal to 19`) más un fichero con `SyntaxError: Invalid or unexpected token`.
+2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 11,28 s, evidencia
+   `280e145f79e2410c022917885f3ab4dbe34bb606870114f5f32c4f950d71c11c.json`.
+3. `4013b847119b` **SQL en PGlite (359)** → `code 1`, 11,09 s, evidencia
+   `c89c310cca4d2432e173d4fa760fae43d5ac361870127577cebe169a9a11be36.json`; `failure_signals: ["import"]`,
+   `error: syntax error at or near "\`"` al cargar `FORMA_DEL_EQUIPO` con `params: [1,5]`; sin recuento 359.
+4. `1824e75dbd39` **planes (60)** → `code 1`, 9,62 s, evidencia
+   `219136bf9d1e6e28e954841e0ab783735049f7305a99c7a28acb359084331310.json`; «45 consulta(s) fuera de presupuesto»,
+   cambios de forma de plan en «comparacion-de-ligas», «ojeo-jugadores», «minutos-por-equipo» y otras.
+5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 47,60 s, evidencia
+   `8840799620a1fd88f4b7d467d4ce17f31c58864e424d9470b49dc3a5972e52d8.json` (23 rutas).
+
+- **Causa raíz, idéntica y ya diagnosticada por GLM:** el sandbox migra el canónico de cero (el log de lint muestra
+  `actualiza_recuento_canonico` → federaciones 0, partidos 0, personas 0), el runner SQL vive en
+  `/opt/flujo-runner/facylf-sql.mjs` (fuera del workspace) y el `ci_contract` exige `pruebas/ci/_preparar-ci-fixtures.mjs`,
+  que no existe; `equipo-local`/`registrar-preparacion` está denegado al trabajador. No hay reparación mínima permitida
+  en fuentes autorizadas sin sembrar datos ni rebajar umbrales.
+- **Sin verdes fabricados:** no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos,
+  recolectores ni el ritmo de peticiones; no se ejecutaron pruebas en Windows; **sin commit, push, merge ni despliegue**.
+- **Pendientes:** infraestructura debe sembrar el canónico (o declarar no ejecutables 4532c4868add/4013b847119b/1824e75dbd39)
+  y corregir el runner SQL; después repetir 633/359/60, revisión independiente GLM y aprobación de David solo para
+  despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+- **Nota:** esta edición cambia el árbol; las evidencias pertenecen a `589dc7bb…` (el árbol probado) y no certifican el
+  árbol resultante de esta anotación. La línea base 633/359/60 **no** queda acreditada.
+
+## ★★★★★ DeepSeek, 31/10 (25.º intento, dispatch `ctx_bd0fe5cdeb88`) — cinco puertas repetidas; mismo bloqueo de arnés
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas ejecutadas con `validar`, una por
+llamada, sobre el árbol `72f17f6c45dbe5779b6e33b17951c843a03de2eb60041e53c802e112a1bb68fd` (HEAD `01b0580d…`,
+rama `ErDeivih/equipo-ia`, Task `task_72f5c3ea0a70`). `git_estado` al empezar: solo este documento modificado
+(930 inserciones, 1 borrado), nada en stage.
+
+1. `4532c4868add` **pnpm test (633)** → `code 1`, 61,84 s, evidencia
+   `36f6fadb7cdb6c09ddfea46ced2612313cdfea4e5764ac2d89899561613c32db.json`; `Test Files 2 failed | 47 passed (49)`,
+   `Tests 7 failed | 576 passed | 1 skipped (584)`. Dos ficheros rojos: `packages/ingesta/test/reconstruccion-cola/herramienta.test.ts`
+   (suite no carga: `SyntaxError: Invalid or unexpected token`, 0 pruebas) y `apps/web/test/consultas.test.ts:197,205,223,251,429`
+   (7 aserciones contra el canónico vacío).
+2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 14,19 s, evidencia
+   `46c1c3f93ede6c81f311afe7b6c014bc37ede60af49fdc9d44e0e381eda7ceb2.json`.
+3. `4013b847119b` **SQL en PGlite (359)** → `code 1`, 19,75 s, evidencia
+   `394d1f1f3efcb9125e97bbc90d85dd27a84a9ef20c0600d8bcd8c6abf35ed0aa.json`; `failure_signals: ["import"]`,
+   recuento real 0; `FORMA_DEL_EQUIPO` con `params: [1,5]`.
+4. `1824e75dbd39` **planes (60)** → `code 1`, 15,31 s, evidencia
+   `390abbee58c9b001d9e200f7c033491dc9b93c57192307972cb985c4795db443.json`; 45 consultas fuera; cambios de forma
+   de plan en «comparacion-de-ligas» y «ojeo-jugadores» (`--guardar`).
+5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 69,88 s, evidencia
+   `01e681d65a152003ef6b24d15102d43548a4703b775a35b8be074e4e4c01b945.json` (23 rutas).
+
+- **Causa raíz, verificada otra vez con los logs completos:** el sandbox migra el canónico de cero
+  (`actualiza_recuento_canonico` → federaciones 0, partidos 0, personas 0), el runner SQL vive en
+  `/opt/flujo-runner/facylf-sql.mjs` (fuera del workspace) y el `ci_contract` exige
+  `pruebas/ci/_preparar-ci-fixtures.mjs`, que no existe; `equipo-local`/`registrar-preparacion` está denegado al
+  trabajador y crear el fixture inventaría la convención del arnés. Reparación mínima permitida: ninguna.
+- **Sin verdes fabricados:** no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker, datos,
+  recolectores ni el ritmo de peticiones; no se ejecutaron pruebas en Windows; **sin commit, push, merge ni despliegue**.
+- **Pendientes:** infraestructura debe sembrar el canónico (o declarar no ejecutables 4532c4868add/4013b847119b/1824e75dbd39)
+  y corregir el runner SQL; después repetir 633/359/60, revisión independiente GLM y aprobación de David solo para
+  despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+- **Nota:** esta edición cambia el árbol; las evidencias anteriores pertenecen a `72f17f6c…` y no certifican un árbol
+  posterior.
+
+## ★★★★★ DeepSeek, 31/10 (24.º intento, retry `ctx_365b41cd0cab`) — cerrado como bloqueo de arnés por decisión del coordinador
+
+**Fase:** verificación de la línea base. **Resultado:** retry del dispatch anterior sobre el árbol
+`68f8ae5138ff7bab3f54153a1217de09b4c9df1ac98916fd5bbec62ffa1d6d74` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`,
+Task `task_72f5c3ea0a70`). Cuatro puertas ejecutadas una por llamada con `validar`:
+
+1. `2f523b707a76` **lint** → **`code 0`, VERDE**, 6,68 s, evidencia
+   `9abe4f850a6cc5bbf2f93c6b037f8cc914849d43aea4b2e33e2ca6bede1762ff.json`.
+2. `4532c4868add` **pnpm test** → `code 1`, 71,48 s, evidencia
+   `971954190c57a016a780dc47358fd9486c309cdde81f593653c29721128d1b06.json`; `584 = 576 + 7 rojas + 1 omitida`
+   frente a 633. Señales: `SyntaxError: Invalid or unexpected token`, `expected undefined to be defined`,
+   `expected 0 to be greater than 300`/`0`/`10`, `Cannot read properties of undefined (reading 'total')`,
+   `expected 2 to be greater than or equal to 19`; fallos en `apps/web/test/consultas.test.ts:223,251`.
+3. `4013b847119b` **SQL en PGlite** → `code 1`, 18,29 s, evidencia
+   `765c1b0e2c58640c2185f64c89bb3e6eaf5ff660512c45f286420df4146a914a.json`; sin recuento 359,
+   `failure_signals: ["import"]`, volcado con `params: [1,5]`.
+4. `1824e75dbd39` **planes** → `code 1`, 9,80 s, evidencia
+   `baac4dd9537ff0d5767b467d1989650427db362ac42c233c076a70dc29615639.json`; «45 consulta(s) fuera de presupuesto»,
+   `Bitmap Heap Scan`/`Bitmap Index Scan` sobre tablas vacías y sin `Seq Scan` que lo justifique.
+
+- **Causa raíz idéntica:** el `ci_contract` exige `pruebas/ci/_preparar-ci-fixtures.mjs`, que no existe ni en el
+  workspace ni en el original; no hay documentada variable/rol de invocación y `equipo-local` /
+  `registrar-preparacion` está denegado al trabajador. Crearlo habría inventado la convención del arnés.
+- **Decisión del coordinador (`msg_83d3d8ed406c`, respondida a `msg_c2272b163556`):** opción **C** — no crear el
+  fixture, no repetir otra reproducción idéntica de las puertas de datos, cerrar como bloqueo de arnés y esperar
+  un `ci_contract`/preparación nuevos. Escalada reanudada en su hilo `msg_db964e974b60` con la reproducción de este
+  dispatch (`msg_96cb6c67fa36`).
+- **Sin reparación, sin verdes fabricados y sin tocar nada más:** no se creó el fixture, no se sembró el canónico,
+  no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker ni el ritmo de los recolectores; no se
+  ejecutaron pruebas en Windows; **sin commit, push, merge ni despliegue**. Este intento no modificó ningún archivo
+  del producto (solo este estado, ya modificado al empezar).
+- **Pendientes:** cuando infraestructura corrija el `ci_contract` y emita un ID nuevo, ejecutar `validar` **una sola
+  vez** con ese ID; después 633/359/60 verdes, revisión independiente GLM y aprobación de David solo para
+  despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+
+## ★★★★★ DeepSeek, 31/10 (23.er intento, dispatch `ctx_e2c37d12f7dd`) — bloqueo de ARNÉS confirmado y escalado
+
+**Fase:** verificación de la línea base. **Resultado:** solo se repitieron las puertas que aportaban información nueva;
+`lint` **VERDE** (`2f523b707a76`, `code 0`, 7,29 s, evidencia
+`71af42920287e825fdf10868ae112701362023698443f7249a4ac12c49586e2a.json`) y `pnpm test` **ROJO**
+(`4532c4868add`, `code 1`, 69,24 s, evidencia
+`39c1bffa9884f53b4fcec2825508b339c2489b820ccba7f65a05602adda116e5.json`) sobre árbol
+`2e7a62b328089b3a1cbdf609635a2b76d626a95c0d61d373fca6edcd0843b70e` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`,
+Task `task_72f5c3ea0a70`). Recuento idéntico al intento 22: `Test Files 2 failed | 47 passed (49)`,
+`Tests 7 failed | 576 passed | 1 skipped (584)` frente a 633. Señales: `SyntaxError: Invalid or unexpected token`,
+`expected undefined to be defined`, `expected 0 to be greater than 300`/`0`/`10`,
+`Cannot read properties of undefined (reading 'total')`, `expected 2 to be greater than or equal to 19`. Los fallos de
+aserción están en `apps/web/test/consultas.test.ts` y miden el canónico (vacío), no el producto.
+
+- **Causa raíz verificada, no supuesta:** el `ci_contract` de `contexto_proyecto` declara
+  `synthetic_pg_prerequisite_registration = ["equipo-local","registrar-preparacion","facylf","pruebas/ci/_preparar-ci-fixtures.mjs"]`,
+  pero ese fichero **no existe** y el directorio `pruebas/ci/` tampoco: `pruebas/` solo contiene `oro/`, `planes/`,
+  `reconstruccion/` y `sql/`. Además `equipo-local` está denegado al trabajador (`source_globs` no lo autoriza y el
+  adaptador no lo expone). Es un **defecto del arnés**: exige un artefacto que ningún actor del workspace ha creado.
+- **Los dos ficheros rojos encajan con esa ausencia:** `consultas.test.ts` (7 aserciones contra el canónico) y un
+  segundo fichero que no llega a colectarse por `SyntaxError: Invalid or unexpected token` (0 comprobaciones, cuenta
+  como fallido); sus comprobaciones ausentes explican el delta 584→633. La identidad exacta de ese segundo fichero
+  no se pudo leer: las evidencias viven en `F:\EspacioCodigo\flujo\estado\orca-evidencias\`, fuera de
+  `external_directory` (`F:/EspacioCodigo/flujo/conocimiento/**` e `F:/Inforepositorios/**`).
+- **No se ejecutaron las puertas SQL/PGlite y planes en este intento**, a propósito: son la misma reproducción
+  idéntica de una puerta ya bloqueada por el arnés (el coordinador lo prohibió expresamente, `msg_4367a1cb1488` /
+  `msg_f00391cb86d6`). Se conservan como histórico los IDs `4013b847119b` (SQL) y `1824e75dbd39` (planes) del
+  intento 22, con 359 y 60 sin alcanzar.
+- **Sin reparación posible ni verdes fabricados:** no se creó ni se buscó el fixture de preparación, no se sembró el
+  canónico, no se tocaron aserciones, umbrales, migraciones aplicadas, `.env`, Docker ni el ritmo de los recolectores;
+  no se ejecutaron pruebas en Windows; **sin commit, push, merge ni despliegue**.
+- **Pendientes:** (1) que infraestructura corrija el `ci_contract` —incluir el artefacto de preparación o declarar no
+  ejecutables las puertas de datos afectadas—; (2) cuando emita un contrato corregido con su propio ID, ejecutar
+  `validar` **una sola vez** sobre ese árbol; (3) después, 633/359/60 verdes, revisión independiente GLM y aprobación
+  de David solo para despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra.
+
+## ★★★★★ DeepSeek, 31/10 (22.º intento, dispatch `ctx_19f472686ea8`) — 2/5 verdes; bloqueo de infraestructura, no del producto
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas ejecutadas una por llamada con `validar` sobre el
+árbol `a1545a506a339c693dfa5d320aa2dd6c420375cf799694a06cace99c94bb2f1c` (HEAD `01b0580d…`, rama
+`ErDeivih/equipo-ia`, `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_19f472686ea8`; `tree_hash` idéntico en
+las cinco puertas y `subject_changed_after_gates: false`): **`lint` y `build web` VERDES**, `pnpm test`, SQL/PGlite y
+planes **ROJAS** con los mismos recuentos que los intentos 17 a 21. **Pendientes:** que infraestructura siembre el
+canónico del sandbox o declare no ejecutables las puertas de datos (`4532c4868add`, `4013b847119b`, `1824e75dbd39`) y
+que el runner SQL acepte parámetros; después repetir 633/359/60, revisión independiente GLM y aprobación de David solo
+para despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra. **Siguiente acción:** no reencolar otra
+reproducción idéntica sin cambiar la preparación del sandbox.
+
+- Resultados reales (códigos de salida y recuentos del sandbox):
+  1. `4532c4868add` **pnpm test** → `code 1`, 42,8 s. `Test Files 2 failed | 47 passed (49)`;
+     `Tests 7 failed | 576 passed | 1 skipped (584)` frente a 633 esperadas. Señales:
+     `SyntaxError: Invalid or unexpected token`, `expected undefined to be defined`,
+     `expected 0 to be greater than 300`/`0`/`10`, `Cannot read properties of undefined (reading 'total')`,
+     `expected 2 to be greater than or equal to 19`. Evidencia
+     `87fd4acc26eaa100096d4ac2b04c2e89edfab4d5878ccc69dccda542f41179a4.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 6,4 s. El propio log de migración de esta puerta prueba el
+     diagnóstico: `actualiza_recuento_canonico` devuelve `{"federaciones": 0, "partidos": 0, "personas": 0,
+     "grupos": 0, "ediciones": 0, "eventos": 0, "informes": 0, "participaciones": 0, "grupos_completos": 0}`.
+     Evidencia `5bff95cc48a5a4e8ec6be12a4f27769fd9f27e2c8c4f2bf1a0f77e6e7fc964b4.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 14,0 s, **sin recuento 359** (señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`; el runner vive en `/opt/flujo-runner/facylf-sql.mjs`, fuera del
+     workspace). Evidencia `e8aac66a496898247374d7484603c5060cb6f809b34281c17208abc15dc82d8f.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 15,2 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     los cambios de forma añaden `Bitmap Heap Scan`/`Bitmap Index Scan` sobre tablas vacías y **no** hay recorrido
+     secuencial (`seq: —`) que justifique tocarlos. Evidencia
+     `e3079b602f64218de23c4dd0e211ae265f81570cca1d9f873c1d0269fdee01b5.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 57,0 s; 23 rutas; `limpia-standalone: 0 entradas`.
+     Evidencia `7a301575d29879bbcbd2ffdd1cee46f007eda301b6a98f978f227d202e7091a8.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 (576 + 7 rojas + 1 omitida)**, **ningún
+  recuento** en la 3 y **45 planes fuera** en la 4. Ninguna de las tres puertas rojas mide el producto: las tres
+  dependen del canónico sembrado (vacío en el sandbox) o de un runner ajeno al árbol.
+- **Sin reparación posible ni verdes fabricados:** las fuentes autorizadas (`apps/web/src`, `packages/*/src`,
+  `packages/*/test`, `docs`, `package.json`) no incluyen `apps/web/test/**`, `scripts/**`, `pruebas/sql/**`,
+  `pruebas/planes/**`, `pnpm-workspace.yaml` ni `tsconfig.base.json`; no se siembra el canónico con datos privados ni
+  inventados y no se reescriben los planes de oro ni los umbrales. No se tocaron migraciones aplicadas, Docker, `.env`
+  ni el ritmo de los recolectores; no se ejecutaron pruebas del producto en Windows; no hay commit/push/merge/despliegue.
+- **Matiz sobre el `SyntaxError`:** 1 de los 2 ficheros rojos de `pnpm test` no llega a cargar con `SyntaxError: Invalid
+  or unexpected token` y su traza no aparece en el `output_tail`; no se puede identificar su origen desde el log ni
+  desde las fuentes autorizadas, así que **queda como desconocido** (no se da por bueno ni por roto). Los otros 7 fallos
+  son de datos (`apps/web/test/consultas.test.ts`) y encajan con el canónico vacío.
+
+## ★★★★★ DeepSeek, 30/10 (21.º intento, dispatch `ctx_537ac3180572`) — 2/5 verdes; línea base sigue sin ser comprobable
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas ejecutadas una por llamada con `validar` sobre el árbol
+`1f7cb01171533adf21ea5483a2cb70ad88c2448a1dbeba940cf66b4280dfdbc3` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`,
+incluye este documento sin commitear); `lint` y `build web` VERDES, y `pnpm test`, SQL/PGlite y planes ROJAS con los
+mismos recuentos que los intentos 17 a 20. **Pendientes:** que infraestructura siembre el canónico del sandbox o declare
+no ejecutables las puertas de datos, y que el runner SQL acepte parámetros; después repetir 633/359/60, revisión
+independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo; no se inventa
+cifra. **Siguiente acción:** no reencolar otra reproducción idéntica sin cambiar la preparación del sandbox.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`1f7cb01171533adf21ea5483a2cb70ad88c2448a1dbeba940cf66b4280dfdbc3`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_537ac3180572`.
+- Resultados reales (`validar`, códigos de salida del sandbox):
+  1. `4532c4868add` **pnpm test** → `code 1`, 41,8 s. `Test Files 2 failed | 47 passed (49)`;
+     `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales: `SyntaxError: Invalid or unexpected token`,
+     `expected undefined to be defined`, `expected 0 to be greater than 300`/`0`/`10`,
+     `Cannot read properties of undefined (reading 'total')`, `expected 2 to be greater than or equal to 19`.
+     Evidencia `f3a85f1dc55b11708333abdfb1f6354b5a4c2fd093141d60cee18e01da46d372.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 5,9 s. El log de migración de esta misma puerta muestra
+     `actualiza_recuento_canonico` con `federaciones: 0`, `partidos: 0`, `personas: 0`, `grupos: 0`. Evidencia
+     `7306e079239c184bff50a178f0ae4a8ee25025400f990683e585fec3d32933bb.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 9,8 s. Sin recuento 359; el runner vuelca
+     `PARAMETROS_ANALISIS['forma-del-equipo'] = [1, 5]` y muere con señal `import` al ejecutar `FORMA_DEL_EQUIPO`.
+     Evidencia `29f2e2c27042c1886bf7224740b58660a4690188c25724b7b6a0b0da8fcbdc32.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 7,4 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan`/`Index Scan` → `Bitmap Heap Scan` sobre tablas vacías. Evidencia
+     `bc0a3cec582538da9e5637c500b780dfde84e02dc58a6eae9af700f3e0cf7ff5.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 73,6 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `726c65ed4464a8b983b3f081d21776912e94a3490afc3438595e8c441e2c63cd.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 comprobaciones (576 + 7 rojas + 1 omitida)**,
+  **ningún recuento** en la 3 y **45 planes fuera** en la 4. Ninguna de las tres puertas rojas mide el producto real.
+- **Diagnóstico (5.ª reproducción idéntica; coincide con el diagnóstico independiente GLM de `task_fdeadcd2d58e`):** el
+  canónico del sandbox se migra de cero sin sembrar (`federaciones: 0`, `partidos: 0`), así que caen las aserciones de
+  datos y los presupuestos de plan. El runner SQL vive en `/opt/flujo-runner/facylf-sql.mjs`, fuera del workspace y no
+  editable desde aquí; `apps/web/test/**`, `scripts/**`, `pruebas/sql/**`, `pruebas/planes/**`, `pnpm-workspace.yaml` y
+  `tsconfig.base.json` tampoco están en las fuentes autorizadas, así que no hay parche permitido. No se siembra el
+  canónico con datos privados ni fabricados y no se reescriben los planes de oro.
+- **Sin reparación ni datos inventados:** no se tocan umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron
+  pruebas del producto en Windows; no hay commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (20.º intento, dispatch `ctx_432c7f76f22b`) — 2/5 verdes; línea base sigue sin ser comprobable
+
+**Fase:** verificación de la línea base. **Resultado:** 5 puertas ejecutadas una por llamada con `validar` sobre el árbol
+`0a6eac2be6a19aaff15c7d803c95beba4a053de5490f0a9e67c4ce0c62c1351` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`,
+incluye este documento sin commitear); `lint` y `build web` VERDES, y `pnpm test`, SQL/PGlite y planes ROJAS con los
+mismos recuentos que los intentos 17 a 19 (584 comprobaciones / 7 rojas, sin 359, 45 planes fuera). **Pendientes:** que
+infraestructura siembre el canónico del sandbox o declare no ejecutables las puertas de datos, y que el runner SQL acepte
+parámetros; después repetir 633/359/60, revisión independiente GLM y aprobación de David solo para despliegue.
+**Gasto:** el adaptador no expone recibo; no se inventa cifra. **Siguiente acción:** no reencolar otra reproducción
+idéntica sin cambiar la preparación del sandbox.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`0a6eac2be6a19aaff15c7d803c95beba4a053de5490f0a9e67c4ce0c62c1351`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_432c7f76f22b`.
+- Resultados reales (`validar`, códigos de salida del sandbox):
+  1. `4532c4868add` **pnpm test** → `code 1`, 55,4 s. `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales:
+     `SyntaxError: Invalid or unexpected token`, `expected undefined to be defined`,
+     `expected 0 to be greater than 300`/`0`/`10`, `Cannot read properties of undefined (reading 'total')`,
+     `expected 2 to be greater than or equal to 19`. Evidencia
+     `8684571782ae062ff73cb7d8111154e20fc58b689cb669b717ecb378a9f6a57b.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 11,6 s. Evidencia
+     `c8504ff4df2014396d22bce419c4dccfb358562910c904c01871e72475502468.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 9,4 s. Sin recuento 359; el runner vuelca
+     `PARAMETROS_ANALISIS['forma-del-equipo'] = [1, 5]` y muere con señal `import` al ejecutar `FORMA_DEL_EQUIPO`.
+     Evidencia `56c2de04e737f5418496b806b69073771948d74cb8045cdb007b9aa3f92b4ba5.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 10,0 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan`/`Index Scan` → `Bitmap Heap Scan` sobre tablas vacías. Evidencia
+     `c47ca3af15c0b8ead06b0785449b0b5b3cde40599ea39171cf70f9c2c53b264c.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 55,7 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `5a0c84a38c87b63a8b94e1cf4629e5996e400a76296955d1bf44e60d021bfe0c.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 comprobaciones (576 + 7 rojas + 1 omitida)**,
+  **ningún recuento** en la 3 y **45 planes fuera** en la 4. Ninguna de las tres puertas rojas mide el producto real.
+- **Diagnóstico (4.ª reproducción idéntica):** el log de migración del sandbox en las puertas 2 y 3 confirma el canónico
+  vacío; las aserciones de datos (`2 >= 19`, `greater than 0`) y los presupuestos de plan (`Bitmap Heap Scan` donde el oro
+  espera `Index Only Scan`) no son fallos del árbol probado. El runner SQL vive en `/opt/flujo-runner/facylf-sql.mjs`,
+  fuera del workspace y no editable desde aquí; `pruebas/sql/**` y `pruebas/planes/**` tampoco están en las fuentes
+  autorizadas, así que no hay parche permitido. No se siembra el canónico con datos privados ni fabricados y no se
+  reescriben los planes de oro.
+- **Sin reparación ni datos inventados:** no se tocan umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron
+  pruebas del producto en Windows; no hay commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (19.º intento, dispatch `ctx_6e9b2b0dfaf6`) — 2/5 verdes; línea base sigue sin ser comprobable
+
+**Fase:** verificación de la línea base. **Resultado:** 5 puertas ejecutadas una por llamada con `validar` sobre el árbol
+`c5f52e3e0d150a6229b06f04fb4f10e3c5245e8544a713955be4e01a8f67b9bf` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`);
+`lint` y `build web` VERDES, y `pnpm test`, SQL/PGlite y planes ROJAS con los mismos recuentos que los intentos 17 y 18
+(584 comprobaciones / 7 rojas, sin 359, 45 planes fuera). **Pendientes:** que infraestructura siembre el canónico del
+sandbox o declare no ejecutables las puertas de datos, y que el runner SQL acepte parámetros; después repetir 633/359/60,
+revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo; no se
+inventa cifra. **Siguiente acción:** no reencolar otra reproducción idéntica sin cambiar la preparación del sandbox.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`c5f52e3e0d150a6229b06f04fb4f10e3c5245e8544a713955be4e01a8f67b9bf`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_6e9b2b0dfaf6`.
+- Resultados reales (`validar`, códigos de salida del sandbox):
+  1. `4532c4868add` **pnpm test** → `code 1`, 40,4 s. `Test Files 2 failed | 47 passed (49)`;
+     `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales: `SyntaxError: Invalid or unexpected token`,
+     `expected undefined to be defined`, `expected 0 to be greater than 300`/`0`/`10`,
+     `Cannot read properties of undefined (reading 'total')`, `expected 2 to be greater than or equal to 19`.
+     Evidencia `8c8768f8759f2087c6f7eaf24c752b4f774f6156a862d75ae468f572d1d65f2c.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 8,2 s. Evidencia
+     `a9f991fef42ad648121982018a6fe56b3f98e49e9a4a6fb9072278258d4771d8.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 13,9 s. Sin recuento 359; el runner intenta cargar
+     `PARAMETROS_ANALISIS['forma-del-equipo'] = [1, 5]` y falla con señal `import` al ejecutar `FORMA_DEL_EQUIPO`.
+     Evidencia `b0e2dd49720cef8f5b1bcb5b8b2e6998da5923f96de39cd5012d014ab7aeebe9.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 7,2 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan`/`Index Scan` → `Bitmap Heap Scan` sobre tablas vacías. Evidencia
+     `5b69e69874b1e73c6dc079412b3a2a08bf194a1c3a8b171cb2861c834cc31621.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 55,9 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `4a35cf0e354851959a8469f4b258dd36750c0807e71cbce59869b78c3ad46377.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 comprobaciones (576 + 7 rojas + 1 omitida)**,
+  **ningún recuento** en la 3 y **45 planes fuera** en la 4. Ninguna de las tres puertas rojas mide el producto real.
+- **Diagnóstico confirmado (3.ª reproducción idéntica):** el log de migración del sandbox en la puerta 2 muestra
+  `actualiza_recuento_canonico` con `federaciones: 0`, `partidos: 0`, `personas: 0`; el canónico arranca vacío, así que
+  caen las aserciones de datos (`expected 2 to be greater than or equal to 19`, `greater than 0`) y los presupuestos de
+  plan (`Bitmap Heap Scan` donde el oro espera `Index Only Scan`). El fallo del runner SQL vive en
+  `/opt/flujo-runner/facylf-sql.mjs`, fuera del workspace y no editable desde aquí; además `apps/web/test/**`, `scripts/**`,
+  `pnpm-workspace.yaml`, `tsconfig.base.json` y `.npmrc` quedan fuera de las fuentes autorizadas, así que no hay parche de
+  configuración permitido. No se siembra el canónico con datos privados ni fabricados y no se reescriben los planes de oro.
+- **Sin reparación ni datos inventados:** no se tocan umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron
+  pruebas del producto en Windows; no hay commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (18.º intento, dispatch `ctx_93cec658c56b`) — 2/5 verdes, mismos tres fallos por datos
+
+**Fase:** verificación de la línea base. **Resultado:** 5 puertas ejecutadas una por llamada con `validar` sobre el árbol
+`309f2916d3068d81e23d0dde8cd430374e0879c0d361a5530181fc6e2473e58b` (HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`);
+`lint` y `build web` VERDES, y `pnpm test`, SQL/PGlite y planes ROJAS con los mismos recuentos que el intento 17
+(584/7 y 45 fuera) porque el sandbox migra el canónico de cero y lo deja a 0. **Pendientes:** que infraestructura
+siembre el canónico o declare no ejecutables las tres puertas de datos, y que el runner SQL acepte parámetros; después
+repetir 633/359/60, revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no
+expone recibo; no se inventa cifra. **Siguiente acción:** preparar datos y runner antes de reencolar otra reproducción.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`309f2916d3068d81e23d0dde8cd430374e0879c0d361a5530181fc6e2473e58b`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), Task `task_72f5c3ea0a70`, Dispatch `ctx_93cec658c56b`.
+- Resultados reales:
+  1. `4532c4868add` **pnpm test** → `code 1`, 72,1 s. `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales:
+     `SyntaxError: Invalid or unexpected token`, `expected undefined to be defined`,
+     `expected 0 to be greater than 300`/`0`/`10`, `Cannot read properties of undefined (reading 'total')`,
+     `expected 2 to be greater than or equal to 19`. Evidencia
+     `1a22a9412f35a39d9dffb1fe303818a654b0a34a18b59c26a9a648df61e3b561.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 12,8 s. Evidencia
+     `1bb61d86f818dc927f815b2ed974e2693295dea0c26dcba6c47de27ed8cf0c22.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 20,4 s. Sin recuento 359; señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`. Evidencia
+     `7bf4191e579ce8e06b7feb4ef835103411149461526f805de21fe5a530aaf499.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 14,2 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan`/`Index Scan` → `Bitmap Heap Scan` sobre tablas vacías. Evidencia
+     `abfa0ac4a0aeb7c29f7550e7adeb370212b2b76ad5fbea992cb42cd9daed00f8.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 58,8 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `edc2142580415ca379594443a5a91cdab4f2ddba9b735742abcc3f36ed7d09e0.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 comprobaciones (576 + 7 rojas + 1 omitida)**,
+  **ningún recuento** en la 3 y **45 planes fuera** en la 4. Nada mide el producto real; no se fabrica ningún verde.
+- **Diagnóstico confirmado:** el log de migración de este intento muestra `actualiza_recuento_canonico` con
+  `federaciones: 0`, `partidos: 0`, `personas: 0` (el intento 17 decía 2 federaciones), es decir, canónico vacío en el
+  sandbox; eso tumba las aserciones de datos y los presupuestos de plan. El fallo del runner SQL vive en
+  `/opt/flujo-runner/facylf-sql.mjs`, fuera del workspace: no hay nada que reparar en este árbol.
+- **Sin reparación ni datos inventados:** no se siembra el canónico con datos privados ni fabricados, no se tocan
+  umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron pruebas del producto en Windows; no hay
+  commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (17.º intento, dispatch `ctx_302f21f10dad`) — 2/5 verdes; línea base aún no comparable
+
+**Fase:** verificación de la línea base. **Resultado:** ejecuté las 5 puertas registradas una por llamada con `validar`
+sobre el árbol `edefe92257100e9811c815a15560ec5b00166354a17510fe19b2666d66cb9002` (HEAD `01b0580d…`, rama
+`ErDeivih/equipo-ia`); `lint` y `build web` salen VERDES, y las otras tres siguen ROJAS por el canónico migrado con 2
+federaciones y 0 goles y por el fallo `import` del runner SQL, no por resolución de `@facylf/dominio`.
+**Pendientes:** que infraestructura siembre el canónico o declare no ejecutables las puertas de datos, y que el runner
+SQL del sandbox ejecute con parámetros; después repetir las 5 puertas, revisión independiente GLM y aprobación de David
+solo para despliegue. **Gasto:** el adaptador no expone recibo; no se inventa cifra. **Siguiente acción:** no reencolar
+otra reproducción idéntica; preparar datos/runner primero.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`edefe92257100e9811c815a15560ec5b00166354a17510fe19b2666d66cb9002`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch
+  `ctx_302f21f10dad`.
+- Resultados reales:
+  1. `4532c4868add` **pnpm test** → `code 1`, 80,8 s. `Test Files 2 failed | 47 passed (49)`;
+     `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales: `SyntaxError: Invalid or unexpected token`,
+     `expected undefined to be defined`, `expected 0 to be greater than 300`/`0`/`10`,
+     `Cannot read properties of undefined (reading 'total')`, `expected 2 to be greater than or equal to 19`.
+     Evidencia `8748def0a4fe1e996269ba1ffa5b088e1ef29652f7219067fbeb6d373fbb194a.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 12,3 s. Evidencia
+     `284b293a06912f4ffa8c35d794018be346312fa79b651991533a28652b45cec3.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 11,0 s. Sin recuento 359; misma señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`. Evidencia
+     `5e2772b860f35cf46c63218797446cb19dfe3ff45c5c1ba42d40e21ffb5e55a1.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 8,9 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` sobre tablas vacías. Evidencia
+     `d3f32735d5f4145c3058615497a6bd55f01d27d642b48faa1b0d2832723d7f8f.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 59,2 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `06602f8218ee223772e6279a1d359f5097a76cdb43ab89f9e548374659616c1d.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **584 comprobaciones (576 + 7 rojas + 1 omitida)** en
+  la puerta 1, **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4. Ningún número mide el producto
+  real; no se fabrica ningún verde.
+- **Diagnóstico:** el sandbox migra el canónico de cero y lo deja con 2 federaciones y 0 goles (el log muestra
+  `actualiza_recuento_canonico` con todos los recuentos a 0), lo que tumba las aserciones de datos y los presupuestos de
+  plan; además el runner `/opt/flujo-runner/facylf-sql.mjs` falla con `import` al ejecutar con parámetros, fuera del
+  workspace. La resolución de `@facylf/dominio` ya funciona (lint y build verdes).
+- **Sin reparación ni datos inventados:** no se siembra el canónico con datos privados ni fabricados, no se tocan
+  umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron pruebas del producto en Windows; no hay
+  commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (16.º intento, dispatch `ctx_67223551e2a0`) — 2/5 verdes; el bloqueo ya NO es de build, es de datos
+
+**Fase:** verificación de la línea base. **Resultado:** 5 puertas ejecutadas una por llamada sobre el árbol idéntico a
+HEAD; por primera vez **lint (`2f523b707a76`) y build web (`6340c694e42c`) salen VERDES**, y caen los errores de
+resolución de `@facylf/dominio`. Las otras tres siguen rojas por el canónico vacío (2 federaciones, 0 goles), no por
+código de producto. **Pendientes:** que infraestructura siembre el canónico o declare no ejecutables esas tres puertas;
+que el runner SQL resuelva la ejecución con parámetros de `FORMA_DEL_EQUIPO` (fallo `import`, ajeno a este workspace);
+después revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo;
+no se inventa cifra. **Siguiente acción:** no reencolar la misma reproducción; preparar datos/runner primero.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`6490405f49fd75e43fe8982c1fed55a06c7a9674a217beeb62737e0af6358949`** (idéntico en las 5 puertas,
+  `subject_changed_after_gates: false`), Task `task_72f5c3ea0a70`, Dispatch `ctx_67223551e2a0`.
+- Resultados reales:
+  1. `4532c4868add` **pnpm test** → `code 1`, 68,0 s. `Test Files 2 failed | 47 passed (49)`;
+     `Tests 7 failed | 576 passed | 1 skipped (584)`. Señales: `SyntaxError: Invalid or unexpected token`,
+     `expected undefined to be defined`, `expected 0 to be greater than 300`/`0`/`10`,
+     `Cannot read properties of undefined (reading 'total')`, `expected 2 to be greater than or equal to 19`,
+     `expected 0 to be greater than discrep*10`. Evidencia
+     `997ddf142664f96db849cd05e6d08357c71f1d9af2fc30732ce9d6eda0c7cd39.json`.
+  2. `2f523b707a76` **lint** → **`code 0`, VERDE**, 10,8 s. Evidencia
+     `c8dec3c495bad2c326fe83312153327ee52f9f073bed34c1e779d666a482c08b.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 13,9 s. Sin recuento 359; misma señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`. Evidencia
+     `f06562ac632c6ac12c9334e923da05cf29231a645865c2dddfd349067d9ac95b.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 9,8 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` sobre tablas vacías. Evidencia
+     `fba595b895421346bedcffa5f29908b19e202dd16070d7a102600f7839452927.json`.
+  5. `6340c694e42c` **build web** → **`code 0`, VERDE**, 76,0 s; 23 rutas; `limpia-standalone: 0 entradas`. Evidencia
+     `c759a8fe255b3b8eae4225da9b4be9936f9bd686e4f0f6f35d230832c3be30ae.json`.
+- **Comparación con lo esperado:** `pnpm test` verde documentado = 49 ficheros, **633 bien + 1 omitida** (916 s); aquí
+  584 totales (576 + 7 rojas + 1 omitida): faltan ~50 casos **parametrizados por filas del canónico** y las 7 rojas
+  son aserciones de datos (`2 >= 19` federaciones, goles/recuentos a 0). SQL: ningún recuento de 359. Planes: 45 fuera,
+  sin lista de 60. Ningún número mide el producto real.
+- **Diagnóstico (corregido):** la resolución de `@facylf/dominio` ya no falla; lint y build web lo confirman. Lo que
+  queda es (a) canónico migrado de cero con 2 federaciones y 0 goles, que tumba contratos y presupuestos, y (b) el
+  runner SQL del sandbox fallando al ejecutar con parámetros (`import`), reproducido ya en los intentos 10-15.
+- **Sin reparación ni datos inventados:** no se siembra el canónico con datos privados ni fabricados, no se tocan
+  umbrales, migraciones aplicadas, Docker ni `.env`; no se ejecutaron pruebas del producto en Windows; no hay
+  commit/push/merge/despliegue. Único cambio en el árbol: este documento.
+
+## ★★★★★ DeepSeek, 30/10 (15.º intento, dispatch `ctx_24e8f4ca14c3`) — 5 puertas ejecutadas y rojas; bloqueo de harness reconfirmado, árbol intacto
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron una por llamada sobre el
+árbol de producto idéntico a HEAD y **las 5 volvieron a salir ROJAS** con la firma ya aislada en los intentos 9-14; no
+hubo ninguna reparación posible dentro de las fuentes autorizadas. **Pendientes:** que infraestructura prepare el
+workspace (`pnpm install --frozen-lockfile` + `pnpm -r build`, o `dist` materializado) y siembre el canónico o declare
+no ejecutables las puertas dependientes de datos; después repetir las 5 puertas, revisión independiente GLM y
+aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo de coste; no se inventa cifra.
+**Siguiente acción:** no reencolar otra reproducción idéntica; solo cuando infraestructura confirme la preparación y
+reemita `{ok,results,tree_hash}`.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`9a02f157bda41ba8db26fd32c9843e20dc0047bf4210627e1fbc788017f87d9d`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch
+  `ctx_24e8f4ca14c3`. Esa huella incluye este documento heredado del intento anterior; el código de producto es HEAD.
+- **Capacidad:** la puerta 3 devolvió `waiting_resources` (`capacidad ocupada: heavy`) tres veces y la puerta 5 una vez;
+  se esperó y se reintentó la misma puerta, sin lanzar nada en paralelo ni duplicar trabajo. Una llamada a
+  `esperar_equipo` fue rechazada por ser del director, no del trabajador.
+- Resultados reales y evidencias de esta pasada:
+  1. `4532c4868add` **pnpm test** → `code 1`, 38,8 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package
+     "@facylf/dominio"`, `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`,
+     `SyntaxError: Invalid or unexpected token`, `expected 0 to be greater than 0`/`300`/`10`,
+     `expected 0 to be greater than or equal to 19`, `Cannot read properties of undefined (reading
+     'federacion')`/`('total')`. Evidencia
+     `551d9689b54c82e93581898b89dc435795252bc28a0e34dbeaf522b61035a6d2.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 15,0 s. 10 × `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más 7 × `TS7006` derivados.
+     Evidencia `16ce0e385c3d78932a643f8c4b6d49438926cb27717f5503d84724bcf60e241c.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 12,4 s. Sin recuento 359; señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`. Evidencia
+     `07f818e1d28c1741ce40b22f23784adfd9068ebd109b85b13bc9b4aa4e16da57.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 9,7 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` medidos sobre un canónico migrado de cero.
+     Evidencia `f257c62df9d888c37f045754a66a46497835bea6e9970bb43c96f243891d80b7.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 39,8 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `app/competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`; la traza muestra el canónico migrado con todos los recuentos a 0
+     (`actualiza_recuento_canonico` → `{"grupos": 0, "eventos": 0, ...}`). Evidencia
+     `95eb917c5f4600b7ec88f2009db92442c8b1fd5eca2a547b42062248ac6992fa.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **436 comprobaciones (13 rojas)** en la puerta 1,
+  **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4 (no hay lista de 60). Ningún número mide el
+  producto real; no se fabrica ningún verde.
+- **Causa (sin cambios):** el sandbox no construye los `dist` gitignored de `packages/dominio` y `packages/ingesta` ni
+  ejecuta el ciclo de vida de `pnpm install`, de modo que `@facylf/dominio` no resuelve en vitest, `tsc -b`, PGlite ni
+  `next build`; y su PostgreSQL se migra de cero con 0 filas, lo que tumba los contratos contra el canónico y los
+  presupuestos de plan. No es un fallo del producto.
+- **Sin reparación:** la política de fuentes autorizadas de este proyecto solo permite leer/editar
+  `apps/web/src/**`, `apps/web/app/**`, `packages/*/src/**`, `packages/*/test/**`, `docs/**`, `AGENTS.md`,
+  `package.json`, `pyproject.toml`, `CLAUDE.md` y raíces sueltas de `apps/web/src`. No incluye `pnpm-workspace.yaml`,
+  `tsconfig.base.json`, `vitest.config.ts`, `.npmrc` ni los `package.json` de `packages/*`, y `glob packages/*` no
+  devuelve nada; por tanto no hay parche de resolución ni de scripts de ciclo de vida dentro de lo autorizado. Se
+  mantiene la decisión MiMo (opción A): no se incrustan prebuilds, no se publican `dist`, no se reescriben `exports`,
+  no se siembra el canónico con datos privados ni inventados, no se tocan umbrales, migraciones aplicadas ni Docker, no
+  se ejecutaron pruebas en Windows y no hay commit/push/merge/despliegue.
+
+## ★★★★★ DeepSeek, 30/10 (14.º intento, dispatch `ctx_980040ba68f9`) — 5 puertas ejecutadas y rojas; misma firma, árbol intacto
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron de verdad, una por
+llamada, sobre el árbol de producto idéntico a HEAD, y **las 5 volvieron a salir ROJAS** con la firma ya aislada en los
+intentos 9-13. **Pendientes:** preparación reproducible del harness (`pnpm install --frozen-lockfile` + `pnpm -r build`,
+o `dist` materializado) y canónico poblado o puertas de datos declaradas no ejecutables, repetir las 5 puertas,
+revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo de
+coste; no se inventa cifra. **Siguiente acción:** no reencolar otra reproducción idéntica; solo cuando infraestructura
+confirme la preparación del workspace y reemita `{ok,results,tree_hash}`.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`0557f58a44bcf93bf05b51cc9feb3c6b6dcaec08b8d2950e4db94eb894fda304`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch
+  `ctx_980040ba68f9`. Esa huella incluye el cambio de este documento heredado del intento anterior; el código de
+  producto es el de HEAD.
+- **Capacidad:** tres llamadas devolvieron `waiting_resources` (`capacidad ocupada: heavy`) antes de la puerta 1 y una
+  antes de la puerta 4; se esperó ~60 s y se reintentó la misma puerta, sin lanzar nada en paralelo.
+- Resultados reales y evidencias de esta pasada (idénticos en sustancia a `ctx_a9d9a29ac3c3`):
+  1. `4532c4868add` **pnpm test** → `code 1`, 29,9 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package
+     "@facylf/dominio"`, `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`,
+     `SyntaxError: Invalid or unexpected token`, `expected 0 to be greater than 0`/`300`/`10`,
+     `expected 0 to be greater than or equal to 19`, `Cannot read properties of undefined (reading
+     'federacion')`/`('total')`. Evidencia
+     `423da6027625d56199f2eeb07bdc8c26f72a22e2852a65335ab6ce063445fc0b.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 10,0 s. 10 × `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más 7 × `TS7006` derivados.
+     Evidencia `df11c46a0796e1edaa611c6305e27d64345bf9fbf46c106b0de55db5ae1a9749.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 10,9 s. Sin recuento 359; señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]`. Evidencia
+     `4df61c5eb8c606b5ff039c62e4023aa9a4d136934fb5be2447fa1a9133aa9061.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 7,5 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` sobre un canónico migrado de cero (recuento
+     `{"grupos": 0, ...}`). Evidencia
+     `49e0f0a3fbe2fa0cd253a9e53d64d5520cc18df24e669d4fb5de12e7c7244211.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 25,0 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `app/competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`; la salida muestra `actualiza_recuento_canonico` con todos los
+     recuentos a 0. Evidencia `c083d20231a610734a7e6c538ada9f44e2b546df327e928d96bc7768aaf72df0.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **436 comprobaciones (13 rojas)** en la puerta 1,
+  **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4 (no hay lista de 60). Ningún número llega a
+  medir el producto real; no se fabrica ningún verde.
+- **Causa (sin cambios):** el sandbox no construye los `dist` gitignored de `packages/dominio` y `packages/ingesta` ni
+  ejecuta el ciclo de vida de `pnpm install`; `tsc -b` y `next build` resuelven `@facylf/dominio` por `node_modules`,
+  que no apunta a ningún artefacto. Su PostgreSQL se migra de cero con 0 filas, lo que tumba los contratos contra el
+  canónico y los presupuestos de plan. No es un fallo del producto.
+- **Sin reparación:** se mantiene la decisión MiMo (opción A). No se incrustan prebuilds, no se publican `dist`, no se
+  reescriben `exports`, no se siembra el canónico con datos privados ni inventados, no se tocan umbrales, migraciones
+  aplicadas ni Docker; no se ejecutaron pruebas en Windows; no hay commit/push/merge/despliegue.
+
+## ★★★★★ DeepSeek, 30/10 (13.º intento, dispatch `ctx_a9d9a29ac3c3`) — 5 puertas ejecutadas y rojas; bloqueo de harness reproducido y documentado
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron de verdad, una por
+llamada, sobre el árbol de producto idéntico a HEAD, y **las 5 volvieron a salir ROJAS** con la firma ya aislada.
+**Pendientes:** preparación reproducible del harness (`pnpm install --frozen-lockfile` + `pnpm -r build`, o `dist`
+materializado) y siembra del canónico o declaración de no ejecutables las puertas dependientes de datos, repetir las 5
+puertas, revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone recibo
+de coste; no se inventa cifra. **Siguiente acción:** no reencolar una 14.ª reproducción idéntica; reintentar solo
+cuando infraestructura confirme la preparación del workspace y reemita `{ok,results,tree_hash}`.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`f1c1ce4c4cbc09eae066abd5679aec7619c5478e23ca7ea5b5b4f03c1ee66988`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch
+  `ctx_a9d9a29ac3c3`. Esa huella incluye el cambio de este documento heredado del intento anterior; el código de
+  producto es el de HEAD.
+- **Capacidad:** la primera llamada devolvió `waiting_resources` (`capacidad ocupada: heavy`) y hubo que reintentar tras
+  esperar 60 s; no se lanzó ninguna prueba en paralelo ni se duplicó trabajo.
+- Resultados reales y evidencias de esta pasada:
+  1. `4532c4868add` **pnpm test** → `code 1`, 36,9 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package "@facylf/dominio"`,
+     `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`, `SyntaxError: Invalid or unexpected
+     token`, `expected 0 to be greater than 0`/`300`/`10`, `expected 0 to be greater than or equal to 19`,
+     `Cannot read properties of undefined (reading 'federacion')`/`('total')`. Evidencia
+     `e57be5a7589e8a52f64bcf352a0c194a4542be1f7455fe4ea42f384774351f88.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 16,7 s. 10 × `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más 7 × `TS7006` derivados.
+     Evidencia `822297386c2638dbb2f5055f072e9a28a4338f02f9fc80dca2bc44f544c79e3c.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 10,2 s. Sin recuento 359; señal `import` al ejecutar
+     `FORMA_DEL_EQUIPO` con `params: [1, 5]` (el runner no resuelve el módulo de consultas sin el `dist` de
+     `@facylf/dominio`). Evidencia `d4656d92af9f2398fa72f6d555fbad4f8171e229a9f9b98d802eaa8b6f39ea33.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 7,8 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` medidos sobre un canónico migrado de cero.
+     Evidencia `29503b164e2c227004d6a7ba960ed9736766bcb204f7625e834285d578da7b74.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 23,8 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `app/competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`; la salida muestra `actualiza_recuento_canonico` con todos los
+     recuentos a 0. Evidencia `fef238d2eb006ad4e38ca2fdc52180c1dbd4e0d350db9ef0e0f6b6843a0981a4.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **436 comprobaciones (13 rojas)** en la puerta 1,
+  **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4 (no hay lista de 60). Ningún número llega a
+  medir el producto real; no se fabrica ningún verde.
+- **Causa (confirmada, sin cambios):** el sandbox no construye los `dist` gitignored de `packages/dominio` y
+  `packages/ingesta` ni ejecuta el ciclo de vida de `pnpm install` que los genera; `pnpm lint` (`tsc -b`) y `next build`
+  resuelven `@facylf/dominio` por `node_modules`, que no apunta a ningún artefacto. Además su PostgreSQL se migra de
+  cero con 0 filas, lo que tumba los contratos contra el canónico y los presupuestos de plan. No es un fallo del
+  producto.
+- **Sin reparación (se mantiene la decisión MiMo, opción A):** no se incrustan prebuilds en las puertas, no se publican
+  `dist` ni se reescriben `exports`: cambiaría la definición de las puertas y solo maquillaría 2/3/5 dejando 1 y 4 rojas
+  por base vacía, y sembrar el canónico exigiría datos privados. No se tocaron exports, dist, umbrales, migraciones
+  aplicadas ni Docker; no se ejecutaron pruebas en Windows; no hay commit/push/merge/despliegue.
+
+## ★★★★★ DeepSeek, 30/10 (12.º intento, dispatch `ctx_4f97fea01f73`) — causa aislada: `dist` no construido + canónico vacío; bloqueo de harness confirmado
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron de verdad, una por
+llamada, sobre el árbol de producto idéntico a HEAD, y **las 5 volvieron a salir ROJAS**. **Pendientes:** preparación
+reproducible del harness y siembra del canónico (o declarar no ejecutables las puertas dependientes de datos), repetir
+las 5 puertas, revisión independiente GLM y aprobación de David solo para despliegue. **Gasto:** el adaptador no expone
+recibo de coste; no se inventa cifra. **Siguiente acción:** NO reencolar una 13.ª reproducción idéntica; reintentar solo
+cuando infraestructura confirme la preparación del workspace y reemita `{ok,results,tree_hash}`.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`9c3921cab436703ee223421d06299087e6690e58acbc386e7289806e8ef5d604`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_4f97fea01f73`.
+- Resultados reales y evidencias de esta pasada:
+  1. `4532c4868add` **pnpm test** → `code 1`, 43,7 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package "@facylf/dominio"`,
+     `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`, `SyntaxError: Invalid or unexpected token`,
+     `expected 0 to be greater than 0`/`300`/`10`, `expected 0 to be greater than or equal to 19`,
+     `Cannot read properties of undefined (reading 'federacion')`/`('total')`. Evidencia
+     `09ef056c858fadfe828e681153ea59f20a94e951b355c2021ba2738c3915727c.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 24,6 s. 10 × `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más 7 × `TS7006` derivados.
+     Evidencia `d90a4cd7d28f97e13c25a5c64542e00369e3d8d54f4c6a9eec4f6c15ee5b632a.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 15,3 s. No hay recuento 359; señal `import`: el runner no resuelve
+     el módulo de consultas porque depende de `@facylf/dominio` sin `dist`. Evidencia
+     `a4881e251aec3544652be3dd6f7379c530bbe0135c399d4c881c1fb525d7011a.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 11,3 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»;
+     cambios de forma `Index Only Scan` → `Bitmap Heap/Index Scan` medidos sobre un canónico migrado de cero.
+     Evidencia `13602a78cad54a7b318977fadc46e2b26478b410bc698104b32d4e8f27cfbb9e.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 28,8 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `app/competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`; la salida muestra `actualiza_recuento_canonico` con todos los
+     recuentos a 0. Evidencia `48ec3b4704e8d5189f961020e1c12d8c50de964486abfd11849e8c861ecc705a.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **436 comprobaciones (13 rojas)** en la puerta 1,
+  **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4. Ningún número coincide porque las puertas no
+  llegan a medir el producto real; no se fabrica ningún verde.
+- **Causa aislada (definitiva):** el mensaje `Failed to resolve entry for package "@facylf/dominio"` demuestra que el
+  paquete **sí** está enlazado en `node_modules` del sandbox, pero su entrada (`dist`, gitignored) **no está construida**.
+  Eso tumba las puertas 1, 2, 3 y 5. Además el PostgreSQL del sandbox se migra de cero con 0 filas, lo que tumba las
+  puertas 1 (contratos contra el canónico) y 4 (presupuestos de plan). No es un fallo del producto: `pnpm lint` y
+  `next build` resolverían igual en un workspace con `pnpm install --frozen-lockfile && pnpm -r build`.
+- **Sin reparación (decisión MiMo, opción A):** no se incrustan prebuilds en los scripts de las puertas ni se publican
+  `dist`/se reescriben `exports`: cambiaría la definición de las puertas y solo maquillaría 2/3/5 dejando 1 y 4 rojas por
+  base vacía. No se tocaron exports, dist, migraciones aplicadas ni Docker; no se ejecutaron pruebas en Windows; no hay
+  commit/push/merge/despliegue.
+
+## ★★★★★ DeepSeek, 30/10 (11.º intento, dispatch `ctx_969e2708c6d6`) — quinta reproducción consecutiva; bloqueo de harness, no del producto
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron de verdad, una por
+llamada (la primera llamada devolvió `capacidad ocupada: orca-docker-readiness`; se esperó y se reintentó una vez, sin
+duplicar trabajo), y **las 5 volvieron a salir ROJAS** con exactamente la misma firma que los intentos 8.º, 9.º y 10.º.
+Árbol de producto idéntico a HEAD; el único cambio en el árbol es este documento.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`d4f9e2d21d4d994dcfd041f7691d03546a32837fd6501944cc343e3e8bd49402`** (idéntico en las cinco puertas,
+  `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_969e2708c6d6`.
+- Resultados reales (códigos de salida y evidencias de esta pasada):
+  1. `4532c4868add` **pnpm test** → `code 1`, 36,2 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package "@facylf/dominio"`,
+     `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`, `SyntaxError: Invalid or unexpected token`,
+     `expected 0 to be greater than 0` / `300` / `10`, `expected 0 to be greater than or equal to 19`,
+     `Cannot read properties of undefined (reading 'federacion')` / `('total')`. Evidencia
+     `289434e7afe8fd955143cfef87d7593692cc93f3b4a65e4d24bd087e645b8db8.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 12,0 s. 10 × `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más 7 × `TS7006` derivados.
+     Evidencia `7908a6b9e00aed1eb35a0b30d9a451f412284e0604888b747c181392c37aa78d.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 12,9 s. No hay recuento 359. Novedad de esta pasada: el runner ya
+     carga el módulo de consultas y **falla al ejecutar** la consulta `FORMA_DEL_EQUIPO` con `params: [1, 5]`
+     (volcado del objeto de consulta + `Node.js v24.22.1`), sin que el tail devuelto por `validar` conserve el
+     encabezado del error de PGlite — no se inventa la causa ni el recuento. Evidencia
+     `6c24ebb43cb9e7ccbc25efef14bc8c03247ef14b27a5be68ca824a43c43edb5b.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 6,9 s. «45 consulta(s) fuera de presupuesto o con recorrido completo»; los
+     cambios de forma son `Bitmap Heap Scan`/`Bitmap Index Scan` donde el plan guardado tenía `Index Only Scan`,
+     medidos sobre un canónico migrado de cero. Evidencia
+     `e2c21920d8b7cf745fd9a245b3b305ea436e84b1a9e9abc8fc5a64d0f5841f7e.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 21,6 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `app/competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`. La salida muestra `actualiza_recuento_canonico` con
+     `{"grupos": 0, ..., "federaciones": 0}`. Evidencia
+     `62281caf38d9a68b3da67b2f3130b45ed0499b671d8a66c0087d5447bd421e6a.json`.
+- **Comparación con lo esperado:** esperado 633/359/60; observado **436 comprobaciones (13 rojas)** en la puerta 1,
+  **ningún recuento** en la 3 y **45 planes fuera de presupuesto** en la 4. Ni un solo número coincide porque las
+  puertas no llegan a medir el producto real: no se fabrica ningún verde.
+- **Causa (sin cambios):** el sandbox no materializa los `dist` gitignored de `packages/dominio` y `packages/ingesta`
+  ni ejecuta el ciclo de vida de `pnpm install` que los construye; `pnpm lint` (`tsc -b`) y `next build` resuelven
+  `@facylf/dominio` por `node_modules`, que en el sandbox no apunta a ningún artefacto. Además su PostgreSQL migra
+  desde cero con 0 filas, así que las pruebas de contrato contra el canónico y los presupuestos de plan no pueden pasar
+  sin sembrar datos privados reales.
+- **Sin reparación:** no hay cambio permitido en fuentes autorizadas que arregle a la vez las puertas 1, 2, 3 y 5
+  (exigiría publicar `dist` o reescribir `exports`/`main` de paquetes, es decir, parchear el producto para el sandbox) ni
+  que pueble la base canónica (datos privados). No se tocaron `exports`, umbrales, migraciones aplicadas ni Docker; no
+  se copiaron `dist`/`node_modules`; no se ejecutaron pruebas en Windows; no hay commit/push/merge/despliegue.
+
+**Gasto:** el adaptador no expone recibo de coste; no se inventa cifra.
+
+**Pendiente:** (1) que el harness prepare el workspace de forma reproducible (`pnpm install --frozen-lockfile` +
+`pnpm -r build`, o materializar `dist`/`node_modules` en la imagen) y siembre el canónico, o declare **no ejecutables**
+las puertas dependientes de datos privados; (2) repetir las 5 puertas y comparar 633/359/60; (3) revisión independiente
+GLM sobre el árbol exacto; (4) aprobación de David solo para el despliegue.
+
+**Siguiente acción:** **no reencolar este trabajo una 12.ª vez sobre el mismo sandbox**: el resultado es determinista y
+ya está reproducido cinco veces. El coordinador debe cambiar la preparación del harness (o retirar/declarar las puertas
+no ejecutables) antes de volver a pedir la línea base.
+
+## ★★★★★ DeepSeek, 30/10 (10.º intento, dispatch `ctx_c0780ef02b81`) — mismo bloqueo de preparación, reproducido con evidencias nuevas
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron, una por llamada, y
+**las 5 devolvieron rojo** con la misma firma que el 8.º y 9.º intento. No se fabrican recuentos ni se parchea el
+producto para forzar un verde. El árbol de producto es idéntico a HEAD; el único cambio es este documento.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **`1f6e7edff7affe23c43786da5d6ca73aba2a66df4435d98980e4c92636248039`** (`subject_changed_after_gates: false` en
+  las cinco puertas), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`, Dispatch `ctx_c0780ef02b81`.
+- Resultados reales y evidencias:
+  1. `4532c4868add` **pnpm test** → `code 1`, 32,0 s. `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales:
+     `Failed to resolve entry for package "@facylf/dominio"`, `Failed to load url
+     ../../packages/ingesta/dist/src/parsers/ofuscacion.js`, `SyntaxError: Invalid or unexpected token`,
+     `expected 0 to be greater than 0`/`300`/`10`, `Cannot read properties of undefined (reading 'federacion')`,
+     `Cannot read properties of undefined (reading 'total')`. Evidencia
+     `55d829b63be99cbb7dad89c1b1d2a4b73863cdb1c12a638567873b5399062cc2.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 15,8 s. `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta/{bin,src,test}` y `packages/canonico/src/clasificacion.ts`, más `TS7006` derivados. Evidencia
+     `bb94b52fe6695feb1b1effea5412b10c9c3487df2c147d4794a626f5abe0f275.json`.
+  3. `4013b847119b` **SQL en PGlite** → `code 1`, 11,1 s, señal `import` al cargar el módulo de consultas. Sin
+     recuento 359. Evidencia `ae4cf377d9bfb71ff077380a9929f96cad35ab449224376a18037b8e36da2756.json`.
+  4. `1824e75dbd39` **planes** → `code 1`, 8,5 s. «45 consulta(s) fuera de presupuesto o con recorrido completo» y
+     cambios de forma (`Bitmap Heap Scan`/`Bitmap Index Scan` frente a `Index Only Scan` guardado) medidos sobre un
+     canónico migrado de cero. Evidencia `d4dd144d8d490fa25a68d9d1962307f652a59b9e01c1247d07db6a405209da41.json`.
+  5. `6340c694e42c` **build web** → `code 1`, 26,0 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `competicion/[slug]/page.tsx` y
+     `packages/ingesta/src/parsers/clasificacion.ts`. La salida muestra además `actualiza_recuento_canonico` con
+     `{"grupos": 0, ..., "federaciones": 0}`. Evidencia
+     `145473c8ad1359343bc3641354c5a510ed91eb21a6ed00d87c22c41933704795.json`.
+- **Causa:** la ya aislada en el 9.º intento. El sandbox no materializa los `dist` gitignored (`packages/dominio/dist`,
+  `packages/ingesta/dist`) ni ejecuta el ciclo de vida de `pnpm install` que los construye —de ahí `@facylf/dominio`
+  irresoluble en 1, 2, 3 y 5— y su PostgreSQL se migra de cero con 0 filas, de modo que las pruebas que exigen el
+  canónico real no pueden pasar. La puerta 4 sí arranca porque `tsx` usa los `paths` del tsconfig.
+- **Sin reparación de workspace:** no hay parche desde fuentes autorizadas que arregle las cinco puertas a la vez (la
+  puerta 5 se lanza con `--filter @facylf/web`, fuera de cualquier hook de la raíz; 3 y 4 exigen base poblada). No se
+  parchean `exports`, no se rebajan umbrales, no se copian `dist`/`node_modules`, no se siembran datos inventados y no
+  se tocan migraciones aplicadas. Un intento de la puerta 3 devolvió `waiting_resources: capacidad ocupada: heavy`; se
+  esperó y se reintentó sin duplicar trabajo.
+
+**Gasto:** el adaptador no expone recibo de coste; no se inventa cifra. **Sin commits, push, merge ni despliegue.**
+
+**Pendiente:** el mismo del 9.º intento: (1) que el sandbox prepare el workspace (`pnpm install --frozen-lockfile` o
+build explícito de `@facylf/dominio` e `ingesta`) y ejecute las puertas dependientes de datos contra una base canónica
+poblada, o las declare no ejecutables sin datos privados; (2) repetir las 5 puertas y comparar 633/359/60; (3) revisión
+independiente GLM; (4) aprobación de David solo para despliegue.
+
+**Siguiente acción:** no reintentar en bucle sobre el mismo sandbox sin la preparación arreglada; elevar al coordinador
+que la reparación está fuera de las fuentes autorizadas del worker.
+
+## ★★★★★ DeepSeek, 30/10 (9.º intento, dispatch `ctx_8b15e766fcc8`) — causa aislada: el sandbox no compila los paquetes del workspace y su base canónica está vacía
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas se ejecutaron de verdad, una por
+llamada, y **las 5 devolvieron rojo**. No hay puerta verde; no se fabrican recuentos ni se parchea el producto para
+forzar un verde. El árbol de producto es idéntico a HEAD; el único cambio es este documento.
+
+- Árbol probado en las cinco puertas: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`,
+  `tree_hash` **`11b99647d6f1f0f59f36767401e03b40563c7e61564586905bf0180c892b8b97`** (idéntico antes y después de cada
+  puerta, `subject_changed_after_gates: false`), `run_id` `run_517457d35a0e`, Task `task_72f5c3ea0a70`,
+  Dispatch `ctx_8b15e766fcc8`.
+- Resultados reales y evidencias:
+  1. `4532c4868add` **pnpm test** → `code 1`, 44,2 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package
+     "@facylf/dominio"`, `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`, `SyntaxError`,
+     `expected 0 to be greater than 0`/`300`/`10` y `Cannot read properties of undefined (reading 'federacion')`.
+     Evidencia `cea0a161fb0d3f92df56bf1852087dfe78fe36118cbd7fb33c530fae679e5c6e.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 21,8 s. `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta` y `packages/canonico`, con `TS7006` derivados al perderse los tipos. Evidencia
+     `198aedf5e886b82945c1e81a36f09cafc65c92f64bb05f3c6a39a3f9ada1a16c.json`.
+  3. `4013b847119b` **pruebas SQL en PGlite** → `code 1`, 8,8 s, señal `import` al cargar el módulo de consultas.
+     Sin recuento 359. Evidencia `b609e0a471a0639f08e850c7fd6884aa2d82ef99d9bdcf260ba5302ff0519411.json`.
+  4. `1824e75dbd39` **planes de consulta** → `code 1`, 8,7 s. «45 consulta(s) fuera de presupuesto o con recorrido
+     completo» y cambios de forma (`Bitmap Heap Scan`/`Bitmap Index Scan` donde el plan guardado tenía
+     `Index Only Scan`). La propia salida muestra el canónico recién migrado con **0 filas**
+     (`{"grupos": 0, "eventos": 0, ..., "federaciones": 0}`): la medición no representa al producto.
+     Evidencia `3351168b1f0b5fd266ed5470c9ded98c84cf8e6650ac0f429d73274829bfc5e9.json`.
+  5. `6340c694e42c` **build de la web** → `code 1`, 24,1 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/{Evolucion,MapaCalor,Puntos}.tsx`, `competicion/[slug]/page.tsx` y en
+     `packages/ingesta/src/parsers/clasificacion.ts`. Evidencia
+     `1ff56b18d892172e52894922f39b8833f57c4347be27773e931d7e1b925b241b.json`.
+- **Causa aislada con dos pruebas independientes:**
+  - La puerta 4 lanza `tsx --tsconfig ../../apps/web/tsconfig.json`, que resuelve `@facylf/dominio` por los `paths`
+    del tsconfig y **sí arranca**; las puertas 1, 2, 3 y 5 resuelven por la entrada del paquete
+    (`node_modules/@facylf/dominio` → `dist/…`) y **no la encuentran**. El defecto es del sandbox de `validar`,
+    que no materializa los artefactos gitignored (`packages/dominio/dist`, `packages/ingesta/dist`) ni ejecuta el
+    ciclo de vida de `pnpm install` que los construye; no es un error del código de producto ni del árbol probado.
+  - El log del build aplica las migraciones desde cero y termina con `actualiza_recuento_canonico` a **ceros**. Las
+    pruebas de `pnpm test` que exigen el canónico real (633 esperadas; documentado en `DESPLIEGUE-SERVIDOR.md`:
+    «sin las credenciales del canónico, `pnpm test` no puede pasar») y la puerta de planes (60) **no pueden pasar en
+    un sandbox sin base poblada**. La base real y `.env` son datos privados excluidos a propósito: no se copian, no
+    se siembran con datos inventados y `desconocido ≠ 0`.
+- **No se hizo reparación de workspace:** un parche en `package.json` raíz (`pretest`/`prelint`) no arreglaría las
+  puertas 3 ni 5 y cambiaría la semántica de build del producto; parchear los `exports` para servir desde `src`
+  sería un parche no validado. Ambas cosas exceden esta Task y la decisión es del coordinador.
+- No se reinició Docker, no se ejecutó `pnpm` en Windows, no se copiaron `dist`/`node_modules` del workspace real,
+  no se rebajaron umbrales ni se tocó migración aplicada alguna. Dos llamadas devolvieron
+  `waiting_resources: capacidad ocupada: heavy`; se esperó y se reintentó sin duplicar trabajo de otro worker.
+- Recuentos 633/359/60 **no comparables**: 436 pruebas ejecutadas frente a 633 declaradas, porque 11 ficheros no
+  llegan a cargar. No se declaran cifras.
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra. **Sin commits, push, merge ni
+despliegue.**
+
+**Pendiente:** (1) que el sandbox de `validar` prepare el workspace antes de las recetas (`pnpm install
+--frozen-lockfile`, que dispara el build de los paquetes, o build explícito de `@facylf/dominio` e `ingesta`) y
+ejecute las puertas dependientes de datos contra una base canónica poblada y aprobada, o declare esas puertas como
+no ejecutables en sandbox sin datos privados; (2) repetir las 5 puertas cuando (1) esté resuelto y comparar
+633/359/60; (3) revisión independiente GLM del árbol exacto; (4) aprobación de David solo para despliegue.
+
+**Siguiente acción:** elevar al coordinador esta reproducción con las cinco evidencias; no reintentar en bucle sobre
+el mismo sandbox sin la preparación arreglada.
+
+## ★★★★★ DeepSeek, 30/10 (8.º intento, dispatch `ctx_254aa044b1ac`) — las 5 puertas se ejecutan y las 5 fallan; bloqueo de preparación del sandbox
+
+**Fase:** verificación de la línea base. **Resultado:** las 5 puertas registradas **se ejecutaron de verdad** (ya no
+aparece `container_cleanup_unknown` ni `waiting_infrastructure`), pero **las 5 devolvieron rojo**. No hay ninguna
+puerta verde, `ci_evidence` sigue vacío en el Run y no se fabrican recuentos.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`, `tree_hash`
+  **antes de esta edición** `acfd780ae4b8e83f8e1be38e6ac8955aee4c8507cc77d3d66ed5bff3113d993d`, `run_id`
+  `run_517457d35a0e`, `dispatch_id` `ctx_254aa044b1ac`, Task `task_c20167f3fcbe`. El único cambio de árbol es este
+  documento; el código de producto es idéntico a HEAD.
+- Resultados reales, una puerta por llamada:
+  1. `4532c4868add` **pnpm test** → `code 1`, 41,1 s. `Test Files 11 failed | 38 passed (49)`;
+     `Tests 13 failed | 422 passed | 1 skipped (436)`. Señales: `Failed to resolve entry for package
+     "@facylf/dominio"` y `Failed to load url ../../packages/ingesta/dist/src/parsers/ofuscacion.js`. Evidencia:
+     `4cc563084d577f456a7773fce7fe76014418660f75abc94ccbe8d38b940bb028.json`.
+  2. `2f523b707a76` **lint** → `code 2`, 27,2 s. `TS2307: Cannot find module '@facylf/dominio'` en
+     `packages/ingesta` y `packages/canonico` (+ `TS7006` derivados). Evidencia:
+     `630c26c96edf2971bd397159a54e8d7a9b8cc5f15a8a945fa761b389d2a7546a.json`.
+  3. `4013b847119b` **pruebas SQL en PGlite** → `code 1`, 10,7 s. Señal `import`; la salida encalla al importar el
+     módulo de consultas (volcado del objeto `params: [1, 5]`, `Node.js v24.22.1`). Sin recuento 359. Evidencia:
+     `11d77a5053b1fa6068c42aed88afceedaf5b79f90f9a58fec2c03c9602c998d4.json`.
+  4. `1824e75dbd39` **planes de consulta** → `code 1`, 8,8 s. «45 consulta(s) fuera de presupuesto o con recorrido
+     completo» y cambios de forma del plan (`Bitmap Heap Scan`/`Bitmap Index Scan` donde antes había
+     `Index Only Scan`); el canónico del sandbox figura con **0 filas** (`{"grupos": 0, ...}`), luego la medición no
+     representa al producto. Evidencia:
+     `8faa0481b9cad4ad276bcfeccd083ac810bcfc7b9cef92f1cf8a7702344891c2.json`.
+  5. `6340c694e42c` **build de la web** → `code 1`, 29,2 s. `Module not found: Can't resolve '@facylf/dominio'` en
+     `apps/web/src/componentes/*` y `competicion/[slug]/page.tsx`. Evidencia:
+     `10e4b6ba6c601477125493169b515bd4bdb3da8467b2aa1b2955e8d91cca523d.json`.
+- **Causa común probable:** en el workspace real existen `packages/dominio/dist` y `packages/dominio/package.json`,
+  pero el sandbox de `validar` no materializa `node_modules/@facylf/dominio` ni los `dist` gitignored; por eso test,
+  lint y build no resuelven el paquete. La puerta de planes, además, mide sobre un canónico vacío. No es una
+  conclusión de rendimiento ni de regresión funcional del producto.
+- La política de fuentes impide leer/editar `packages/*/package.json`, `dist` y `pnpm-workspace.yaml`; por decisión de
+  MiMo **no** se amplían permisos ni se parchean exports para servir desde `src` (sería un parche no validado).
+- Recuentos esperados (633 test, 359 SQL, 60 planes) **no comparados**: la puerta de test declara 633 pero el árbol
+  actual ejecuta 436 pruebas; no se fabrican cifras. **Desconocido ≠ 0.**
+- No se copió `dist`/`node_modules` del workspace real, no se ejecutó `pnpm` en Windows, no se tocó Docker ni el PC
+  de David, no se rebajaron umbrales y no hubo commit/push/merge/despliegue.
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra.
+
+**Pendiente:** (1) que `validar` haga preparación reproducible antes de las recetas (`pnpm install
+--frozen-lockfile` + build de paquetes del workspace, o materializar `dist`/`node_modules` según lockfile) sin
+cambiar recetas ni umbrales; (2) reejecutar las 5 puertas sobre árbol con código idéntico a HEAD; (3) revisión
+independiente GLM del árbol exacto; (4) aprobación de David solo para despliegue a producción.
+
+**Siguiente acción:** escalation de harness con esta reproducción; cuando el sandbox resuelva `@facylf/dominio` y
+siembre el canónico, repetir `4532c4868add`, `2f523b707a76`, `4013b847119b`, `1824e75dbd39` y `6340c694e42c` y
+sustituir este apartado por la evidencia real. No declarar verdes sin recuentos.
+
+## ★★★★★ DeepSeek, 30/10 (7.º reintento, dispatch `ctx_4392ccf8e651`) — línea base: el sandbox espera el motor de Docker; ninguna puerta se ejecutó
+
+**Fase:** diagnóstico y preparación de la candidata desplegable. **Resultado:** bloqueado por entorno; **no hay
+evidencia de puertas verdes ni rojas**, porque ninguna de las 5 puertas llegó a ejecutarse (`tests_executed: null`,
+`execution_evidence: "not_started"`).
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`,
+  `tree_hash` **antes de esta edición** `87fad8c22c304838e8f25d3db237b1f5d2d0b71d5f043c5f338ea59aa1de9ade`
+  (incluye solo las secciones de estado sin commit de intentos anteriores; el código de producto está idéntico a
+  HEAD), `run_id` `run_517457d35a0e`, `dispatch_id` `ctx_4392ccf8e651`, Task `task_72f5c3ea0a70`.
+- **Cambio respecto a los intentos 1-6:** ya no aparece el error determinista `container_cleanup_unknown`. La
+  primera llamada de esta sesión sí devolvió ese error; las siguientes devolvieron estado de espera:
+  `4532c4868add` (pnpm test), `2f523b707a76` (lint), `4013b847119b` (SQL/PGlite 359), `1824e75dbd39` (planes 60) y
+  `6340c694e42c` (build web) →
+  `{"ok": false, "status": "waiting_infrastructure", "retry_after_seconds": 60, "reason": "Docker Desktop esta
+  abierto; esperar su motor, sin reiniciarlo ni repetir inferencias.", "tests_executed": null,
+  "execution_evidence": "not_started", "do_not_duplicate_worker": true}`.
+- Tras más de 20 llamadas de `validar` (una puerta por llamada, con heartbeats entre `msg_67006b252c3c` 16:40:04 y
+  `msg_026d31f2c44f` 16:45:01 UTC) el motivo cambió a: **«Arranque anterior registrado; no repetirlo durante 30
+  minutos.»** (últimas llamadas: `1824e75dbd39` y `6340c694e42c`). Es decir: el sandbox tiene un arranque de Docker
+  ya registrado y prohíbe repetirlo durante media hora; reintentar antes no es correcto.
+- No se reinició Docker, no se tocó el PC de David, no se ejecutó `pnpm` en Windows ni se saltó el sandbox. No hay
+  reparación de workspace posible para una espera de infraestructura; el workspace se conserva intacto salvo este
+  documento.
+- Recuentos esperados (633 test, 359 SQL, 60 planes) **no comparados**: no se ejecutó nada, no se fabrican
+  resultados. **Desconocido ≠ 0.**
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra. **Sin commits, push,
+merge ni despliegue.**
+
+**Pendiente:** (1) dejar pasar los 30 minutos del aviso (desde ≈16:46 UTC, es decir hasta ≈17:16) y reintentar
+**una sola vez**, sin reiniciar Docker ni duplicar el arranque; (2) si el motor responde, ejecutar en orden las 5
+puertas y comparar 633/359/60; (3) revisión independiente GLM del diff/árbol exacto; (4) aprobación de David solo
+para despliegue a producción.
+
+**Siguiente acción:** reanudar el diagnóstico a partir de ≈17:16 UTC (o cuando la infraestructura indique que el
+motor está listo) con una llamada de `validar` a `4532c4868add`; si devuelve `{ok, results, tree_hash}`, seguir con
+`2f523b707a76`, `4013b847119b`, `1824e75dbd39` y `6340c694e42c` y sustituir este apartado por la evidencia real. No
+repetir el arranque de Docker antes de que venza el aviso.
+
+## ★★★★★ DeepSeek, 30/10 (6.º reintento, dispatch `ctx_4757fc01e728`) — línea base comprobada: sigue bloqueada; las 5 puertas fallan en el limpiador del sandbox
+
+**Fase:** diagnóstico y preparación de la candidata desplegable. **Resultado:** bloqueado por entorno; **no hay
+evidencia de puertas verdes ni rojas**, porque ninguna de las 5 puertas llegó a ejecutarse.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`,
+  `tree_hash` **antes de esta edición** `03b88d0552234a857ae68501bb14809ea770f1bbb64a7350a22381056c4c06b8`
+  (incluye solo las secciones de estado sin commit de intentos anteriores; el código de producto está idéntico a
+  HEAD), `run_id` `run_517457d35a0e`, `dispatch_id` `ctx_4757fc01e728`.
+- Llamadas reales en este reintento, una puerta por llamada, **las cinco**, todas devolvieron literalmente el mismo
+  objeto: `4532c4868add` (pnpm test) → `{"ok": false, "error": "container_cleanup_unknown: comprobar Docker antes
+  de declarar detenido"}`; `2f523b707a76` (lint) → idéntico; `4013b847119b` (SQL/PGlite 359) → idéntico;
+  `1824e75dbd39` (planes 60) → idéntico; `6340c694e42c` (build web) → idéntico.
+- Es el **mismo error determinista** de los intentos `ctx_1699fb3cf9cc`, `ctx_a368668205d9`, `ctx_d96f28c4bf02`,
+  `ctx_ea529b655973` y `ctx_79507060f888`. No depende de la puerta (lint y build ni siquiera usan PostgreSQL), luego
+  el fallo está en el limpiador de contenedores del harness, no en las recetas registradas ni en el producto.
+- No se ejecutó `pnpm` en Windows, no se tocó Docker ni el PC de David, no se saltó el sandbox. No hay reparación
+  de workspace posible para un fallo del limpiador del harness (está fuera de la propiedad del trabajador); el
+  workspace se conserva intacto salvo este documento.
+- Recuentos esperados (633 test, 359 SQL, 60 planes) **no comparados**: no se ejecutó nada, no se fabrican
+  resultados. **Desconocido ≠ 0.**
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra. **Sin commits, push,
+merge ni despliegue.**
+
+**Pendiente:** (1) que la infraestructura del sandbox repare el limpiador (`container_cleanup_unknown`) o exponga
+un diagnóstico de Docker —p. ej. confirmar que Docker Desktop está arriba antes de declarar contenedores detenidos—;
+(2) reejecutar las 5 puertas sobre un árbol con código idéntico a HEAD y comparar 633/359/60; (3) revisión
+independiente GLM del diff/árbol exacto; (4) aprobación de David para commit/integración/despliegue.
+
+**Siguiente acción:** cuando `validar` responda `{ok, results, tree_hash}` (o un error de producto real en vez del
+limpiador), ejecutar en orden las puertas `4532c4868add`, `2f523b707a76`, `4013b847119b`, `1824e75dbd39` y
+`6340c694e42c` y sustituir este apartado por la evidencia real. Reproducción previa en
+`tareas/facylf/run_517457d35a0e/RECURSOS.md`.
+
+## ★★★★★ DeepSeek, 30/10 (5.º reintento, dispatch `ctx_79507060f888`) — línea base comprobada: sigue bloqueada; las 5 puertas fallan en el limpiador del sandbox
+
+**Fase:** diagnóstico y preparación de la candidata desplegable. **Resultado:** bloqueado por entorno; **no hay
+evidencia de puertas verdes ni rojas**, porque ninguna de las 5 puertas llegó a ejecutarse.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`,
+  `tree_hash` **antes de esta edición** `4e46eb27a561be9dc83385e805a23db4a35579c345bd72300f892ffbfd39ce16`
+  (incluye solo este documento; el código de producto está idéntico a HEAD), `run_id` `run_517457d35a0e`,
+  `dispatch_id` `ctx_79507060f888`.
+- Llamadas reales en este reintento, una puerta por llamada, **las cinco**, todas devolvieron literalmente el mismo
+  objeto: `4532c4868add` (pnpm test) → `{"ok": false, "error": "container_cleanup_unknown: comprobar Docker antes
+  de declarar detenido"}`; `2f523b707a76` (lint) → idéntico; `4013b847119b` (SQL/PGlite 359) → idéntico;
+  `1824e75dbd39` (planes 60) → idéntico; `6340c694e42c` (build web) → idéntico.
+- Es el **mismo error determinista** de los intentos `ctx_1699fb3cf9cc`, `ctx_a368668205d9`, `ctx_d96f28c4bf02`
+  y `ctx_ea529b655973`. No depende de la puerta (lint y build ni siquiera usan PostgreSQL), luego el fallo está en
+  el limpiador de contenedores del harness, no en las recetas registradas ni en el producto.
+- No se ejecutó `pnpm` en Windows, no se tocó Docker ni el PC de David, no se saltó el sandbox. No hay reparación
+  de workspace posible para un fallo del limpiador del harness (está fuera de la propiedad del trabajador).
+- Recuentos esperados (633 test, 359 SQL, 60 planes) **no comparados**: no se ejecutó nada, no se fabrican
+  resultados. **Desconocido ≠ 0.**
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra. **Sin commits, push,
+merge ni despliegue.**
+
+**Pendiente:** (1) que la infraestructura del sandbox repare el limpiador (`container_cleanup_unknown`) o exponga
+un diagnóstico de Docker —p. ej. confirmar que Docker Desktop está arriba antes de declarar contenedores detenidos—;
+(2) reejecutar las 5 puertas sobre un árbol con código idéntico a HEAD y comparar 633/359/60; (3) revisión
+independiente GLM del diff/árbol exacto; (4) aprobación de David para commit/integración/despliegue.
+
+**Siguiente acción:** cuando `validar` responda `{ok, results, tree_hash}` (o un error de producto real en vez del
+limpiador), ejecutar en orden las puertas `4532c4868add`, `2f523b707a76`, `4013b847119b`, `1824e75dbd39` y
+`6340c694e42c` y sustituir este apartado por la evidencia real. Reproducción previa en
+`tareas/facylf/run_517457d35a0e/RECURSOS.md`.
+
+## ★★★★★ DeepSeek, 30/10 (reintento, dispatch `ctx_d96f28c4bf02`) — línea base comprobada: sigue sin poder ejecutar ninguna de las 5 puertas (fallo del harness)
+
+**Fase:** diagnóstico y preparación de la candidata desplegable. **Resultado:** bloqueado por entorno; **no hay
+evidencia de puertas verdes ni rojas**, porque las puertas no llegaron a ejecutarse.
+
+- Árbol probado: HEAD `01b0580d07099f172934c581d14daea4cdf2653c`, rama `ErDeivih/equipo-ia`,
+  `tree_hash` antes de esta edición `5b9b0f78708bef8042edd4fe016ebfac6acce332aa19e12fd66fafc7e94d25ef` (incluye
+  solo este documento; el código de producto está sin cambios respecto a HEAD), `run_id` `run_517457d35a0e`,
+  `dispatch_id` `ctx_d96f28c4bf02`.
+- Llamadas reales en este reintento, una puerta por llamada, **las cinco**: `4532c4868add` (pnpm test),
+  `2f523b707a76` (lint), `4013b847119b` (SQL/PGlite 359), `1824e75dbd39` (planes 60) y `6340c694e42c`
+  (build web). **Las cinco devolvieron exactamente y de nuevo**:
+  `{"ok": false, "error": "container_cleanup_unknown: comprobar Docker antes de declarar detenido"}`.
+  Es el mismo error determinista de los intentos `ctx_1699fb3cf9cc` / `ctx_a368668205d9`: no es transitorio y no
+  depende de la puerta (lint y build ni siquiera usan PostgreSQL).
+- El error está en el limpiador de contenedores del sandbox, no en las recetas registradas ni en el producto. No se
+  ejecutó `pnpm` en Windows ni se forzó `docker rm`/reinicio de Docker (shell denegada por diseño), ni se
+  saltó el sandbox.
+- Recuentos esperados (633 test, 359 SQL, 60 planes) **no comparados**: no se ejecutó nada, no se fabrican
+  resultados.
+
+**Gasto:** el adaptador de esta sesión no expone recibo de coste; no se inventa cifra. **Sin commits, push,
+merge ni despliegue.**
+
+**Pendiente:** (1) que la infraestructura del sandbox repare el limpiador (`container_cleanup_unknown`) o exponga
+un diagnóstico de Docker; (2) reejecutar las 5 puertas sobre un árbol con código idéntico a HEAD y comparar
+633/359/60; (3) revisión independiente GLM del diff/árbol exacto; (4) aprobación de David para
+commit/integración/despliegue.
+
+**Siguiente acción:** cuando `validar` responda `{ok, results, tree_hash}` (o un error de producto real en vez del
+limpiador), ejecutar en orden las puertas `4532c4868add`, `2f523b707a76`, `4013b847119b`, `1824e75dbd39` y
+`6340c694e42c` y sustituir este apartado por la evidencia real. Reproducción previa en
+`tareas/facylf/run_517457d35a0e/RECURSOS.md`.
 
 ## ★★★★★ Claude, 24/10, 11:30 — SIGUIENTE TAREA: terminar la web · [`ENCARGO-WEB-DEEPSEEK-2026-10-24.md`](ENCARGO-WEB-DEEPSEEK-2026-10-24.md)
 
@@ -2872,3 +4359,277 @@ T-11 pedía *«comprobar si `scripts\multideporte\aplica-menores-y-actas.ps1` se
 | **12/10 16:2x** | **Fase 2 paso 5 — las 4 candidatas que quedaban, clasificadas con REA** ✓✓ | **Cartagena: BLOQUEADA por el WAF** ✓✗ · **`fafutsala.com`: dominio APARCADO en IONOS** ✓✗ · **Huelva F7 y La Rioja: sin plataforma** ✓. **Me corrijo**: la fila 32 («no es fallo del sitio») era **falsa** ✗✓. **Lección**: *candidato sin petición hecha = candidato sin clasificar* ✓✓ — **dos de las cuatro solo se cayeron al pedirlas** ✓. **Paso 5 CERRADO**; de todo el barrido **sólo Palencia deja lector viable** ✓ |
 | 11/10 | Pasos 1, 1a y 1b del encargo del 11/10 | hechos y verificados (Andalucía 4 → 13 temporadas; Madrid pidiendo) |
 | 11/10 19:30 | Claude: T-12 detallada en `TAREA-LARGA-FUTBOL-AFICIONADO.md`; corregido en `FUTBOL-AFICIONADO.md` §3 que `arrancar` a mano un adaptador activo duplica trabajadores (usar `sembrar`) | — |
+
+## DeepSeek, 01/11/2026 — CI de `facylf`: los dos rojos diagnosticados; **no hay verdes** y la línea base 633/359/60 no se acredita
+
+**Task** `task_7c6fa02d9209` · **dispatch** `ctx_399a562d8129` · **run** `run_517457d35a0e`.
+Árbol `703b6097c48fa697f5bd58f25e53c3ef0402c3930445bdd3a99b78b67d364aba`, perfil
+`7b1c873463a98edea62ecc0f4b3cf9efee308e25c4c19c8d9713865071d89aa4`, HEAD `01b0580d0709`, rama `ErDeivih/equipo-ia`.
+
+### Qué se midió (una puerta por llamada)
+
+| Puerta | Resultado | Evidencia |
+|---|---|---|
+| `4532c4868add` (pnpm test) | **rojo**: 488,87 s, 45 ficheros ok / 4 con problemas, **541 pass · 2 fail · 41 skip**, `failure_classes ["timeout"]`, `database_codes []` | `f63820a60b63a8c375a9c3ca343f1e4ad2bbb76ddd4f36a244a2cd58520792ff` |
+| `1824e75dbd39` (pnpm planes) | **rojo, no ejecutable**: `TimeoutError` a **300,633 s**, `code null`, `counts {}`, `interrupted` | `716ffb2fd088605e6580be395e8622789f9fefba2bb6978d2c86338d14a6d255` |
+| `2f523b707a76` (lint), `4013b847119b` (SQL/PGlite), `6340c694e42c` (build web) | **no ejecutadas** en esta ronda | — |
+
+### Causa de los 2 tests rojos (hipótesis vigente, aceptada por el controlador)
+
+`apps/web/test/consultas.test.ts` llama a `consulta()` **sin `presupuestoMs`** en `:72`
+(`COBERTURA_POR_FEDERACION.sql`) y `:453` (`RECUENTOS_DEL_CANONICO.sql`). Sin presupuesto no se abre
+conexión propia y manda el `statement_timeout: 5000` del pool; PostgreSQL cancela con **SQLSTATE 57014** y
+`conexion.ts:86-95` lo traduce a «La consulta superó el presupuesto de tiempo del servidor de la web (5 s)».
+**No es un timeout de Vitest** (30 s). Explica que `database_codes` quede vacío y que el extracto público
+apunte a `conexion.ts:132`. Consecuencia: **las pruebas de contrato nunca comprueban el presupuesto declarado**
+(800 ms y 1500 ms), solo el tope de 5 s del pool; y en la copia esas consultas tardan **más de 5 s**.
+Los otros 2 ficheros con problemas son de **colección**, no de aserción (`packages/canonico/test/lote.test.ts:1`,
+`packages/ingesta/test/reconstruccion-cola/herramienta.test.ts:6`).
+
+### Bloqueos de arnés (escalados, no reparables desde el workspace)
+
+1. **`1824e75dbd39` no ejecutable con tope de 300 s.** Misma puerta daba `code 1` en 8,7 s con «45 consulta(s)
+   fuera de presupuesto» sobre copia vacía; la suite completa está documentada en **916 s**. **Declarada NO
+   EJECUTABLE y no verde** en el perfil `7b1c8734…`. Se pidió al arnés `timeout_seconds ≥ 660 s` conservando
+   comando y umbrales, o declaración oficial de no ejecutable. `escalation` `msg_07cd0bfe626a`.
+2. **No hay vía para medir estadísticas ni `EXPLAIN` sobre `facylf-ci-pg`.** `equipo-local diagnosticar facylf
+   pruebas/ci/_probar-explain.mjs` responde «Guion fuera de las fuentes publicas autorizadas»; no existe ningún
+   `_probar-*.mjs` ni el directorio `pruebas/ci/`; `registrar_puerta` solo admite guiones ya existentes.
+   Sin eso **no se distingue copia (datos/estadísticas) de producto (SQL/plan)** y no se fabrica el dato.
+   Dato heredado, no medición propia: cinco tablas consultadas de la copia con `last_autoanalyze` del 31/10 y
+   0-98 modificaciones posteriores. `escalation` `msg_21688c286529`.
+
+**No se tocó SQL, presupuestos, umbrales, gates, originales ni datos. Sin commit, push, merge ni despliegue.
+Desconocido ≠ 0: no hay cifra de cobertura ni de recuentos de esta ronda.**
+
+## 34.º intento / reparación P0 `task_7c6fa02d9209` · `ctx_5f8fd1700fcd` (01/11/2026)
+
+Árbol de trabajo **`e51bc7c1…`** (HEAD `01b0580d`, rama `ErDeivih/equipo-ia`), perfil
+**`7b1c8734…`**. El Dispatch anterior dio los dos rojos por reproducidos; esta ronda vuelve a
+reproducirlos y cierra el diagnóstico con la evidencia saneada leída por el camino público.
+
+### Reproducción (esta ronda)
+
+| Puerta | Resultado | Evidencia |
+|---|---|---|
+| `1824e75dbd39` (planes · 60) | **NO EJECUTABLE**: `TimeoutError` a **300,86 s**, `interrupted: true`, `counts {}` | `201cfe77d9c6c6efcd576ea12a9d64dcbef983a4d90e308ce0d48648c141af2b` |
+| `4532c4868add` (pnpm test) | **rojo**: 537 pass · **6 fail** · 41 skip, 45 ficheros ok / 4 con problemas, `failure_classes ["timeout"]`, `database_codes []` | `c8b6b0763f2a8aa7413d48cfb61ce16a4331539f9d428a7e452dddff89c8a6a4` |
+
+Los 6 fallos, con nombre público, son **todos** de las dos consultas pesadas del catálogo y todos por
+el mismo tope: `el listado devuelve exactamente las columnas prometidas…`, `la cobertura del listado
+respeta las invariantes…`, `el filtro de federación devuelve sólo esa federación…`, `los filtros de
+vocabulario y el texto de búsqueda…`, `la paginación cuenta lo que cumple los filtros…` y `los
+recuentos de la portada traen una sola fila…`, localizados en `apps/web/test/consultas.test.ts`
+**:332, :349, :376, :392, :414, :453**. Las cinco primeras salen de `LISTADO_DE_GRUPOS`, la última de
+`RECUENTOS_DEL_CANONICO`. Llaman a `consulta()` sin `presupuestoMs`, así que no se abre conexión propia
+y manda el `statement_timeout: 5000` del pool (`conexion.ts:132`); PostgreSQL cancela con 57014 y el
+adaptador lo traduce a «presupuesto de tiempo del servidor». **No es un timeout de Vitest** y **no se
+arregla subiendo el `statement_timeout` ni tocando aserciones**: en la copia esas dos consultas tardan
+más de 5 s, con presupuestos declarados de 1000 ms.
+
+### Por qué no se optimiza el SQL en esta ronda
+
+`LISTADO_DE_GRUPOS` tiene tres candidatos de coste (`count(*) over ()` que materializa todas las filas
+filtradas antes del `LIMIT`, el agregado global `left join (select … from core.team_entry group by
+phase_group_id)` que recorre la tabla entera aunque solo se paginen 80 filas, y el orden de ~40.000
+filas); `RECUENTOS_DEL_CANONICO` agrega `ops.coverage_checkpoint` y cuenta `core.matchday`. Sin
+`EXPLAIN (ANALYZE)` **no se distingue** cuál pesa ni si el plan elegido en la copia es el de la huella
+guardada. Cambiar el SQL a ciegas puede empeorar 40.000 grupos y no hay medición para verificarlo: se
+prohíbe por decisión del controlador (`msg_59ded085d60c`).
+
+### Bloqueo de arnés (vigente, escalado)
+
+No existe **ningún** `_probar-*.mjs` público: `glob **/*_probar-*.mjs` sin coincidencias, `grep
+FLUJO_EXPLAIN_SUMMARY|_probar-` solo devuelve este documento y el propio artefacto de diagnóstico. La
+política de escritura rechaza `pruebas/ci/_probar-explain.mjs` y `_probar-explain.mjs` con «Ruta fuera de
+las fuentes publicas o memoria autorizadas», `equipo-local diagnosticar` rechaza
+`pruebas/ci/_preparar-ci-explain.mjs` con «Guion publico existente _probar-*.mjs», `read` de
+`pruebas/ci/_probar-vista-previa.mjs` da «File not found» y `registrar_puerta` solo admite guiones ya
+existentes. Queda como **artefacto untracked y no ejecutable** `pruebas/ci/_preparar-ci-explain.mjs`
+(mide con `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` y emite solo `FLUJO_EXPLAIN_SUMMARY` numérico, sin
+SQL ni filas, `statement_timeout 120 s`), **no** registrado como puerta.
+
+`escalation` **`msg_ea21a96a2784`** (consolida `msg_1a979afaf96a`) pide: (a) ruta pública escribible
+para `_probar-explain.mjs` o habilitar `registrar-preparacion` para el artefacto; (b) tope de
+`1824e75dbd39` **≥ 600 s**, conservando comando y las 60 consultas.
+
+**Estado declarado:** `1824e75dbd39` **NO EJECUTABLE, no verde** en el perfil `7b1c8734…`;
+`4532c4868add` **rojo** (537/6/41); **60 / 633 / 359 no acreditados**; `all_registered_gates_verified:
+false`. No se tocó SQL, presupuestos, umbrales, migraciones, `.env`, Docker, datos ni recolectores; sin
+commit, push, merge ni despliegue.
+
+### Addenda 01/11: dos huecos de arnés y por qué el cambio de `presupuestoMs` no repara nada
+
+Decisión del controlador (`msg_484484791d75`): opción **D** (bloquear por capacidad de arnés, no
+optimizar a ciegas, no gastar la plaza pesada). Los dos huecos, por separado:
+
+1. **El tope de 300 s no se puede subir desde el workspace.** `timeout_seconds: 300` de
+   `1824e75dbd39` vive en el `ci_contract` del perfil `7b1c8734…`, que `contexto_proyecto` entrega en
+   **solo lectura**; `grep 1824e75dbd39|timeout_seconds` sobre fuentes públicas devuelve solo este
+   documento (51 líneas narrativas) y `registrar_puerta` únicamente añade una puerta para un
+   `_probar-*.mjs` **existente**, sin editar topes. Referencia para alinearlo: la suite completa ya tarda
+   **916 s** según este mismo documento, así que 300 s no cubre una pasada sana; repetir `validar` solo
+   produce otro `TimeoutError` idéntico.
+2. **No hay vía de medición desde el workspace.** `glob **/*_probar-*.mjs` no encuentra nada, `write` de
+   un guion nuevo está denegado y `diagnosticar` exige un `_probar-*.mjs` existente. Pedido: o `EXPLAIN
+   (ANALYZE)`/tiempos reales de `LISTADO_DE_GRUPOS` y `RECUENTOS_DEL_CANONICO`, o un `_probar-*.mjs`
+   de medición que sea registrable.
+
+### Addenda 01/11 (segunda): el arnés se abrió, se midió una vez y el owner CI cayó
+
+El controlador admitió `pruebas/ci/_probar-*.mjs` en `source_globs` (`msg_a6d5d65feec7`,
+`delivery_b544ad5a311b`), así que el hueco 2 de arriba **ya no es cierto en su forma literal**: existe
+el artefacto untracked y `diagnosticar` lo ejecutó una vez. Queda lo que sigue.
+
+**Medición obtenida (sí hay recibo).** Guion `pruebas/ci/_probar-explain.mjs`, comando
+`equipo-local diagnosticar facylf pruebas/ci/_probar-explain.mjs`; recibo
+`03a7c6073a5d5499ecffee44141696753ca53c7272bbe07f6ebadfa3c504a8dd`, puerta `diagnostic_8b8f3045754b`,
+`ok: true`, 23,568 s, `tree_hash 45b2dbb3f6aa06550201c0740b4ccbaa643b7bf0c296e7322a3d5b454af2c2be`,
+perfil `7b1c873463a98edea62ecc0f4b3cf9efee308e25c4c19c8d9713865071d89aa4`,
+`diagnostic_only: true`, `acceptance_gate_registered: false` (no vale como puerta).
+
+`LISTADO_DE_GRUPOS` (mejor de 2, en caché, `shared_read_blocks: 0`): `execution_ms 6786,7`,
+`planning_ms 1,961`. Plan: `Limit` (80 filas) 6785,2 ms → `Sort` sobre **50 268** estimadas →
+`WindowAgg` 5562,4 ms con 50 268 filas → `Hash Join` 4062,6 → `Hash Join` 1595,1; el agregado de
+`core.team_entry` (~402 417 filas) aporta ≈2 s. Presupuesto declarado 1000 ms ⇒ **≈6,8×** sobre SLA, y
+el pool corta a 5000 ms ⇒ explica los `57014`. El coste dominante es `count(*) over ()`, calculado antes
+del `LIMIT`.
+
+**Arreglo propuesto, aún sin medir.** Paginar primero (CTE/subconsulta con `order by` + `limit $12
+offset $13`), `(select count(*) from base)::int as total` como initplan no correlado, e `inscripciones`
+por subconsulta correlada en la lista de objetivo (PostgreSQL la evalúa después de `Sort`+`Limit`, solo
+80 escaneos de `team_entry_grupo_idx`). Se descarta `LATERAL` a nivel de join: se ejecutaría para las
+50 268 filas. Sin cambios de columnas, orden ni `PARAMETROS_CATALOGO`.
+
+**Bloqueo nuevo (infraestructura, no producto).** Tras la primera medición, `equipo-local diagnosticar
+facylf pruebas/ci/_probar-explain.mjs` respondió `Herramienta local sin recibo; no repetir una acción
+incierta` y después, literalmente:
+
+```json
+{"ok": false, "error": "ci_owner_exited_reconcile_existing_receipts"}
+```
+
+Un intento previo sobre `pruebas/ci/_probar-listado.mjs` había devuelto el mismo `sin recibo`. No hay
+comando desde el workspace para reconciliar el owner CI (`validar` ejecuta puertas, `registrar_puerta`
+solo añade guiones existentes, `equipo-local evidencia` exige id). El controlador (`msg_abd67bb007a2`)
+confirma que no puede reconciliarlo y ordena: no repetir la llamada idéntica, no abrir otra ruta de
+medición, **no** convertir la consulta en roja ni dar por acreditada la línea base, dejar el SQL intacto
+y escalar con esta reproducción.
+
+**Estado declarado:** `1824e75dbd39` **NO EJECUTABLE** (301 s, `counts: {}`) y sin medición de la
+variante paginada; `4532c4868add` **rojo** (537/6/41, seis `57014`, uno con 15 710 s de span por
+suspensión del PC, no por SQL); **60 / 633 / 359 no acreditados**; `all_registered_gates_verified:
+false`. No se tocó SQL, presupuestos, umbrales, snapshots, migraciones, `.env`, Docker, datos ni
+recolectores; sin commit, push, merge ni despliegue. El fallo de arnés **no** es un resultado del
+producto y no se usa para cerrar nada.
+
+**`presupuestoMs: 1000` no repara el rojo y no se aplicó.** `conexion.ts:114-118` solo abre conexión
+propia y ejecuta `set local statement_timeout` cuando `presupuesto > 5000`; con 1000 ms manda igualmente
+el pool de **5000 ms**, así que el cambio es neutral (dejaría los mismos seis 57014) y un árbol cambiado
+daría evidencia engañosa. Además `:414` usa `consultaEnUnaFoto` (`conexion.ts:149`), cuya firma no acepta
+`presupuestoMs` y que por diseño nunca amplía. Conclusión registrada: los seis timeouts son **hallazgo de
+producto** — las dos consultas tardan >5 s reales frente a su presupuesto declarado de 1000 ms — y la
+reparación exige medir, no subir topes ni tocar aserciones.
+
+## 38.º intento / verificación de las 7 puertas · `task_c20167f3fcbe` · `ctx_9823de25d72f` (02/11/2026)
+
+Árbol **`d822fb003b9d7297b8b8c0554bd1adab2a36175946529ebc31f7e881f35387ac`**, perfil **`e91457fd…`**,
+HEAD `01b0580d…`. El encargo citaba el árbol `d2488206`, que **no coincide** con el working tree: se usa
+`d822fb00` como referencia (decisión `msg_2928d7a2003a`).
+
+| Puerta | Resultado | Evidencia |
+|---|---|---|
+| `2f523b707a76` lint | verde, code 0, 5,16 s | `2c14cda1…` |
+| `6340c694e42c` web build | verde, code 0, 87,05 s | `c87dd012…` |
+| `4013b847119b` SQL/PGlite (359) | verde, code 0, 412,14 s | `8782b0c8…` |
+| `51df9d75a0f5` listado | verde, code 0, 20,58 s | `b923bfd1…` |
+| `593e89fd5bdf` explain | verde, code 0, 11,10 s | `9c3f4071…` |
+| `1824e75dbd39` planes (60) | **NO EJECUTABLE**: `TimeoutError` 300,97 s, `interrupted`, code `null` | `c9c09002…` |
+| `4532c4868add` pnpm test (633) | **rojo**: code 1, 567,08 s, 539 pass / 4 fail / 41 skip, 5 ficheros, `failure_classes ["timeout"]`, `database_codes []` | `c6c9797f…` |
+
+Sin fallos de aserción ni de dato: los rojos públicos son los mismos de siempre y **rotan** entre
+ejecuciones (`:332`, `:402`, `:453`), compatible con ancho del PostgreSQL del sandbox. Decisión del
+controlador (`msg_2928d7a2003a`): **no** tocar SQL, `catalogo.ts` ni `conexion.ts`; bloquear como
+entorno, no como producto, y escalar.
+
+**Canal de medición: sigue sin dar cifras.** `registrar_puerta` confirma que `_probar-explain.mjs` y
+`_probar-listado.mjs` **ya estaban registrados** como `593e89fd5bdf` y `51df9d75a0f5`. Ambos devuelven
+`ok: true` / `code 0`, pero el recibo saneado llega con `public_numeric_explain: []`, `counts: {}` y
+`output_characters: 350`: la línea `FLUJO_EXPLAIN_SUMMARY` la retira el saneador del arnés. La única
+medición válida sigue siendo la del 01/11 (`03a7c607…`): `LISTADO_DE_GRUPOS` 6786,7 ms, `WindowAgg`
+5562,4 ms sobre 50 268 filas. Sin cifras nuevas **no se cambia SQL a ciegas**.
+
+**Escalación al owner del arnés:** `msg_6492d2022b5c` (pide `timeout_seconds` 1200 para `1824e75dbd39`
+y exponer el resumen EXPLAIN o confirmar `_probar-explain.mjs` como canal oficial). Mientras el owner
+no devuelva recibo, `1824e75dbd39` queda **NO EJECUTABLE por tope del contrato** (deuda del arnés), no
+verde.
+
+**Estado declarado:** `all_registered_gates_verified: false`; `production_authorized: false`;
+60/633 no acreditados; los 359 de PGlite sí. Sin cambios de producto en esta ronda, sin commit, push,
+merge ni despliegue, y sin tocar aserciones, umbrales, migraciones, `.env`, Docker, datos ni
+recolectores.
+
+## 41.º intento · Medición p95 de listado y recuentos, sin cambiar SQL (02/11/2026)
+
+**Qué se ha medido.** `pruebas/ci/_probar-listado.mjs` ejecuta ahora, con la misma frontera de
+conexión que la web (`conexion.ts`), 1 calentamiento + 20 muestras de tiempo de pared por consulta y
+publica p50/p95/máximo junto al presupuesto declarado en `catalogo.ts`. Comprobación realizada sobre
+el árbol de trabajo (`apps/web/src/consultas/catalogo.ts` con los arreglos del 01/11 aplicados y sin
+commitear). Las cifras son de la copia CI con caché caliente, no de producción.
+
+| consulta | presupuesto p95 | p50 | p95 | máximo | veredicto |
+|---|---:|---:|---:|---:|---|
+| `listado-de-grupos` | 1000 ms | 75,0 ms | **87,7 ms** | 95,1 ms | cumple, 11× de margen |
+| `recuentos-del-canónico` | 1500 ms | 175,9 ms | **194,7 ms** | 212,2 ms | cumple, 7,7× de margen |
+
+**EXPLAIN de control (`listado-de-grupos`).** `listado-actual` 66,9 ms (Sort 66,0 ms; tres Hash Join
+sobre 46 167 filas; `Seq Scan` de `core.phase_group` 2,8 ms sobre 50 268 filas; `CTE Scan` 4,5 ms).
+No hay `WindowAgg`: el plan patológico de 6786,7 ms con ventana sobre 50 268 filas ya no está en el
+árbol. La candidata «paginar primero» que dejé preparada mide **182,4 ms**, casi el doble que la
+forma actual: la materialización del total y de las inscripciones ya resuelve el problema, así que
+**no se aplica la candidata y no se toca SQL** (coherente con `msg_59ded085d60c`).
+
+**Qué cambia en el arnés.** Los diagnósticos ya **no escriben recibos dentro del árbol**: escribir un
+fichero durante la puerta cambiaba la huella y dejaba `subject_changed_after_gates: true`. El padre
+captura el stdout del hijo y reemite solo las líneas `FLUJO_EXPLAIN_SUMMARY `; el lector del arnés
+sigue descartándolas (`public_numeric_explain: []`), así que la cifra se conserva aquí, que es el
+canal que sí lee una persona. `pruebas/ci/_probar-medicion*.mjs` quedan como placeholders mínimos
+(borrables): los números viven en esta tabla.
+
+**Estado declarado (esta ronda).** Medición p95 con recibo real para las dos consultas de la entrega.
+Puertas `51df9d75a0f5` y `593e89fd5bdf` ejecutadas sobre el árbol de la medición (code 0; el recibo
+público del arnés no expone las cifras por el saneador). `1824e75dbd39` sigue **NO EJECUTABLE** por
+`timeout_seconds: 300` frente a ~916 s de la suite, y `4532c4868add` sigue rojo por timeouts de
+entorno, no de aserción. `all_registered_gates_verified: false`; `production_authorized: false`. Sin
+commit, push, merge ni despliegue; sin tocar umbrales, aserciones, datos ni recolectores.
+
+## 42.º intento · Vista previa local y su puerta en verde (02/11/2026)
+
+**Task** `task_fbdec9ed6d49` · **dispatch** `ctx_3316cf07bc2a` · **run** `run_517457d35a0e`.
+Árbol final `ed0120a72a3938082c5ebdb55efc74b44be17eb99c6f6cc164d329c5ddc4b317`, perfil
+`5ec3594b…`, HEAD `01b0580d…`, rama `ErDeivih/equipo-ia`.
+
+Entrega: `scripts/vista-previa.mjs` (arranque local de la web para revisión manual, sólo `127.0.0.1`,
+rechaza `DATABASE_URL_*` no locales, devuelve `next-env.d.ts`/`tsconfig.json` a su contenido original
+al salir) y su puerta `pruebas/ci/_probar-vista-previa.mjs`, documentada en `ENTORNO-LOCAL.md` §8.
+
+**Diagnóstico del arranque en rojo.** Con el servidor de desarrollo de **Turbopack** la portada
+respondía 500 con un `ENOENT` acotado por sondas a `apps/web/.next/dev/…`, sin traza de módulo ni de
+base de datos, y borrar `.next` antes de arrancar no lo cambiaba. Causa del ruido de diagnóstico: el
+sandbox **no tiene `taskkill` ni `netstat`** (comprobado con una sonda de códigos: ambos `spawnSync`
+dan error y salida vacía), así que la parada anterior nunca mató nada y el puerto quedaba abierto por
+artefacto del arnés, no por el producto. `repositorio-local.ts` quedó descartado como causa (`db()`
+usa `existsSync` y devuelve `null` sin base).
+
+**Arreglo.** El guion arranca `next dev --webpack` —el mismo motor que `next build`— y la portada
+devuelve 200 sin canónico (aviso de «canónico no disponible»). La parada es por `process.kill` del
+propio hijo (sin binarios externos) más `taskkill` best-effort si existe, y la prueba pide el cierre
+por el **canal IPC** (`"parar"`), que recorre el mismo camino que Ctrl+C: Windows no entrega señales a
+un proceso en primer plano, así que no hay otra forma honesta de probarlo.
+
+**Resultado.** Puerta `0c6e21dff965` **verde**, code 0, 19,0 s, `subject_changed_after_gates: false`,
+evidencia `ca42c34e683065cd414017b81277e847936d70ee0ccb135d46819f7998293650`.
+`all_registered_gates_verified: false` (quedan `1824e75dbd39`, `2f523b707a76`, `4013b847119b`,
+`4532c4868add`, `51df9d75a0f5`, `593e89fd5bdf`, `6340c694e42c`, ya medidas en la ronda 41.º/38.º sobre
+otros árboles); `production_authorized: false`. Sin commit, push, merge ni despliegue; sin tocar SQL,
+umbrales, aserciones, datos ni recolectores.
