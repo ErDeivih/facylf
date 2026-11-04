@@ -10,8 +10,10 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   `metricas-facylf.json` con la forma exacta pedida por David: competiciones totales/completas/porcentaje
   que falta, desglose por temporada y ritmo de peticiones por minuto separado PC/servidor. Lee colas
   SQLite de CyL (PC y servidor por SSH de sólo lectura), el canónico y las peticiones de los últimos
-  5 minutos; si una fuente falla no publica ceros (conserva el fichero anterior). 9 pruebas puras.
-  Semántica en [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
+  5 minutos; si una fuente falla no publica ceros (conserva el fichero anterior). 9 pruebas puras y
+  escritura atómica. Se refresca cada 5 minutos con la tarea programada «FACyLF metricas panel»
+  (autorizada por David el 04/11/2026). Semántica en
+  [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
 
 - [x] **(Nivel 2) V-E-D en toda la aplicación.** `lib/forma-equipo.ts` como única traducción
   (`G→V`, `E→E`, `P→D`); clasificación, `Racha`, ficha de equipo y actuaciones de jugador muestran V/E/D
@@ -55,11 +57,35 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   con Playwright: 16 pruebas (8 × móvil/escritorio): 16 filas ordenadas, migas reales, goles de la
   misma jornada, menores, 400 px sin scroll de documento y columna fija, 404 y axe. Se ejecuta sin CI.
 
+- [x] **(Nivel 2/3) Coordinación del 04/11/2026 (noche): refresco y alcance.** David decidió que
+  `metricas-facylf.json` se refresque **cada 5 minutos** (tarea programada «FACyLF metricas panel»
+  registrada; escritura atómica temporal + rename) y que la **primera tanda de la web sean cuatro
+  pantallas**: clasificación (hecha), jornada, acta del partido y ficha de equipo. El resto de las 22
+  se añade después, sobre la misma base. Decisiones 27 y actualización de la 22 en `DECISIONES.md`.
+
 ## Listas
 
-- [ ] **(Nivel 2, siguiente) Pestaña Jornadas de la pantalla 2.** El prototipo la dibuja y la pantalla
-  sólo tiene las flechas de la jornada actual. Necesita: listado de jornadas del grupo con enlace a cada
-  una y estado de cada jornada (jugada / programada / sin datos). Datos: `partidos-de-grupo` ya los trae.
+- [ ] **(Nivel 2, siguiente) Pantalla Jornada (primera tanda).** Contra el prototipo (`Competicion.dc.html`
+  pestaña Jornadas y la vista de jornada; `Jornada` de las 22): listado de jornadas del grupo con enlace
+  a cada una y estado (jugada / programada / sin datos), y detalle de una jornada con sus partidos,
+  resultado publicado o «—», y enlace al acta cuando exista. Reutilizar `partidos-de-grupo` y las
+  consultas de partidos; ruta nueva bajo `/explorar/competicion/[id]/jornada/[numero]` o pestaña, sin
+  romper la web vieja. Misma base visual que la pantalla 2, estados vacío/parcial/carga y pruebas
+  (vitest + e2e). Es la primera de las cuatro.
+
+- [ ] **(Nivel 2) Pantalla Acta del partido (primera tanda).** Prototipo `Acta.dc.html` (pantalla 3):
+  alineaciones, goles, tarjetas, cambios, árbitro y campo, con «desconocido ≠ 0» y sin nombres de
+  menores. Reutilizar las consultas de acta/apariciones existentes y la ruta vieja como contrato, pero
+  presentación nueva; enlazar desde la jornada. Pruebas de flujo y capturas.
+
+- [ ] **(Nivel 2) Pantalla Ficha de equipo (primera tanda).** Prototipo `Equipo.dc.html` (pantalla 4):
+  cabecera del equipo con contexto (club, categoría, temporada), plantilla, evolución y últimos
+  resultados, sobre las consultas de equipo/plantilla ya existentes. Presentación nueva y enlaces desde
+  clasificación/jornada. Pruebas de flujo y capturas.
+
+- [ ] **(Nivel 2) Resto de pestañas y pantallas, después de la primera tanda.** Goleadores, Disciplina,
+  Equipos de la competición; las demás pantallas del prototipo se añaden sobre esta base, sin abrir 22
+  frentes (decisión de David, 04/11/2026). Cuando toquen, cada una con su contrato y sus pruebas.
 
 - [ ] **(Nivel 2) Pestañas Goleadores, Disciplina y Equipos de la pantalla 2.** Hoy están apagadas con
   `aria-disabled`. Goleadores ya tiene consulta (`ranking-goleadores`); Disciplina necesita tarjetas y
@@ -139,8 +165,6 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
 
 ## Esperando decisión (Nivel 3 — no bloquea)
 
-- [ ] **¿Cuántas de las 22 pantallas entran en la primera tanda?** Mientras no se decida, se hace una
-  cada vez; la 2 ya está terminada y la cabecera común sirve a las siguientes.
-- [ ] **¿Se registra la tarea de métricas cada minuto?** `scripts/metricas-facylf.mjs` genera el JSON del
-  panel y tarda ~3 s, pero **crear una tarea programada toca los ajustes del PC** (nivel 3). Mientras
-  no se decida, el fichero se actualiza lanzando el script a mano.
+- Nada abierto que bloquee: el **04/11/2026** quedaron decididos la primera tanda (cuatro pantallas) y
+  el refresco de métricas cada 5 minutos. La densidad (cómoda/compacta) sigue sin decidir si entra en
+  el producto; no bloquea a las cuatro pantallas.

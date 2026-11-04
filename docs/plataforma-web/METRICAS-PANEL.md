@@ -79,8 +79,9 @@ ligas que se publican en la web.
 Tarda ~3 s (una lectura de la cola de CyL, una ida y vuelta SSH y una consulta al canónico). No toca
 datos: ni `UPDATE`, ni `DELETE`, ni escrituras en el servidor.
 
-**Cadencia:** el panel necesita que el fichero se refresque. El script está preparado para ejecutarse
-cada minuto y tarda ~3 s. **No se ha registrado ninguna tarea programada** en el PC: cambiar los
-ajustes del equipo es una decisión de David (nivel 3). Para cuando la decida, está
-`scripts/registrar-tarea-metricas.ps1` (crea la tarea «FACyLF metricas panel»; `-Quitar` la borra).
-Mientras no se registre, el fichero existe y se actualiza cuando se lanza a mano.
+**Cadencia:** tarea programada **«FACyLF metricas panel»** cada **5 minutos** (decidido por David el
+04/11/2026: es suficiente para el panel y no carga la máquina). Instancia única, ventana oculta y
+**escritura atómica** (fichero temporal propio del proceso + `rename`): el panel nunca puede leer un
+JSON a medias. Si una vuelta falla, el fichero anterior queda intacto con su `medido`. Se puede lanzar
+a mano con `node scripts/metricas-facylf.mjs`; para quitarla,
+`powershell ... -File scripts\registrar-tarea-metricas.ps1 -Quitar`.

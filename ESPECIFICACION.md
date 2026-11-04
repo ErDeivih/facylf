@@ -30,7 +30,7 @@ Las 22 pantallas, por si hace falta localizar una: Inicio · Competición · Act
 | Pregunta | Por qué importa | Estado |
 |---|---|---|
 | La forma del equipo: ¿`V-E-D` (Victoria/Empate/Derrota) o `G-E-P` (Ganado/Empatado/Perdido)? | **el prototipo usa las dos**: `V-E-D` en Inicio y `G-E-P` en Competición. Hay que elegir una | **decidido: V-E-D** en toda la aplicación (04/11/2026), implementado |
-| ¿Las 22 pantallas entran todas en la primera tanda, o se recorta? | hacer 22 pantallas de golpe es un año | **pendiente** |
+| ¿Las 22 pantallas entran todas en la primera tanda, o se recorta? | hacer 22 pantallas de golpe es un año | **decidido (04/11/2026): cuatro** — clasificación, jornada, acta del partido y ficha de equipo. El resto, después, sobre la misma base |
 | ¿Se reutiliza el código de la plataforma que ya existe en `apps/`, o se rehace contra el diseño? | hay un `apps/` con web | **decidido**: el diseño manda y se rehacen las pantallas; se conservan consultas, contratos e ingesta |
 
 ## Objetivo 1 — Que no tenga errores (sigue siendo lo primero)
@@ -68,9 +68,14 @@ con su veredicto (fallo real o deuda conocida), está en [`INFORME-PRUEBAS.md`](
   Evidencia: [`SPEC-PANTALLA-2.md`](docs/plataforma-web/SPEC-PANTALLA-2.md) y
   [`DECISIONES.md`](DECISIONES.md) (decisiones 10-19); capturas en
   [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-04.png).
-  Faltan: las pestañas Jornadas/Goleadores/Disciplina/Equipos, el conmutador Casa/Fuera (necesita
-  proyección por condición) y el interruptor de tema (el atributo `data-tema` está definido pero
-  ninguna pantalla lo escribe).
+  También hechos: el **tema claro/oscuro** (cookie resuelta en servidor, control en la cabecera; sólo
+  en rutas migradas) y la forma **V-E-D**. Faltan de la primera tanda: la **pantalla Jornada**, el
+  **acta del partido** y la **ficha de equipo**. Quedan para después las demás pestañas y pantallas, el
+  conmutador Casa/Fuera (necesita proyección por condición) y el interruptor de densidad.
+
+**Primera tanda decidida por David (04/11/2026): cuatro pantallas** — clasificación (hecha), jornada,
+acta del partido y ficha de equipo. El resto de las 22 se añade después, con la misma base; el
+prototipo completo es la referencia, no la primera entrega.
 
 ## Familia y recetas
 
@@ -123,8 +128,8 @@ panel lo lee (nada de que el panel calcule: el proyecto lo mide).
 **Publicado el 04/11/2026.** El generador es `scripts/metricas-facylf.mjs`; la semántica exacta de
 cada número (qué es una competición, cuándo está completa, de dónde sale el ritmo y qué pasa si una
 fuente falla) está en [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
-El fichero existe en la raíz con datos reales; **falta decidir si se registra una tarea programada**
-para refrescarlo cada minuto (cambiar los ajustes del PC es nivel 3).
+El fichero existe en la raíz con datos reales y **se refresca cada 5 minutos** con la tarea programada
+«FACyLF metricas panel» (autorizada por David el 04/11/2026; escritura atómica temporal + rename).
 
 ## Decision de coordinacion (2026-11-04, tarde) — otras dos decisiones
 

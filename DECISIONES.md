@@ -346,10 +346,12 @@ Decisiones de David del 04/11/2026 (tarde) en `ESPECIFICACION.md`. Contrato de e
 - **Publicado el 04/11/2026**: 889 competiciones, 133 completas (85 % por hacer), 15 temporadas,
   ritmo del momento 0/min en el PC y ~18/min en el servidor. El fichero se versiona como foto; el
   script lo regenera.
-- **Pendiente de decisión (Nivel 3)**: registrar una tarea programada que lo refrezque cada minuto.
-  Tocar los ajustes del PC y el ritmo de una tarea del sistema es decisión de David; el script está
-  preparado y se puede lanzar a mano.
-- **Nivel**: 2 (medición) y 3 (la programación).
+- **Refresco**: David autorizó el 04/11/2026 una tarea programada **cada 5 minutos** (no cada minuto:
+  es suficiente y no carga la máquina). `scripts/registrar-tarea-metricas.ps1` la crea como «FACyLF
+  metricas panel» (instancia única, ventana oculta, `-Quitar` la borra). La escritura es **atómica**
+  (temporal propio del proceso + `rename`), para que el panel nunca lea un JSON a medias. La primera
+  vuelta se ejecutó a mano y dejó el fichero actualizado.
+- **Nivel**: 2 (medición) y 3 (la programación, ya autorizada).
 
 ### 23. V-E-D en toda la aplicación, sin tocar el dato
 
@@ -405,6 +407,18 @@ Decisiones de David del 04/11/2026 (tarde) en `ESPECIFICACION.md`. Contrato de e
   publica. Sin este filtro, cualquier pasada de la proyección puede pisar una limpieza en curso.
 - **Qué no se toca**: el código de la proyección ni sus migraciones; sólo el filtro de selección.
 - **Nivel**: 1 (deuda de pruebas que hacía fallar la suite de forma intermitente).
+
+### 27. Primera tanda de la web: **cuatro pantallas**, no veintidós
+
+- **Decisión de David (04/11/2026, noche)**: la primera tanda son las cuatro pantallas que necesita
+  CyL para ser útil: **clasificación, jornada, acta del partido y ficha de equipo**. El resto se añade
+  después, con la misma base. El prototipo entero es la referencia, no la primera entrega.
+- **Consecuencia para el backlog**: no se abren 22 frentes. La clasificación ya está terminada (pantalla
+  2); las siguientes son la **jornada** (pestaña Jornadas y detalle de una jornada), el **acta del
+  partido** (pantalla 3) y la **ficha de equipo** (pantalla 4). Cada una se hará como la 2: contra el
+  prototipo, sobre el sistema de diseño, con datos reales de CyL, pruebas y capturas, y decidiendo
+  componente a componente si se adapta o se rehace.
+- **Nivel**: 3 (alcance) → ejecutado como planificación.
 
 ---
 

@@ -28,7 +28,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
@@ -210,11 +210,17 @@ async function main() {
   });
 
   const contenido = `${JSON.stringify(metricas, null, 2)}\n`;
-  const temporal = `${destino}.tmp`;
+  /*
+   * Escritura atómica: el panel nunca puede leer un JSON a medias. Se escribe un temporal propio de
+   * este proceso y se renombra encima del definitivo (rename es atómico en el mismo volumen); si algo
+   * falla, el temporal se limpia y el fichero anterior queda intacto.
+   */
+  const temporal = `${destino}.tmp-${process.pid}`;
   try {
     writeFileSync(temporal, contenido, 'utf8');
     renameSync(temporal, destino);
   } catch (error) {
+    try { if (existsSync(temporal)) rmSync(temporal, { force: true }); } catch { /* limpieza best-effort */ }
     fallo(`no se pudo escribir ${destino}: ${error.message}`);
   }
 
