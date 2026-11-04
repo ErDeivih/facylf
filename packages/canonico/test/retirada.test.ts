@@ -186,6 +186,12 @@ async function limpiaCanonico(): Promise<void> {
       [`delete from core.match where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from core.standing_snapshot where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from core.matchday where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
+      // Los agregados de `analytics` no caen en cascada desde `team_entry` ni desde `person` (0005),
+      // y la proyección de lectura los escribe también para los grupos de pruebas si quedaron restos.
+      // Sin borrarlos, la inscripción no se puede borrar (`team_edition_summary_team_entry_id_fkey`)
+      // y la limpieza no vuelve nunca al estado limpio. Medido el 04/11/2026.
+      [`delete from analytics.player_team_season_summary where team_entry_id = any (array(select te.id from core.team_entry te where te.phase_group_id = any (array(${GRUPOS}))))`, [FEDERACION]],
+      [`delete from analytics.team_edition_summary where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from core.team_entry where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from ops.coverage_checkpoint where phase_group_id = any (array(${GRUPOS}))`, [FEDERACION]],
       [`delete from core.phase_group where competition_edition_id in (select e.id from core.competition_edition e join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]],
@@ -193,9 +199,16 @@ async function limpiaCanonico(): Promise<void> {
       [`delete from core.competition_edition where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from ops.batch where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from core.team_alias where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
+      // `analytics.player_career_summary` apunta a `core.person` sin cascada: si la proyección pasó por
+      // estas personas, la persona no se puede borrar. Va antes que la identidad y que la persona.
+      [`delete from analytics.player_career_summary where person_id in (select psi.person_id from core.person_source_identity psi join core.federation f on f.id = psi.federation_id where f.codigo = $1)`, [FEDERACION]],
       [`delete from core.person_name where person_id in (select p.id from core.person p join core.person_source_identity psi on psi.person_id = p.id join core.federation f on f.id = psi.federation_id where f.codigo = $1)`, [FEDERACION]],
       [`delete from core.person_source_identity where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
-      [`delete from core.person where id not in (select person_id from core.person_source_identity)`, []],
+      // `not exists` en vez de `not in (select …)`: la versión con `not in` no se hashea y es
+      // cuadrática con 2,28 M de personas, así que la limpieza agotaba el `hookTimeout`. Ver
+      // `INFORME-PRUEBAS.md` (medido el 04/11/2026: ~1 s frente a minutos).
+      [`delete from core.person p where not exists (
+        select 1 from core.person_source_identity psi where psi.person_id = p.id)`, []],
       [`delete from core.team_season where club_id = any (array(select id from core.club where federation_id = (select id from core.federation where codigo = $1)))`, [FEDERACION]],
       [`delete from core.club where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],
       [`delete from core.venue where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]],

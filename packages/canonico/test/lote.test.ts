@@ -153,6 +153,21 @@ async function limpiaCanonico(pool: PoolCanonico): Promise<void> {
     await cliente.query(`delete from core.matchday where phase_group_id in (
         select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id
         join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]);
+    // Los agregados de `analytics` cuelgan de `team_entry` y de `person` SIN cascada (migración 0005).
+    // Los escribe la proyección de lectura, que también proyecta los grupos de pruebas si han quedado
+    // restos de una ejecución que falló: entonces borrar la inscripción falla con
+    // `team_edition_summary_team_entry_id_fkey` y la limpieza no puede volver nunca al estado limpio
+    // (medido el 04/11/2026). Van antes que la inscripción y que la persona.
+    await cliente.query(`delete from analytics.player_team_season_summary where team_entry_id in (
+        select te.id from core.team_entry te join core.phase_group g on g.id = te.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]);
+    await cliente.query(`delete from analytics.team_edition_summary where phase_group_id in (
+        select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id
+        join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]);
+    await cliente.query(`delete from analytics.player_career_summary where person_id in (
+        select psi.person_id from core.person_source_identity psi
+        join core.federation f on f.id = psi.federation_id where f.codigo = $1)`, [FEDERACION]);
     await cliente.query(`delete from core.team_entry where phase_group_id in (
         select g.id from core.phase_group g join core.competition_edition e on e.id = g.competition_edition_id
         join core.federation f on f.id = e.federation_id where f.codigo = $1)`, [FEDERACION]);
@@ -174,7 +189,13 @@ async function limpiaCanonico(pool: PoolCanonico): Promise<void> {
         select p.id from core.person p join core.person_source_identity psi on psi.person_id = p.id
         join core.federation f on f.id = psi.federation_id where f.codigo = $1)`, [FEDERACION]);
     await cliente.query(`delete from core.person_source_identity where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]);
-    await cliente.query(`delete from core.person where id not in (select person_id from core.person_source_identity)`, []);
+    // Las personas que se han quedado sin identidad, con `not exists` y NO con `not in (select …)`.
+    // `not in` sobre un subplan con millones de filas no se hashea (sale un `Materialize` que se
+    // reejecuta por fila): en el canónico real, con 2,28 M de personas, la limpieza pasaba de varios
+    // minutos y agotaba el `hookTimeout` de la suite. `not exists` planifica como anti-join hasheado
+    // y tarda ~1 s. Medido el 04/11/2026; el detalle está en `INFORME-PRUEBAS.md`.
+    await cliente.query(`delete from core.person p where not exists (
+        select 1 from core.person_source_identity psi where psi.person_id = p.id)`, []);
     await cliente.query(`delete from core.team_season where club_id in (select id from core.club where federation_id = (select id from core.federation where codigo = $1))`, [FEDERACION]);
     await cliente.query(`delete from core.club where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]);
     await cliente.query(`delete from core.venue where federation_id = (select id from core.federation where codigo = $1)`, [FEDERACION]);
