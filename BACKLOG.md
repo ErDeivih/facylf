@@ -11,22 +11,38 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   [`INFORME-PRUEBAS.md`](INFORME-PRUEBAS.md). Suite: **633 en verde, 1 saltada, 0 fallos**.
   Puertas: `pnpm lint` y `tsc --noEmit` de la web en verde.
 
+- [x] **(Nivel 2) Pantalla 2 del prototipo, primera versión con datos reales de CyL.** Ruta
+  `/explorar/competicion/[id]`: cabecera con desplegables y barra de temporada, pestañas, clasificación
+  con zonas y forma, jornada con resultados y goleadores. Datos del canónico (grupo 797, Liga Nacional
+  Juvenil 2025-26). 22 pruebas nuevas en `apps/web/test/competicion-pantalla.test.ts`. Decisiones en
+  [`DECISIONES.md`](DECISIONES.md); captura en
+  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-cyl-2026-11-04.png).
+  Lo que la primera versión deja fuera, abajo.
+
 ## Listas
 
-- [ ] **(Nivel 2, siguiente) Pantalla 2 del prototipo — Competición: clasificación y jornada**, con
-  **datos reales de Castilla y León**. Contra `diseno/prototipo/2 · Competición clasificación y
-  jornada.png` y la fuente `docs/plataforma-web/prototipo/Competicion.dc.html` (tokens: fondo `#F4F6F8`,
-  texto `#1A2027`, acento `#0B7285`, Inter con `tnum`). Incluye: cabecera común, migas, cabecera de
-  competición con desplegables de grupo y temporada y barra de progreso de la temporada, pestañas,
-  tabla de clasificación con zonas de color y forma, columna de jornada y goleadores.
-  **Criterio de hecho**: se ve con datos reales de CyL en `pnpm dev`, con estados vacíos honestos
-  (sin inventar ceros) y `pnpm test` sigue en verde.
+- [ ] **(Nivel 2, siguiente) Pestaña Jornadas de la pantalla 2.** El prototipo la dibuja y la pantalla
+  sólo tiene las flechas de la jornada actual. Necesita: listado de jornadas del grupo con enlace a cada
+  una y estado de cada jornada (jugada / programada / sin datos). Datos: `partidos-de-grupo` ya los trae.
 
-- [ ] **(Nivel 2) Inventario de datos reales de la pantalla 2**: qué campos pide el diseño y cuáles
-  existen ya en el canónico para CyL (clasificación reconstruida, jornadas, goleadores, zonas). Lo que
-  falte se anota como hueco, no se rellena a mano.
+- [ ] **(Nivel 2) Pestañas Goleadores, Disciplina y Equipos de la pantalla 2.** Hoy están apagadas con
+  `aria-disabled`. Goleadores ya tiene consulta (`ranking-goleadores`); Disciplina necesita tarjetas y
+  sanciones (`sanciones-inferidas`, `analytics`); Equipos necesita la lista de inscripciones del grupo.
 
-- [ ] **(Nivel 1) Deuda de pruebas de esta sesión** (5 puntos al final de `INFORME-PRUEBAS.md`):
+- [ ] **(Nivel 2) Conmutador Total / Casa / Fuera de la clasificación.** Hoy está desactivado porque
+  `analytics` sólo tiene `jugados_casa`/`jugados_fuera`, no el G-E-P por condición. Sale como migración
+  nueva (0051+) que añada las columnas y la proyección, con su prueba en `pruebas/sql/`; no se agrega
+  desde `core.match` en la página (regla del encargo).
+
+- [ ] **(Nivel 1) Cabecera común del sitio** (`Componente · cabecera común.png` y `Cabecera.dc.html`):
+  barra oscura con navegación, avisos con contador, avatar y buscador global. Hoy la pantalla nueva se
+  monta bajo la cabecera vieja; es lo que más la separa del prototipo.
+
+- [ ] **(Nivel 2) Prueba de página de la pantalla 2 (punta a punta).** Las 22 pruebas cubren consultas y
+  reglas puras; falta una prueba tipo Playwright que cargue `/explorar/competicion/797`, compruebe que
+  hay 16 filas, que la jornada tiene 8 partidos y que ningún nombre de menor aparece en el HTML.
+
+- [ ] **(Nivel 1) Deuda de pruebas de la sesión de pruebas** (5 puntos al final de `INFORME-PRUEBAS.md`):
   - una sola importación base en `lote.test.ts` (hoy 34 × ~7 s = 233 s);
   - `skip` explícito cuando el canónico no está (hoy las suites «pasan» sin comprobar nada);
   - `pnpm test` comprueba el canónico antes de empezar y avisa;
@@ -43,22 +59,20 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   servidor tiene en curso y saque cualquier temporada recogida dos veces (en septiembre se duplicaron
   ocho federaciones).
 
-- [ ] **(Nivel 1) Sistema visual en código**: extraer de `docs/plataforma-web/prototipo/*.dc.html` los
-  tokens que hoy están sueltos (colores, tipografía, radios, sombras, densidad de tabla) a un único
-  sitio reutilizable, y sustituir los valores a mano de las pantallas que se vayan haciendo.
-
-- [ ] **(Nivel 2) Cabecera común** (`Componente · cabecera común.png` y `Cabecera.dc.html`): barra
-  oscura con navegación, avisos con contador, avatar y buscador global, tomando la del prototipo.
+- [ ] **(Nivel 1) Sistema visual en código**: quedan valores del prototipo sueltos en las pantallas
+  nuevas (colores `#F4F6F8`, `#1A2027`, `#0B7285`, radios, `tnum`). El radio de tarjeta ya es token;
+  falta el resto y una revisión de contraste/accesibilidad de la pantalla 2.
 
 - [ ] **(Nivel 1) Pieza de honestidad del dato**: un componente único para «Sobre estos datos», zonas
-  aproximadas y cobertura, para que ninguna pantalla prometa más de lo que hay.
+  aproximadas y cobertura, para que ninguna pantalla prometa más de lo que hay (hoy está escrito en
+  cada pantalla).
 
 ## Esperando decisión (Nivel 3 — no bloquea)
 
 - [ ] **¿Se reutiliza `apps/web` (Next) o se rehace contra el diseño?** Hoy se implementa *dentro* de
-  `apps/web` para aprovechar las consultas y el canónico. Pregunta para David en
-  `ESPECIFICACION.md` («Decisiones de diseño que hay que confirmar»).
+  `apps/web` para aprovechar las consultas y el canónico. Es la decisión que más condiciona las
+  siguientes pantallas. Pregunta para David en `DECISIONES.md` y `ESPECIFICACION.md`.
 - [ ] **¿Cuántas de las 22 pantallas entran en la primera tanda?** Mientras no se decida, se hace una
-  cada vez, empezando por la 2.
-- [ ] **¿`V-E-D` o `G-E-P`?** El prototipo usa las dos (Inicio `V-E-D`, Competición `G-E-P`). Mientras
-  no se decida, la pantalla 2 usa `G-E-P`, que es lo que enseña el prototipo en esa pantalla.
+  cada vez; la 2 ya tiene primera versión.
+- [ ] **¿`V-E-D` o `G-E-P`?** El prototipo usa las dos (Inicio `V-E-D`, Competición `G-E-P`). La
+  pantalla 2 usa `G-E-P`; si se elige `V-E-D`, se cambia en la cabecera de la tabla y en las rachas.

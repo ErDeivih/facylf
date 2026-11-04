@@ -35,6 +35,10 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;
+  /* Radio de las tarjetas del diseño REAL (prototipo de las 22 pantallas): 14 px. Los tres de arriba
+     son la escala general; las pantallas nuevas siguen el prototipo, así que el radio de tarjeta vive
+     aquí en vez de escribirse a mano en cada componente. */
+  --radius-tarjeta: 14px;
 }
 
 /* --- Roles semánticos. Esto es lo que usan los componentes. ------------------- */

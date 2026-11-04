@@ -35,12 +35,14 @@ Las 22 pantallas, por si hace falta localizar una: Inicio · Competición · Act
 
 ## Objetivo 1 — Que no tenga errores (sigue siendo lo primero)
 
-`pnpm test` devuelve hoy `ELIFECYCLE Test failed`.
+`pnpm test` devuelve hoy `ELIFECYCLE Test failed`. **Hecho el 2026-11-04**: la suite está en verde
+(633 de 634, 0 fallos; la única «saltada» ya lo estaba). El diagnóstico completo, prueba por prueba y
+con su veredicto (fallo real o deuda conocida), está en [`INFORME-PRUEBAS.md`](INFORME-PRUEBAS.md).
 
-- [ ] Identificar qué prueba falla y por qué, una por una
-- [ ] Registrarlo en un fichero
-- [ ] Arreglarlas o marcar la deuda conocida
-- [ ] Suite en verde antes de tocar la plataforma
+- [x] Identificar qué prueba falla y por qué, una por una
+- [x] Registrarlo en un fichero
+- [x] Arreglarlas o marcar la deuda conocida
+- [x] Suite en verde antes de tocar la plataforma
 
 ## Objetivo 2 — Reparto de la ingesta: PC y servidor **por temporadas**
 
@@ -55,9 +57,14 @@ Las 22 pantallas, por si hace falta localizar una: Inicio · Competición · Act
 
 ## Objetivo 3 — La plataforma, contra el diseño
 
-- [ ] Elegir la primera pantalla: **la clasificación** (`2 · Competición`), que es la que más valor da y la que más enseña del sistema visual
-- [ ] Inventariar los datos reales que hacen falta para esa pantalla
-- [ ] Implementar solo CyL, que es la implementación de referencia
+- [x] Elegir la primera pantalla: **la clasificación** (`2 · Competición`), que es la que más valor da y la que más enseña del sistema visual
+- [x] Inventariar los datos reales que hacen falta para esa pantalla
+- [ ] Implementar solo CyL, que es la implementación de referencia — **primera versión hecha el
+  2026-11-04** en `/explorar/competicion/[id]` (clasificación, jornada y goleadores con datos reales
+  del grupo 797 del canónico). Faltan: las pestañas Jornadas/Goleadores/Disciplina/Equipos, el
+  conmutador Casa/Fuera (necesita proyección por condición) y la cabecera común del sitio
+  (etapa W1). Decisiones en [`DECISIONES.md`](DECISIONES.md); captura en
+  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-cyl-2026-11-04.png).
 
 ## Familia y recetas
 
