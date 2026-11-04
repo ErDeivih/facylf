@@ -1,7 +1,7 @@
 # Ficha del agente — FACYLF — plataforma de futbol federado de Castilla y Leon
 
 **Id en el panel**: `facylf`
-**Ruta**: `F:\EspacioCodigo\facylf`
+**Ruta**: `F:\Proyectos\facylf`
 **Rama de trabajo**: `fase-c`
 **Familia de interfaz**: A (panel de datos) + D (catalogo) — ver `F:\Inforepositorios\indice\RECETAS-UI.md`
 
