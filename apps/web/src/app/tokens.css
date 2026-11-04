@@ -6,6 +6,8 @@
 @theme {
   --color-tinta-950: oklch(0.18 0.012 250);
   --color-tinta-900: oklch(0.24 0.012 250);
+  /* Superficie de la cabecera del prototipo (#11181F) y de su caja de búsqueda (#1E2A35). */
+  --color-tinta-850: oklch(0.28 0.012 250);
   --color-tinta-800: oklch(0.32 0.011 250);
   --color-tinta-700: oklch(0.41 0.010 250);
   --color-tinta-600: oklch(0.50 0.010 250);
@@ -28,13 +30,36 @@
   --color-rojo-600:    oklch(0.55 0.170 27);
   --color-rojo-500:    oklch(0.68 0.150 27);
   --color-violeta-600: oklch(0.55 0.130 300);
+  /* Azul de la franja «fase de ascenso» del prototipo: no es un segundo acento de producto, es el
+     color de una zona de la clasificación y sólo se usa ahí (ver los roles --zona-*). */
+  --color-azul-600:    oklch(0.60 0.135 250);
+  --color-azul-500:    oklch(0.70 0.120 250);
 
   --font-sans:   'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-numero: 'Inter Variable', ui-monospace, 'SF Mono', monospace;
 
+  /* Escala tipográfica corta, con rol. Las pantallas nuevas usan estas utilidades (`text-tabla`…) y no
+     tamaños sueltos: el prototipo usa seis tamaños, no los once que había repartidos por el código. */
+  --text-etiqueta: 0.6875rem;
+  --text-etiqueta--line-height: 1.2;
+  --text-nota: 0.75rem;
+  --text-nota--line-height: 1.4;
+  --text-tabla: 0.8125rem;
+  --text-tabla--line-height: 1.35;
+  --text-cuerpo: 0.9375rem;
+  --text-cuerpo--line-height: 1.55;
+  --text-bloque: 1rem;
+  --text-bloque--line-height: 1.3;
+  --text-dato: 1.0625rem;
+  --text-dato--line-height: 1.1;
+  --text-titulo: 1.5rem;
+  --text-titulo--line-height: 1.2;
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;
+  /* Controles del prototipo (desplegables y botones de 44 px): 8 px. */
+  --radius-control: 8px;
   /* Radio de las tarjetas del diseño REAL (prototipo de las 22 pantallas): 14 px. Los tres de arriba
      son la escala general; las pantallas nuevas siguen el prototipo, así que el radio de tarjeta vive
      aquí en vez de escribirse a mano en cada componente. */
@@ -73,6 +98,24 @@
      ilegibles cuando el panel no era oscuro. */
   --texto-inverso: var(--color-tinta-50);
 
+  /* Superficie FUERTE del producto: la barra superior del prototipo y la insignia del marcador. Es
+     oscura en los DOS temas (por eso no se deriva de --texto-inverso, que se invierte con el tema). */
+  --fondo-fuerte:        var(--color-tinta-950);
+  --fondo-fuerte-suave:  var(--color-tinta-850);
+  --texto-fuerte:        var(--color-tinta-50);
+  --texto-fuerte-suave:  var(--color-tinta-300);
+  --borde-fuerte-tema:   var(--color-tinta-800);
+
+  /* Zonas de la clasificación: cuatro significados, cuatro roles. No se usan para otra cosa. */
+  --zona-ascenso:        var(--color-verde-600);
+  --zona-fase-ascenso:   var(--color-azul-600);
+  --zona-permanencia:    var(--color-ambar-600);
+  --zona-descenso:       var(--color-rojo-600);
+
+  /* Sombra mínima del segmento seleccionado (Total/Casa/Fuera). No eleva una tarjeta en flujo: marca
+     qué opción del control está activa, igual que el prototipo. */
+  --sombra-segmento: 0 1px 2px oklch(0.18 0.012 250 / 0.16);
+
   /* Escala del mapa de calor de puntos (0, 5, 15 y 30 puntos). Se DERIVA del rojo semántico: no es una
      paleta aparte, es el mismo rojo en cuatro intensidades. */
   --calor-0: var(--color-tinta-100);
@@ -96,12 +139,16 @@
   --fila:    2.25rem;
   --celda-x: 0.75rem;
   --celda-y: 0.5rem;
+  /* Filas de la clasificación del prototipo (42 px). Se separa de `--fila` porque la tabla densa del
+     prototipo es más alta que las tablas cómodas de la web vieja, y la densidad sigue mandando. */
+  --fila-densa: 2.625rem;
 }
 
 :root[data-densidad="compacta"] {
   --fila:    1.75rem;
   --celda-x: 0.5rem;
   --celda-y: 0.25rem;
+  --fila-densa: 2rem;
 }
 
 /* El tema se resuelve en el servidor desde una cookie y se escribe en <html data-tema>.
@@ -110,7 +157,9 @@
   color-scheme: dark;
 
   --fondo:         var(--color-tinta-950);
-  --fondo-elevado: var(--color-tinta-900);
+  /* En oscuro las superficies se separan por luminosidad: fondo 0.18 < cabecera 0.24 < tarjeta 0.28
+     < relleno sutil 0.32. Así la pastilla de la sección activa se sigue viendo sobre la cabecera. */
+  --fondo-elevado: var(--color-tinta-850);
   --fondo-sutil:   var(--color-tinta-800);
   --borde:         var(--color-tinta-800);
   --borde-fuerte:  var(--color-tinta-600);
@@ -133,6 +182,22 @@
 
   /* En oscuro, el texto sobre superficie fuerte es oscuro: la superficie fuerte ya es clara. */
   --texto-inverso: var(--color-tinta-950);
+
+  /* La cabecera sigue siendo la superficie más oscura del producto: en tema oscuro se separa del fondo
+     con un peldaño más claro, no con una sombra. */
+  --fondo-fuerte:       var(--color-tinta-900);
+  --fondo-fuerte-suave: var(--color-tinta-800);
+  --texto-fuerte:       var(--color-tinta-50);
+  --texto-fuerte-suave: var(--color-tinta-300);
+  --borde-fuerte-tema:  var(--color-tinta-700);
+
+  --zona-ascenso:      var(--color-verde-500);
+  --zona-fase-ascenso: var(--color-azul-500);
+  --zona-permanencia:  var(--color-ambar-500);
+  --zona-descenso:     var(--color-rojo-500);
+
+  --sombra-segmento: 0 1px 2px oklch(0 0 0 / 0.45);
+
   --calor-0: var(--color-tinta-800);
   --calor-1: color-mix(in oklab, var(--color-rojo-500) 38%, black);
   --calor-2: color-mix(in oklab, var(--color-rojo-500) 66%, black);

@@ -286,6 +286,31 @@ Comparación de la misma suite:
 
 
 
+## Nota del 04/11/2026 (tarde): una segunda pasada de la suite chocó con restos de la federación `pruebas`
+
+Después de terminar la pantalla 2 se volvió a ejecutar `pnpm test` y `packages/canonico/test/lote.test.ts`
+falló **en la limpieza**, no en una aserción:
+
+```
+error: update or delete on table "team_season" violates foreign key constraint
+"team_entry_team_season_id_fkey" on table "team_entry"
+  → limpiaCanonico  packages/canonico/test/lote.test.ts:199
+```
+
+Diagnóstico: quedaron en el canónico dos `team_entry` de una ejecución anterior cuya inscripción
+(`phase_group`) no colgaba de la federación `pruebas` por la vía que usa la limpieza, mientras su
+`team_season` sí colgaba de un club de `pruebas`. La limpieza borra por federación de la edición y por
+federación del club, así que esos restos no se alcanzaban y el borrado de `team_season` fallaba. Es
+exactamente el punto 4 de la deuda de abajo (limpieza duplicada y divergida) más el 5 (la proyección
+proyecta los grupos de pruebas).
+
+Qué se hizo: **no se tocó ninguna aserción**. Se comprobó que no había restos tras lanzar
+`lote.test.ts` solo (34/34 en verde, 520 s) y se repitió la suite completa sobre la federación de
+pruebas limpia. Queda como deuda: una única función de limpieza que borre también por
+`team_season`/club y que la proyección de lectura excluya `pruebas` de raíz.
+
+---
+
 ## Notas de entorno para la próxima sesión
 
 - La base canónica es **grande de verdad** (32 GB, 2,28 M personas): cualquier consulta de prueba que

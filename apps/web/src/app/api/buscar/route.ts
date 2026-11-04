@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { BUSQUEDA_POR_NOMBRE } from '@/consultas/entidades';
 import type { FilaBusqueda } from '@/consultas/entidades';
+import { resultadoDeSugerencia } from '@/lib/sugerencias';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,9 @@ export const dynamic = 'force-dynamic';
  * devuelve «sin resultados»**. Devolver una lista vacía con un 200 diría «no hay ningún club ni
  * jugador que se llame así», que es una afirmación falsa: lo que pasa es que no se ha podido
  * preguntar. Se devuelve 503 y el cuadro se queda sin desplegar, que es la verdad.
+ *
+ * La conversión de cada fila a sugerencia vive en `lib/sugerencias.ts`, donde también se aplica la
+ * regla de los menores de edad (`es_menor`) y se puede probar sin base de datos. Aquí sólo se mapea.
  */
 
 const SUGERENCIAS = 8;
@@ -58,15 +62,6 @@ export async function GET(request: Request) {
   return NextResponse.json({
     total: filas[0]?.total ?? 0,
     cuenta,
-    resultados: filas.map((f) => ({
-      tipo: f.tipo,
-      titulo: f.nombre,
-      subtitulo: [f.federacion_nombre, f.contexto].filter(Boolean).join(' · ') || 'Sin contexto en el canónico',
-      // El contexto ya va en el subtítulo; aquí va el aviso de identidad, que es lo que cambia cómo se
-      // debe leer el resultado: una identidad nominal no es una persona confirmada.
-      meta: f.tipo === 'jugador' && f.identidad_nominal ? 'identidad nominal' : '',
-      url: f.tipo === 'club' ? `/club/${f.entidad_id}` : `/jugador/${f.entidad_id}`,
-      territorio: f.federacion_nombre ?? '',
-    })),
+    resultados: filas.map(resultadoDeSugerencia),
   });
 }

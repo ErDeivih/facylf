@@ -61,10 +61,16 @@ con su veredicto (fallo real o deuda conocida), está en [`INFORME-PRUEBAS.md`](
 - [x] Inventariar los datos reales que hacen falta para esa pantalla
 - [ ] Implementar solo CyL, que es la implementación de referencia — **primera versión hecha el
   2026-11-04** en `/explorar/competicion/[id]` (clasificación, jornada y goleadores con datos reales
-  del grupo 797 del canónico). Faltan: las pestañas Jornadas/Goleadores/Disciplina/Equipos, el
-  conmutador Casa/Fuera (necesita proyección por condición) y la cabecera común del sitio
-  (etapa W1). Decisiones en [`DECISIONES.md`](DECISIONES.md); captura en
-  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-cyl-2026-11-04.png).
+  del grupo 797 del canónico). **Terminada contra el prototipo el 04/11/2026**: tokens nuevos del
+  sistema de diseño, tipografía Inter autoalojada, cabecera común del sitio, tabla responsiva con la
+  primera columna fija, migas con el nombre corto real de la federación, estados vacío/parcial/carga y
+  404 correcto bajo `Suspense`, y arreglado el fallo de goles reconstruidos mezclados de dos jornadas.
+  Evidencia: [`SPEC-PANTALLA-2.md`](docs/plataforma-web/SPEC-PANTALLA-2.md) y
+  [`DECISIONES.md`](DECISIONES.md) (decisiones 10-19); capturas en
+  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-04.png).
+  Faltan: las pestañas Jornadas/Goleadores/Disciplina/Equipos, el conmutador Casa/Fuera (necesita
+  proyección por condición) y el interruptor de tema (el atributo `data-tema` está definido pero
+  ninguna pantalla lo escribe).
 
 ## Familia y recetas
 
@@ -95,3 +101,27 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\registrar-tarea-flot
 - **Lo que sí se reutiliza**: contratos de API, consultas, la ingesta y todo lo que no sea presentación. Si `apps/web` tiene lógica de datos que funciona, se conserva.
 - Criterio: si un componente viejo ahorra más de lo que estorba, se adapta al sistema de diseño; si no, se rehace. Se decide componente a componente, no en bloque.
 
+## Decision de coordinacion (2026-11-04, tarde) — panel con progreso de CyL
+
+David quiere ver en el dashboard, sin preguntar:
+
+1. **Estimación de lo que queda para terminar CyL entero**: cuántas competiciones
+   hay, cuántas están completas y qué porcentaje falta. En números y en una frase.
+2. **Desglose por temporada**: por cada temporada, qué está hecho y qué falta.
+3. **Ritmo de peticiones en ese momento**, separado entre lo que hace el PC y lo
+   que hace el servidor. Un número por minuto, no una media histórica.
+
+Se publica en `F:\Proyectos\facylf\metricas-facylf.json` con esta forma, y el
+panel lo lee (nada de que el panel calcule: el proyecto lo mide).
+
+```json
+{"cyl": {"competiciones_total": 0, "completas": 0, "porcentaje": 0},
+ "temporadas": [{"temporada": "2025-26", "hecho": 0, "total": 0}],
+ "ritmo": {"pc_por_min": 0, "servidor_por_min": 0, "medido": "AAAA-MM-DDTHH:MM"}}
+```
+
+## Decision de coordinacion (2026-11-04, tarde) — otras dos decisiones
+
+- **Forma del equipo**: se usa **V-E-D** (Victoria/Empate/Derrota) en la aplicación,
+  que es lo que entiende cualquiera. El prototipo mezcla V-E-D y G-E-P; se unifica a V-E-D.
+- **Tema claro/oscuro**: **sí entra** en esta tanda. El sistema de diseño ya lo tiene.

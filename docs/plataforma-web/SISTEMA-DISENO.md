@@ -153,6 +153,27 @@ y las páginas antiguas que las usan siguen pendientes de migrar. Reglas: no se 
 no se añade un alias nuevo, y cuando se migre la última página que lo usa la capa se borra **entera**
 en el mismo cambio.
 
+**Tokens añadidos el 04/11/2026 con la pantalla 2 y la cabecera común** (el fichero manda; esto es el
+registro de qué se añadió y por qué):
+
+- **Superficies fuertes** (`--fondo-fuerte`, `--fondo-fuerte-suave`, `--texto-fuerte`,
+  `--texto-fuerte-suave`, `--borde-fuerte-tema`): la barra superior y la insignia del marcador son
+  oscuras en los **dos** temas, así que no pueden derivarse de `--texto-inverso` (que se invierte).
+  En oscuro las superficies se separan por luminosidad (fondo 0.18 < cabecera 0.24 < tarjeta 0.28 <
+  relleno 0.32) para que la pastilla de la sección activa siga viéndose.
+- **Zonas de clasificación** (`--zona-ascenso`, `--zona-fase-ascenso`, `--zona-permanencia`,
+  `--zona-descenso`): cuatro significados de una tabla concreta, con un `--color-azul-600` crudo para
+  la fase de ascenso. No sustituyen a victoria/empate/derrota (esos son resultados de un partido).
+- **Escala tipográfica corta**: `--text-etiqueta` (0.6875), `--text-nota` (0.75), `--text-tabla`
+  (0.8125), `--text-cuerpo` (0.9375), `--text-bloque` (1), `--text-dato` (1.0625), `--text-titulo`
+  (1.5), con sus interlineados. Sustituye a los tamaños sueltos (`text-[13px]`…) de las pantallas
+  nuevas.
+- **`--radius-control`** (8 px): desplegables y botones de 44 px del prototipo.
+- **`--fila-densa`** (2.625rem cómoda / 2rem compacta): alto de fila de la clasificación, separado de
+  `--fila` para que la densidad siga mandando sin cambiar las tablas antiguas.
+- **`--sombra-segmento`**: la sombra mínima del segmento activo (Total/Casa/Fuera); no eleva tarjetas
+  en flujo.
+
 Los componentes anteriores a la decisión de §1 contienen además colores literales (`bg-white`,
 `#D6D6D4`, `#5C646C`, `#C6892B`, `#FAFBFA`) que §2 prohíbe. No es una excepción: es la deuda del
 rediseño descrito en [TRASPASO-AGENTE.md](TRASPASO-AGENTE.md) §4(D) y desaparece al migrar cada
@@ -234,6 +255,19 @@ servicio, y para que la próxima revisión empiece por decidir si se usan o se r
 Quedan por escribir, y no existen hoy: `Marcador`, `LineaPartido`, `Alineacion`, `IdentidadPersona` y
 `Escudo` del bloque de dominio, y `Cascara`, `BarraContexto`, `Miga`, `NavInferior` y `HojaFiltros`
 del de estructura.
+
+**Actualizado el 04/11/2026 con la pantalla 2.** Existen y están en uso, aunque no como «Cascara»
+completa: `CabeceraSitio` (barra superior según el tablero «Cabecera», pieza pura),
+`CabeceraSitioActiva` (la sección activa con `usePathname`), el `Buscador` adaptado a la superficie
+fuerte y `Escudo` (marcador de posición determinista: iniciales sobre color derivado del id, 22×24,
+`aria-hidden`; no es la identidad del club). La `Miga` de las pantallas nuevas sigue escrita dentro de
+la página de competición; se extraerá cuando haya una segunda pantalla que la use. `Cascara` completa
+(cabecera + contenedor + pie) sigue pendiente: hoy el ancho máximo lo comparten `layout.tsx` (1280 con
+20 px de relleno = 1240 interiores) y cada página.
+
+La tabla `TablaResponsiva` está implementada **dentro** de `Clasificacion` (contenedor con
+`data-tabla-scroll`, `tabIndex=0`, `role=region` y las dos primeras columnas fijas); se extraerá a
+componente propio cuando la use una segunda tabla.
 
 ### Estructura
 
@@ -336,6 +370,15 @@ Una pantalla no está terminada hasta que:
 6. ningún número se muestra sin `tabular-nums` si comparte columna con otros;
 7. ningún dato ausente aparece como cero;
 8. con un nombre de 45 caracteres no rompe ninguna tabla.
+
+**Cómo se comprueba hoy** (04/11/2026): la pantalla 2 tiene su prueba de flujo con navegador real,
+`apps/web/e2e/pantalla-2.spec.ts`, que cubre los puntos 1, 3, 4, 6 y 7 en móvil (360) y escritorio
+(1280), más los 404 y los datos reales. Si ya hay un `next dev` en marcha se le apunta con
+`PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` (Next 16 no permite dos servidores de desarrollo en el
+mismo directorio). El punto 2 (tema claro/oscuro y densidad) se mide forzando `data-tema` y
+`data-densidad`, porque **el sitio todavía no tiene interruptor**: es deuda anotada en `BACKLOG.md`.
+El punto 5 (estado de carga) se resuelve con `Suspense` dentro de la página y esqueleto de las mismas
+dimensiones; el 404 se mantiene porque no hay `loading.tsx` de ruta por encima de la validación.
 
 ## 11. Elevación, capas, foco e iconografía
 

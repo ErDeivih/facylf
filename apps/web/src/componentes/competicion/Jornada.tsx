@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
+import { marcadorDePartido } from '@/lib/pantalla-competicion';
 
 /**
  * Tarjeta de la jornada del prototipo: resultados de una jornada con sus flechas para moverse.
  *
  * Un partido sin marcador se enseña como «—», nunca como 0-0: son cosas distintas y confundirlas
- * convierte una jornada sin datos en una jornada con todos los partidos empatados a cero.
+ * convierte una jornada sin datos en una jornada con todos los partidos empatados a cero. Si la
+ * federación publicó la hora, se enseña la hora; si no, el guion con su texto accesible.
  */
 export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
   numero: number | null;
@@ -14,60 +16,64 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
   hrefAnterior: string | null;
   hrefSiguiente: string | null;
 }) {
+  const flecha = 'flex size-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg';
   return (
     <section aria-labelledby="jornada"
       className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex items-center justify-between py-2.5 pr-2.5 pl-4">
-        <h2 id="jornada" className="m-0 text-base font-bold text-[var(--texto)]">
+        <h2 id="jornada" className="m-0 text-bloque font-bold text-[var(--texto)]">
           {numero !== null ? `Jornada ${numero}` : 'Jornada'}
         </h2>
         <div className="flex gap-1">
           {hrefAnterior
             ? (
               <Link href={hrefAnterior as Route} aria-label="Jornada anterior"
-                className="flex size-11 items-center justify-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg text-[var(--texto-suave)]">
+                className={`${flecha} text-[var(--texto-suave)]`}>
                 ‹
               </Link>
             )
             : (
-              <span aria-hidden="true"
-                className="flex size-11 cursor-not-allowed items-center justify-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg text-[var(--texto-tenue)]">‹</span>
+              <span aria-disabled="true" title="No hay jornada anterior publicada"
+                className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>‹</span>
             )}
           {hrefSiguiente
             ? (
               <Link href={hrefSiguiente as Route} aria-label="Jornada siguiente"
-                className="flex size-11 items-center justify-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg text-[var(--texto-suave)]">
+                className={`${flecha} text-[var(--texto-suave)]`}>
                 ›
               </Link>
             )
             : (
-              <span aria-hidden="true"
-                className="flex size-11 cursor-not-allowed items-center justify-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg text-[var(--texto-tenue)]">›</span>
+              <span aria-disabled="true" title="No hay jornada siguiente publicada"
+                className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>›</span>
             )}
         </div>
       </div>
       {partidos.length === 0
         ? (
-          <p className="border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-[13px] text-[var(--texto-suave)]">
+          <p className="border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">
             Esta jornada no tiene partidos publicados en el canónico.
           </p>
         )
         : (
           <ul>
             {partidos.map((p) => {
-              const jugado = p.goles_local !== null && p.goles_visitante !== null;
+              const marcador = marcadorDePartido(p);
+              const ganaLocal = marcador.jugado && (p.goles_local ?? 0) > (p.goles_visitante ?? 0);
+              const ganaVisitante = marcador.jugado && (p.goles_visitante ?? 0) > (p.goles_local ?? 0);
               return (
                 <li key={p.match_id}
-                  className="grid min-h-11 grid-cols-[minmax(0,1fr)_58px_minmax(0,1fr)] items-center gap-2 border-t border-[var(--fondo-sutil)] px-3.5 py-2 text-[13px] text-[var(--texto)]">
-                  <span className="truncate text-right" title={p.local}>{p.local}</span>
+                  className="grid min-h-11 grid-cols-[minmax(0,1fr)_58px_minmax(0,1fr)] items-center gap-2 border-t border-[var(--fondo-sutil)] px-3.5 py-2 text-tabla text-[var(--texto)]">
+                  <span className={`truncate text-right ${ganaLocal ? 'font-bold' : 'font-medium'}`} title={p.local}>{p.local}</span>
                   <span
-                    title={jugado ? `${p.goles_local}-${p.goles_visitante}` : 'Sin resultado publicado'}
-                    className={jugado
-                      ? 'rounded-[var(--radius-md)] bg-[var(--color-tinta-900)] py-0.5 text-center text-xs font-semibold text-white'
-                      : 'rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-0.5 text-center text-xs font-semibold text-[var(--texto-suave)]'}>
-                    {jugado ? `${p.goles_local} - ${p.goles_visitante}` : '—'}
+                    title={marcador.accesible}
+                    className={marcador.jugado
+                      ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)]'
+                      : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)]'}>
+                    {marcador.texto}
+                    <span className="sr-only">, {marcador.accesible}</span>
                   </span>
-                  <span className="truncate" title={p.visitante}>{p.visitante}</span>
+                  <span className={`truncate ${ganaVisitante ? 'font-bold' : 'font-medium'}`} title={p.visitante}>{p.visitante}</span>
                 </li>
               );
             })}

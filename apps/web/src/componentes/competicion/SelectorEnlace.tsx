@@ -25,7 +25,7 @@ export function SelectorEnlace({ etiqueta, id, valorActual, opciones }: {
         const elegida = opciones.find((o) => o.valor === e.target.value);
         if (elegida) router.push(elegida.href as Route);
       }}
-      className="h-11 rounded-[var(--radius-md)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-2.5 text-sm font-semibold text-[var(--texto)]"
+      className="h-11 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-2.5 text-tabla font-semibold text-[var(--texto)]"
     >
       {opciones.map((o) => <option key={o.valor} value={o.valor}>{o.texto}</option>)}
     </select>

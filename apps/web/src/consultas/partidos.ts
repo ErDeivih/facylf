@@ -14,6 +14,16 @@ export type FilaPartidoCanonico = {
   jornada: number;
   orden: number;
   fecha: string | null;
+  /**
+   * Hora de comienzo publicada (`HH24:MI`), o `null` si la federación no la confirmó. En el canónico
+   * no hay columna de hora: `core.match.hora_confirmada` es un booleano y `fecha_prevista` es una
+   * fecha. La hora vive en `played_at`, que el importador rellena con fecha+hora sólo cuando la fuente
+   * publica la hora (ver `packages/canonico/src/lote.ts`). Sin ese dato no se inventa un 00:00.
+   */
+  hora: string | null;
+  /** Ids de inscripción de los dos equipos: hacen falta para calcular la forma desde los partidos. */
+  local_id: number;
+  visitante_id: number;
   local: string;
   visitante: string;
   goles_local: number | null;
@@ -26,16 +36,25 @@ export type FilaPartidoCanonico = {
 
 export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
   nombre: 'partidos-de-grupo',
-  descripcion: 'Partidos de un grupo importado, con marcador —o su ausencia—, campo, árbitro y calidad del acta.',
+  descripcion: 'Partidos de un grupo importado, con marcador —o su ausencia—, hora publicada, campo, árbitro y calidad del acta.',
   plan: 'indexado',
   presupuestoMs: 800,
-  columnas: ['match_id', 'jornada', 'orden', 'fecha', 'local', 'visitante', 'goles_local', 'goles_visitante',
-    'campo', 'arbitro', 'calidad_acta', 'estado'],
+  columnas: ['match_id', 'jornada', 'orden', 'fecha', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
+    'goles_local', 'goles_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
   sql: `
     select m.id                      as match_id,
            d.numero                  as jornada,
            m.source_order            as orden,
            to_char(m.played_at, 'YYYY-MM-DD') as fecha,
+           case
+             when m.hora_confirmada and m.played_at is not null
+               -- La hora se publica en hora local española y el importador la guarda tal cual sobre
+               -- played_at (que es timestamptz). Se fija UTC para no depender del huso de la sesión:
+               -- leerla en Europe/Madrid sumaría dos horas a la hora que publicó la federación.
+               then to_char(m.played_at at time zone 'UTC', 'HH24:MI')
+           end                       as hora,
+           el.id                     as local_id,
+           ev.id                     as visitante_id,
            el.nombre_en_fuente       as local,
            ev.nombre_en_fuente       as visitante,
            m.goles_local,

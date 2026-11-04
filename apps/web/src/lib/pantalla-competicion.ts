@@ -6,6 +6,9 @@
  * dato) y una prueba tiene que poder fijarlas sin renderizar la página.
  */
 
+import { etiquetaAmbito, etiquetaCategoria, etiquetaDivision, etiquetaModalidad } from './vocabulario-pantalla';
+import { TEMPORADA_MINIMA } from './temporadas';
+
 /** Las cuatro franjas del prototipo. `null` = sin zona asignada. */
 export type ZonaPantalla = 'asciende' | 'fase-ascenso' | 'permanencia' | 'desciende' | null;
 
@@ -57,20 +60,69 @@ export function formaDe(ultimos5: string | null | undefined): Array<'G' | 'E' | 
   return (ultimos5 ?? '').toUpperCase().split('').filter((c): c is 'G' | 'E' | 'P' => c === 'G' || c === 'E' || c === 'P');
 }
 
-/** Clases del color de una insignia de forma, del vocabulario del sistema de diseño. */
-export function claseForma(letra: 'G' | 'E' | 'P'): string {
-  if (letra === 'G') return 'bg-[var(--victoria)]';
-  if (letra === 'P') return 'bg-[var(--derrota)]';
-  return 'bg-[var(--empate)]';
+/** Lo mínimo que necesita un partido para calcular la forma de un equipo. */
+export type PartidoParaForma = {
+  jornada: number;
+  local_id: number;
+  visitante_id: number;
+  goles_local: number | null;
+  goles_visitante: number | null;
+};
+
+/**
+ * Forma de un equipo HASTA la jornada de la tabla, del partido más antiguo al más reciente y como máximo
+ * cinco.
+ *
+ * Por qué no se usa `rachas-del-grupo`: esa consulta cuenta todos los partidos con resultado del grupo,
+ * y la clasificación que se enseña puede ser la foto de una jornada anterior (en el grupo 3769 la tabla
+ * oficial es de la jornada 2 y el grupo ya lleva 4 jugadas). Mezclar las dos coberturas en la misma fila
+ * es el fallo I2 del QA: «PJ 2» junto a cuatro insignias. Aquí la ventana es la misma que la de la tabla.
+ *
+ * Un partido sin resultado publicado no se cuenta (ni como empate ni como derrota): no se inventa.
+ */
+export function formaHasta(
+  partidos: readonly PartidoParaForma[],
+  equipoId: number,
+  jornadaMaxima: number,
+): Array<'G' | 'E' | 'P'> {
+  return partidos
+    .filter((p) => p.jornada <= jornadaMaxima
+      && p.goles_local !== null && p.goles_visitante !== null
+      && (p.local_id === equipoId || p.visitante_id === equipoId))
+    // `filter` ya devuelve un array nuevo; el `sort` es estable, así que dentro de una jornada se
+    // conserva el orden de la consulta (source_order).
+    .sort((a, b) => a.jornada - b.jornada)
+    .slice(-5)
+    .map((p): 'G' | 'E' | 'P' => {
+      const gf = p.local_id === equipoId ? p.goles_local! : p.goles_visitante!;
+      const gc = p.local_id === equipoId ? p.goles_visitante! : p.goles_local!;
+      return gf > gc ? 'G' : gf < gc ? 'P' : 'E';
+    });
+}
+
+/**
+ * Colores de una insignia de forma (G/E/P).
+ *
+ * No se usa el token tal cual como fondo: medido, el verde de `--victoria` con texto casi blanco da
+ * 4,16:1 y el ámbar 3:1, por debajo del 4,5 que exige AA para una letra de 10 px. Se oscurece el token
+ * mezclándolo con la superficie fuerte del producto (`color-mix` en oklab, que conserva el tono) hasta
+ * que el texto blanco se lee: el peor caso medido queda en 5,1:1 en tema oscuro.
+ */
+export function estiloForma(letra: 'G' | 'E' | 'P'): { backgroundColor: string; color: string } {
+  const base = letra === 'G' ? 'var(--victoria)' : letra === 'P' ? 'var(--derrota)' : 'var(--empate)';
+  return {
+    backgroundColor: `color-mix(in oklab, ${base} 60%, var(--fondo-fuerte))`,
+    color: 'var(--texto-fuerte)',
+  };
 }
 
 /** Clases del color de una franja de zona. */
 export function claseZona(zona: ZonaPantalla): string {
   switch (zona) {
-    case 'asciende': return 'bg-[var(--victoria)]';
-    case 'fase-ascenso': return 'bg-[var(--foco)]';
-    case 'permanencia': return 'bg-[var(--amarilla)]';
-    case 'desciende': return 'bg-[var(--derrota)]';
+    case 'asciende': return 'bg-[var(--zona-ascenso)]';
+    case 'fase-ascenso': return 'bg-[var(--zona-fase-ascenso)]';
+    case 'permanencia': return 'bg-[var(--zona-permanencia)]';
+    case 'desciende': return 'bg-[var(--zona-descenso)]';
     default: return 'bg-transparent';
   }
 }
@@ -116,4 +168,122 @@ export function golesDeLaFila(f: GolesDeFila, usarReconstruccion: boolean): stri
     return `${f.goles_favor_reconstruida}:${f.goles_contra_reconstruida}`;
   }
   return `${f.goles_favor}:${f.goles_contra}`;
+}
+
+/**
+ * `true` sólo si TODAS las filas traen reconstrucción de goles: si falta en alguna, la pantalla no
+ * puede decir «estos son los goles de la jornada» porque no lo son.
+ */
+export function hayReconstruccionCompleta(filas: readonly GolesDeFila[]): boolean {
+  return filas.length > 0
+    && filas.every((f) => f.goles_favor_reconstruida !== null && f.goles_contra_reconstruida !== null);
+}
+
+/*
+ * ── EL ESCUDO NO ES LA IDENTIDAD DEL CLUB ─────────────────────────────────────────────────────────────
+ *
+ * SISTEMA-DISENO §5: el escudo de club, cuando no hay imagen, es un marcador de posición determinista
+ * (iniciales sobre un color derivado del identificador). No es el color del club y la pantalla no lo
+ * presenta como tal. La función es pura para poder probar dos cosas que importan: que el mismo equipo
+ * recibe siempre el mismo color, y que el texto blanco se lee encima (AA, contraste ≥ 4,5).
+ */
+
+/** Ángulo áureo: reparte los tonos de identificadores consecutivos sin amontonarlos. */
+const ANGULO_AUREO = 137.508;
+
+/** Tono (0–360) derivado del identificador del equipo. Determinista y estable entre peticiones. */
+export function tonoDeEquipo(equipoId: number): number {
+  const id = Math.abs(Math.trunc(Number.isFinite(equipoId) ? equipoId : 0));
+  return ((id * ANGULO_AUREO) % 360 + 360) % 360;
+}
+
+/**
+ * Color del marcador de escudo, derivado del id. L=0,42 y C=0,07: se queda dentro de sRGB en toda la
+ * rueda de tono (sin recortes del navegador) y el peor contraste con texto casi blanco medido es 8,8:1.
+ * No es el color real del club.
+ */
+export function colorDeEquipo(equipoId: number): string {
+  return `oklch(0.42 0.07 ${tonoDeEquipo(equipoId).toFixed(1)})`;
+}
+
+/** Lo que enseña la insignia de un partido: resultado, hora publicada o, si no hay nada, un guion. */
+export type MarcadorDePartido = {
+  /** Texto visible. */
+  texto: string;
+  /** Lo que se anuncia a quien usa un lector de pantalla. */
+  accesible: string;
+  jugado: boolean;
+};
+
+/**
+ * Un partido sin marcador NUNCA se pinta 0-0: si la federación publicó la hora, se enseña la hora; si
+ * tampoco, un guion con su texto accesible. Y un marcador a medias (un lado nulo) tampoco se completa
+ * con ceros.
+ */
+export function marcadorDePartido(p: {
+  goles_local: number | null;
+  goles_visitante: number | null;
+  hora: string | null;
+}): MarcadorDePartido {
+  if (p.goles_local !== null && p.goles_visitante !== null) {
+    return {
+      texto: `${p.goles_local} - ${p.goles_visitante}`,
+      accesible: `Resultado ${p.goles_local} a ${p.goles_visitante}`,
+      jugado: true,
+    };
+  }
+  const hora = (p.hora ?? '').trim();
+  if (hora !== '') return { texto: hora, accesible: `${hora}. Sin resultado publicado`, jugado: false };
+  return { texto: '—', accesible: 'Sin resultado publicado', jugado: false };
+}
+
+/**
+ * Título de la pestaña del navegador para la pantalla de competición (hallazgo C7 del QA): sin esto la
+ * pestaña decía siempre el título del sitio y no se distinguía una ficha de otra.
+ */
+export function tituloDeCompeticion(x: { edicion: string; grupo: string }): string {
+  return `${x.edicion} · ${x.grupo} — facylf`;
+}
+
+/** ¿El valor del vocabulario aporta algo, o es uno de los «no se sabe» del esquema? */
+const conocida = (v: string | null | undefined): v is string =>
+  typeof v === 'string' && v !== '' && v !== 'desconocida' && v !== 'desconocido';
+
+/**
+ * Temporadas del desplegable que la web declara publicadas.
+ *
+ * Hallazgo I9 del QA: la consulta devuelve todas las ediciones de la competición (en el grupo 3769,
+ * desde 2013-14) mientras el pie dice «Se publican las temporadas 2023-24 en adelante». Ofrecer una
+ * temporada en el desplegable es prometer que se puede consultar, así que se filtra con la misma ventana
+ * que el pie (`lib/temporadas.ts`), sin tocar la consulta: la pantalla de una temporada antigua sigue
+ * sirviéndose por URL, pero no se ofrece desde la cabecera.
+ */
+export function temporadasPublicables<T extends { temporada: string }>(
+  temporadas: readonly T[],
+  minima: string = TEMPORADA_MINIMA,
+): T[] {
+  return temporadas.filter((t) => t.temporada >= minima);
+}
+
+/**
+ * Subtítulo de la cabecera: categoría · modalidad · ámbito y la división SÓLO si no repite la edición.
+ * Lo que el vocabulario no sabe se omite: no se rellena con «Sin clasificar» dentro de una frase, que
+ * se leería como un dato.
+ */
+export function subtituloCompeticion(x: {
+  categoria: string | null | undefined;
+  modalidad: string | null | undefined;
+  ambito: string | null | undefined;
+  division: string | null | undefined;
+  edicion: string | null | undefined;
+}): string {
+  const normaliza = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const yaLoDiceLaEdicion = (texto: string) => normaliza(x.edicion ?? '').includes(normaliza(texto));
+  const division = conocida(x.division) ? etiquetaDivision(x.division) : '';
+  return [
+    conocida(x.categoria) ? etiquetaCategoria(x.categoria) : '',
+    conocida(x.modalidad) ? etiquetaModalidad(x.modalidad) : '',
+    conocida(x.ambito) ? etiquetaAmbito(x.ambito) : '',
+    division !== '' && !yaLoDiceLaEdicion(division) ? division : '',
+  ].filter((parte) => parte !== '' && parte !== 'Sin clasificar').join(' · ');
 }

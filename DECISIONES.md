@@ -108,7 +108,214 @@ Las de Nivel 3 (alcance, datos, credenciales, dinero, ramas) no se deciden aquí
 
 ---
 
+## 2026-11-04 · Sesión 2 — la pantalla 2 contra el prototipo y la cabecera común
+
+Contrato de la tarea: [`docs/plataforma-web/SPEC-PANTALLA-2.md`](docs/plataforma-web/SPEC-PANTALLA-2.md).
+Sigue la decisión de David del 04/11 (decisión 9): el diseño manda, se reutilizan consultas y no se
+arrastra la interfaz vieja.
+
+### 10. La cabecera común del sitio se rehace ahora, no se espera a W1
+
+- **Qué se hizo**: `componentes/cabecera/CabeceraSitio.tsx` (pieza pura), `CabeceraSitioActiva.tsx`
+  (`usePathname`) y `activo.ts`, según `Cabecera.dc.html`: barra oscura de 64 px, marca, navegación
+  Explorar/Rankings/Ojeo/Comparar, buscador global, estrella, avisos y cuenta. En móvil el buscador
+  baja a su propia fila. El buscador viejo se **adapta** (misma lógica: `/api/buscar`, 2 letras,
+  250 ms, cancelable), no se reescribe.
+- **Por qué**: la pantalla 2 incluye la cabecera en el prototipo y era la pieza que más la separaba de
+  él (estaba en `BACKLOG.md` como la primera diferencia). Esperar a W1 habría dejado la pantalla a
+  medias. Afecta a todas las rutas, también a las viejas, que siguen funcionando dentro del mismo
+  `<main>`.
+- **Lo que no se finge**: Rankings/Ojeo/Comparar no tienen pantalla → `<span aria-disabled>` con
+  motivo; avisos y cuenta no existen → botones desactivados sin contador ni iniciales inventadas (el
+  «3» y el «DP» del prototipo son datos ficticios del diseño y no se copian).
+- **Nivel**: 2.
+
+### 11. Tokens nuevos en vez de valores sueltos
+
+- **Qué se hizo** en `apps/web/src/app/tokens.css`: `--fondo-fuerte`, `--fondo-fuerte-suave`,
+  `--texto-fuerte`, `--texto-fuerte-suave`, `--borde-fuerte-tema` (la cabecera y la insignia del
+  marcador); `--zona-ascenso / -fase-ascenso / -permanencia / -descenso` con su `--color-azul-600`
+  crudo; escala tipográfica corta (`text-etiqueta`, `text-nota`, `text-tabla`, `text-cuerpo`,
+  `text-bloque`, `text-dato`, `text-titulo`); `--radius-control: 8px`; `--fila-densa` (42 px cómoda,
+  32 compacta); `--sombra-segmento`. En tema oscuro las superficies se separan por luminosidad
+  (fondo 0.18 < cabecera 0.24 < tarjeta 0.28 < relleno 0.32) para que la pastilla activa siga
+  viéndose.
+- **Por qué**: la regla de `DESIGN.md` es «si un valor no tiene token, se crea el token», y la pantalla
+  usaba tamaños y colores a mano. Nada de colores literales en los componentes nuevos.
+- **Nivel**: 1.
+
+### 12. Inter Variable, autoalojada, para no incumplir la tipografía del sistema
+
+- **Qué se hizo**: dependencia `@fontsource-variable/inter` en `@facylf/web`, importada en
+  `layout.tsx` antes de `globals.css`. `document.fonts.check('16px "Inter Variable"')` = `true` y
+  ninguna hoja externa.
+- **Por qué**: el sistema de diseño pide una Inter variable con `display: swap` y **prohíbe** una hoja
+  externa de Google Fonts. Hasta ahora `--font-sans` nombraba una fuente que no existía y el producto
+  caía a la del sistema; el prototipo está compuesto en Inter. La dependencia es pequeña, va en el
+  paquete y no añade una petición a otro dominio en la ruta crítica.
+- **Nivel**: 2 (dependencia nueva pequeña y justificada).
+
+### 13. Los goles reconstruidos tienen que ser de la MISMA jornada (fallo real corregido)
+
+- **Qué se encontró**: en el grupo 3769 la tabla oficial es de la jornada 2 (`PJ = 2`) y la consulta
+  cogía los goles reconstruidos de la **jornada 4**: Burgos aparecía con `PJ 2` y `14:2` (sus goles de
+  cuatro partidos). Suma de goles de la reconstrucción: 135 en la jornada 4 frente a 71 en la 2.
+- **Qué se hizo**: el lateral de `CLASIFICACION_DE_LA_PANTALLA` filtra `sr.matchday_id = s.matchday_id`;
+  si esa jornada no tiene reconstrucción, `null` y la tabla enseña «—». La nota al pie distingue tres
+  casos (reconstrucción completa, incompleta y ausente) y dice la jornada. Pruebas de integración
+  contra 3769 (jornada 2) y 797 (jornada 30).
+- **Por qué**: mezclar dos fotos distintas en la misma fila es exactamente la clase de dato falso con
+  pinta de dato que el proyecto prohíbe; y en esta pantalla el prototipo mezcla goles y PJ en la misma
+  fila, así que el error se lee como si fuera real.
+- **Nivel**: 2 (presentación y honestidad del dato, sin cambiar el alcance).
+
+### 14. La hora de un partido sólo se enseña si la federación la publicó
+
+- **Qué se encontró**: `core.match.hora_confirmada` es un **booleano** y `fecha_prevista` una fecha;
+  no hay columna de hora. La hora vive en `played_at`, que el importador rellena con fecha+hora sólo
+  cuando la fuente la publica.
+- **Qué se hizo**: `hora` en `PARTIDOS_DE_GRUPO` = `case when hora_confirmada then to_char(played_at at
+  time zone 'UTC','HH24:MI') end`; si no está confirmada es `null` y la tarjeta pinta «—» con su texto
+  accesible, nunca un 00:00 inventado.
+- **Nivel**: 2.
+
+### 15. El escudo es un marcador de posición determinista, no la identidad del club
+
+- **Qué se hizo**: `componentes/Escudo.tsx` con las iniciales del nombre publicado sobre un tono
+  derivado del id del equipo (ángulo áureo, L=0,42, C=0,07). Mismo id → mismo color; 16 equipos → 16
+  colores; contraste ≥4,5 con el texto; 22×24 fijo para no saltar el layout. `aria-hidden` porque el
+  nombre del equipo va al lado.
+- **Por qué**: `SISTEMA-DISENO` §5 lo define así. En el canónico no hay color de club ni escudo para
+  estos 16 equipos (sólo 1 de 16 tiene imagen en `core.club_asset`), y pintar colores inventados de
+  club sería un dato falso. El distintivo es estable para seguir una fila al desplazar la tabla.
+- **Nivel**: 2.
+
+### 16. Lo que no está, se apaga con su motivo accesible
+
+- **Casa/Fuera**: sigue desactivado con `disabled` y el motivo en `sr-only` (falta la proyección por
+  condición, migración 0051+).
+- **Pestañas Jornadas/Goleadores/Disciplina/Equipos**: desactivadas con `aria-disabled` y motivo.
+- **«Ver todos» de goleadores**: gris y desactivado con título; el ranking completo no tiene pantalla.
+- **Flechas de jornada**: cuando no hay jornada anterior/siguiente, se apagan con borde discontinuo y
+  texto accesible. Se distingue lo desactivado con forma (borde discontinuo) y no con un gris
+  ilegible: `--texto-tenue` (3,94:1) no se usa para texto visible nuevo.
+- **Nivel**: 2.
+
+### 17. Pruebas nuevas y cómo se ejecutan
+
+- **Playwright**: `apps/web/e2e/pantalla-2.spec.ts`, 11 pruebas × 2 proyectos (móvil 360 y escritorio
+  1280) = **22**. Cubre carga real con datos del canónico, cabecera, migas, goles y forma de la misma
+  jornada, nombre de 61 caracteres a 400 px, buscador sin menores con axe abierto, cifras tabulares,
+  400 px con columna fija, 404 y axe.
+- **Cómo se ejecuta**: `pnpm --filter @facylf/web exec playwright test e2e/pantalla-2.spec.ts`. Si ya
+  hay un `next dev` en :3000, se le apunta con `PLAYWRIGHT_BASE_URL=http://localhost:3000` y no se
+  arranca otro: Next 16 no permite dos servidores de desarrollo en el mismo directorio. Se usa
+  `localhost` y no `127.0.0.1`: Next bloquea los recursos de desarrollo (y por tanto la hidratación
+  del buscador) cuando el origen no coincide.
+- **vitest**: 55 pruebas en `apps/web/test/competicion-pantalla.test.ts` (contratos, goles y forma por
+  jornada, hora, escudo, estados vacíos y esqueleto renderizados, subtítulo, temporadas), 8 en
+  `cabecera-sitio.test.ts` y 9 en `sugerencias.test.ts`.
+- **Nivel**: 1.
+
+### 18. Los recorridos e2e antiguos (`recorridos.spec.ts`) siguen en rojo, y no es de esta tarea
+
+- **Qué pasa**: la web vieja con slug (`/competicion/[slug]`, `/jugadores`) **no compila en `next dev`
+  con Turbopack**: `@facylf/ingesta` exporta imports `.js` que Turbopack no resuelve a `.ts` (el build
+  de webpack sí, y es el que usa el despliegue). Medido el 04/11/2026: `/federaciones` y las rutas con
+  slug devuelven 500 en dev, y esos 7 recorridos fallan desde antes de esta sesión.
+- **Qué se hizo**: no se tocan (prueban la web vieja que se retira en W9); se documenta y queda en
+  `BACKLOG.md` como tarea aparte. La suite nueva de la pantalla 2 se ejecuta aparte y pasa entera.
+- **Por qué**: arreglar la resolución de la web vieja en dev o retirar sus recorridos es un cambio de
+  otra tarea; fingir que la suite entera está verde sería peor.
+- **Nivel**: 1 (deuda documentada).
+
+### 19. El tema oscuro se comprueba, pero el sitio todavía no tiene interruptor
+
+- **Qué pasa**: `tokens.css` define `[data-tema="oscuro"]`, pero **ninguna pantalla escribe
+  `data-tema`** (deuda anterior a esta sesión). La pantalla 2 se midió en oscuro y compacta forzando
+  el atributo (`tmp/qa.mjs`), y axe no encuentra nada; pero un usuario no puede cambiar de tema.
+- **Qué se hizo**: no se implementa el interruptor (es una pieza de producto/cabecera que afecta a
+  todas las pantallas y merece su tarea); se anota en `BACKLOG.md` con el criterio del sistema.
+- **Nivel**: 3 en la parte de producto (¿entra el tema en esta tanda?); la medición, 1.
+
+### 20. Revisión adversarial independiente: la primera entrega NO era apta, y esto es lo que se corrigió
+
+- **Qué pasó**: un QA independiente revisó la entrega con datos reales y veredicto **NO APTA**
+  (informe interno en `tmp/QA-PANTALLA-2.md`, no versionado porque cita identificadores y nombres de
+  personas). Se corrigió todo lo bloqueante e importante antes de dar la tarea por terminada:
+  - **B1 (bloqueante, invariante del proyecto)**: el buscador de la cabecera publicaba nombres de
+    menores. La consulta ya traía `es_menor`, pero `/api/buscar` lo descartaba. Ahora la ruta usa
+    `resultadoDeSugerencia` (`lib/sugerencias.ts`) con `nombreVisible`: los menores salen como
+    «Jugador menor de edad» y los adultos conservan su nombre publicado. Probado con `es_menor`
+    true/false/null y verificado en vivo contra el canónico.
+  - **I1**: con un nombre real de 61 caracteres (grupo 17863) a 400 px el nombre no se podía leer y la
+    celda fija del equipo tapaba el puesto. Ahora la columna fija está acotada en móvil, con elipsis y
+    `title` con el nombre completo; a partir de 768 px se ve entero. Añadida prueba e2e con ese grupo.
+  - **I2**: la columna Forma mezclaba la tabla oficial de la jornada 2 con resultados de la jornada 4
+    (4 insignias con `PJ=2`). Ahora la forma se calcula con `formaHasta` sobre los partidos del grupo
+    **hasta la misma jornada de la tabla**, con su nota al pie y su prueba (nº de insignias ≤ PJ).
+  - **I3**: el estado de error reutilizaba el `SinCanonico` viejo con colores literales (en oscuro era
+    una caja blanca). Restilizado con tokens y en un solo bloque, sin cambiar su API ni su texto.
+    Sigue **sin captura en ejecución**: provocarlo exige parar el canónico y eso está prohibido; la
+    evidencia es revisión de código y `tsc`, y así se declara.
+  - **I4**: `tabular-nums` ausente en Goleadores y marcadores de Jornada. Añadido y comprobado por
+    estilo computado.
+  - **I5**: el esqueleto tenía 10 filas fijas frente a 16 reales (salto de ~450 px). Ahora `filas` sale
+    de `grupo.equipos`, y jornada y goleadores pintan 8.
+  - **I6**: el placeholder prometía «equipo, competición, árbitro» y el endpoint sólo devuelve club y
+    jugador. Vuelve a «Buscar jugador o club…».
+  - **I7**: axe serio con el buscador abierto por el color de «identidad nominal» (`--texto-tenue`,
+    3,93:1). Pasa a `--texto-suave`; axe con el panel abierto en 0 serias/críticas y la e2e ahora lo
+    mide abierto.
+  - **I9**: el desplegable de temporada ofrecía 2013-14 en adelante mientras el pie declara publicar
+    desde 2023-24. `temporadasPublicables` filtra en la página, sin cambiar la consulta.
+  - **C1/C2**: cabecera y contenido no compartían borde. Cabecera, `main` y pie pasan a
+    `max-w-[1240px] px-5`: a 1440 todo empieza en x=120 y mide 1200, como el prototipo.
+  - **C5**: el anillo de foco de la pestaña activa se recortaba; la nav de pestañas gana aire vertical.
+  - **C6/C7/C9**: favicon (`app/icon.svg`), título por página con `generateMetadata` y `cache()`, y
+    extremos de la barra con `coalesce(played_at, fecha_prevista)` (el grupo 75252 ya enseña fechas).
+- **Lo que se acepta a propósito, con motivo**:
+  - **Acento más oscuro** que el `#0B7285` del prototipo: `--accion` (acento-700) es el mínimo que da
+    contraste AA para texto sobre blanco; aclararlo por fidelidad rompería la accesibilidad. Manda el
+    contraste, y el prototipo no es un valor normativo de token.
+  - **Tabla a 13 px** (prototipo 14): es la escala «texto en tabla densa» del sistema; el prototipo no
+    define tokens.
+  - **Fila de 43 px** frente a 42: el borde superior suma 1 px; la altura de contenido es 42.
+  - **Estado de error sin captura**: ver I3, no se para el canónico para una captura.
+- **Segunda ronda de QA (misma sesión)**: veredicto **APTA CON RESERVAS**. Volvió a comprobar con
+  evidencia nueva todos los bloqueantes e importantes (B1 y I1-I9 cerrados; batería de 16 pasadas por 6
+  grupos y 3 modos sin axe serio/crítico, sin scroll horizontal y sin errores de consola). De las
+  reservas, se corrigieron dos en el mismo cambio:
+  - **R2-1** (axe seria en oscuro con el buscador abierto, «Ver los N resultados» a 4,1:1): el enlace
+    del pie del panel pasa a `--texto` con subrayado de acento; la e2e ahora mide axe **también en
+    oscuro** con el panel abierto.
+  - **R2-3** (esqueleto ~220 px más bajo que el contenido): se añaden al esqueleto la cabecera de
+    columnas, la leyenda y la nota al pie. Sigue existiendo una diferencia menor; se acepta.
+  - **Reservas que se aceptan y quedan escritas**: la miga enlaza a `/federaciones`, que en `next dev`
+    con Turbopack da 500 pero en el build de webpack (el que se despliega) funciona (R2-2, decisión 18);
+    el nombre de 61 caracteres se recorta con `title` en móvil y no hay tooltip táctil (R2-4, el texto
+    completo sigue en el DOM para lectores de pantalla); quedan tamaños sueltos en insignias y cabecera
+    heredados del prototipo (R2-5, ver C4); `/buscar` viejo sigue publicando menores (R2-6, tarea de
+    auditoría en `BACKLOG.md`); el estado de error sólo está revisado por código (R2-7, no se para el
+    canónico para una captura).
+- **Nivel**: 1 (cumplimiento de invariantes) y 2 (presentación).
+
+### 21. Lo que el QA destapó fuera de esta pantalla (tarea aparte, anotada)
+
+- **`/buscar` (página vieja) también pinta `f.nombre` sin `nombreVisible`**. Misma regla, otra
+  superficie. Se corrige sólo el endpoint compartido (`/api/buscar`) en esta tarea; la página queda en
+  `BACKLOG.md` como auditoría obligatoria de todas las superficies de búsqueda.
+- **La web vieja no compila en `next dev` con Turbopack** (confirmado de nuevo por el QA): los
+  recorridos e2e antiguos siguen en rojo por eso, no por la pantalla 2. Ya estaba anotado en la
+  decisión 18 y en `BACKLOG.md`.
+- **El p95 de 800 ms no se puede medir en dev**: el QA lo declara no concluyente y la consulta de
+  clasificación tarda 17 ms en PostgreSQL. La medición de p95 real exige build de producción y queda
+  para la tarea de despliegue.
+
+---
+
 ## Preguntas de Nivel 3 que quedan abiertas (no bloquean el trabajo)
+
 
 1. ~~**¿Se reutiliza `apps/web` (Next) o se rehace contra el diseño?**~~ **DECIDIDA por David el
    2026-11-04**: el diseño manda y la presentación se rehace contra el prototipo; se conservan

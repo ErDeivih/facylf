@@ -18,6 +18,11 @@ export type FilaPortadaGrupo = {
   grupo_id: number;
   federacion: string;
   federacion_nombre: string;
+  /**
+   * Nombre corto real de la federación («Castilla y León»), de `analytics.federacion_ficha`. Es el que
+   * enseña la miga del prototipo; el nombre largo queda como respaldo si la ficha no lo tiene.
+   */
+  federacion_corta: string | null;
   temporada: string;
   edicion: string;
   edicion_id: number;
@@ -37,6 +42,9 @@ export type FilaPortadaGrupo = {
   jornada_actual: number | null;
   origen_clasificacion: string | null;
   calculado_en: string | null;
+  /** Primera y última fecha publicada en el calendario del grupo, para los extremos de la barra. */
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
 };
 
 /**
@@ -48,14 +56,16 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
   descripcion: 'Portada de la pantalla de competición: federación, temporada, edición, grupo, cobertura y origen de la clasificación.',
   plan: 'indexado',
   presupuestoMs: 300,
-  columnas: ['grupo_id', 'federacion', 'federacion_nombre', 'temporada', 'edicion', 'edicion_id', 'grupo',
-    'grupo_codigo', 'categoria', 'division', 'modalidad', 'genero', 'ambito', 'jornadas_previstas', 'equipos',
-    'partidos_conocidos', 'partidos_con_resultado', 'complete_through_matchday', 'visibility_state',
-    'jornada_actual', 'origen_clasificacion', 'calculado_en'],
+  columnas: ['grupo_id', 'federacion', 'federacion_nombre', 'federacion_corta', 'temporada', 'edicion',
+    'edicion_id', 'grupo', 'grupo_codigo', 'categoria', 'division', 'modalidad', 'genero', 'ambito',
+    'jornadas_previstas', 'equipos', 'partidos_conocidos', 'partidos_con_resultado',
+    'complete_through_matchday', 'visibility_state', 'jornada_actual', 'origen_clasificacion', 'calculado_en',
+    'fecha_inicio', 'fecha_fin'],
   sql: `
     select g.id                       as grupo_id,
            f.codigo                   as federacion,
            f.nombre                   as federacion_nombre,
+           ff.nombre_corto            as federacion_corta,
            s.etiqueta                 as temporada,
            e.nombre_publicado         as edicion,
            e.id                       as edicion_id,
@@ -80,10 +90,18 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
              where st.phase_group_id = g.id
              order by case when st.origen = 'oficial' then 0 else 1 end, st.matchday_id desc
              limit 1)                 as origen_clasificacion,
-           c.calculado_en
+           c.calculado_en,
+           -- Extremos del calendario: primero la fecha jugada y, si el partido aún no se jugó, la fecha
+           -- prevista publicada. Sin esto, un grupo con calendario y sin resultados (75252) no enseñaba
+           -- ninguna fecha en la barra aunque la federación las hubiera publicado (hallazgo C9 del QA).
+           (select to_char(min(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
+              from core.match m where m.phase_group_id = g.id) as fecha_inicio,
+           (select to_char(max(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
+              from core.match m where m.phase_group_id = g.id) as fecha_fin
       from core.phase_group g
       join core.competition_edition e on e.id = g.competition_edition_id
       join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      left join analytics.federacion_ficha ff on ff.codigo = f.codigo
       join core.season s on s.id = e.season_id
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
      where g.id = $1
@@ -234,7 +252,10 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
         select sr.goles_favor, sr.goles_contra
           from core.standing_snapshot sr
          where sr.phase_group_id = $1 and sr.team_entry_id = s.team_entry_id and sr.origen = 'reconstruida'
-         order by sr.matchday_id desc
+           -- MISMA FOTO: la reconstrucción tiene que ser de la misma jornada que la tabla oficial. Sin
+           -- esto, en el grupo 3769 (tabla oficial de la jornada 2, PJ=2) se pintaban los goles de la
+           -- reconstrucción de la jornada 4 y un equipo con dos partidos jugados aparecía con 14:2.
+           and sr.matchday_id = s.matchday_id
          limit 1
       ) rh on true
      where s.phase_group_id = $1

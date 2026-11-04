@@ -1,0 +1,229 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, test } from '@playwright/test';
+
+/**
+ * Flujo de la pantalla 2 del prototipo: competición, clasificación y jornada.
+ *
+ * La referencia es un grupo REAL de Castilla y León del canónico: el 3769, «Liga Nacional Juvenil»
+ * 2026-27, 16 equipos y la temporada en curso (jornada 4 de 30 en el momento de escribir esto).
+ *
+ * Estas pruebas miran lo que ve el usuario, no cómo está hecho el HTML: que la tabla tenga las filas
+ * del grupo, que un id inventado sea un 404 de verdad, que a 400 px no se desplace el documento y que
+ * la primera columna siga a la vista al desplazar la tabla, que no se publique el nombre de un menor y
+ * que axe no encuentre nada serio ni crítico.
+ */
+const GRUPO_CYL = 3769;
+
+/** La tabla de clasificación, sin depender de clases de presentación. */
+const TABLA = 'table';
+
+test.describe('pantalla 2 · competición de Castilla y León', () => {
+  test('carga con datos reales: la tabla del grupo y su cabecera del prototipo', async ({ page }) => {
+    const respuesta = await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    expect(respuesta?.status()).toBe(200);
+
+    const tabla = page.locator(TABLA);
+    await expect(tabla).toBeVisible();
+
+    const filas = tabla.locator('tbody tr');
+    await expect(filas).toHaveCount(16);
+
+    // La clasificación se ordena por puntos de mayor a menor: es la promesa de la pantalla.
+    const puntos = await filas.evaluateAll((trs) =>
+      trs.map((tr) => Number((tr.children[6] as HTMLElement).innerText.trim())),
+    );
+    expect(puntos).toEqual([...puntos].sort((a, b) => b - a));
+    expect(new Set(puntos).size).toBeLessThanOrEqual(16);
+
+    // Coherencia de cada fila: los partidos jugados son los ganados, empatados y perdidos, y los goles
+    // no son ceros de relleno (la tabla oficial de CyL no publica goles y se enseñan los reconstruidos).
+    const incoherencias = await filas.evaluateAll((trs) => trs.flatMap((tr) => {
+      const celdas = [...tr.children].map((td) => (td as HTMLElement).innerText.trim());
+      const [, , pj, gep, goles] = celdas;
+      const [g, e, p] = gep.split('-').map(Number);
+      const problemas: string[] = [];
+      if (Number(pj) !== g + e + p) problemas.push(`PJ ${pj} ≠ ${g}+${e}+${p}`);
+      if (/^0:0$/.test(goles ?? '')) problemas.push('goles 0:0');
+      // La forma es de la MISMA jornada que la tabla: no puede haber más insignias que partidos jugados.
+      const insignias = tr.children[5]?.querySelectorAll('[title]').length ?? 0;
+      if (insignias > Number(pj)) problemas.push(`forma ${insignias} > PJ ${pj}`);
+      return problemas.length > 0 ? [`${celdas[1]}: ${problemas.join(', ')}`] : [];
+    }));
+    expect(incoherencias).toEqual([]);
+
+    // La jornada enfrenta a los 16 equipos: ocho partidos.
+    const jornada = page.locator('section', { has: page.getByRole('heading', { name: /^Jornada/ }) });
+    await expect(jornada.locator('li')).toHaveCount(8);
+  });
+
+  test('un nombre de 45 caracteres no rompe la tabla a 400 px y se puede leer', async ({ page }) => {
+    // Grupo real de CyL (Tercera División de Fútbol Sala 2023-24) con un nombre de 61 caracteres. El
+    // criterio §10.8 del sistema de diseño se comprueba con datos reales, no con 3769 (≤26).
+    await page.setViewportSize({ width: 400, height: 900 });
+    const respuesta = await page.goto('/explorar/competicion/17863');
+    expect(respuesta?.status()).toBe(200);
+
+    const caja = page.locator('[data-tabla-scroll]');
+    await expect(caja).toBeVisible();
+    await caja.evaluate((el) => { (el as HTMLElement).scrollLeft = (el as HTMLElement).scrollWidth; });
+
+    const fila = caja.locator('tbody tr').first();
+    const celdas = fila.locator('td');
+    const posicion = await celdas.first().boundingBox();
+    const equipo = await celdas.nth(1).boundingBox();
+    const contenedor = await caja.boundingBox();
+    expect(posicion).not.toBeNull();
+    expect(equipo).not.toBeNull();
+    expect(contenedor).not.toBeNull();
+    // Al desplazar al máximo, el puesto (columna fija) sigue a la vista y NO lo tapa el equipo.
+    expect(posicion!.x).toBeGreaterThanOrEqual(contenedor!.x - 2);
+    expect(posicion!.x).toBeLessThan(contenedor!.x + 80);
+    expect(posicion!.x + posicion!.width).toBeLessThanOrEqual(equipo!.x + 1);
+
+    // El nombre largo se acorta en la tabla pero queda accesible entero en el título. No se asume qué
+    // fila lo lleva: se comprueba que ALGUNO de los 16 nombres largos tiene su título completo.
+    const titulos = await caja.locator('tbody td:nth-child(2) [title]')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('title') ?? ''));
+    expect(titulos.length).toBe(16);
+    expect(Math.max(...titulos.map((t) => t.length))).toBeGreaterThanOrEqual(45);
+
+    const desborde = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      cliente: document.documentElement.clientWidth,
+    }));
+    expect(desborde.scroll).toBeLessThanOrEqual(desborde.cliente + 1);
+  });
+
+  test('el buscador no publica nombres de menores y no rompe la accesibilidad al abrirse', async ({ page, request }) => {
+    // El canónico trae `es_menor`; el endpoint de sugerencias tiene que rotular, no publicar el nombre.
+    const respuesta = await request.get('/api/buscar?q=burg');
+    expect(respuesta.status()).toBe(200);
+    const datos = await respuesta.json() as { resultados: Array<{ tipo: string; titulo: string; url: string }> };
+    const jugadores = datos.resultados.filter((r) => r.tipo === 'jugador');
+    expect(jugadores.length).toBeGreaterThan(0);
+    // Los menores conocidos del canónico (verificado con SELECT: es_menor = true) no pueden salir con
+    // su nombre: se rotulan. No se usa un patrón de «nombre con coma» porque hay adultos de una sola
+    // palabra («Burgos», «burguet») y el formato no es la regla: la regla es es_menor.
+    const MENORES_BURG = new Set(['/jugador/1586364', '/jugador/1520230', '/jugador/1567937', '/jugador/1353383']);
+    const menores = jugadores.filter((j) => MENORES_BURG.has(j.url));
+    expect(menores.length).toBe(MENORES_BURG.size);
+    for (const j of menores) {
+      expect(j.titulo, `menor publicado en ${j.url}`).toBe('Jugador menor de edad');
+    }
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    // El buscador es cliente: se espera a la hidratación y a la respuesta real antes de medir el panel.
+    await page.waitForLoadState('networkidle');
+    const buscador = page.getByRole('searchbox');
+    await buscador.click();
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/api/buscar?q=burg') && r.status() === 200),
+      buscador.pressSequentially('burg', { delay: 60 }),
+    ]);
+    await expect(page.locator('a[href^="/jugador/"]').first()).toBeVisible();
+
+    // axe con el panel ABIERTO: la e2e solo medía el estado cerrado y el contraste del meta se colaba.
+    const resultado = await new AxeBuilder({ page }).analyze();
+    const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+
+    // Y en oscuro, que es donde el enlace «Ver los N resultados» se quedaba en 4,1:1 (QA).
+    await page.evaluate(() => { document.documentElement.dataset.tema = 'oscuro'; });
+    await page.waitForTimeout(200);
+    const oscuro = await new AxeBuilder({ page }).analyze();
+    const gravesOscuro = oscuro.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(gravesOscuro.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
+  test('los goles de los goleadores se comparan en vertical con cifras tabulares', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const goles = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) }).locator('li span').last();
+    const variante = await goles.evaluate((el) => getComputedStyle(el).fontVariantNumeric);
+    expect(variante).toContain('tabular-nums');
+  });
+
+  test('la cabecera del sitio es la del prototipo y no finge lo que no existe', async ({ page }) => {
+    // La navegación completa es la de escritorio; en móvil el buscador baja a su propia fila.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const cabecera = page.locator('header').first();
+
+    // Búsqueda global: campo con nombre accesible y envío a /buscar.
+    const buscador = cabecera.getByRole('searchbox');
+    await expect(buscador).toBeVisible();
+    await expect(buscador).toHaveAttribute('name', 'q');
+
+    // Navegación de funciones con la sección activa.
+    const funciones = cabecera.getByRole('navigation', { name: 'Funciones' });
+    await expect(funciones.getByRole('link', { name: 'Explorar' })).toHaveAttribute('aria-current', 'page');
+
+    // Lo que aún no tiene pantalla se enseña desactivado: ni enlace muerto ni contador inventado.
+    await expect(cabecera.locator('a[href*="rankings"]')).toHaveCount(0);
+    await expect(cabecera.locator('a[href*="ojeo"]')).toHaveCount(0);
+    await expect(cabecera.locator('a[href*="comparar"]')).toHaveCount(0);
+    // No hay sistema de avisos ni cuentas todavía: un «3» en la campana sería un dato inventado.
+    await expect(cabecera).not.toContainText(/\b[1-9]\d*\b/);
+  });
+
+  test('las migas empiezan por el nombre corto real de la federación', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const ruta = page.getByRole('navigation', { name: 'Ruta' });
+    await expect(ruta.getByRole('link', { name: 'Castilla y León' })).toBeVisible();
+    await expect(ruta).toContainText('Liga Nacional');
+  });
+
+  test('los goles que enseña no son ceros disfrazados: la tabla oficial de CyL no publica goles', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const cuerpo = await page.locator(TABLA).innerText();
+    // Si la federación no publica goles, se enseñan los reconstruidos y la página lo dice.
+    expect(cuerpo).not.toContain('0:0');
+    await expect(page.getByText(/goles.*reconstruid/i).first()).toBeVisible();
+  });
+
+  test('ningún nombre de menor llega al HTML', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const goleadores = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) });
+    const texto = await goleadores.innerText();
+    // Los nombres en el canónico vienen como «APELLIDOS, NOMBRE»; un menor nunca debe salir así.
+    expect(texto).not.toMatch(/[A-ZÁÉÍÓÚÜÑ]{2,},\s+[A-ZÁÉÍÓÚÜÑ]/);
+  });
+
+  test('a 400 px no hay desplazamiento horizontal del documento y la primera columna queda fija', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 900 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+
+    const desborde = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      cliente: document.documentElement.clientWidth,
+    }));
+    expect(desborde.scroll).toBeLessThanOrEqual(desborde.cliente + 1);
+
+    // La tabla sí puede desplazarse dentro de su caja; lo que no puede es llevarse la primera columna.
+    const caja = page.locator('[data-tabla-scroll]');
+    await expect(caja).toBeVisible();
+    await caja.evaluate((el) => { (el as HTMLElement).scrollLeft = 400; });
+
+    const fila = caja.locator('tbody tr').first();
+    const posicion = await fila.locator('td').first().boundingBox();
+    const contenedor = await caja.boundingBox();
+    expect(posicion).not.toBeNull();
+    expect(contenedor).not.toBeNull();
+    expect(posicion!.x).toBeGreaterThanOrEqual(contenedor!.x - 2);
+    expect(posicion!.x).toBeLessThan(contenedor!.x + 80);
+  });
+
+  test('un id que no es un grupo responde 404, no un 200 con cuerpo de 404', async ({ request }) => {
+    for (const id of ['abc', '0', '-3', '999999999']) {
+      const respuesta = await request.get(`/explorar/competicion/${id}`, { maxRedirects: 0 });
+      expect(respuesta.status(), `id ${id}`).toBe(404);
+    }
+  });
+
+  test('axe: sin incidencias serias ni críticas', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const resultado = await new AxeBuilder({ page }).analyze();
+    const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+});
