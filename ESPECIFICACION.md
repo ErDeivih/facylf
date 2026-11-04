@@ -1,37 +1,64 @@
-# Especificación — FACYLF, plataforma de CyL
+# Especificación — FACYLF, plataforma y reparto de la ingesta
 
-Estado: **borrador para revisar**. Tres objetivos en orden estricto, sin saltarse ninguno.
+Estado: **borrador para revisar**. Decisiones de David del 2026-11-04 aplicadas.
 
-## Por qué CyL primero
+## Reparto de la ingesta: PC y servidor se reparten **temporadas**
 
-No es una preferencia: **CyL es la implementación de referencia del proyecto**.
+**Decisión tomada**: el reparto **no es por federación ni por territorio**. Es por **temporadas**. El PC y el servidor se reparten las temporadas de cada competición, de modo que **ninguno de los dos se sobrecarga**.
 
-- `ESTADO.md`: el origen del proyecto es **Salamanca (Castilla y León)**, fuente `www.rfcylf.es`, con los datos en `descargas-federacion/` (19,4 GB, ya en E: con junction).
-- `HALLAZGOS-FEDERACIONES.md`: **tres federaciones usan el mismo módulo de resultados que CyL** y «toda la lógica y los parsers se reutilizan tal cual».
+**El servidor se queda como está ahora.** No se toca su configuración ni su carga. Todo cambio se hace en el lado del PC.
 
-Quien domina CyL, domina las demás. Por eso el PC recolecta **solo CyL** y el servidor el resto.
+Consecuencias directas:
+
+- [ ] Saber **qué temporadas está ingiriendo el servidor ahora mismo**, para no pedirlas en el PC.
+- [ ] Definir en el PC la lista de temporadas que le tocan, escrita en configuración, no en un comentario.
+- [ ] Comprobar que **ninguna temporada se recoge dos veces** (en septiembre se duplicaron ocho federaciones entre PC y servidor).
+- [ ] Dejar la regla escrita: cuando una temporada pasa al servidor, se quita del PC.
 
 ## Objetivo 1 — Que no tenga errores
 
-**Antes que nada.** Hoy las pruebas están en rojo: `pnpm test` devuelve `ELIFECYCLE Test failed`.
+**Sigue siendo lo primero.** Hoy `pnpm test` devuelve `ELIFECYCLE Test failed`.
 
-- [ ] Saber **qué** prueba falla y por qué, una por una
-- [ ] Registrarlo en un fichero, no en la cabeza
-- [ ] Arreglarlas o marcar explícitamente cuáles son deuda conocida
-- [ ] Dejar la suite en verde antes de tocar la plataforma
+- [ ] Identificar **qué** prueba falla y por qué, una por una
+- [ ] Registrarlo en un fichero
+- [ ] Arreglarlas o marcar la deuda conocida
+- [ ] Suite en verde antes de tocar la plataforma
 
-Sin esto, cualquier cambio en la plataforma se hace a ciegas.
+## Objetivo 2 — La plataforma, desde el prototipo de Claude
 
-## Objetivo 2 — Ingesta repartida: PC solo CyL
+**El prototipo existe y está en un artefacto de Claude:**
 
-El proyecto ya está preparado: `parar-flota-pc.ps1` documenta que «la ingesta pasa a vivir en el servidor (`david@servidor.local:/srv/data/facylf`)», y el propio script avisa de que en septiembre **ocho federaciones se recogían a la vez en PC y servidor, duplicando workers**.
+```
+https://claude.ai/code/artifact/dd4385f3-20e6-4f8b-8746-9a4f022b0fa0
+```
 
-- [ ] Definir la lista exacta de lo que recoge el PC: **CyL y lo suyo**
-- [ ] Confirmar que el resto está en el servidor y **no** en el PC
-- [ ] Comprobar que ninguna cola del PC apunta a una federación ya servida por el servidor
-- [ ] Dejar la lista escrita en la configuración, no en un comentario
+Instrucción original con la que se encargó: *«Implement this design in this codebase. Read the design's files from that link. Match how it looks, using this codebase's own components and conventions.»*
 
-**Cómo parar y arrancar sin romper nada** (ya verificado en esta sesión):
+**Bloqueante, y hay que decirlo claro**: ese enlace **solo se abre con la sesión de Claude de David**. Se comprobó el 2026-11-04: devuelve HTTP 200 pero el contenido es una página que se renderiza con JavaScript y no incluye el diseño. **Ningún agente ni yo podemos leer los ficheros del diseño desde ahí.**
+
+Para poder implementarlo hace falta una de estas tres cosas:
+
+- [ ] Exportar el artefacto a ficheros (HTML/CSS o el código) y dejarlos en el repositorio, por ejemplo en `diseno/`
+- [ ] Pegar el HTML/CSS en un fichero del repositorio
+- [ ] Al menos, capturas de las pantallas
+
+Hasta que exista uno de los tres, la plataforma **no se empieza**: implementar «parecido» a un diseño que no se puede leer es inventarlo.
+
+## Familia y recetas
+
+Familias **A (panel de datos)** y **D (catálogo)**: clasificaciones, jornadas, actas, equipos. Densidad alta; en móvil, tabla convertida en tarjetas.
+
+## Pantallas previstas (a concretar con el diseño delante)
+
+- [ ] Clasificación por competición y grupo
+- [ ] Jornada con sus partidos y actas
+- [ ] Ficha de equipo con plantilla y resultados
+- [ ] Ficha de partido con el acta
+- [ ] Estado por competición sin datos, y error de fuente caída
+
+## Cómo parar y arrancar sin romper nada
+
+Verificado en esta sesión, y documentado por el propio proyecto:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\parar-flota-pc.ps1 -Simular
@@ -40,35 +67,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\parar-flota-pc.ps1 -
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\registrar-tarea-flota.ps1
 ```
 
-El script documenta que **no toca ningún dato** y excluye DSH a propósito. Sobrevive el supervisor de multideporte: pararlo aparte.
-
-## Objetivo 3 — La plataforma, desde el prototipo de Claude, con CyL
-
-- [ ] Localizar el prototipo de CyL y decidir: se reutiliza o se rehace
-- [ ] Escribir las pantallas de la plataforma en este fichero antes de tocar código
-- [ ] Implementar solo CyL
-
-## Familia y recetas
-
-Familias **A (panel de datos)** y **D (catálogo)**: clasificaciones, jornadas, actas, equipos. Densidad alta; en móvil, tabla convertida en tarjetas.
-
-## Pantallas previstas (a concretar tras rescatar el prototipo)
-
-- [ ] Clasificación por competición y grupo
-- [ ] Jornada con sus partidos y actas
-- [ ] Ficha de equipo, con su plantilla y resultados
-- [ ] Ficha de partido con el acta
-- [ ] Estado vacío por competición sin datos, y error de fuente caída
+El script **no toca ningún dato** y excluye DSH a propósito. Sobrevive el supervisor de multideporte: pararlo aparte.
 
 ## Riesgos que no se pueden ignorar
 
-- **Las webs de las federaciones piden explícitamente no ser rastreadas.** El proyecto usa un cliente identificado (`FacylfBot/1.0`) con espaciado y backoff. Cualquier cambio en el recolector **mantiene** esas tres cosas.
-- **Postgres en Docker** en el puerto 5433, con cuatro roles distintos (`lector`, `app`, `publicador`, `migracion`). El `.env` tiene contraseñas: **no entra en git**.
-- **24 procesos de ingesta vivos** cuando se trabajó en esto. Tocar el recolector mientras corre exige parar con el script, no matar procesos a mano.
+- **Las webs de las federaciones piden explícitamente no ser rastreadas.** El proyecto usa `FacylfBot/1.0` con espaciado y backoff. Cualquier cambio **mantiene** esas tres cosas.
+- **Postgres en Docker** en el puerto 5433 con cuatro roles (`lector`, `app`, `publicador`, `migracion`). El `.env` tiene contraseñas: fuera de git.
+- **Decenas de procesos de ingesta vivos.** Tocar el recolector exige parar con el script, no matar procesos a mano.
 
 ## Puertas antes de dar una pantalla por buena
 
 1. `pnpm test` en verde.
-2. La ingesta sigue funcionando después del cambio (comprobar que se escriben ficheros nuevos).
+2. La ingesta sigue funcionando: comprobar que se escriben ficheros nuevos después del cambio.
 3. `ai-design-check` o la lista de diez.
 4. Ojos frescos con este fichero y una captura.
