@@ -69,9 +69,6 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
 
 ## Esperando decisión (Nivel 3 — no bloquea)
 
-- [ ] **¿Se reutiliza `apps/web` (Next) o se rehace contra el diseño?** Hoy se implementa *dentro* de
-  `apps/web` para aprovechar las consultas y el canónico. Es la decisión que más condiciona las
-  siguientes pantallas. Pregunta para David en `DECISIONES.md` y `ESPECIFICACION.md`.
 - [ ] **¿Cuántas de las 22 pantallas entran en la primera tanda?** Mientras no se decida, se hace una
   cada vez; la 2 ya tiene primera versión.
 - [ ] **¿`V-E-D` o `G-E-P`?** El prototipo usa las dos (Inicio `V-E-D`, Competición `G-E-P`). La

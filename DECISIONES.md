@@ -96,13 +96,24 @@ Las de Nivel 3 (alcance, datos, credenciales, dinero, ramas) no se deciden aquí
 
 ---
 
+### 9. David decidió el 2026-11-04 (coordinación): el diseño manda, la lógica de datos se conserva
+
+- **Decisión de David** (en `ESPECIFICACION.md`, commit `6744b8d`): «El diseño manda: la capa visual se
+  rehace contra el prototipo y el sistema de diseño. Lo que sí se reutiliza: contratos de API,
+  consultas, la ingesta y todo lo que no sea presentación. Se decide componente a componente».
+- **Cómo casa con lo hecho**: exactamente lo implementado. La pantalla 2 es una capa de presentación
+  nueva (`apps/web/src/app/explorar/...` y `componentes/competicion/`) sobre las consultas existentes
+  del canónico; no se copia ningún componente de la interfaz vieja. La web vieja sigue en pie hasta W9.
+- **Nivel**: 2 (ejecución de una decisión de David).
+
+---
+
 ## Preguntas de Nivel 3 que quedan abiertas (no bloquean el trabajo)
 
-1. **¿Se reutiliza `apps/web` (Next) o se rehace contra el diseño?** De momento se implementa dentro de
-   `apps/web`, que es donde están las consultas del canónico y las pruebas. Es la decisión que más
-   condiciona las siguientes pantallas: si David prefiere otra cosa, hay que decirlo **antes** de la
-   pantalla 3.
+1. ~~**¿Se reutiliza `apps/web` (Next) o se rehace contra el diseño?**~~ **DECIDIDA por David el
+   2026-11-04**: el diseño manda y la presentación se rehace contra el prototipo; se conservan
+   consultas, contratos, ingesta y todo lo que no sea presentación (ver decisión 9 arriba).
 2. **¿Cuántas de las 22 pantallas entran en la primera tanda?** Mientras no se decida, se hace una cada
-   vez, empezando por la 2.
+   vez; la 2 ya tiene primera versión.
 3. **¿`V-E-D` o `G-E-P`?** La pantalla 2 usa `G-E-P`, que es lo que enseña el prototipo en esa pantalla.
    Si se elige `V-E-D`, se cambia en la cabecera de la tabla y en la consulta de rachas.
