@@ -86,3 +86,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\registrar-tarea-flot
 - **Las webs de las federaciones piden no ser rastreadas.** `FacylfBot/1.0` con espaciado y backoff se mantiene.
 - **Postgres en Docker** en 5433 con cuatro roles. El `.env` con contraseñas queda fuera de git.
 - **Decenas de procesos de ingesta vivos**: para tocarlos se para con el script.
+
+## Decisión de David (2026-11-04, coordinación)
+
+**¿Se reutiliza `apps/web` o se rehace contra el diseño?**
+
+- **El diseño manda**: la capa visual se rehace contra el prototipo de `diseno/prototipo` y el sistema de diseño. No se arrastra la interfaz vieja.
+- **Lo que sí se reutiliza**: contratos de API, consultas, la ingesta y todo lo que no sea presentación. Si `apps/web` tiene lógica de datos que funciona, se conserva.
+- Criterio: si un componente viejo ahorra más de lo que estorba, se adapta al sistema de diseño; si no, se rehace. Se decide componente a componente, no en bloque.
+
