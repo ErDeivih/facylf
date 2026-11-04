@@ -8,6 +8,7 @@ import type { ColumnaTabla, EstadoCobertura } from '@/componentes/base';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { EQUIPO_POR_ID, PARTIDOS_DEL_EQUIPO, PLANTILLA_DEL_EQUIPO } from '@/consultas/entidades';
 import type { FilaEquipo, FilaJugadorDePlantilla, FilaPartidoDeEquipo } from '@/consultas/entidades';
+import { insigniaForma } from '@/lib/forma-equipo';
 import { etiqueta, fechaCorta, numero } from '@/lib/presentacion-canonico';
 
 export const dynamic = 'force-dynamic';
@@ -49,15 +50,31 @@ function coberturaDe(fila: FilaEquipo): { estado: EstadoCobertura; hasta: number
   }
 }
 
-/** El resultado de un partido: letra **y** color, nunca sólo color (SISTEMA-DISENO.md §7). */
+/**
+ * El resultado de un partido, tal como lo devuelve la consulta (`ganado`/`empatado`/`perdido`), con
+ * su `Signo` del dominio y su color. El color va en clases literales: Tailwind no genera una clase
+ * construida con una variable.
+ */
+const RESULTADO_DEL_PARTIDO = {
+  ganado: { signo: 'G', clase: 'text-[var(--victoria)]' },
+  empatado: { signo: 'E', clase: 'text-[var(--empate)]' },
+  perdido: { signo: 'P', clase: 'text-[var(--derrota)]' },
+} as const;
+
+/**
+ * El resultado de un partido: letra **y** color, nunca sólo color (DESIGN.md §Color), y con la letra
+ * en **V-E-D** (Victoria/Empate/Derrota), no con la del `Signo` del dato (decisión de David,
+ * 04/11/2026). La traducción vive en `lib/forma-equipo.ts`: aquí no hay ningún mapa G→V propio.
+ */
 function Resultado({ resultado }: { resultado: string }) {
   if (resultado === 'sin_resultado') {
     return <span className="text-[var(--texto-tenue)]">sin resultado publicado</span>;
   }
-  const comun = 'inline-block w-5 text-center font-semibold';
-  if (resultado === 'ganado') return <span className={`${comun} text-[var(--victoria)]`} title="ganado">G</span>;
-  if (resultado === 'empatado') return <span className={`${comun} text-[var(--empate)]`} title="empatado">E</span>;
-  return <span className={`${comun} text-[var(--derrota)]`} title="perdido">P</span>;
+  // Un valor fuera del vocabulario no se disfraza: se lee como derrota, que es lo que hacía antes.
+  const { signo, clase } =
+    RESULTADO_DEL_PARTIDO[resultado as keyof typeof RESULTADO_DEL_PARTIDO] ?? RESULTADO_DEL_PARTIDO.perdido;
+  const { letra, etiqueta } = insigniaForma(signo);
+  return <span className={`inline-block w-5 text-center font-semibold ${clase}`} title={etiqueta}>{letra}</span>;
 }
 
 async function EquipoCanonico({ idEquipo }: { idEquipo: number }) {

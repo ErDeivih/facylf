@@ -6,6 +6,24 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
 
 ## Hecho
 
+- [x] **(Nivel 2) Métricas para el panel de proyectos.** `scripts/metricas-facylf.mjs` publica
+  `metricas-facylf.json` con la forma exacta pedida por David: competiciones totales/completas/porcentaje
+  que falta, desglose por temporada y ritmo de peticiones por minuto separado PC/servidor. Lee colas
+  SQLite de CyL (PC y servidor por SSH de sólo lectura), el canónico y las peticiones de los últimos
+  5 minutos; si una fuente falla no publica ceros (conserva el fichero anterior). 9 pruebas puras.
+  Semántica en [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
+
+- [x] **(Nivel 2) V-E-D en toda la aplicación.** `lib/forma-equipo.ts` como única traducción
+  (`G→V`, `E→E`, `P→D`); clasificación, `Racha`, ficha de equipo y actuaciones de jugador muestran V/E/D
+  con palabra accesible. El dato de dominio y las consultas siguen en `G/E/P` (no se tocan contratos).
+  7 pruebas nuevas y ajuste de las de presentación.
+
+- [x] **(Nivel 2) Tema claro/oscuro (rutas migradas).** Cookie `tema` resuelta en el servidor
+  (`<html data-tema>` en el primer HTML, sin parpadeo), botón accesible 44×44 en la cabecera que alterna
+  y persiste, orden de foco = orden visual, axe 0 serias/críticas en claro y oscuro en la pantalla
+  nueva. `proxy.ts` limita el tema a `/explorar…`; en las páginas viejas se fuerza claro y no se ofrece
+  el botón. 19 pruebas nuevas de tema.
+
 - [x] **(Nivel 1) Poner `pnpm test` en verde.** 27 fallos por el canónico apagado, 2 suites por limpieza
   cuadrática y 21 por FK de `analytics`: los tres diagnosticados y arreglados. Detalle en
   [`INFORME-PRUEBAS.md`](INFORME-PRUEBAS.md). Suite: **633 en verde, 1 saltada, 0 fallos**.
@@ -52,11 +70,17 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   nueva (0051+) que añada las columnas y la proyección, con su prueba en `pruebas/sql/`; no se agrega
   desde `core.match` en la página (regla del encargo).
 
-- [ ] **(Nivel 2) Interruptor de tema (claro/oscuro) y densidad.** `tokens.css` define
-  `[data-tema="oscuro"]` y `[data-densidad="compacta"]`, y la pantalla 2 está medida en los cuatro
-  modos, pero **ninguna pantalla escribe el atributo**: hoy no se puede cambiar. Necesita cookie
-  resuelta en el servidor (sin `useEffect`, sin parpadeo), control en la cabecera y prueba de que las
-  pantallas viejas no se rompen. Antes hay que decidir si entra en esta tanda (Nivel 3).
+- [ ] **(Nivel 1) Tema oscuro en las páginas viejas.** El tema está limitado a `/explorar…`; en las
+  rutas viejas se fuerza claro y no se ofrece el botón porque usan colores literales (`DESIGN.md` §2) y
+  en oscuro quedarían ilegibles (`/canonico` pasaba de 401 a 1.785 nodos de contraste serios). Para
+  activar el tema allí hay que migrar esas páginas (W9) o sustituir sus literales por tokens. Hasta
+  entonces, el tema **no** está disponible en la web vieja y así se debe contar.
+
+- [ ] **(Nivel 2) Interruptor de densidad (cómoda/compacta).** `tokens.css` define
+  `[data-densidad="compacta"]` y la pantalla 2 está medida en las dos densidades forzando el atributo,
+  pero **ninguna pantalla escribe la preferencia**: hoy no se puede cambiar. El tema claro/oscuro ya
+  está resuelto (cookie + servidor); la densidad puede seguir el mismo patrón (cookie resuelta en el
+  servidor, sin parpadeo) o esperar a decidir si entra en el producto.
 
 - [ ] **(Nivel 1) Deuda e2e de la web vieja.** `apps/web/e2e/recorridos.spec.ts` (9 recorridos) está en
   rojo desde antes del 04/11 porque en `next dev` con Turbopack la web vieja no compila
@@ -117,7 +141,6 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
 
 - [ ] **¿Cuántas de las 22 pantallas entran en la primera tanda?** Mientras no se decida, se hace una
   cada vez; la 2 ya está terminada y la cabecera común sirve a las siguientes.
-- [ ] **¿`V-E-D` o `G-E-P`?** El prototipo usa las dos (Inicio `V-E-D`, Competición `G-E-P`). La
-  pantalla 2 usa `G-E-P`; si se elige `V-E-D`, se cambia en la cabecera de la tabla y en las rachas.
-- [ ] **¿Entra el interruptor de tema claro/oscuro en esta tanda?** El sistema lo define y está medido,
-  pero hoy no se puede cambiar; afecta a la cabecera y a todas las pantallas.
+- [ ] **¿Se registra la tarea de métricas cada minuto?** `scripts/metricas-facylf.mjs` genera el JSON del
+  panel y tarda ~3 s, pero **crear una tarea programada toca los ajustes del PC** (nivel 3). Mientras
+  no se decida, el fichero se actualiza lanzando el script a mano.

@@ -1,19 +1,24 @@
 import Link from 'next/link';
 import { Buscador } from '@/componentes/Buscador';
+import type { Tema } from '@/lib/tema';
 import type { SeccionActiva } from './activo';
+import { BotonTema } from './BotonTema';
 
 /**
  * Cabecera común del sitio, copiada del tablero «Cabecera» del prototipo: barra de 64 px sobre la
  * superficie fuerte del producto, con el ancho interior de 1240 px centrado.
  *
- * Es una pieza **pura y sin hooks**: la sección activa entra por prop, así que el layout de servidor
- * no necesita conocer la ruta. Quien la conoce es `CabeceraSitioActiva`, con `usePathname`.
+ * Es una pieza **pura y sin hooks**: la sección activa y el tema entran por prop, así que el layout
+ * de servidor no necesita conocer la ruta. Quien la conoce es `CabeceraSitioActiva`, con
+ * `usePathname`. El único trozo que tiene estado es `BotonTema`, que es un componente de cliente
+ * aparte y sólo se ocupa de su botón.
  *
  * Lo que la cabecera NO finge, a propósito:
  *  · Rankings, Ojeo y Comparar no tienen pantalla: se enseñan como texto desactivado, no como
  *    enlaces muertos que llevarían a un 404;
  *  · no hay avisos, ni cuentas, ni contador: los iconos de panel, avisos y cuenta son botones
- *    desactivados sin cifra y sin iniciales inventadas.
+ *    desactivados sin cifra y sin iniciales inventadas. El botón de tema sí funciona: no enseña un
+ *    dato, cambia algo real.
  *
  * En móvil (<lg) el buscador baja a su propia fila a ancho completo; logo, navegación e iconos
  * quedan arriba. La navegación se desplaza en horizontal dentro de su caja, nunca el documento.
@@ -91,7 +96,15 @@ function BotonPendiente({ etiqueta, icono }: { etiqueta: string; icono: React.Re
   );
 }
 
-export function CabeceraSitio({ activo = null }: { activo?: SeccionActiva }) {
+export function CabeceraSitio({
+  activo = null,
+  tema = 'claro',
+  permiteTema = false,
+}: {
+  activo?: SeccionActiva;
+  tema?: Tema;
+  permiteTema?: boolean;
+}) {
   return (
     <header className="bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]">
       {/* 1240 de caja con 20 px de relleno a cada lado = 1200 interiores, y el mismo borde que `main`:
@@ -107,8 +120,8 @@ export function CabeceraSitio({ activo = null }: { activo?: SeccionActiva }) {
 
         {/*
           En móvil los iconos quedan visibles en la primera fila, a la derecha del logo. En escritorio
-          pasan a ir después de la navegación, como en el prototipo. Son botones desactivados, así que
-          no entran en el orden de tabulación y este cambio de orden no afecta al teclado.
+          pasan a ir después de la navegación, como en el prototipo. Los tres son botones desactivados:
+          no entran en el orden de tabulación.
         */}
         <div className="order-2 ml-auto flex items-center gap-1 lg:order-3 lg:ml-0">
           <BotonPendiente etiqueta="Mi panel" icono={<IconoEstrella />} />
@@ -116,35 +129,50 @@ export function CabeceraSitio({ activo = null }: { activo?: SeccionActiva }) {
           <BotonPendiente etiqueta="Cuenta" icono={<IconoCuenta />} />
         </div>
 
-        <nav aria-label="Funciones" className="order-3 w-full min-w-0 lg:order-2 lg:w-auto">
-          <ul className="flex items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
-            <li className="shrink-0">
-              <Link
-                href="/competiciones"
-                aria-current={activo === 'explorar' ? 'page' : undefined}
-                className={claseSeccion(activo === 'explorar')}
-              >
-                <IconoExplorar />
-                Explorar
-              </Link>
-            </li>
-            <li className="shrink-0">
-              <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                Rankings
-              </span>
-            </li>
-            <li className="shrink-0">
-              <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                Ojeo
-              </span>
-            </li>
-            <li className="shrink-0">
-              <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                Comparar
-              </span>
-            </li>
-          </ul>
-        </nav>
+        {/*
+          La navegación y el botón de tema van juntos en un envoltorio que en móvil ocupa su propia
+          fila (la nav se queda con el ancho que sobra y hace scroll interno; el tema, al lado) y en
+          escritorio desaparece (`lg:contents`), de modo que nav y botón vuelven a ser hijos directos
+          del flex de la cabecera y cada uno toma su `order`.
+
+          El botón va DESPUÉS de la nav en el DOM, no dentro del grupo de iconos: así el recorrido de
+          Tab sigue el orden visual (logo → Explorar → tema → buscador). En escritorio queda tras los
+          iconos desactivados (order-3 los dos, y el DOM lo pone después). `key={tema}` lo remonta
+          cuando el tema cambia al navegar, para que su etiqueta no se quede con el estado anterior.
+        */}
+        <div className="order-3 flex w-full min-w-0 items-center gap-3.5 lg:contents">
+          <nav aria-label="Funciones" className="min-w-0 flex-1 lg:order-2 lg:w-auto lg:flex-none">
+            <ul className="flex items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
+              <li className="shrink-0">
+                <Link
+                  href="/competiciones"
+                  aria-current={activo === 'explorar' ? 'page' : undefined}
+                  className={claseSeccion(activo === 'explorar')}
+                >
+                  <IconoExplorar />
+                  Explorar
+                </Link>
+              </li>
+              <li className="shrink-0">
+                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
+                  Rankings
+                </span>
+              </li>
+              <li className="shrink-0">
+                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
+                  Ojeo
+                </span>
+              </li>
+              <li className="shrink-0">
+                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
+                  Comparar
+                </span>
+              </li>
+            </ul>
+          </nav>
+
+          {permiteTema && <BotonTema key={tema} tema={tema} className="lg:order-3" />}
+        </div>
 
         <div className="order-4 w-full min-w-0 lg:flex-1">
           <Buscador />

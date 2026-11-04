@@ -281,6 +281,9 @@ Comparación de la misma suite:
    de «limpia la federación de pruebas» evitaría el tercer fallo de esta sesión.
 5. **La proyección de lectura proyecta los grupos de pruebas** si han quedado restos: es lo que
    envenenó el estado. La limpieza ya se cura sola, pero la proyección debería saltarse `pruebas`.
+   **Resuelto el 04/11/2026 (tarde)**: `scripts/proyectar-lectura.mjs` excluye `f.codigo = 'pruebas'`
+   en su filtro. Era la causa de que la suite completa fallara de forma intermitente al coincidir una
+   pasada de la proyección (tarea del PC cada 15 min) con la limpieza de `lote.test.ts`.
 
 ---
 

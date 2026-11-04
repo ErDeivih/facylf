@@ -1,0 +1,89 @@
+{
+  "cyl": {
+    "competiciones_total": 889,
+    "completas": 133,
+    "porcentaje": 85
+  },
+  "temporadas": [
+    {
+      "temporada": "2026-27",
+      "hecho": 1,
+      "total": 57
+    },
+    {
+      "temporada": "2025-26",
+      "hecho": 19,
+      "total": 71
+    },
+    {
+      "temporada": "2024-25",
+      "hecho": 19,
+      "total": 79
+    },
+    {
+      "temporada": "2023-24",
+      "hecho": 21,
+      "total": 83
+    },
+    {
+      "temporada": "2022-23",
+      "hecho": 12,
+      "total": 70
+    },
+    {
+      "temporada": "2021-22",
+      "hecho": 11,
+      "total": 66
+    },
+    {
+      "temporada": "2020-21",
+      "hecho": 9,
+      "total": 32
+    },
+    {
+      "temporada": "2019-20",
+      "hecho": 1,
+      "total": 56
+    },
+    {
+      "temporada": "2018-19",
+      "hecho": 8,
+      "total": 61
+    },
+    {
+      "temporada": "2017-18",
+      "hecho": 8,
+      "total": 60
+    },
+    {
+      "temporada": "2016-17",
+      "hecho": 6,
+      "total": 58
+    },
+    {
+      "temporada": "2015-16",
+      "hecho": 9,
+      "total": 65
+    },
+    {
+      "temporada": "2014-15",
+      "hecho": 3,
+      "total": 61
+    },
+    {
+      "temporada": "2013-14",
+      "hecho": 4,
+      "total": 46
+    },
+    {
+      "temporada": "2012-13",
+      "hecho": 2,
+      "total": 24
+    }
+  ],
+  "ritmo": {
+    "pc_por_min": 2.6,
+    "servidor_por_min": 24.8,
+    "medido": "2026-11-04T20:26"
+  }
+}

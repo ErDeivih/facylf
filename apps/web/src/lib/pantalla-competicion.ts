@@ -53,8 +53,12 @@ export function siglas(texto: string | null | undefined): string {
 }
 
 /**
- * La forma (`ultimos5` de la consulta, del más antiguo al más reciente) como letras que se puedan
- * pintar. Cualquier carácter que no sea G, E o P se descarta: no se interpreta lo que no se entiende.
+ * La forma (`ultimos5` de la consulta, del más antiguo al más reciente) como los `Signo` del dato
+ * (`G`/`E`/`P`). Cualquier carácter que no sea G, E o P se descarta: no se interpreta lo que no se
+ * entiende.
+ *
+ * Ojo: `G`/`E`/`P` es el vocabulario del **dato**, no el de la pantalla. La letra que se pinta es
+ * V/E/D y se saca con `letraFormaVisible` de `lib/forma-equipo.ts` (decisión de David, 04/11/2026).
  */
 export function formaDe(ultimos5: string | null | undefined): Array<'G' | 'E' | 'P'> {
   return (ultimos5 ?? '').toUpperCase().split('').filter((c): c is 'G' | 'E' | 'P' => c === 'G' || c === 'E' || c === 'P');
@@ -101,15 +105,16 @@ export function formaHasta(
 }
 
 /**
- * Colores de una insignia de forma (G/E/P).
+ * Colores de una insignia de forma, a partir del `Signo` del dato (`G`/`E`/`P`; la letra visible es
+ * V/E/D y la pone `lib/forma-equipo.ts`).
  *
  * No se usa el token tal cual como fondo: medido, el verde de `--victoria` con texto casi blanco da
  * 4,16:1 y el ámbar 3:1, por debajo del 4,5 que exige AA para una letra de 10 px. Se oscurece el token
  * mezclándolo con la superficie fuerte del producto (`color-mix` en oklab, que conserva el tono) hasta
  * que el texto blanco se lee: el peor caso medido queda en 5,1:1 en tema oscuro.
  */
-export function estiloForma(letra: 'G' | 'E' | 'P'): { backgroundColor: string; color: string } {
-  const base = letra === 'G' ? 'var(--victoria)' : letra === 'P' ? 'var(--derrota)' : 'var(--empate)';
+export function estiloForma(signo: 'G' | 'E' | 'P'): { backgroundColor: string; color: string } {
+  const base = signo === 'G' ? 'var(--victoria)' : signo === 'P' ? 'var(--derrota)' : 'var(--empate)';
   return {
     backgroundColor: `color-mix(in oklab, ${base} 60%, var(--fondo-fuerte))`,
     color: 'var(--texto-fuerte)',

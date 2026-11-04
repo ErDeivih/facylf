@@ -209,7 +209,7 @@ describe('presentación de la pantalla de competición', () => {
     expect(zonaDe(1, 16, { ascensos: 0, promocion: 0, descensos: 0, promocion_permanencia: 0, origen: 'aprendida', confianza: null, temporadas: null })).toBeNull();
   });
 
-  it('la forma se pinta como insignias y nunca con letras que no sean G, E o P', () => {
+  it('la forma del DATO se parsea como G, E o P y descarta lo que no entiende (la letra visible es V-E-D)', () => {
     expect(formaDe('GEEPG')).toEqual(['G', 'E', 'E', 'P', 'G']);
     expect(formaDe('')).toEqual([]);
     expect(formaDe('XYZ')).toEqual([]);
@@ -515,6 +515,86 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
       equipos: 16,
     }));
     expect(html).toMatch(/la forma cuenta los partidos hasta la misma jornada/i);
+  });
+});
+
+/**
+ * Decisión de David (04/11/2026): la forma se enseña en **V-E-D** (Victoria/Empate/Derrota).
+ * El prototipo mezclaba V-E-D en Inicio y G-E-P en Competición; se unifica a V-E-D.
+ *
+ * El dato de origen NO cambia: las consultas y el dominio siguen devolviendo `Signo` G/E/P, y la
+ * traducción vive en un único sitio (`lib/forma-equipo.ts`). Lo que esta prueba fija es lo que ve el
+ * usuario: insignias V/E/D, cabecera V-E-D y títulos con la palabra, nunca la letra del dato.
+ */
+describe('la forma de la clasificación se pinta en V-E-D', () => {
+  const filaForma: FilaClasificacionPantalla = {
+    posicion: 1,
+    equipo_id: 17607,
+    equipo: 'Burgos C.F. S.A.D.',
+    puntos: 6,
+    jugados: 5,
+    ganados: 2,
+    empatados: 1,
+    perdidos: 2,
+    goles_favor: 0,
+    goles_contra: 0,
+    goles_favor_reconstruida: 5,
+    goles_contra_reconstruida: 1,
+    origen: 'oficial',
+    jornada: 2,
+  };
+
+  const render = (rachas: Map<number, string>) => renderToStaticMarkup(createElement(Clasificacion, {
+    filas: [filaForma], rachas, zonas: null, equipos: 16,
+  }));
+
+  /** Lo que un usuario ve dentro de una insignia de forma, sacado del HTML renderizado. */
+  const insignias = (html: string) => [...html.matchAll(
+    /<span([^>]*\btitle="(Victoria|Empate|Derrota)"[^>]*)>([^<]*)/g,
+  )].map((m) => ({ etiqueta: m[2]!, letra: m[3]!.trim(), atributos: m[1]! }));
+
+  it('las insignias muestran V/E/D y su palabra, nunca la letra del dato', () => {
+    // La racha de origen sigue siendo G/E/P: es lo que devuelve la consulta y no se toca.
+    const html = render(new Map([[17607, 'GGEPP']]));
+    const pintadas = insignias(html);
+    expect(pintadas.map(({ etiqueta, letra }) => ({ etiqueta, letra }))).toEqual([
+      { etiqueta: 'Victoria', letra: 'V' },
+      { etiqueta: 'Victoria', letra: 'V' },
+      { etiqueta: 'Empate', letra: 'E' },
+      { etiqueta: 'Derrota', letra: 'D' },
+      { etiqueta: 'Derrota', letra: 'D' },
+    ]);
+    // Una insignia por resultado de la forma, ni una más ni una menos.
+    expect(pintadas).toHaveLength(5);
+    for (const { letra } of pintadas) expect(['V', 'E', 'D']).toContain(letra);
+    // Y cada insignia lleva la palabra en el nombre accesible: nunca sólo la letra y el color.
+    for (const { etiqueta, atributos } of pintadas) {
+      expect(atributos).toContain(`aria-label="${etiqueta}"`);
+      expect(atributos).toContain(`title="${etiqueta}"`);
+    }
+    // Y ninguna letra G/P se pinta como insignia (las palabras Goles/Ganados no son una insignia).
+    expect(html).not.toMatch(/>G</);
+    expect(html).not.toMatch(/>P</);
+    expect(html).not.toMatch(/Ganado|Perdido/);
+  });
+
+  it('la cabecera de la columna dice V-E-D, no G-E-P', () => {
+    const html = render(new Map([[17607, 'GG']]));
+    expect(html).toContain('>V-E-D<');
+    expect(html).not.toContain('>G-E-P<');
+    // El título de la cabecera dice las palabras, no las siglas del dato.
+    expect(html).toContain('title="Victorias-Empates-Derrotas"');
+  });
+
+  it('el caption de la tabla nombra las victorias, no los «ganados» del dato', () => {
+    const html = render(new Map([[17607, 'GG']]));
+    expect(html).toMatch(/victorias-empatadas-derrotas/i);
+  });
+
+  it('sin forma no se inventan insignias, y la cabecera sigue en V-E-D', () => {
+    const html = render(new Map());
+    expect(insignias(html)).toEqual([]);
+    expect(html).toContain('>V-E-D<');
   });
 });
 

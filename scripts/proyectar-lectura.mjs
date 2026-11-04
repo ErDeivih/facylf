@@ -96,7 +96,10 @@ const FILTRO = `
   join core.competition_edition ce on ce.id = pg.competition_edition_id
   join core.federation f on f.id = ce.federation_id
   join core.season s on s.id = ce.season_id
- where ($1::text is null or f.codigo = $1)${SQL_SIN_LP}`;
+ -- La federación `pruebas` no se proyecta NUNCA: sus grupos los crean y borran las suites del
+ -- importador, y una pasada a mitad de limpieza chocaba con sus borrados (FK de analytics) y hacía
+ -- fallar la suite de forma intermitente. Es una federación de laboratorio, no una que se publique.
+ where ($1::text is null or f.codigo = $1) and f.codigo <> 'pruebas'${SQL_SIN_LP}`;
 
 let detener = false;
 process.on('SIGINT', () => {

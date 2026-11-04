@@ -29,9 +29,9 @@ Las 22 pantallas, por si hace falta localizar una: Inicio · Competición · Act
 
 | Pregunta | Por qué importa | Estado |
 |---|---|---|
-| La forma del equipo: ¿`V-E-D` (Victoria/Empate/Derrota) o `G-E-P` (Ganado/Empatado/Perdido)? | **el prototipo usa las dos**: `V-E-D` en Inicio y `G-E-P` en Competición. Hay que elegir una | **pendiente** |
+| La forma del equipo: ¿`V-E-D` (Victoria/Empate/Derrota) o `G-E-P` (Ganado/Empatado/Perdido)? | **el prototipo usa las dos**: `V-E-D` en Inicio y `G-E-P` en Competición. Hay que elegir una | **decidido: V-E-D** en toda la aplicación (04/11/2026), implementado |
 | ¿Las 22 pantallas entran todas en la primera tanda, o se recorta? | hacer 22 pantallas de golpe es un año | **pendiente** |
-| ¿Se reutiliza el código de la plataforma que ya existe en `apps/`, o se rehace contra el diseño? | hay un `apps/` con web | **pendiente** |
+| ¿Se reutiliza el código de la plataforma que ya existe en `apps/`, o se rehace contra el diseño? | hay un `apps/` con web | **decidido**: el diseño manda y se rehacen las pantallas; se conservan consultas, contratos e ingesta |
 
 ## Objetivo 1 — Que no tenga errores (sigue siendo lo primero)
 
@@ -120,8 +120,28 @@ panel lo lee (nada de que el panel calcule: el proyecto lo mide).
  "ritmo": {"pc_por_min": 0, "servidor_por_min": 0, "medido": "AAAA-MM-DDTHH:MM"}}
 ```
 
+**Publicado el 04/11/2026.** El generador es `scripts/metricas-facylf.mjs`; la semántica exacta de
+cada número (qué es una competición, cuándo está completa, de dónde sale el ritmo y qué pasa si una
+fuente falla) está en [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
+El fichero existe en la raíz con datos reales; **falta decidir si se registra una tarea programada**
+para refrescarlo cada minuto (cambiar los ajustes del PC es nivel 3).
+
 ## Decision de coordinacion (2026-11-04, tarde) — otras dos decisiones
 
 - **Forma del equipo**: se usa **V-E-D** (Victoria/Empate/Derrota) en la aplicación,
   que es lo que entiende cualquiera. El prototipo mezcla V-E-D y G-E-P; se unifica a V-E-D.
 - **Tema claro/oscuro**: **sí entra** en esta tanda. El sistema de diseño ya lo tiene.
+
+**Hecho el 04/11/2026.**
+
+- **V-E-D**: `lib/forma-equipo.ts` es la única traducción (`G→V`, `E→E`, `P→D`); el dato de dominio y
+  las consultas siguen en `G/E/P`. Se aplica en la clasificación (cabecera `V-E-D`, insignias V/E/D y
+  palabra accesible), en `Racha`, en la ficha de equipo y en las actuaciones de jugador. Los
+  **recuentos** (`G`, `E`, `P` de ganados/empatados/perdidos en columnas numéricas) se quedan como
+  estaban: son números, no la forma.
+- **Tema**: cookie `tema=claro|oscuro` leída en el servidor; `<html data-tema>` correcto en el primer
+  HTML (sin parpadeo); botón accesible en la cabecera (44×44) que alterna y persiste; axe sin serias
+  ni críticas en claro y en oscuro en la pantalla nueva. **Se aplica sólo a las rutas migradas**
+  (`/explorar…`): `proxy.ts` deja la ruta y en las páginas viejas se fuerza claro y no se ofrece el
+  botón, porque usan colores literales (deuda previa de `DESIGN.md` §2) y el oscuro las dejaba
+  ilegibles. El orden de foco coincide con el visual (logo → Explorar → tema → buscador).

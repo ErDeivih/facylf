@@ -312,6 +312,100 @@ arrastra la interfaz vieja.
   clasificación tarda 17 ms en PostgreSQL. La medición de p95 real exige build de producción y queda
   para la tarea de despliegue.
 
+## 2026-11-04 · Sesión 3 — métricas para el panel, V-E-D y tema claro/oscuro
+
+Decisiones de David del 04/11/2026 (tarde) en `ESPECIFICACION.md`. Contrato de esta sesión en
+[`docs/plataforma-web/SPEC-METRICAS-VED-TEMA.md`](docs/plataforma-web/SPEC-METRICAS-VED-TEMA.md).
+
+### 22. `metricas-facylf.json`: qué mide el proyecto para que el panel no calcule
+
+- **Qué se hizo**: `scripts/metricas-facylf.mjs` genera en la raíz el JSON con la forma exacta pedida
+  (`cyl`, `temporadas`, `ritmo`). Lógica pura en `scripts/lib/metricas-facylf.mjs` (9 pruebas) y un
+  sondeo **en memoria** para el servidor (`scripts/lib/metricas-servidor-remoto.mjs`, por SSH a
+  `docker exec -i facylf-monitor node -`; no se instala nada allí). Semántica completa en
+  [`docs/plataforma-web/METRICAS-PANEL.md`](docs/plataforma-web/METRICAS-PANEL.md).
+- **Qué es una competición**: una **edición de competición** (una liga/división en una temporada). Es
+  la unidad que ya usa el proyecto para decidir si una competición está terminada y la que aparece en
+  la tabla de cobertura por temporada.
+- **Cuándo está completa**: cuando **todos sus grupos** tienen `ops.coverage_checkpoint.visibility_state
+  = 'completa'`. `parcial_privada` no cuenta: la fuente publica menos, pero falta dato. Es el criterio
+  estricto de «todas las jornadas, todos los resultados y todas las actas» que ya usa el proyecto.
+- **Total**: unión de las competiciones que conocen las colas de CyL del PC y del servidor y las que ya
+  están en el canónico, sin duplicar por `(temporada, código)`. Así no se pierden las que sólo conoce
+  una máquina ni las históricas que sólo están importadas.
+- **Rol de lectura**: se lee el canónico con `DATABASE_URL_PUBLICADOR`, no con el rol de la web. El rol
+  `facylf_lector` tiene una política RLS restrictiva (`web_sin_la_preferente`) que esconde 34 ediciones
+  de La Preferente en CyL; el panel mide la **ingesta**, no la oferta pública de la web, y tiene que
+  verlas. Sólo se hacen `SELECT`.
+- **Ritmo**: peticiones de los últimos **5 minutos**, expresadas por minuto (90 en 5 min = 18/min), en
+  cada máquina y para todas las federaciones. No es la media histórica. Una ventana de 60 s daba ceros
+  y picos de ráfaga que no describían la máquina; 5 min sigue siendo «ahora» para un panel que se
+  refresca cada minuto. PC se mide en las colas locales; servidor, por SSH leyendo sus colas.
+- **Fallo**: si falla una fuente (SSH, canónico o una cola ilegible) **no se escribe nada**: se conserva
+  el JSON anterior y se sale con error. Mejor un dato viejo con su `medido` que un cero falso.
+- **Publicado el 04/11/2026**: 889 competiciones, 133 completas (85 % por hacer), 15 temporadas,
+  ritmo del momento 0/min en el PC y ~18/min en el servidor. El fichero se versiona como foto; el
+  script lo regenera.
+- **Pendiente de decisión (Nivel 3)**: registrar una tarea programada que lo refrezque cada minuto.
+  Tocar los ajustes del PC y el ritmo de una tarea del sistema es decisión de David; el script está
+  preparado y se puede lanzar a mano.
+- **Nivel**: 2 (medición) y 3 (la programación).
+
+### 23. V-E-D en toda la aplicación, sin tocar el dato
+
+- **Qué se hizo**: `apps/web/src/lib/forma-equipo.ts` es la **única** traducción (`G→V`, `E→E`,
+  `P→D`, y `Victoria/Empate/Derrota` como palabra accesible). Se aplica en la clasificación (cabecera
+  `V-E-D`, insignias V/E/D, título y `aria-label` con la palabra), `Racha`, la ficha de equipo y las
+  actuaciones de jugador.
+- **Qué NO se cambia**: el `Signo` del dominio (`packages/dominio`), el SQL de rachas y los mapas
+  `G/E/P` del repositorio local. Cambiar el dato para un cambio de presentación habría roto contratos y
+  pruebas sin necesidad.
+- **Recuentos**: las columnas numéricas de ganados/empatados/perdidos (p. ej. `G`, `E`, `P`, `GF`) y las
+  tarjetas «Ganados/Perdidos» **siguen como estaban**: son recuentos, no la forma del equipo. La forma
+  es la racha de últimos resultados.
+- **Nivel**: 2 (decisión de David).
+
+### 24. Tema claro/oscuro de verdad: cookie, servidor y control (sólo en las rutas migradas)
+
+- **Qué se hizo**: `layout.tsx` lee la cookie `tema` con `cookies()` (Next 16, asíncrono) y escribe
+  `<html data-tema="claro|oscuro">`; el primer HTML ya sale con el tema correcto, sin `useEffect` ni
+  parpadeo. Cookie ausente o inválida → claro. Botón `BotonTema` en la cabecera (44×44, icono sol/luna,
+  nombre accesible «Cambiar a tema…», 365 días, `SameSite=Lax`) que cambia `data-tema` al instante sin
+  recargar y persiste al recargar. Tokens de `tokens.css` ya estaban.
+- **Sólo donde la presentación está migrada**: `apps/web/src/proxy.ts` (convención de Next 16; sustituye
+  a `middleware.ts`) deja la ruta en `x-pathname`; el layout aplica el tema sólo en `/explorar…`. En las
+  páginas viejas se fuerza `data-tema="claro"` y **no se pinta el botón**. Sin esto, el oscuro dejaba
+  `/canonico` con 1.785 nodos de contraste serios y los KPI a 1,15:1, porque esas páginas usan colores
+  literales (deuda previa de `DESIGN.md` §2); ahora se quedan en sus 401 nodos preexistentes de claro,
+  que se retiran al migrarlas (W9).
+- **Navegación cliente**: `CabeceraSitioActiva` recalcula el permiso con `usePathname` y, sólo al cambiar
+  de ruta, sincroniza el atributo y el botón (cookie en migrada, claro en vieja); el primer render no se
+  toca porque el servidor ya lo dejó bien.
+- **Orden de foco**: el botón va **después de la `<nav>` en el DOM** (los iconos pendientes están
+  desactivados), de modo que Tab sigue el orden visual: logo → Explorar → tema → buscador, en 1280 y en
+  400 (en móvil nav y tema comparten fila).
+- **Coste asumido**: `cookies()`/`headers()` en el layout raíz hacen dinámicas todas las rutas. Es el
+  precio de resolver el tema en el servidor; se documenta para la etapa de rendimiento.
+- **Nivel**: 2 (pantalla ya especificada y sistema de diseño existente).
+
+### 25. `resumen:` en `ESTADO-AGENTE.md`
+
+- **Qué se hizo**: se añade un campo `resumen:` en llano al bloque de estado (lo lee el mismo panel). No
+  sustituye a los campos del protocolo: los acompaña con una frase que se entiende sin contexto.
+- **Nivel**: 1.
+
+### 26. La proyección de lectura deja de proyectar la federación `pruebas`
+
+- **Qué pasó**: la suite completa falló una vez al borrar `team_entry` de la federación de pruebas
+  porque la proyección (tarea del PC cada 15 min) había vuelto a insertar agregados de `analytics`
+  para esos grupos entre la limpieza y el borrado. Es el punto 5 de la deuda de `INFORME-PRUEBAS.md`,
+  convertido en fallo intermitente real.
+- **Qué se hizo**: `scripts/proyectar-lectura.mjs` excluye `f.codigo = 'pruebas'` en el `FILTRO`. Es
+  una federación de laboratorio: sus grupos los crean y borran las suites del importador, no se
+  publica. Sin este filtro, cualquier pasada de la proyección puede pisar una limpieza en curso.
+- **Qué no se toca**: el código de la proyección ni sus migraciones; sólo el filtro de selección.
+- **Nivel**: 1 (deuda de pruebas que hacía fallar la suite de forma intermitente).
+
 ---
 
 ## Preguntas de Nivel 3 que quedan abiertas (no bloquean el trabajo)

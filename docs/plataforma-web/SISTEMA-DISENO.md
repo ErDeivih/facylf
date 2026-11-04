@@ -374,11 +374,20 @@ Una pantalla no está terminada hasta que:
 **Cómo se comprueba hoy** (04/11/2026): la pantalla 2 tiene su prueba de flujo con navegador real,
 `apps/web/e2e/pantalla-2.spec.ts`, que cubre los puntos 1, 3, 4, 6 y 7 en móvil (360) y escritorio
 (1280), más los 404 y los datos reales. Si ya hay un `next dev` en marcha se le apunta con
-`PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` (Next 16 no permite dos servidores de desarrollo en el
-mismo directorio). El punto 2 (tema claro/oscuro y densidad) se mide forzando `data-tema` y
-`data-densidad`, porque **el sitio todavía no tiene interruptor**: es deuda anotada en `BACKLOG.md`.
-El punto 5 (estado de carga) se resuelve con `Suspense` dentro de la página y esqueleto de las mismas
-dimensiones; el 404 se mantiene porque no hay `loading.tsx` de ruta por encima de la validación.
+`PLAYWRIGHT_BASE_URL=http://localhost:3000` (Next 16 no permite dos servidores de desarrollo en el
+mismo directorio). El punto 2 (tema claro/oscuro) ya está implementado —cookie `tema` resuelta en el
+servidor, `<html data-tema>`, botón en la cabecera y e2e que comprueba primer HTML, persistencia, orden
+de foco y axe en los dos temas— **sólo en las rutas migradas** (`/explorar…`): `proxy.ts` deja la ruta
+y en las viejas se fuerza claro y no se pinta el botón, porque sus colores literales (§2) no son
+legibles en oscuro. La **densidad** (cómoda/compacta) sigue sin interruptor y está anotada en
+`BACKLOG.md`. El punto 5 (estado de carga) se resuelve con `Suspense` dentro de la página y esqueleto
+de las mismas dimensiones; el 404 se mantiene porque no hay `loading.tsx` de ruta por encima de la
+validación.
+
+**La forma del equipo** (últimos resultados) se escribe **V-E-D** (Victoria/Empate/Derrota) en toda la
+interfaz, no `G-E-P` (decisión de David, 04/11/2026). El dato de dominio sigue siendo `G/E/P`; la
+traducción vive en `apps/web/src/lib/forma-equipo.ts` y es la única. Los recuentos numéricos de
+ganados/empatados/perdidos no se tocan: son números, no la forma.
 
 ## 11. Elevación, capas, foco e iconografía
 

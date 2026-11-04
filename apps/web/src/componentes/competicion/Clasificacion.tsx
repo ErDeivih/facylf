@@ -1,12 +1,10 @@
 import type { FilaClasificacionPantalla } from '@/consultas/competiciones';
 import { Escudo } from '@/componentes/Escudo';
+import { insigniaForma } from '@/lib/forma-equipo';
 import {
   claseZona, estiloForma, etiquetaZona, formaDe, golesDeLaFila, hayReconstruccionCompleta, publicaGoles, zonaDe,
   type ZonaPantalla, type ZonasDelGrupo,
 } from '@/lib/pantalla-competicion';
-
-/** Texto de cada insignia de forma para quien no ve el color. */
-const PALABRA_FORMA = { G: 'Ganado', E: 'Empate', P: 'Perdido' } as const;
 
 /**
  * La tabla de clasificación de la pantalla 2, contra el prototipo.
@@ -53,8 +51,8 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
           </span>
           {/*
             Casa y Fuera se apagan, no se fingen: `analytics` sólo guarda jugados_casa / jugados_fuera,
-            no el G-E-P ni los goles por condición. El motivo va en el propio control, no sólo en un
-            `title`, para que también lo oiga un lector de pantalla.
+            no el desglose V-E-D ni los goles por condición. El motivo va en el propio control, no sólo en
+            un `title`, para que también lo oiga un lector de pantalla.
           */}
           <button type="button" disabled
             className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
@@ -80,14 +78,20 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
             <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 600 }}>
               <caption className="sr-only">
-                Clasificación del grupo: posición, partidos jugados, ganados-empatados-perdidos, goles y puntos de cada equipo.
+                Clasificación del grupo: posición, partidos jugados, victorias-empatadas-derrotas, goles y puntos de cada equipo.
               </caption>
               <thead>
                 <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
                   <th scope="col" className={`${fijas} left-0 w-9 py-2 pl-4 pr-1.5 text-left font-semibold`}>#</th>
                   <th scope="col" className={`${fijas} left-9 px-1.5 py-2 text-left font-semibold`}>Equipo</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold" title="Partidos jugados">PJ</th>
-                  <th scope="col" className="px-1.5 py-2 font-semibold" title="Ganados-Empatados-Perdidos">G-E-P</th>
+                  {/*
+                    El recuento de victorias-empatadas-derrotas también se rotula V-E-D: la aplicación
+                    usa V-E-D para Victoria/Empate/Derrota en toda la interfaz (decisión de David,
+                    04/11/2026). El dato no cambia: `ganados`/`empatados`/`perdidos` son los de la
+                    consulta.
+                  */}
+                  <th scope="col" className="px-1.5 py-2 font-semibold" title="Victorias-Empates-Derrotas">V-E-D</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold" title="Goles a favor y en contra">Goles</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold"
                     title="Últimos 5 partidos hasta la jornada de la tabla, del más antiguo al más reciente">Forma</th>
@@ -131,14 +135,20 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-left">
                         <div className="flex gap-[3px]">
-                          {forma.map((letra, i) => (
-                            <span key={`${letra}-${i}`} title={PALABRA_FORMA[letra]}
-                              className="flex size-5 items-center justify-center rounded-[5px] text-[10px] font-bold"
-                              style={estiloForma(letra)}>
-                              <span aria-hidden="true">{letra}</span>
-                              <span className="sr-only">{PALABRA_FORMA[letra]}</span>
-                            </span>
-                          ))}
+                          {forma.map((signo, i) => {
+                            const { letra, etiqueta } = insigniaForma(signo);
+                            // `role="img"` + `aria-label`: un lector de pantalla oye «Victoria» y la
+                            // letra sigue siendo la única letra visible de la insignia. El texto del
+                            // `sr-only` se colaba en `innerText` (y en la prueba e2e que mide la letra
+                            // visible), así que la palabra va en el nombre accesible, no en un span.
+                            return (
+                              <span key={`${letra}-${i}`} role="img" aria-label={etiqueta} title={etiqueta}
+                                className="flex size-5 items-center justify-center rounded-[5px] text-[10px] font-bold"
+                                style={estiloForma(signo)}>
+                                {letra}
+                              </span>
+                            );
+                          })}
                         </div>
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] py-0 pl-1.5 pr-4 text-cuerpo font-extrabold text-[var(--texto)]">

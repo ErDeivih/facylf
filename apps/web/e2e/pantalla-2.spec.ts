@@ -54,6 +54,22 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     // La jornada enfrenta a los 16 equipos: ocho partidos.
     const jornada = page.locator('section', { has: page.getByRole('heading', { name: /^Jornada/ }) });
     await expect(jornada.locator('li')).toHaveCount(8);
+
+    // La forma del equipo se enseña en V-E-D en toda la aplicación (decisión de David, 04/11/2026):
+    // la cabecera lo dice y cada insignia lleva una letra visible y su palabra accesible.
+    await expect(tabla.locator('thead th').filter({ hasText: 'V-E-D' })).toHaveCount(1);
+    const insignias = await tabla.locator('tbody tr').first().locator('td').nth(5).locator('span[title]')
+      .evaluateAll((els) => els.map((el) => ({
+        letra: (el as HTMLElement).innerText.trim(),
+        titulo: el.getAttribute('title'),
+      })));
+    expect(insignias.length).toBeGreaterThan(0);
+    for (const i of insignias) {
+      expect(['V', 'E', 'D']).toContain(i.letra);
+      expect(['Victoria', 'Empate', 'Derrota']).toContain(i.titulo);
+    }
+    const cuerpoDeLaTabla = await tabla.innerText();
+    expect(cuerpoDeLaTabla).not.toMatch(/\b[GP]\b/); // G/P no son forma visible
   });
 
   test('un nombre de 45 caracteres no rompe la tabla a 400 px y se puede leer', async ({ page }) => {
@@ -225,5 +241,61 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const resultado = await new AxeBuilder({ page }).analyze();
     const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
     expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
+  test('el tema no se ofrece ni se aplica en las rutas viejas (colores literales)', async ({ page, context }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const origen = new URL(page.url()).origin;
+    await context.addCookies([{ name: 'tema', value: 'oscuro', url: origen }]);
+
+    await page.goto('/canonico');
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
+    await expect(page.getByRole('button', { name: /Cambiar a tema/ })).toHaveCount(0);
+
+    // Y en la ruta migrada el mismo navegador sí respeta la cookie y ofrece el control.
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'oscuro');
+    await expect(page.getByRole('button', { name: 'Cambiar a tema claro' })).toBeVisible();
+  });
+
+  test('el orden de tabulación de la cabecera coincide con el orden visual', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const orden = await page.evaluate(() => [...document.querySelectorAll('header a, header button:not([disabled]), header input')]
+      .map((el) => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || '')
+      .filter(Boolean));
+    expect(orden[0]).toContain('facylf');
+    expect(orden[1]).toContain('Explorar');
+    expect(orden[2]).toBe('Cambiar a tema oscuro');
+    expect(orden[3]).toContain('Buscar');
+  });
+
+  test('el tema se resuelve en el servidor y el botón lo cambia y lo persiste', async ({ page, context, request }) => {
+    // Primer HTML con cookie: el servidor ya escribe el tema correcto (sin parpadeo).
+    const conCookie = await request.get(`/explorar/competicion/${GRUPO_CYL}`, { headers: { cookie: 'tema=oscuro' } });
+    expect(conCookie.status()).toBe(200);
+    expect(await conCookie.text()).toContain('data-tema="oscuro"');
+
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
+
+    await page.getByRole('button', { name: 'Cambiar a tema oscuro' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'oscuro');
+    const cookies = await context.cookies();
+    expect(cookies.find((c) => c.name === 'tema')?.value).toBe('oscuro');
+
+    // Y persiste al recargar: la próxima petición ya la resuelve el servidor.
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'oscuro');
+    await expect(page.getByRole('button', { name: 'Cambiar a tema claro' })).toBeVisible();
+
+    // axe en oscuro, que es el tema que antes no existía.
+    const oscuro = await new AxeBuilder({ page }).analyze();
+    const gravesOscuro = oscuro.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(gravesOscuro.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+
+    await page.getByRole('button', { name: 'Cambiar a tema claro' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'claro');
+    expect((await context.cookies()).find((c) => c.name === 'tema')?.value).toBe('claro');
   });
 });

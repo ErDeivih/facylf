@@ -1,8 +1,21 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { datosFederacion, jugadorLocal } from '@/lib/repositorio-local';
+import { insigniaForma } from '@/lib/forma-equipo';
 import { Bloque } from '@/componentes/Bloque';
 import { TrayectoriaJugador } from '@/componentes/TrayectoriaJugador';
+
+/**
+ * El resultado de una actuación, como insignia: **V-E-D** (Victoria/Empate/Derrota) y color, nunca
+ * sólo color (DESIGN.md §Color). El `resultado` que llega del repositorio es el `Signo` `G/E/P` del
+ * dato; la letra visible la traduce `lib/forma-equipo.ts`. Sin resultado no se inventa una letra.
+ */
+function InsigniaResultado({ signo }: { signo: 'G' | 'E' | 'P' | null }) {
+  if (signo === null) return <span className="insignia">—</span>;
+  const { letra, etiqueta } = insigniaForma(signo);
+  const color = signo === 'G' ? 'insignia-verde' : signo === 'P' ? 'insignia-roja' : '';
+  return <span className={`insignia ${color}`} title={etiqueta}>{letra}</span>;
+}
 
 /**
  * Ficha de jugador leída **de las colas SQLite**, el camino antiguo. Puente, igual que
@@ -86,7 +99,7 @@ export async function JugadorDesdeCola({ codigo }: { codigo: string }) {
     <Bloque titulo="Partidos y actas recientes" pie="Resultado desde el punto de vista del jugador.">
       <ul>{j.actuaciones.slice(0, 40).map((a) => <li key={a.actaSlug}
         className="grid gap-2 border-t border-[#EDF0ED] px-4 py-3 text-sm first:border-t-0 sm:grid-cols-[5rem_1fr_auto]">
-        <div><span className={`insignia ${a.resultado === 'G' ? 'insignia-verde' : a.resultado === 'P' ? 'insignia-roja' : ''}`}>{a.resultado ?? '—'}</span>
+        <div><InsigniaResultado signo={a.resultado} />
           <span className="mt-1 block text-xs text-[#5C646C]">J{a.jornada}</span></div>
         <div><p className="font-medium">{a.equipo ?? 'Equipo no enlazado'} · vs. {a.rival ?? 'rival no enlazado'}</p>
           <p className="text-xs text-[#5C646C]">{a.temporada} · {a.competicion} · {a.condicion === 'titulares' ? 'Titular' : a.condicion === 'convocados' ? 'Convocado · condición no publicada' : a.jugado ? `Entró ${a.minutoEntrada ?? '—'}′` : 'Suplente no utilizado'}</p></div>

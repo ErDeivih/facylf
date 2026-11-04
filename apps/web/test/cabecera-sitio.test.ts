@@ -78,9 +78,9 @@ describe('cabecera del sitio · la barra del prototipo', () => {
 
   it('los iconos de panel, avisos y cuenta son botones desactivados sin contador ni iniciales inventadas', () => {
     const html = pinta();
-    const botones = html.match(/<button[\s\S]*?<\/button>/g) ?? [];
-    expect(botones).toHaveLength(3);
-    for (const boton of botones) {
+    const pendientes = (html.match(/<button[\s\S]*?<\/button>/g) ?? []).filter((boton) => boton.includes('disabled'));
+    expect(pendientes).toHaveLength(3);
+    for (const boton of pendientes) {
       expect(boton).toMatch(/type="button"/);
       expect(boton).toMatch(/disabled/);
       expect(boton).toMatch(/aria-label="[^"]+ \(todavía no tiene pantalla\)"/);
