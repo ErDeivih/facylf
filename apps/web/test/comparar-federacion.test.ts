@@ -222,7 +222,7 @@ describe('las reglas de la ficha de federación', () => {
   });
 
   it('el título de la pestaña nombra la federación', () => {
-    expect(tituloDeFederacion('Castilla y León')).toBe('Castilla y León — Balompié');
+    expect(tituloDeFederacion('Castilla y León')).toBe('Castilla y León — Cantera');
   });
 });
 

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const fila = await entrenadorDe(id);
-    return fila ? { title: `${fila.nombre} · Entrenador — Balompié` } : {};
+    return fila ? { title: `${fila.nombre} · Entrenador — Cantera` } : {};
   } catch {
     return {};
   }

@@ -2,25 +2,22 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
 import { Escudo } from '@/componentes/Escudo';
-import { fechaDePartido, type JornadaResumen, type PartidoDeJornada } from '@/lib/jornadas';
 import { nombresDelPartido } from '@/lib/nombres-equipo';
 import { marcadorDePartido } from '@/lib/pantalla-competicion';
+import { fechaDePartido, type JornadaResumen, type PartidoDeJornada } from '@/lib/jornadas';
 import { fechaCorta } from '@/lib/vocabulario-pantalla';
 
 /**
- * Partidos de una jornada, con escudo, nombres, marcador, hora y campo.
+ * Partidos de una jornada, con escudo, nombres cortos, marcador, campo y árbitro.
  *
- * Tres reglas que el componente hace cumplir y que son el motivo de que exista:
- *  · un partido sin marcador se pinta «—» y NUNCA 0-0: un cero se lee como un partido jugado;
- *  · sin hora publicada no hay hueco de hora (nada de 00:00), y sin campo tampoco;
- *  · el enlace al acta sólo aparece si el partido tiene acta publicada: la página pasa `hrefActa`
- *    devolviendo la ruta de `/explorar/acta/<id>` únicamente cuando `calidad_acta` no es nula ni
- *    `unavailable`. Un partido sin acta no lleva a una página que no existe.
+ * Cada partido es una fila con los dos equipos **apilados en la misma columna** y, a la derecha, el
+ * resultado, el campo y el árbitro. Es el mismo orden en móvil: así un nombre largo no necesita cuatro
+ * líneas y el resultado queda siempre en el mismo sitio. Los equipos y el acta son enlaces reales.
  *
- * Los escudos vienen en la MISMA fila del partido (`local_club_id`/`local_tiene_escudo` y sus parejas de
- * visitante): con escudo guardado se sirve `/api/escudo/club/<id>` y, si no lo hay, el marcador de
- * posición determinista de `Escudo`. Una jornada de ocho partidos pinta sus dieciséis escudos sin una
- * petición por equipo.
+ * Reglas de datos:
+ *  · un partido sin marcador se pinta «—» y NUNCA 0-0;
+ *  · sin campo o sin árbitro no se inventa un hueco vacío;
+ *  · el enlace al acta sólo aparece si la página pasa `hrefActa` y el partido tiene acta publicada.
  */
 export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
   jornada: JornadaResumen;
@@ -43,9 +40,8 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
           </p>
         )
         : (
-          <ul>
+          <ul className="m-0 list-none p-0">
             {partidos.map((partido) => {
-              // La hora se enseña en su propia línea, así que el marcador es sólo el resultado (o «—»).
               const marcador = marcadorDePartido({
                 goles_local: partido.goles_local,
                 goles_visitante: partido.goles_visitante,
@@ -54,70 +50,64 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
               const nombres = nombresDelPartido(partido);
               const ganaLocal = marcador.jugado && (partido.goles_local ?? 0) > (partido.goles_visitante ?? 0);
               const ganaVisitante = marcador.jugado && (partido.goles_visitante ?? 0) > (partido.goles_local ?? 0);
+              const hora = (partido.hora ?? '').trim();
+              const campo = (partido.campo ?? '').trim();
               const arbitro = (partido.arbitro ?? '').trim();
-              const meta = [
-                fechaCorta(fechaDePartido(partido)),
-                (partido.hora ?? '').trim() !== '' ? partido.hora!.trim() : null,
-                (partido.campo ?? '').trim() !== '' ? partido.campo!.trim() : null,
-                arbitro !== '' ? `Árbitro: ${arbitro}` : null,
-              ].filter((pieza): pieza is string => pieza !== null);
               const acta = partido.calidad_acta !== null && hrefActa ? hrefActa(partido) : null;
+              const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
               return (
                 <li key={partido.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2.5">
-                  <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 text-tabla max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-y-1">
-                    <span className="flex min-w-0 items-center justify-end gap-2 text-right max-sm:col-start-1 max-sm:row-start-1 max-sm:flex-row-reverse max-sm:justify-start max-sm:text-left">
-                      <span className="sr-only">Local: </span>
-                      <span className={`min-w-0 break-words ${ganaLocal ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}
-                        title={nombres.completo_local}>
-                        {nombres.local}
-                      </span>
-                      <Escudo
-                        equipoId={partido.local_id}
-                        nombre={partido.local}
-                        clubId={partido.local_club_id}
-                        tieneEscudo={partido.local_tiene_escudo}
-                      />
-                    </span>
-                    <span
-                      title={marcador.accesible}
-                      className={marcador.jugado
-                        ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)] max-sm:col-start-2 max-sm:row-span-2 max-sm:self-center'
-                        : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)] max-sm:col-start-2 max-sm:row-span-2 max-sm:self-center'}>
-                      {marcador.texto}
-                      <span className="sr-only">, {marcador.accesible}</span>
-                    </span>
-                    <span className="flex min-w-0 items-center gap-2 max-sm:col-start-1 max-sm:row-start-2">
-                      <Escudo
-                        equipoId={partido.visitante_id}
-                        nombre={partido.visitante}
-                        clubId={partido.visitante_club_id}
-                        tieneEscudo={partido.visitante_tiene_escudo}
-                      />
-                      <span className="sr-only">Visitante: </span>
-                      <span className={`min-w-0 break-words ${ganaVisitante ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}
-                        title={nombres.completo_visitante}>
-                        {nombres.visitante}
-                      </span>
-                    </span>
-                  </div>
-                  {(meta.length > 0 || acta !== null) && (
-                    <p className="m-0 mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-nota text-[var(--texto-suave)]">
-                      {meta.map((pieza, i) => (
-                        <span key={`${i}-${pieza}`} className="flex items-center gap-2">
-                          {i > 0 && <span aria-hidden="true">·</span>}
-                          {pieza}
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <Link href={enlaceEquipo(partido.local_id)} title={nombres.completo_local}
+                        className="flex min-w-0 items-center gap-2">
+                        <Escudo equipoId={partido.local_id} nombre={partido.local}
+                          clubId={partido.local_club_id} tieneEscudo={partido.local_tiene_escudo} />
+                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
+                          {nombres.local}
                         </span>
-                      ))}
-                      {acta !== null && (
-                        <span className="flex items-center gap-2">
-                          {meta.length > 0 && <span aria-hidden="true">·</span>}
-                          <Link href={acta as Route} className="font-semibold text-[var(--accion)] hover:underline">
-                            Acta
-                          </Link>
+                        <span className="sr-only">Local</span>
+                      </Link>
+                      <Link href={enlaceEquipo(partido.visitante_id)} title={nombres.completo_visitante}
+                        className="flex min-w-0 items-center gap-2">
+                        <Escudo equipoId={partido.visitante_id} nombre={partido.visitante}
+                          clubId={partido.visitante_club_id} tieneEscudo={partido.visitante_tiene_escudo} />
+                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
+                          {nombres.visitante}
+                        </span>
+                        <span className="sr-only">Visitante</span>
+                      </Link>
+                    </div>
+                    <div className="flex min-w-0 flex-col items-end gap-0.5 text-right">
+                      <span title={marcador.accesible}
+                        className={marcador.jugado
+                          ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 font-bold text-[var(--texto-fuerte)]'
+                          : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 font-semibold text-[var(--texto-suave)]'}>
+                        {marcador.texto}
+                        <span className="sr-only">, {marcador.accesible}</span>
+                      </span>
+                      {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
+                      <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">
+                        {fechaCorta(fechaDePartido(partido))}
+                      </span>
+                      {campo !== '' && (
+                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]" title={campo}>
+                          {campo}
                         </span>
                       )}
-                    </p>
-                  )}
+                      {arbitro !== '' && (
+                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]"
+                          title={`Árbitro: ${arbitro}`}>
+                          <span className="sr-only">Árbitro: </span>{arbitro}
+                        </span>
+                      )}
+                      {acta !== null && (
+                        <Link href={acta as Route} className="text-etiqueta font-semibold text-[var(--accion)] hover:underline">
+                          Acta
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </li>
               );
             })}

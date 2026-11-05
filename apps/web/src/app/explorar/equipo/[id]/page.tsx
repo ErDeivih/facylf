@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const equipo = await equipoDe(id);
-    return equipo ? { title: `${equipo.nombre_en_fuente} · ${equipo.temporada} — Balompié` } : {};
+    return equipo ? { title: `${equipo.nombre_en_fuente} · ${equipo.temporada} — Cantera` } : {};
   } catch {
     return {};
   }

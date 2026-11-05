@@ -702,7 +702,7 @@ describe('el desplegable de temporada respeta la ventana publicada', () => {
 describe('el título de la pestaña', () => {
   it('nombra la competición y el grupo, no siempre «facylf»', () => {
     expect(tituloDeCompeticion({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Liga Nacional Juvenil · Primera - III — Balompié');
+      .toBe('Liga Nacional Juvenil · Primera - III — Cantera');
   });
 });
 

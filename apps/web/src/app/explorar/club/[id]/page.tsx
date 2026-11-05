@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const club = await clubDe(id);
-    return club ? { title: `${club.nombre_canonico} — Balompié` } : {};
+    return club ? { title: `${club.nombre_canonico} — Cantera` } : {};
   } catch {
     return {};
   }

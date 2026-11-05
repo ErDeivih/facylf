@@ -32,7 +32,7 @@ export async function GET(peticion: Request): Promise<NextResponse> {
     status: 200,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="mis-datos-balompie.json"',
+      'Content-Disposition': 'attachment; filename="mis-datos-cantera.json"',
       'Cache-Control': 'no-store',
     },
   });

@@ -4,5 +4,5 @@ tarea: todas las pantallas del prototipo y API v1 ampliada, con CyL prioritaria
 nivel: 2
 siguiente: validación de David; después, recogida de datos de CyL hasta completar la federación y, sólo entonces, abrir otras
 bloqueado:
-resumen: Todas las pantallas del prototipo y la API v1 están implementadas, con preferencias de aviso y descarga de datos en Mi cuenta. El feedback de capturas está aplicado y QA APTA. CyL sigue siendo la prioridad, pero su cobertura no está completa (133/889 competiciones): la recogida la hacen los colectores programados y no se ha tocado su ritmo. Administración sigue en sólo lectura por seguridad.
+resumen: Revisión de David aplicada: marca Cantera con logo propio, pie sin aviso legal verificado en HTML real, acceso separado en Entrar/Crear cuenta y jornadas en tablas con equipos apilados, resultado/campo/árbitro a la derecha y nombres cortos. Todas las pantallas del prototipo y la API v1 están implementadas. CyL sigue incompleta (133/889 competiciones) y la recogida corresponde a los colectores programados.
 fecha: 2026-11-05

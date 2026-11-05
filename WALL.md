@@ -94,7 +94,7 @@ detrás. Se acabaron las explicaciones: se implementa.
 ## Revisión de las capturas (David, 05/11/2026)
 
 - [x] **Marca**: logo propio y nombre de producto; pie «archivo privado» retirado; navegación explicada.
-  Hecho como **Balompié** (provisional) con logotipo de cancha, tagline, favicon, pie sustituido por un
+  Hecho como **Cantera** con logotipo de monograma C + balón, tagline, favicon, pie sustituido por un
   enlace a Publicidad y descriptores en la navegación. El nombre se cambia en `componentes/marca/marca.ts`.
 - [x] **Jornadas**: tablas por jornada con resultados, equipos y actas enlazados; 4 tablas por fila en PC,
   apiladas en móvil; árbitro, escudos y nombres cortos; fecha derecha = última jornada jugada
@@ -139,6 +139,16 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 05/11/2026: **revisión de David aplicada con nombre Cantera.** Marca `Cantera` en cabecera, títulos
+  y textos, con logotipo propio (C con balón) y favicon a juego; verificado en el HTML real de `/`,
+  `/canonico`, `/competiciones`, `/entrar` y `/crear-cuenta` que **no queda** «archivo privado» ni
+  «no es una web oficial» (el pie sólo lleva el enlace a Publicidad). Acceso separado en dos páginas y
+  dos formularios (`/api/cuentas/entrar` y `/api/cuentas/crear`), sin invitación. Jornadas: tabla por
+  jornada, hasta 4 por fila en PC y una en móvil, equipos apilados en la misma columna con resultado,
+  campo y árbitro a la derecha; nombres cortos y enlaces reales a equipo y acta. Capturas nuevas en
+  `tmp/final-cantera-*` y en `docs/plataforma-web/capturas/cantera-*`; no se reutilizan las viejas.
+  QA ronda 13 **APTA**; suite **1.356/1**, e2e **66/66**, web **773/1**, `tsc`, `lint` y `next build`
+  verdes; base limpia.
 - 05/11/2026: **backend de Mi cuenta**: preferencias de aviso editables (`POST
   /api/cuentas/preferencias`, validación y CSRF por `Origin`, `user_id` de la cookie) y descarga de
   datos (`GET /api/cuentas/exportar`, `app.exporta_mis_datos`, `no-store`). La baja y el cambio de
@@ -284,7 +294,7 @@ estadísticas e historiales sin que falte nada.
   las cuentas no tienen verificación de correo, recuperación de contraseña ni 2FA, y están dichas en
   `CUENTAS.md` sin fingirlas.
 
-- 05/11/2026: **feedback de capturas aplicado**. Marca provisional **Balompié** con logotipo propio,
+- 05/11/2026: **feedback de capturas aplicado**. Marca **Cantera** con logotipo propio,
   pie legal retirado y navegación explicada; jornadas en tablas (4 por fila en PC, apiladas en móvil,
   árbitro, escudos, actas y nombres cortos), fecha derecha corregida con `fecha_ultima_jugada`; nombres
   cortos guardados para 34.904 equipos de CyL; registro abierto en `/entrar` + `/crear-cuenta`; historiales
@@ -316,7 +326,7 @@ estadísticas e historiales sin que falte nada.
   `tmp/acceso-*.png`. Detalle en `docs/plataforma-web/CUENTAS.md`.
 
 - 05/11/2026: **revisión de capturas, punto «Marca» implementado y pendiente de validación (casilla
-  SIN marcar).** Nombre provisional **Balompié** y tagline «fútbol federado, temporada a temporada» en
+  SIN marcar).** Nombre **Cantera** y tagline «fútbol federado, temporada a temporada» en
   un único sitio (`componentes/marca/marca.ts`): cabecera, `metadata` del layout y título por defecto.
   Logotipo propio en `componentes/marca/Logotipo.tsx` (baldosa del acento con la cancha dibujada:
   rectángulo, línea de medio campo y círculo central; 28×28, decorativo porque la marca va en texto) y

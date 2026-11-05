@@ -181,9 +181,9 @@ describe('jornadas: agrupación y fechas', () => {
 
   it('la pestaña del navegador dice la competición y, en el detalle, la jornada', () => {
     expect(tituloDeJornadas({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Jornadas · Liga Nacional Juvenil · Primera - III — Balompié');
+      .toBe('Jornadas · Liga Nacional Juvenil · Primera - III — Cantera');
     expect(tituloDeJornada({ numero: 4, edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Jornada 4 · Liga Nacional Juvenil · Primera - III — Balompié');
+      .toBe('Jornada 4 · Liga Nacional Juvenil · Primera - III — Cantera');
   });
 });
 
@@ -303,10 +303,10 @@ describe('las tablas de jornadas', () => {
     ]));
     expect(soloSinResultado).toContain('—');
     expect(soloSinResultado).not.toContain('0 - 0');
-    // La maqueta móvil apila los equipos y deja el marcador a la derecha.
-    expect(html).toContain('max-sm:absolute');
-    expect(html).toContain('max-sm:pr-14');
-    expect(html).toContain('max-sm:block');
+    // La tabla apila los equipos en la columna izquierda y deja el resultado a la derecha.
+    expect(html).toContain('style="width:62%"');
+    expect(html).toContain('style="width:38%"');
+    expect(html).toContain('min-w-0 truncate');
   });
 
   it('sin jornadas lo dice en una línea y no pinta tablas vacías', () => {
@@ -391,9 +391,9 @@ describe('los partidos de una jornada', () => {
     const html = render();
     expect(html).toContain('Árbitro: ');
     expect(html).toContain('MARTÍN EZQUERRA, PABLO');
-    expect(html).toContain('max-sm:grid-cols-[minmax(0,1fr)_auto]');
-    expect(html).toContain('max-sm:row-start-2');
-    expect(html).toContain('max-sm:col-start-2');
+    expect(html).toContain('grid-cols-[minmax(0,1fr)_auto]');
+    expect(html).toContain('items-end');
+    expect(html).toContain('truncate');
   });
 
   it('enseña la hora publicada y el campo cuando existen', () => {

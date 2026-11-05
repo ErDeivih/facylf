@@ -14,7 +14,7 @@ import {
  * cabecera principal.
  */
 export const metadata: Metadata = {
-  title: 'Publicidad — Balompié',
+  title: 'Publicidad — Cantera',
   description: 'Qué publicidad hay, dónde irían los huecos y qué reglas se aplican.',
 };
 

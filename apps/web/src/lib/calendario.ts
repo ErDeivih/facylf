@@ -336,11 +336,11 @@ export function filtraPartidosDeGrupo(
 
 /** Título de la pestaña del navegador para el calendario de un grupo. */
 export function tituloDeCalendarioGrupo(x: { edicion: string; grupo: string }): string {
-  return `Calendario · ${x.edicion} · ${x.grupo} — Balompié`;
+  return `Calendario · ${x.edicion} · ${x.grupo} — Cantera`;
 }
 
 /** Título de la pestaña del navegador para el calendario global. */
-export const TITULO_DE_CALENDARIO = 'Calendario — Balompié';
+export const TITULO_DE_CALENDARIO = 'Calendario — Cantera';
 
 /** La ruta del calendario de un grupo. La usan la cabecera de competición y las pruebas. */
 export const rutaDeCalendario = (grupoId: number): string => `/explorar/competicion/${grupoId}/calendario`;

@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const filas = await clubDe(id);
-    return filas[0] ? { title: `${filas[0].club} · historial — Balompié` } : {};
+    return filas[0] ? { title: `${filas[0].club} · historial — Cantera` } : {};
   } catch {
     return {};
   }

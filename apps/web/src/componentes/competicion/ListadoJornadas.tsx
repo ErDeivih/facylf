@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
@@ -85,14 +84,13 @@ function JornadaEnTabla({ jornada, hrefJornada, hrefActa }: {
           </span>
         </p>
       </header>
-      <table className="w-full table-fixed border-collapse text-nota max-sm:block max-sm:text-tabla">
+      <table className="w-full table-fixed border-collapse text-nota max-sm:text-tabla">
         <caption className="sr-only">Resultados de la jornada {jornada.numero}</caption>
-        <colgroup className="max-sm:hidden">
-          <col style={{ width: 'calc(50% - 24px)' }} />
-          <col style={{ width: 48 }} />
-          <col style={{ width: 'calc(50% - 24px)' }} />
+        <colgroup>
+          <col style={{ width: '62%' }} />
+          <col style={{ width: '38%' }} />
         </colgroup>
-        <tbody className="max-sm:block">
+        <tbody>
           {jornada.lista.map((partido) => (
             <FilaDePartido key={partido.match_id} partido={partido} hrefActa={hrefActa} />
           ))}
@@ -108,7 +106,11 @@ function JornadaEnTabla({ jornada, hrefJornada, hrefActa }: {
   );
 }
 
-/** Una fila de resultado y, debajo, la línea de hora/árbitro/acta cuando hay algo que decir. */
+/**
+ * Una fila de resultado: los dos equipos apilados en la columna izquierda y, a la derecha, el
+ * marcador, el campo y el árbitro. Así ningún nombre necesita cuatro líneas y el resultado se lee
+ * sin recorrer la fila entera.
+ */
 function FilaDePartido({ partido, hrefActa }: {
   partido: PartidoDeJornada;
   hrefActa?: (partido: FilaPartidoCanonico) => string | null;
@@ -121,66 +123,60 @@ function FilaDePartido({ partido, hrefActa }: {
   });
   const ganaLocal = marcador.jugado && (partido.goles_local ?? 0) > (partido.goles_visitante ?? 0);
   const ganaVisitante = marcador.jugado && (partido.goles_visitante ?? 0) > (partido.goles_local ?? 0);
-  const hora = (partido.hora ?? '').trim();
+  const campo = (partido.campo ?? '').trim();
   const arbitro = (partido.arbitro ?? '').trim();
   const acta = partido.calidad_acta !== null && hrefActa ? hrefActa(partido) : null;
-  const hayMeta = hora !== '' || arbitro !== '' || acta !== null;
   const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
   return (
-    <Fragment>
-      <tr className="border-t border-[var(--fondo-sutil)] align-middle max-sm:relative max-sm:block">
-        <td className="min-w-0 py-2 pl-2.5 pr-1 max-sm:block max-sm:pr-14">
+    <tr className="border-t border-[var(--fondo-sutil)] align-top">
+      <td className="min-w-0 py-2 pl-2.5 pr-1.5">
+        <div className="flex min-w-0 flex-col gap-0.5">
           <Link href={enlaceEquipo(partido.local_id)} title={nombres.completo_local}
-            className="flex min-w-0 items-center justify-end gap-1.5 max-sm:flex-row-reverse max-sm:justify-start">
-            <span className={`line-clamp-2 min-w-0 flex-1 break-words leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
-              {nombres.local}
-            </span>
+            className="flex min-w-0 items-center gap-1.5">
             <Escudo equipoId={partido.local_id} nombre={partido.local}
               clubId={partido.local_club_id} tieneEscudo={partido.local_tiene_escudo} />
+            <span className={`min-w-0 truncate leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
+              {nombres.local}
+            </span>
           </Link>
-        </td>
-        <td className="w-[2.75rem] px-0.5 text-center max-sm:absolute max-sm:right-2 max-sm:top-2 max-sm:w-auto max-sm:px-0">
-          <span title={marcador.accesible}
-            className={marcador.jugado
-              ? 'relative z-10 whitespace-nowrap tabular-nums inline-block rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1 py-0.5 font-bold text-[var(--texto-fuerte)]'
-              : 'relative z-10 whitespace-nowrap tabular-nums inline-block rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1 py-0.5 font-semibold text-[var(--texto-suave)]'}>
-            {marcador.texto}
-            <span className="sr-only">, {marcador.accesible}</span>
-          </span>
-        </td>
-        <td className="min-w-0 py-2 pl-1 pr-2.5 max-sm:block">
           <Link href={enlaceEquipo(partido.visitante_id)} title={nombres.completo_visitante}
             className="flex min-w-0 items-center gap-1.5">
             <Escudo equipoId={partido.visitante_id} nombre={partido.visitante}
               clubId={partido.visitante_club_id} tieneEscudo={partido.visitante_tiene_escudo} />
-            <span className={`line-clamp-2 min-w-0 flex-1 break-words leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
+            <span className={`min-w-0 truncate leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
               {nombres.visitante}
             </span>
           </Link>
-        </td>
-      </tr>
-      {hayMeta && (
-        <tr className="max-sm:block">
-          <td colSpan={3} className="px-3 pb-2 text-nota text-[var(--texto-suave)] max-sm:block">
-            <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-              {hora !== '' && <span className="tabular-nums">{hora}</span>}
-              {hora !== '' && (arbitro !== '' || acta !== null) && <span aria-hidden="true">·</span>}
-              {arbitro !== '' && (
-                <span className="min-w-0 truncate" title={`Árbitro: ${arbitro}`}>
-                  <span className="sr-only">Árbitro: </span>{arbitro}
-                </span>
-              )}
-              {arbitro !== '' && acta !== null && <span aria-hidden="true">·</span>}
-              {acta !== null && (
-                <Link href={acta as Route} className="font-semibold text-[var(--accion)] hover:underline">
-                  Acta
-                </Link>
-              )}
+        </div>
+      </td>
+      <td className="min-w-0 py-2 pl-1 pr-2.5 text-right">
+        <div className="flex min-w-0 flex-col items-end gap-0.5">
+          <span title={marcador.accesible}
+            className={marcador.jugado
+              ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 font-bold text-[var(--texto-fuerte)]'
+              : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 font-semibold text-[var(--texto-suave)]'}>
+            {marcador.texto}
+            <span className="sr-only">, {marcador.accesible}</span>
+          </span>
+          {campo !== '' && (
+            <span className="max-w-full truncate text-etiqueta leading-tight text-[var(--texto-suave)]" title={campo}>
+              {campo}
             </span>
-          </td>
-        </tr>
-      )}
-    </Fragment>
+          )}
+          {arbitro !== '' && (
+            <span className="max-w-full truncate text-etiqueta leading-tight text-[var(--texto-suave)]"
+              title={`Árbitro: ${arbitro}`}>
+              <span className="sr-only">Árbitro: </span>{arbitro}
+            </span>
+          )}
+          {acta !== null && (
+            <Link href={acta as Route} className="text-etiqueta font-semibold text-[var(--accion)] hover:underline">
+              Acta
+            </Link>
+          )}
+        </div>
+      </td>
+    </tr>
   );
 }
 

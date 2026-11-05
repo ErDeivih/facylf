@@ -20,7 +20,7 @@ import { formaHasta } from './pantalla-competicion';
 export const FEDERACION_POR_DEFECTO = 'castilla-leon';
 
 /** Título de la pestaña del navegador de la página global. */
-export const TITULO_ESTADISTICAS = 'Estadísticas — Balompié';
+export const TITULO_ESTADISTICAS = 'Estadísticas — Cantera';
 
 /** Ruta de la página global de estadísticas. */
 export const RUTA_ESTADISTICAS = '/explorar/estadisticas';
@@ -468,7 +468,7 @@ export function idDeGrupoDeUrl(crudo: string | undefined): number | null {
 
 /** Título de la pestaña para las estadísticas de una competición. */
 export function tituloDeEstadisticasGrupo(x: { edicion: string; grupo: string }): string {
-  return `Estadísticas · ${x.edicion} · ${x.grupo} — Balompié`;
+  return `Estadísticas · ${x.edicion} · ${x.grupo} — Cantera`;
 }
 
 /** La ruta de las estadísticas de un grupo. */

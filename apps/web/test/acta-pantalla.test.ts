@@ -206,7 +206,7 @@ describe('el acta: cuándo hay acta y cómo se nombra', () => {
 
   it('el título de la pestaña dice el partido y la jornada', () => {
     expect(tituloDeActa({ local: 'C.D. Internacional Vista Alegre', visitante: 'U.D. Sur', jornada: 1 }))
-      .toBe('C.D. Internacional Vista Alegre - U.D. Sur · Jornada 1 — Balompié');
+      .toBe('C.D. Internacional Vista Alegre - U.D. Sur · Jornada 1 — Cantera');
   });
 
   it('los minutos se leen como un acta: 17′, 90+3′, y sin minuto no hay hueco', () => {

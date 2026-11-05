@@ -232,10 +232,10 @@ export function federacionesComparables(
 
 /** Nombre para la pestaña de la federación. */
 export function tituloDeFederacion(nombre: string): string {
-  return `${nombre} — Balompié`;
+  return `${nombre} — Cantera`;
 }
 
 /** Nombre para la pestaña del comparador. */
 export function tituloDelComparador(a: string | null, b: string | null): string {
-  return a !== null && b !== null ? `${a} y ${b} — Balompié` : 'Comparar jugadores — Balompié';
+  return a !== null && b !== null ? `${a} y ${b} — Cantera` : 'Comparar jugadores — Cantera';
 }

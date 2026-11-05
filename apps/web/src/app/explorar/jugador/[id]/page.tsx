@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const persona = await personaDe(id);
-    return persona ? { title: `${persona.nombre_mostrado} — Balompié` } : {};
+    return persona ? { title: `${persona.nombre_mostrado} — Cantera` } : {};
   } catch {
     return {};
   }

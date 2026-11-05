@@ -232,7 +232,7 @@ describe('historial: resumen y textos', () => {
   });
 
   it('el título de la pestaña dice el jugador y el historial', () => {
-    expect(tituloDeHistorial('SÁNCHEZ GUTIÉRREZ, ALEJANDRO')).toBe('SÁNCHEZ GUTIÉRREZ, ALEJANDRO · Historial — Balompié');
+    expect(tituloDeHistorial('SÁNCHEZ GUTIÉRREZ, ALEJANDRO')).toBe('SÁNCHEZ GUTIÉRREZ, ALEJANDRO · Historial — Cantera');
   });
 });
 

@@ -320,10 +320,39 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
 
+  test('las jornadas se leen como tablas: 4 por fila y equipos apilados', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}/jornadas`);
+    const tablas = page.locator('section[data-jornada]');
+    expect(await tablas.count()).toBeGreaterThanOrEqual(4);
+    const cajas = await tablas.evaluateAll((els) => els.slice(0, 4).map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: Math.round(r.x), y: Math.round(r.y) };
+    }));
+    expect(new Set(cajas.map((c) => c.y)).size, 'cuatro tablas en la misma fila').toBe(1);
+    expect(new Set(cajas.map((c) => c.x)).size).toBe(4);
+    // Cada partido tiene una columna de equipos (dos enlaces) y otra con resultado/campo/árbitro.
+    const primera = tablas.first();
+    await expect(primera.locator('table tbody tr').first().locator('a[href^="/explorar/equipo/"]')).toHaveCount(2);
+    await expect(primera.locator('a[href*="/explorar/acta/"]').first()).toBeVisible();
+    await expect(primera.locator('table tbody tr').first().locator('td')).toHaveCount(2);
+
+    await page.setViewportSize({ width: 360, height: 900 });
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}/jornadas`);
+    const cajasMovil = await page.locator('section[data-jornada]').evaluateAll((els) => els.slice(0, 3).map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: Math.round(r.x), y: Math.round(r.y) };
+    }));
+    expect(new Set(cajasMovil.map((c) => c.x)).size, 'una por contenedor en móvil').toBe(1);
+    expect(cajasMovil[1]!.y).toBeGreaterThan(cajasMovil[0]!.y);
+    const ancho = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
+    expect(ancho.scroll).toBe(ancho.client);
+  });
+
   test('la marca, la navegación explicada y el pie', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const cabecera = page.locator('header').first();
-    await expect(cabecera).toContainText('Balompié');
+    await expect(cabecera).toContainText('Cantera');
     await expect(cabecera).toContainText('Competiciones y grupos');
     await expect(cabecera).toContainText('Goleadores y tarjetas');
     await expect(cabecera).toContainText('Buscar talento');
@@ -480,7 +509,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const orden = await page.evaluate(() => [...document.querySelectorAll('header a, header button:not([disabled]), header input')]
       .map((el) => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || '')
       .filter(Boolean));
-    expect(orden[0]).toContain('Balompié');
+    expect(orden[0]).toContain('Cantera');
     expect(orden[1]).toContain('Explorar');
     expect(orden[2]).toContain('Rankings');
     expect(orden[3]).toContain('Ojeo');

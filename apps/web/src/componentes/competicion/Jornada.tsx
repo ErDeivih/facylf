@@ -8,13 +8,9 @@ import { marcadorDePartido } from '@/lib/pantalla-competicion';
 /**
  * Tarjeta de la jornada del prototipo: resultados de una jornada con sus flechas para moverse.
  *
- * Un partido sin marcador se enseña como «—», nunca como 0-0: son cosas distintas y confundirlas
- * convierte una jornada sin datos en una jornada con todos los partidos empatados a cero. Si la
- * federación publicó la hora, se enseña la hora; si no, el guion con su texto accesible.
- *
- * Los nombres van cortos cuando se pueden acortar con seguridad (`nombreCorto`), con el nombre completo
- * en el `title`; los escudos vienen en la misma fila del partido. El árbitro se pinta sólo si está
- * publicado, y el acta sólo si la página pasa `hrefActa` y el partido tiene acta analizada.
+ * Cada fila apila local y visitante en la izquierda y deja a la derecha el marcador, el campo, el
+ * árbitro y el acta. Los nombres van cortos (`nombreCorto`), con el completo en el `title`; los
+ * equipos y el acta son enlaces reales. Un partido sin marcador se enseña «—», nunca 0-0.
  */
 export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefActa }: {
   numero: number | null;
@@ -61,7 +57,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
           </p>
         )
         : (
-          <ul>
+          <ul className="m-0 list-none p-0">
             {partidos.map((p) => {
               const marcador = marcadorDePartido(p);
               const nombres = nombresDelPartido(p);
@@ -69,56 +65,57 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
               const ganaVisitante = marcador.jugado && (p.goles_visitante ?? 0) > (p.goles_local ?? 0);
               const arbitro = (p.arbitro ?? '').trim();
               const hora = (p.hora ?? '').trim();
+              const campo = (p.campo ?? '').trim();
               const acta = p.calidad_acta !== null && hrefActa ? hrefActa(p) : null;
-              const meta: Array<{ texto: string; etiqueta: string | null }> = [];
-              if (hora !== '') meta.push({ texto: hora, etiqueta: null });
-              if (arbitro !== '') meta.push({ texto: arbitro, etiqueta: 'Árbitro' });
+              const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
               return (
                 <li key={p.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2">
-                  <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_58px_minmax(0,1fr)] items-center gap-2 text-tabla text-[var(--texto)]">
-                    <Link href={`/explorar/equipo/${p.local_id}`} title={nombres.completo_local}
-                      className={`flex min-w-0 items-center justify-end gap-1.5 hover:underline ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
-                      <span className="min-w-0 truncate">{nombres.local}</span>
-                      <Escudo equipoId={p.local_id} nombre={p.local}
-                        clubId={p.local_club_id} tieneEscudo={p.local_tiene_escudo} />
-                    </Link>
-                    <span
-                      title={marcador.accesible}
-                      className={marcador.jugado
-                        ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)]'
-                        : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)]'}>
-                      {marcador.texto}
-                      <span className="sr-only">, {marcador.accesible}</span>
-                    </span>
-                    <Link href={`/explorar/equipo/${p.visitante_id}`} title={nombres.completo_visitante}
-                      className={`flex min-w-0 items-center gap-1.5 hover:underline ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
-                      <Escudo equipoId={p.visitante_id} nombre={p.visitante}
-                        clubId={p.visitante_club_id} tieneEscudo={p.visitante_tiene_escudo} />
-                      <span className="min-w-0 truncate">{nombres.visitante}</span>
-                    </Link>
-                  </div>
-                  {(meta.length > 0 || acta !== null) && (
-                    <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-1.5 text-nota text-[var(--texto-suave)]">
-                      {meta.map((pieza, i) => (
-                        <span key={`${i}-${pieza.texto}`} className="flex items-center gap-1.5">
-                          {i > 0 && <span aria-hidden="true">·</span>}
-                          <span className={pieza.etiqueta === null ? 'tabular-nums' : 'truncate'}
-                            title={pieza.etiqueta === null ? undefined : `${pieza.etiqueta}: ${pieza.texto}`}>
-                            {pieza.etiqueta !== null && <span className="sr-only">{pieza.etiqueta}: </span>}
-                            {pieza.texto}
-                          </span>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <Link href={enlaceEquipo(p.local_id)} title={nombres.completo_local}
+                        className="flex min-w-0 items-center gap-2">
+                        <Escudo equipoId={p.local_id} nombre={p.local}
+                          clubId={p.local_club_id} tieneEscudo={p.local_tiene_escudo} />
+                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
+                          {nombres.local}
                         </span>
-                      ))}
-                      {acta !== null && (
-                        <span className="flex items-center gap-1.5">
-                          {meta.length > 0 && <span aria-hidden="true">·</span>}
-                          <Link href={acta as Route} className="font-semibold text-[var(--accion)] hover:underline">
-                            Acta
-                          </Link>
+                      </Link>
+                      <Link href={enlaceEquipo(p.visitante_id)} title={nombres.completo_visitante}
+                        className="flex min-w-0 items-center gap-2">
+                        <Escudo equipoId={p.visitante_id} nombre={p.visitante}
+                          clubId={p.visitante_club_id} tieneEscudo={p.visitante_tiene_escudo} />
+                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
+                          {nombres.visitante}
+                        </span>
+                      </Link>
+                    </div>
+                    <div className="flex min-w-0 flex-col items-end gap-0.5 text-right">
+                      <span title={marcador.accesible}
+                        className={marcador.jugado
+                          ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 font-bold text-[var(--texto-fuerte)]'
+                          : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 font-semibold text-[var(--texto-suave)]'}>
+                        {marcador.texto}
+                        <span className="sr-only">, {marcador.accesible}</span>
+                      </span>
+                      {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
+                      {campo !== '' && (
+                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]" title={campo}>
+                          {campo}
                         </span>
                       )}
-                    </p>
-                  )}
+                      {arbitro !== '' && (
+                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]"
+                          title={`Árbitro: ${arbitro}`}>
+                          <span className="sr-only">Árbitro: </span>{arbitro}
+                        </span>
+                      )}
+                      {acta !== null && (
+                        <Link href={acta as Route} className="text-etiqueta font-semibold text-[var(--accion)] hover:underline">
+                          Acta
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </li>
               );
             })}

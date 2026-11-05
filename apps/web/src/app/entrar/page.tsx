@@ -16,7 +16,7 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Entrar — Balompié',
+  title: 'Entrar — Cantera',
 };
 
 export default async function Entrar({ searchParams }: {
