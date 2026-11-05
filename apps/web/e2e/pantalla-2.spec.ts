@@ -306,6 +306,20 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     await expect(page.getByRole('heading', { name: /Entrar/ }).first()).toBeVisible();
   });
 
+  test('las federaciones de pruebas no se publican y la ficha de jugador aguanta axe en oscuro', async ({ page, context }) => {
+    await page.goto('/explorar/competiciones?q=prueba');
+    await expect(page.getByText('Federación de Pruebas', { exact: false })).toHaveCount(0);
+    expect((await page.request.get('/explorar/competicion/1117')).status()).toBe(404);
+
+    const origen = new URL(page.url()).origin;
+    await context.addCookies([{ name: 'tema', value: 'oscuro', url: origen }]);
+    await page.goto('/explorar/jugador/19057');
+    await expect(page.locator('html')).toHaveAttribute('data-tema', 'oscuro');
+    const resultado = await new AxeBuilder({ page }).analyze();
+    const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
   test('los nombres se publican y no hay fotos de personas', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const goleadores = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) });

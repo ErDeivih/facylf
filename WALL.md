@@ -209,3 +209,13 @@ estadísticas sin que falte nada.
   Lo que queda fuera del bloque: artboards de administración, ojeo, rankings, comparador y publicidad;
   las cuentas no tienen verificación de correo, recuperación de contraseña ni 2FA, y están dichas en
   `CUENTAS.md` sin fingirlas.
+
+- 05/11/2026: **QA ronda 6 (NO APTA) y ronda 7 (APTA)**. La ronda 6 encontró un contraste serious en
+  la ficha de jugador en oscuro (chip de federación a 4,33:1) y cuatro importantes: federaciones de
+  prueba visibles, `/mi-panel` sin tema, etiqueta «Actas» ambigua y tamaños de escudo. Corregido:
+  chip con `text-[var(--texto)]`, `f.codigo not like 'pruebas%'` en `SQL_FEDERACION_NO_EXCLUIDA`
+  (incluye `/explorar/competicion/1117` y API → 404), `/mi-panel` en `RUTAS_CON_TEMA`, «Actas
+  correctas» y tamaños 22×24/56×56 confirmados con `getBoundingClientRect`. La ronda 7 dio **APTA**:
+  axe 0 en jugador oscuro a 1440/360, 0 apariciones de federaciones de prueba, escudos exactos y
+  base limpia (0 usuarios/sesiones/favoritos). `pnpm test` 1061, e2e 48/48, web 478, `tsc`, `lint` y
+  `next build` en verde.

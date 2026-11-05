@@ -38,3 +38,14 @@ pnpm --filter @facylf/web exec tsc --noEmit
 
 Las pruebas pesadas de PostgreSQL, Playwright y carga se ejecutan cuando no compitan con los workers
 o en otra máquina. Que una prueba esté descrita en el plan no significa que ya esté implementada.
+
+
+## Consultar el catálogo de repositorios (no busques a mano)
+
+Antes de buscar una librería, una herramienta o una referencia, pregunta al catálogo personal de David: más de 500 fichas documentales y ~1.400 repositorios dentro de recopilaciones, con licencia real, límite y recomendación.
+
+```powershell
+python F:\Inforepositorios\consultar.py "<lo que necesitas>" -n 5 --json
+```
+
+Devuelve los mejores candidatos con su licencia y la ruta de su ficha. Abre solo esas fichas y mira la sección 9 (cuándo no elegirlo) y la 6 (licencia). Es evidencia documental: nada se ha clonado, instalado ni ejecutado. Guía: `F:\Inforepositorios\RAG.md`. Para una palabra exacta: `& F:\Inforepositorios\scripts\Buscar-Todo.ps1 -Texto <término>`.

@@ -168,7 +168,7 @@ async function Contenido({ grupo }: { grupo: FilaPortadaGrupo }) {
       nota: `${porcentaje(resumen.empate, resumen.con_resultado) ?? '—'} % empate · ${porcentaje(resumen.visitante, resumen.con_resultado) ?? '—'} % visitante`,
     },
     {
-      etiqueta: 'Actas',
+      etiqueta: 'Actas correctas',
       valor: porcentaje(resumen.actas_correctas, resumen.actas) === null ? '—' : `${porcentaje(resumen.actas_correctas, resumen.actas)} %`,
       nota: `${numero(resumen.actas)} con acta`,
     },

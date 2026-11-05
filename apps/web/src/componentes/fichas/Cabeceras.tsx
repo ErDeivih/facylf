@@ -57,7 +57,7 @@ export function CabeceraJugador({ jugador, contexto }: {
           <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
             {contexto.federaciones.map((federacion) => (
               <li key={federacion}
-                className="rounded-full bg-[var(--accion-suave)] px-2.5 py-0.5 text-etiqueta font-semibold text-[var(--accion)]">
+                className="rounded-full bg-[var(--accion-suave)] px-2.5 py-0.5 text-etiqueta font-semibold text-[var(--texto)]">
                 {federacion}
               </li>
             ))}

@@ -47,7 +47,11 @@ function literalesSql(): string {
  */
 export const SQL_FEDERACION_NO_EXCLUIDA: string = (() => {
   const lista = literalesSql();
-  return lista === '' ? 'true' : `f.codigo <> all(array[${lista}]::text[])`;
+  // Las federaciones de laboratorio (`pruebas`, `pruebas-sincodigo`, `pruebas-retirada`…) no son
+  // datos públicos: sus grupos y partidos los crean y borran las suites. Se excluyen siempre, además
+  // de las que lleguen por FACYLF_EXCLUIR.
+  const base = "f.codigo not like 'pruebas%'";
+  return lista === '' ? base : `(${base} and f.codigo <> all(array[${lista}]::text[]))`;
 })();
 
 /** Cuántas federaciones se están dejando fuera (para poder decirlo en pantalla en vez de callarlo). */

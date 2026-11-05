@@ -153,7 +153,7 @@ async function Contenido({ federacion, temporada, filtros }: {
       valor: porcentaje(r.local, conResultado) === null ? '—' : `${porcentaje(r.local, conResultado)} %`,
       nota: `${porcentaje(r.empate, conResultado) ?? '—'} % empate · ${porcentaje(r.visitante, conResultado) ?? '—'} % visitante`,
     },
-    { etiqueta: 'Actas', valor: porcentaje(r.actas_correctas, r.actas) === null ? '—' : `${porcentaje(r.actas_correctas, r.actas)} %`, nota: `${numero(r.actas)} con acta` },
+    { etiqueta: 'Actas correctas', valor: porcentaje(r.actas_correctas, r.actas) === null ? '—' : `${porcentaje(r.actas_correctas, r.actas)} %`, nota: `${numero(r.actas)} con acta` },
   ];
 
   const reparto = repartoDeResultados(r);
