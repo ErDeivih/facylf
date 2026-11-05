@@ -43,27 +43,53 @@ detrás. Se acabaron las explicaciones: se implementa.
   `tmp/ficha-*.png`. Pendiente: enlaces desde la cabecera del sitio y desde Jornada/Acta (los integra
   el Lead) y decidir si la ficha de jugador enseña el nombre corto de la federación.
 
-- [ ] **4. Selector de temporada y de competición «inventada».** Poder pedir, por ejemplo, «Segunda
+- [x] **4. Selector de temporada y de competición «inventada».** Poder pedir, por ejemplo, «Segunda
   Juvenil 2017, Burgos» y obtener calendario, clasificación, jornadas, actas, estadísticas y gráficos.
   Si la competición o temporada no existen en el canónico, hay que crearlas o encontrarlas (ingesta,
-  archivo, histórico), no fingir. Estado actual: **selector hecho y validado (05/11/2026)**: ruta
+  archivo, histórico), no fingir. Estado actual: **hecho y validado (05/11/2026)**. Ruta
   `/explorar/competiciones`, filtros de federación/temporada histórica/categoría/modalidad/género/
   provincia/nivel/texto, paginación y total real; «Segunda Juvenil 2017, Burgos» encuentra el grupo
   30665 de 2016-17 y lo abre con su temporada seleccionada; «Explorar» de la cabecera ya apunta ahí.
-  **Falta para marcar la casilla**: las páginas de estadísticas y gráficos (objetivo 5) para que la
-  competición inventada muestre también esas vistas.
+  La ficha histórica ya ofrece calendario, clasificación, jornadas, actas y estadísticas (objetivos 1,
+  2, 5).
 
-- [ ] **5. Estadísticas y páginas de gráficos.** Páginas de estadísticas y gráficos del prototipo
-  (equipos, jugadores, competición), con datos y backend detrás. Estado actual: algunos gráficos
-  viejos; el rediseño no tiene páginas de estadísticas.
+- [x] **5. Estadísticas y páginas de gráficos.** Páginas de estadísticas y gráficos del prototipo
+  (equipos, jugadores, competición), con datos y backend detrás. Estado actual: **hecho y validado
+  (05/11/2026)**. Rutas nuevas `/explorar/estadisticas` (federación y
+  temporada, con búsqueda de competición) y `/explorar/competicion/[id]/estadisticas` (también grupos
+  históricos como 30665, 2016-17); gráficos SVG sin librería con resumen en texto, tabla equivalente y
+  colores del sistema (puntos acumulados por jornada, goles por mes, goles por tramo, reparto de
+  resultados, casa/fuera, forma, goleadores y disciplina); estados de carga y «sin datos» explícitos
+  (el 30665 no tiene tarjetas publicadas y así se dice; una temporada que no existe no se sustituye por
+  otra). Consultas nuevas en `apps/web/src/consultas/estadisticas.ts`, reglas puras en
+  `apps/web/src/lib/estadisticas.ts`, componentes en `apps/web/src/componentes/estadisticas/` y
+  pruebas en `apps/web/test/estadisticas-pantalla.test.ts` (42). Medido: resumen de CyL 2026-27
+  103 ms (2025-26, 420 ms), goleadores 13 ms, eventos de un grupo 3–5 ms, opciones 2 ms; TTFB de
+  página 143–216 ms. Axe 0 y sin desbordamiento en 1440/400/360 claro y 1440 oscuro. Pestaña
+  «Estadísticas» integrada en `CabeceraCompeticion`.
 
-- [ ] **6. Backend e infraestructura para servir todo.** Endpoints, caché y consultas que respondan
-  rápido para todas las páginas; medido, no supuesto. Estado actual: consultas canónicas por página,
-  APIs de escudo y búsqueda; falta la capa de endpoints/caché para el resto.
+- [x] **6. Backend e infraestructura para servir todo.** Endpoints, caché y consultas que respondan
+  rápido para todas las páginas; medido, no supuesto. Estado actual: **hecho y validado (05/11/2026)**.
+  Siete endpoints en `/api/v1` (índice, competición,
+  acta, calendario, fichas de equipo/jugador/club) que reutilizan las consultas del catálogo; ETag/304,
+  `Cache-Control` público con `stale-while-revalidate`, `X-Cache` para medir hit/miss y límite de 300
+  peticiones por minuto e IP con 429 y `Retry-After`. Caché por etiquetas (`unstable_cache` +
+  `revalidateTag`), `POST /api/revalidar` y consumo de la cola cada minuto en `instrumentation.ts`.
+  Medido: MISS 46–84 ms p50, HIT 31–38 ms p50, 304 49–103 ms p50 (servidor de desarrollo, máquina
+  compartida); las 14 consultas que sirven la API están dentro de presupuesto y sin `Seq Scan` en
+  tablas de hechos (no hace falta índice nuevo ni migración). Contrato en
+  `docs/plataforma-web/API.md`; pruebas `apps/web/test/api-v1.test.ts` (26). Nota: la cola de
+  invalidaciones tenía 1,7 M de etiquetas pendientes de la proyección histórica; se vacía sola a
+  2000/min, no se ha borrado nada.
 
-- [ ] **7. Registro de usuarios con favoritos.** Registro real, sesión, favoritos de clubes, equipos y
-  jugadores y accesos rápidos a horarios y resultados. Estado actual: `/entrar` es sólo diseño
-  preparado, sin backend; la cabecera ya enlaza.
+- [x] **7. Registro de usuarios con favoritos.** Registro real, sesión, favoritos de clubes, equipos y
+  jugadores y accesos rápidos a horarios y resultados. Estado actual: **hecho y validado (05/11/2026)**.
+  Alta real por invitación (`app.ajuste.registro_modo`), contraseña
+  con scrypt, sesión en cookie `httpOnly` con token hasheado en `app.sesion` (migraciones 0057/0058),
+  entrada, cierre, freno de intentos, `/mi-panel` con favoritos y estrella en las fichas de club,
+  equipo y jugador. Sin Better Auth y sin instalar dependencias. Capturas y axe en `pruebas/cuentas/`;
+  detalle en `docs/plataforma-web/CUENTAS.md`. Pruebas 94/94 (unitarias y flujo real contra
+  PostgreSQL).
 
 ## Terminado cuando
 
@@ -120,3 +146,66 @@ estadísticas sin que falte nada.
   canónico (referencia 94040 y casos reales de acta a revisar y parcial). Una sola consulta y su plan
   guardado; el enlace desde el detalle de Jornada sólo se pinta en partidos con acta publicada. No se
   marca la casilla 1: falta la validación del Lead.
+- 05/11/2026: **objetivo 7 implementado, pendiente de validación (casilla SIN marcar).** Registro real
+  sin Better Auth: `app.credencial` (scrypt) y `app.sesion` (SHA-256 del token) en migraciones nuevas
+  **0057** y **0058**; `app.alta_cuenta` crea usuario y credencial en una transacción reutilizando
+  `app.alta_usuario` (invitación/aprobación/abierto); entrada con mensaje único, freno por cuenta y por
+  IP, cookie `httpOnly`/`SameSite=Lax`, cierre de sesión, caducidad de 7 días y limpieza de caducadas.
+  `/mi-panel` lee `app.mis_accesos` y traduce sus enlaces a `/explorar/…`; la estrella de favorito de
+  club, equipo y jugador vive en `componentes/fichas/Cabeceras.tsx` (no se tocaron las páginas de las
+  fichas) y usa `GET/POST /api/favoritos` con el `user_id` de la sesión. No se instaló ninguna
+  dependencia; no se tocaron `.env`, migraciones aplicadas, ingesta ni servidor. Pruebas: 23 unitarias
+  de cuenta + 4 de flujo real contra PostgreSQL + 13 de `/entrar` + 6 de `/mi-panel`, `tsc` verde
+  (salvo un error de una prueba de estadísticas de otro compañero en curso). Comprobado con Chrome
+  real: alta, entrada correcta e incorrecta, cookie, favorito, panel y cierre; axe 0 en 1440 y 360, sin
+  desplazamiento horizontal. Capturas en `pruebas/cuentas/`. Detalle en
+  `docs/plataforma-web/CUENTAS.md`. **Pendiente del Lead:** validar el flujo y decidir si una
+  invitación de prueba (`FACYLF-PRUEBA-2026`, 20 usos) se queda en la base local o se retira.
+
+- 05/11/2026: **API pública v1 implementada, pendiente de validación del Lead (casilla 6 sin marcar).**
+  Siete endpoints en `/api/v1` (índice, competición, acta, calendario y fichas de equipo/jugador/club)
+  que reutilizan las consultas del catálogo, con ETag/304, caché HTTP pública, `X-Cache` y límite de
+  300 peticiones/minuto/IP (429). Caché por etiquetas con `POST /api/revalidar` y consumo de
+  `ops.invalidacion` cada minuto; medido con curl y `EXPLAIN (ANALYZE, BUFFERS)`: HIT ~31-38 ms p50,
+  MISS ~46-84 ms p50, 304 ~49-103 ms p50, las 14 consultas dentro de presupuesto y sin `Seq Scan` en
+  tablas de hechos (sin índice nuevo). Contrato en `docs/plataforma-web/API.md`; pruebas en
+  `apps/web/test/api-v1.test.ts` (26). Aviso: la cola de invalidaciones tiene 1,7 M de etiquetas
+  pendientes de una proyección histórica (se vacía sola a 2000/min, ~14 h).
+
+- 05/11/2026: **«Estadísticas y páginas de gráficos» implementado, pendiente de validación del Lead (la
+  casilla sigue SIN marcar).** Rutas nuevas: `/explorar/estadisticas` (federación y temporada; buscador
+  de competición que enlaza a la vista de un grupo) y `/explorar/competicion/[id]/estadisticas`, que
+  funciona también con grupos históricos (30665, 2016-17). Contenido: cifras del ámbito (partidos con
+  resultado, goles, goles por partido, actas), reparto de resultados, puntos acumulados por jornada,
+  goles por mes, goles por tramo de quince minutos, goleadores, disciplina, casa/fuera y forma. Los
+  gráficos son SVG sin librería nueva, con `role="img"` y `aria-label`, resumen en texto, tabla
+  equivalente en `<details>`, letras en la forma (G/E/P) y en la disciplina (A/R) para no depender sólo
+  del color, y tokens del sistema. Consultas nuevas en `apps/web/src/consultas/estadisticas.ts`
+  (`resumen-de-estadísticas`, `eventos-del-grupo`, `goleadores-de-estadísticas`,
+  `opciones-de-estadísticas`); no se tocaron `partidos.ts`, `paneles.ts`, `analisis.ts`, fichas, acta ni
+  calendario. Reglas puras en `apps/web/src/lib/estadisticas.ts`; componentes en
+  `apps/web/src/componentes/estadisticas/`; pruebas en `apps/web/test/estadisticas-pantalla.test.ts`
+  (42), con contrato real contra 3769 (32 partidos, 135 goles con minuto, tarjetas) y 30665 (156 de 157
+  partidos, 615 goles, **ninguna tarjeta publicada**: la página lo dice). Medido con el rol de lectura:
+  resumen CyL 2026-27 103 ms (2025-26, 420 ms; presupuesto 1.200), goleadores 13 ms, eventos de grupo
+  3–5 ms, opciones 2 ms; TTFB 143–216 ms y carga 0,5–1,2 s en el servidor de desarrollo. Comprobado con
+  Chrome real: 1440/400/360 claro y 1440 oscuro, axe 0 serias/críticas y sin desplazamiento horizontal;
+  estados de carga y «sin datos»; 404 real para grupo inexistente o id no numérico; capturas en
+  `tmp/estadisticas-*.png`. **Pendiente para el Lead antes de marcar la casilla**: (a) añadir la pestaña
+  «Estadísticas» a `CabeceraCompeticion` (el tipo `activa` y el `href`; la página ya pasa
+  `activa="estadisticas"` mediante un cast y hoy no se marca ninguna pestaña, mejor que marcar otra) y
+  enlazar desde la ficha de competición; (b) decidir si el buscador de competición de la página global
+  se queda como acceso al selector existente o pasa a un desplegable de grupos; (c) el endpoint
+  `/api/v1/estadisticas` que el objetivo 6 dejó reservado puede servirse ya con estas consultas (no se
+  tocó la API).
+
+- 05/11/2026: **bloque 2 completo; validación del Lead (05/11/2026)**. Casillas 1–3 validadas con
+  e2e (40/40 entonces) y 4–7 con las pruebas de selector (20), estadísticas (42), API (26) y cuentas
+  (94); `tsc` y `lint` verdes. Integración final: pestañas Calendario y Estadísticas en la cabecera de
+  competición, «Explorar» al selector nuevo, enlaces a fichas desde clasificación/jornada/acta y la
+  búsqueda, y el buscador con las rutas nuevas. La condición de cierre («puedo pedir cualquier
+  competición/temporada y ver calendario, clasificación, jornadas, actas y estadísticas») se cumple
+  con datos reales: probado con 3769 (2026-27) y 30665 (2016-17, «Segunda Juvenil 2017, Burgos»).
+  Lo que queda fuera del bloque: artboards de administración, ojeo, rankings, comparador y publicidad;
+  las cuentas no tienen verificación de correo, recuperación de contraseña ni 2FA, y están dichas en
+  `CUENTAS.md` sin fingirlas.

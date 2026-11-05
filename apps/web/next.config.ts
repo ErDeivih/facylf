@@ -1,5 +1,35 @@
 import type { NextConfig } from 'next';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+/*
+ * ── EL `.env` DEL MONORREPO, SÓLO CON LA CREDENCIAL DE CUENTAS ───────────────────────────────────────
+ *
+ * Next carga los `.env*` de `apps/web`, y ahí sólo vive `DATABASE_URL_LECTOR`. El rol de escritura de
+ * las cuentas (`facylf_app`, 0027/0050) está en el `.env` de la RAÍZ del monorepo, que es de donde lo
+ * leen los scripts y las pruebas. Sin él, `/entrar`, `/mi-panel` y los favoritos no podrían conectar
+ * con la base en el servidor de desarrollo.
+ *
+ * A propósito NO se usa `process.loadEnvFile`: ese fichero también tiene la contraseña del
+ * administrador y la del publicador, y la web no las necesita para nada. Aquí se copia únicamente
+ * `DATABASE_URL_APP`, y sólo si el entorno no la trae ya (en el servidor de verdad manda su variable
+ * y este fichero no se lee). No se escribe ni se versiona ningún secreto.
+ */
+const envRaiz = join(import.meta.dirname, '..', '..', '.env');
+if (!process.env.DATABASE_URL_APP && existsSync(envRaiz)) {
+  try {
+    const lineas = readFileSync(envRaiz, 'utf8').split(/\r?\n/);
+    for (const linea of lineas) {
+      const encontrado = linea.match(/^\s*DATABASE_URL_APP\s*=\s*(.*)$/);
+      if (encontrado) {
+        process.env.DATABASE_URL_APP = encontrado[1]!.trim().replace(/^['"]|['"]$/g, '');
+        break;
+      }
+    }
+  } catch {
+    // Un `.env` ilegible no debe impedir arrancar: las páginas con cuenta dirán que no pueden conectar.
+  }
+}
 
 const config: NextConfig = {
   // `packages/dominio` e `ingesta` son TypeScript sin compilar: los transpila Next

@@ -1,8 +1,8 @@
 titulo: FACYLF — plataforma de futbol federado de Castilla y Leon
 estado: en-curso
-tarea: bloque 2 del mapa: todas las páginas del prototipo con backend; WALL creado
+tarea: bloque 2 del mapa implementado (WALL 1–7): acta, calendario, fichas, selector, estadísticas, API/caché y cuentas con favoritos
 nivel: 2
-siguiente: Acta del partido (WALL 1), en paralelo calendario completo y fichas
+siguiente: revisión de David del bloque 2; después, artboards fuera del bloque (administración, ojeo, rankings, comparador)
 bloqueado:
-resumen: Se acabaron las explicaciones: el bloque 2 del mapa manda implementar todas las páginas del prototipo con backend. El WALL.md recoge las siete casillas por orden (acta, calendario completo, fichas, selector de competición inventada, estadísticas, backend/caché y registro con favoritos). Ya están hechas clasificación y jornada; ahora se están construyendo acta, calendario y fichas con datos reales del canónico.
+resumen: El bloque 2 del mapa está implementado con datos reales y backend: acta del partido, calendario y jornadas completos, fichas de jugador/equipo/club, selector de competición y temporada histórica («Segunda Juvenil 2017, Burgos» abre el grupo 30665 de 2016-17), estadísticas con gráficos, API v1 con caché y cuentas reales con favoritos y Mi panel. WALL.md tiene las siete casillas marcadas y la condición de cierre cumplida; quedan fuera del bloque las pantallas de administración, ojeo, rankings, comparador y publicidad.
 fecha: 2026-11-05

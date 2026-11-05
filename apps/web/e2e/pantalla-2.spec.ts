@@ -276,6 +276,36 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     await expect(page.getByRole('heading', { name: /2016-17|Segunda|Juvenil/i }).first()).toBeVisible();
   });
 
+  test('las estadísticas del grupo y el catálogo global responden', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}/estadisticas`);
+    await expect(page.getByRole('heading', { name: 'Casa y fuera' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Estadísticas' })).toHaveAttribute('aria-current', 'page');
+    await page.goto('/explorar/estadisticas');
+    await expect(page.getByRole('heading', { name: 'Estadísticas' }).first()).toBeVisible();
+  });
+
+  test('la API v1 sirve los datos y responde 304 con ETag', async ({ request }) => {
+    const indice = await request.get('/api/v1');
+    expect(indice.status()).toBe(200);
+    expect(await indice.json()).toMatchObject({ api: { version: 'v1' } });
+
+    const acta = await request.get('/api/v1/acta/94040');
+    expect(acta.status()).toBe(200);
+    const etiqueta = acta.headers()['etag'];
+    expect(etiqueta).toBeTruthy();
+    const segunda = await request.get('/api/v1/acta/94040', { headers: { 'If-None-Match': etiqueta } });
+    expect(segunda.status()).toBe(304);
+
+    expect((await request.get('/api/v1/acta/999999999')).status()).toBe(404);
+    expect((await request.get('/api/v1/acta/abc')).status()).toBe(400);
+  });
+
+  test('sin sesión, Mi panel lleva a entrar', async ({ page }) => {
+    await page.goto('/mi-panel');
+    await expect(page).toHaveURL(/\/entrar(\?|$)/);
+    await expect(page.getByRole('heading', { name: /Entrar/ }).first()).toBeVisible();
+  });
+
   test('los nombres se publican y no hay fotos de personas', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const goleadores = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) });

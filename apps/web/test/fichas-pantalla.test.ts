@@ -423,9 +423,11 @@ describe('la cabecera del jugador', () => {
     expect(html).toContain('C.D.I. de la Amistad');
     expect(html).toContain('Liga Nacional Juvenil');
     expect(html).toContain('Castilla y León');
-    // §9: nombres sí; fotos de personas, no.
+    // §9: nombres sí; fotos de personas, no. El botón de favoritos añade una estrella decorativa
+    // (SVG), que no es una foto: lo que se comprueba es que no hay imagen de la persona.
     expect(html).not.toContain('<img');
-    expect(html).not.toContain('<svg');
+    expect(html).not.toContain('<picture');
+    expect(html).not.toMatch(/<img|<picture|<image/i);
     expect(html).toContain('RR');
   });
 

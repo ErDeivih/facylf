@@ -41,7 +41,3 @@ export const CLASE_BOTON_PRIMARIO =
 /** Acción secundaria: misma altura, borde y fondo de tarjeta. */
 export const CLASE_BOTON_SECUNDARIO =
   'inline-flex h-11 w-full items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-sm font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
-
-/** Enlace dentro del texto, con altura táctil de 44 px aunque se lea como un enlace. */
-export const CLASE_BOTON_ENLACE =
-  'inline-flex min-h-11 items-center text-tabla font-semibold text-[var(--accion)] underline underline-offset-2 hover:opacity-80';

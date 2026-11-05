@@ -1,40 +1,18 @@
-'use client';
-
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-import { MENSAJE_CUENTAS_CERRADAS } from '@/lib/acceso';
-import { AvisoEstado } from './AvisoEstado';
-import {
-  Campo,
-  CLASE_BOTON_ENLACE,
-  CLASE_BOTON_PRIMARIO,
-  CLASE_BOTON_SECUNDARIO,
-  CLASE_CONTROL,
-} from './campos';
+import { MINIMO_CONTRASENA } from '@/lib/contrasenas';
+import { Campo, CLASE_BOTON_PRIMARIO, CLASE_CONTROL } from './campos';
 
 /**
  * Bloque «Entrar» de `/entrar`.
  *
- * El formulario está preparado —etiquetas visibles, `type`, `autocomplete`, `required`, foco del
- * sistema— pero **no hay servidor de cuentas al que enviarlo**. Por eso el envío no se deja pasar: se
- * cancela y se enseña el estado honesto. El `formNoValidate` del botón existe sólo para eso: mientras
- * las cuentas estén cerradas, exigir una contraseña de 10 caracteres antes de decir que no se puede
- * entrar sería una validación inútil. Cuando exista el alta, se quita esa marca y el formulario valida
- * y envía como cualquier otro.
- *
- * Las tres acciones (entrar, enlace sin contraseña y recuperar) dicen exactamente lo mismo porque hoy
- * las tres dependen de lo mismo: que exista el servicio de cuentas.
+ * Es un formulario HTML normal que envía a `POST /api/cuentas/entrar`: funciona sin JavaScript y el
+ * navegador valida `type=email`, `required` y `autocomplete`. No hay enlace mágico ni recuperación de
+ * contraseña todavía: no hay correo saliente, así que no se promete lo que no existe.
  */
-export function FormularioEntrar() {
-  const [aviso, setAviso] = useState(false);
-
-  function enviar(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
-    setAviso(true);
-  }
-
+export function FormularioEntrar({ volver }: { volver: string | null }) {
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-3.5">
+    <form action="/api/cuentas/entrar" method="post" className="flex flex-col gap-3.5">
+      <input type="hidden" name="volver" value={volver ?? ''} />
+
       <Campo id="entrar-correo" etiqueta="Correo">
         <input
           id="entrar-correo"
@@ -42,6 +20,7 @@ export function FormularioEntrar() {
           type="email"
           autoComplete="email"
           inputMode="email"
+          maxLength={254}
           required
           className={CLASE_CONTROL}
         />
@@ -53,24 +32,16 @@ export function FormularioEntrar() {
           name="contrasena"
           type="password"
           autoComplete="current-password"
+          minLength={MINIMO_CONTRASENA}
+          maxLength={200}
           required
           className={CLASE_CONTROL}
         />
       </Campo>
 
-      <button type="submit" formNoValidate className={CLASE_BOTON_PRIMARIO}>
+      <button type="submit" className={CLASE_BOTON_PRIMARIO}>
         Entrar
       </button>
-
-      <button type="button" onClick={() => setAviso(true)} className={CLASE_BOTON_SECUNDARIO}>
-        Recibir un enlace para entrar sin contraseña
-      </button>
-
-      <button type="button" onClick={() => setAviso(true)} className={CLASE_BOTON_ENLACE}>
-        He olvidado la contraseña
-      </button>
-
-      <AvisoEstado texto={aviso ? MENSAJE_CUENTAS_CERRADAS : null} />
     </form>
   );
 }

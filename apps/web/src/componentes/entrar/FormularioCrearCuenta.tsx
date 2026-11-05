@@ -1,43 +1,29 @@
-'use client';
-
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-import { MENSAJE_CUENTAS_CERRADAS, MINIMO_CONTRASENA } from '@/lib/acceso';
-import { AvisoEstado } from './AvisoEstado';
-import {
-  Campo,
-  CLASE_BOTON_PRIMARIO,
-  CLASE_CONTROL,
-} from './campos';
+import { MINIMO_CONTRASENA } from '@/lib/contrasenas';
+import { Campo, CLASE_BOTON_PRIMARIO, CLASE_CONTROL } from './campos';
 
 /**
  * Bloque «Crear cuenta» de `/entrar`.
  *
- * Reproduce el tablero 13 con el sistema de diseño actual. No hay alta todavía: el botón no envía
- * nada y enseña el estado honesto. Se mantienen los campos y sus atributos (`type`, `autocomplete`,
- * `minLength`, `required`) porque son el contrato que tendrá que cumplir el alta cuando exista; el
- * `formNoValidate` del botón es lo único que se quita entonces.
+ * Alta real con invitación (o aprobación, según `app.ajuste.registro_modo`). El formulario envía a
+ * `POST /api/cuentas/crear`; la contraseña se deriva con scrypt en el servidor y la cuenta se crea
+ * en una transacción. Si el modo no es `invitacion`, el código no se pide ni se usa.
  *
  * El consentimiento dice la decisión vigente de la federación: hay consentimiento de tratamiento y
- * **los nombres de los menores se publican**; las **fotos** no. La frase del prototipo decía lo
- * contrario y no se copia.
+ * **los nombres de los menores se publican**; las **fotos** no.
  */
-export function FormularioCrearCuenta() {
-  const [aviso, setAviso] = useState(false);
-
-  function enviar(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
-    setAviso(true);
-  }
-
+export function FormularioCrearCuenta({ modo, volver }: { modo: string; volver: string | null }) {
+  const conInvitacion = modo === 'invitacion';
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-3.5">
+    <form action="/api/cuentas/crear" method="post" className="flex flex-col gap-3.5">
+      <input type="hidden" name="volver" value={volver ?? ''} />
+
       <Campo id="alta-nombre" etiqueta="Nombre">
         <input
           id="alta-nombre"
           name="nombre"
           type="text"
           autoComplete="name"
+          maxLength={60}
           required
           className={CLASE_CONTROL}
         />
@@ -50,6 +36,7 @@ export function FormularioCrearCuenta() {
           type="email"
           autoComplete="email"
           inputMode="email"
+          maxLength={254}
           required
           className={CLASE_CONTROL}
         />
@@ -62,23 +49,27 @@ export function FormularioCrearCuenta() {
           type="password"
           autoComplete="new-password"
           minLength={MINIMO_CONTRASENA}
+          maxLength={200}
           required
           className={CLASE_CONTROL}
         />
       </Campo>
 
-      <Campo id="alta-invitacion" etiqueta="Código de invitación">
-        <input
-          id="alta-invitacion"
-          name="invitacion"
-          type="text"
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          required
-          className={`${CLASE_CONTROL} tracking-[0.06em]`}
-        />
-      </Campo>
+      {conInvitacion && (
+        <Campo id="alta-invitacion" etiqueta="Código de invitación">
+          <input
+            id="alta-invitacion"
+            name="invitacion"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={64}
+            required
+            className={`${CLASE_CONTROL} tracking-[0.06em]`}
+          />
+        </Campo>
+      )}
 
       <label className="flex items-start gap-2.5 text-tabla leading-6 text-[var(--texto)]">
         <input
@@ -94,11 +85,9 @@ export function FormularioCrearCuenta() {
         </span>
       </label>
 
-      <button type="submit" formNoValidate className={CLASE_BOTON_PRIMARIO}>
+      <button type="submit" className={CLASE_BOTON_PRIMARIO}>
         Crear cuenta
       </button>
-
-      <AvisoEstado texto={aviso ? MENSAJE_CUENTAS_CERRADAS : null} />
     </form>
   );
 }

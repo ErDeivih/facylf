@@ -38,6 +38,9 @@ Principios:
 - auditoría de cambios de identidad, visibilidad y notas;
 - sesiones cortas, cookies `Secure`, `HttpOnly`, `SameSite` y rotación segura.
 
+Las cuentas propias de la web (alta por invitación, contraseña con scrypt, sesión con token hasheado,
+favoritos y sus límites) están detalladas en [CUENTAS.md](CUENTAS.md).
+
 Si la aplicación sigue siendo estrictamente local para un único usuario, puede empezar protegida por
 el acceso del sistema y escucha en `127.0.0.1`. En cuanto escuche en una red o Internet, necesita
 autenticación real y TLS.

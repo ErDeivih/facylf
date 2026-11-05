@@ -1,10 +1,9 @@
 /**
- * El estado honesto de los formularios de `/entrar`.
+ * Mensaje de estado de la entrada y del alta.
  *
  * La región `role="status"` está SIEMPRE en el documento, aunque no tenga texto: si se insertara
- * junto con el mensaje, algunos lectores de pantalla no lo anunciarían. Cuando el registro exista de
- * verdad, este componente se retira o se cambia por el mensaje real del servidor; mientras tanto no
- * hay ningún texto de relleno, solo el motivo por el que la acción no ha hecho nada.
+ * junto con el mensaje, algunos lectores de pantalla no lo anunciarían. El texto que llega ya está
+ * elegido en el servidor a partir de un código (nunca se refleja texto libre de la URL).
  */
 export function AvisoEstado({ texto }: { texto: string | null }) {
   return (

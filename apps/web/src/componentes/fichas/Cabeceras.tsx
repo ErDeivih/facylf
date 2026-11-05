@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { Escudo } from '@/componentes/Escudo';
+import { BotonFavorito } from '@/componentes/favorito/BotonFavorito';
 import type { FilaClub, FilaEquipo, FilaPersona } from '@/consultas/entidades';
 import { inicialesDeNombre } from '@/lib/fichas';
 
@@ -8,6 +9,11 @@ import { inicialesDeNombre } from '@/lib/fichas';
  * Cabeceras de las tres fichas. Enseñan quién es quién y en qué contexto juega, y nada más: los
  * números van en sus propias secciones. Ninguna pinta una foto de persona (§9): el jugador lleva sus
  * iniciales sobre un círculo, y el equipo y el club, su escudo real cuando lo hay.
+ *
+ * La estrella de favorito va aquí y no en cada página: las tres pantallas comparten esta cabecera y
+ * así el control es el mismo en las tres. Es un componente de cliente que pregunta su estado a la API
+ * (no lee la sesión en el servidor), para que las fichas sigan renderizándose igual para todo el
+ * mundo hasta que alguien pulsa.
  */
 
 export type ContextoDeJugador = {
@@ -63,6 +69,9 @@ export function CabeceraJugador({ jugador, contexto }: {
           </p>
         )}
       </div>
+      <div className="ml-auto">
+        <BotonFavorito tipo="jugador" entidadId={Number(jugador.persona_id)} etiqueta={jugador.nombre_mostrado} />
+      </div>
     </section>
   );
 }
@@ -91,6 +100,9 @@ export function CabeceraEquipo({ equipo, tieneEscudo }: { equipo: FilaEquipo; ti
           {equipo.temporada} · {equipo.federacion_nombre}
         </p>
       </div>
+      <div className="ml-auto">
+        <BotonFavorito tipo="equipo" entidadId={Number(equipo.equipo_id)} etiqueta={equipo.nombre_en_fuente} />
+      </div>
     </section>
   );
 }
@@ -115,6 +127,9 @@ export function CabeceraClub({ club, tieneEscudo }: { club: FilaClub; tieneEscud
             También publicado como: {club.aliases}
           </p>
         )}
+      </div>
+      <div className="ml-auto">
+        <BotonFavorito tipo="club" entidadId={Number(club.club_id)} etiqueta={club.nombre_canonico} />
       </div>
     </section>
   );

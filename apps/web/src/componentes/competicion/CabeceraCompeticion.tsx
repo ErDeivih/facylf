@@ -9,6 +9,7 @@ const PESTANAS = [
   { texto: 'Clasificación', activa: true },
   { texto: 'Jornadas', activa: false },
   { texto: 'Calendario', activa: false },
+  { texto: 'Estadísticas', activa: false },
   { texto: 'Goleadores', activa: false },
   { texto: 'Disciplina', activa: false },
   { texto: 'Equipos', activa: false },
@@ -30,7 +31,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
   fechaInicio: string | null;
   fechaFin: string | null;
   /** Pestaña que se está viendo; las dos que tienen pantalla se marcan y enlazan. */
-  activa?: 'clasificacion' | 'jornadas' | 'calendario';
+  activa?: 'clasificacion' | 'jornadas' | 'calendario' | 'estadisticas';
 }) {
   const totalJornadas = grupo.jornadas_previstas;
   const jornadaActual = grupo.jornada_actual;
@@ -107,14 +108,17 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
         {PESTANAS.map((p) => {
           const esActiva = (p.texto === 'Clasificación' && activa === 'clasificacion')
             || (p.texto === 'Jornadas' && activa === 'jornadas')
-            || (p.texto === 'Calendario' && activa === 'calendario');
+            || (p.texto === 'Calendario' && activa === 'calendario')
+            || (p.texto === 'Estadísticas' && activa === 'estadisticas');
           const href = p.texto === 'Clasificación'
             ? rutaBase
             : p.texto === 'Jornadas'
               ? `${rutaBase}/jornadas`
               : p.texto === 'Calendario'
                 ? `${rutaBase}/calendario`
-                : null;
+                : p.texto === 'Estadísticas'
+                  ? `${rutaBase}/estadisticas`
+                  : null;
           if (href === null) {
             return (
               <span key={p.texto} aria-disabled="true"
