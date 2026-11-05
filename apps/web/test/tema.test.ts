@@ -95,14 +95,15 @@ describe('el tema sale en la cookie', () => {
 });
 
 describe('sólo las rutas migradas admiten tema oscuro', () => {
-  it('las de /explorar sí', () => {
+  it('la portada rediseñada y las de /explorar sí', () => {
+    expect(esRutaConTema('/')).toBe(true);
     expect(esRutaConTema('/explorar')).toBe(true);
     expect(esRutaConTema('/explorar/')).toBe(true);
     expect(esRutaConTema('/explorar/competicion/3769')).toBe(true);
   });
 
   it('el resto no (incluidas las viejas y las que sólo empiezan igual)', () => {
-    for (const ruta of ['/', '/canonico', '/competiciones', '/competicion/t21-c22911157-g22911162', '/explorarx', '/explorar-viejo', '', null, undefined]) {
+    for (const ruta of ['/canonico', '/competiciones', '/competicion/t21-c22911157-g22911162', '/explorarx', '/explorar-viejo', '', null, undefined]) {
       expect(esRutaConTema(ruta), `esRutaConTema(${JSON.stringify(ruta)})`).toBe(false);
     }
   });
@@ -139,7 +140,7 @@ describe('el primer HTML ya lleva el tema (resuelto en el servidor)', () => {
 
   it('en una página vieja, el tema oscuro se fuerza a claro aunque la cookie lo pida', async () => {
     entorno.cookie = 'oscuro';
-    for (const ruta of ['/canonico', '/competiciones', '/']) {
+    for (const ruta of ['/canonico', '/competiciones']) {
       entorno.ruta = ruta;
       const html = await primerHtml();
       expect(html, `en ${ruta}`).toContain('<html lang="es" data-tema="claro">');

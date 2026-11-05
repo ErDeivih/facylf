@@ -1,9 +1,10 @@
 # API pública v1
 
-Estado: **implementada el 05/11/2026, pendiente de validación del Lead** (WALL objetivo 6).
-Código: `apps/web/src/app/api/v1/`, piezas comunes en `apps/web/src/lib/api.ts`,
+Estado: **implementada el 05/11/2026 y ampliada el 05/11/2026 con estadísticas, historiales y fichas de
+oficiales; pendiente de validación del Lead** (WALL objetivo 6). Código:
+`apps/web/src/app/api/v1/`, piezas comunes en `apps/web/src/lib/api.ts`,
 `apps/web/src/lib/api-datos.ts`, `apps/web/src/lib/cache.ts` y `apps/web/src/lib/limite-api.ts`.
-Pruebas: `apps/web/test/api-v1.test.ts`.
+Pruebas: `apps/web/test/api-v1.test.ts` (26) y `apps/web/test/api-v1-ampliacion.test.ts` (12).
 
 La API **reutiliza las consultas del catálogo** (`apps/web/src/consultas/*.ts`, contrato `Consulta`) y
 las pantallas de la web. No hay una segunda copia del SQL: si la consulta de una ficha cambia, la API
@@ -92,6 +93,13 @@ algún día la API se abre de verdad, el límite tiene que vivir en el proxy.
 | GET | `/api/v1/ficha/equipo/{id}` | ficha de una inscripción de equipo |
 | GET | `/api/v1/ficha/jugador/{id}` | ficha de una persona |
 | GET | `/api/v1/ficha/club/{id}` | ficha de un club |
+| GET | `/api/v1/estadisticas/competicion/{id}` | resumen, eventos y goleadores de un grupo |
+| GET | `/api/v1/ficha/jugador/{id}/historial` | apariciones reales de una persona, para construir sus tramos |
+| GET | `/api/v1/ficha/equipo/{id}/historial` | temporadas de la línea de un equipo |
+| GET | `/api/v1/ficha/club/{id}/historial` | equipos de un club, temporada a temporada |
+| GET | `/api/v1/oficiales/arbitro/{id}` | ficha de un árbitro principal |
+| GET | `/api/v1/oficiales/entrenador/{id}` | ficha de un entrenador |
+| GET | `/api/v1/oficiales/delegado/{id}` | ficha de un delegado de equipo |
 | POST | `/api/revalidar` | operación de servicio: consume invalidaciones (secreto) |
 
 ### `GET /api/v1/competiciones/{id}`
@@ -152,6 +160,70 @@ curl -s 'http://localhost:3000/api/v1/calendario?federacion=castilla-leon&tempor
 - `GET /api/v1/ficha/club/{id}`: `id` = `core.club.id`. `club-por-id` +
   (`equipos-del-club`, `escudo-del-club`). Respuesta: `{ club, escudo, equipos[] }`.
 
+### `GET /api/v1/estadisticas/competicion/{id}`
+
+`id` = `core.phase_group.id`. Reutiliza las mismas consultas que la página de estadísticas del grupo:
+`grupo-por-id` (para validar y situar la competición), `partidos-de-grupo`, `eventos-del-grupo` y
+`goleadores-de-estadísticas` (top 10 con al menos un partido). El resumen de partidos se agrega con la
+misma función pura que la pantalla (`agregaResumenDePartidos`). No hay una consulta por equipo ni por
+jornada.
+
+```json
+{
+  "api": { "version": "v1", "recurso": "estadisticas-competicion" },
+  "datos": {
+    "competicion": { "id": 3769, "federacion": "castilla-leon", "temporada": "2026-27", "edicion": "Liga Nacional Juvenil", "grupo": "Primera - III", "categoria": "juvenil", "division": "liga-nacional", "modalidad": "desconocida", "ambito": "nacional", "jornada_actual": 4 },
+    "resumen": { "partidos": 32, "con_resultado": 32, "goles": 135, "local": 16, "empate": 7, "visitante": 9, "con_cero": 3, "actas": 32, "actas_correctas": 32 },
+    "eventos": { "tramos": [ { "orden": 3, "goles": 21 } ], "tarjetas": [ { "equipo_id": 17609, "equipo": "C.D. INTERNACIONAL VISTA ALEGRE", "amarillas": 4, "rojas": 0 } ] },
+    "goleadores": [ { "persona_id": 12345, "nombre": "APELLIDO, NOMBRE", "es_menor": true, "goles": 8, "goles_penalti": 1, "partidos": 9, "equipo": "EQUIPO", "club_id": 6, "tiene_escudo": true } ]
+  },
+  "enlaces": { "web": "/explorar/competicion/3769/estadisticas", "api": "/api/v1/estadisticas/competicion/3769" }
+}
+```
+
+La temporada no es un parámetro: la fija la edición del grupo pedido (un grupo es de una temporada). Un
+id no numérico es **400**; un grupo inexistente, **404**. Si el grupo existe pero no tiene partidos
+publicados, se responde 200 con el resumen a cero y las listas vacías: es un grupo sin datos, no un
+recurso que no exista.
+
+```bash
+curl -s http://localhost:3000/api/v1/estadisticas/competicion/3769
+```
+
+### Historiales
+
+Los tres endpoints devuelven **los datos tal como los usa la pantalla**, sin agrupar de otra forma: el
+cliente que quiera tramos o cambios a mitad de temporada aplica las reglas puras documentadas en
+`apps/web/src/lib/historial-jugador.ts` (un tramo por inscripción de equipo y temporada; dos tramos con
+fechas solapadas son «dos equipos a la vez», no un cambio).
+
+- `GET /api/v1/ficha/jugador/{id}/historial`: `id` = `core.person.id`. Reutiliza `historial-de-jugador`
+  (una sola consulta: persona + apariciones en JSON). Respuesta:
+  `{ persona_id, nombre_mostrado, es_menor, identidad_nominal, apariciones[] }`; cada aparición lleva
+  `match_id`, `team_entry_id`, `condicion` (`starter`/`substitute`/`called_up_unknown`), `fecha`,
+  `temporada`, `equipo`, `club_id`, `club`, `edicion`, `grupo_id`, `grupo`, `federacion`,
+  `federacion_nombre`, `goles`, `goles_penalti`, `propias`, `amarillas`, `rojas`, `minutos_exactos`,
+  `minutos_estimados` y `minutos_fiables`. Los minutos **sólo** son utilizables si `minutos_fiables` es
+  `true`; un `null` es «sin dato», no 0. 404 si la persona no existe.
+- `GET /api/v1/ficha/equipo/{id}/historial`: `id` = `core.team_entry.id` (inscripción). Reutiliza
+  `historial-del-equipo`: una fila por temporada de la **línea** del equipo (club, categoría y letra),
+  con competición, grupo, puesto, movimiento, balance, racha y enlaces a jornada y acta. Respuesta:
+  `datos[]` (array de filas). 404 si el equipo no existe o su federación está excluida.
+- `GET /api/v1/ficha/club/{id}/historial`: `id` = `core.club.id`. Reutiliza `historial-del-club` con la
+  misma ventana que la pantalla (**500 inscripciones** como máximo). Devuelve una fila por inscripción,
+  con el club repetido para que el cliente pinte la cabecera sin otra lectura. Un club que existe y no
+  tiene equipos publicados devuelve 200 con una fila de club y los campos de equipo a `null`; un club
+  que no existe es 404.
+
+### `GET /api/v1/oficiales/arbitro/{id}`, `/entrenador/{id}` y `/delegado/{id}`
+
+`id` = `core.person.id` en los tres. Reutilizan `arbitro-por-id`, `entrenador-por-id` y
+`delegado-por-id`, con **la misma regla de rol que las pantallas** (árbitro principal; entrenador
+normalizado, nunca preparador de porteros; delegado de equipo, sin delegados de campo/protección). La
+ficha sólo existe si la persona tiene ese papel: **un jugador no es un árbitro, y eso es un 404**, no
+una ficha vacía. La respuesta es la fila de la consulta (`partidos`, medias, `ultimos[]`…), más
+`enlaces.web` a su ficha. No se expone ningún dato de cuenta.
+
 ### `POST /api/revalidar` (operación de servicio, no pública)
 
 Consume las etiquetas pendientes de `ops.invalidacion` y refresca la caché por etiquetas. Requiere
@@ -161,23 +233,22 @@ el nombre antiguo `REVALIDAR_SECRETO`). Sin secreto configurado: 503.
 - `?maximo=N`: lote máximo, entero 0–10000 (por defecto 2000). `maximo=0` comprueba la operación sin
   consumir la cola (lo usan las pruebas).
 - Respuesta: `{ "api": { "version": "v1" }, "refrescadas": N }`, donde N incluye las etiquetas de la
-  cola más las derivadas (`acta`, `calendario`).
-
-### Planeado (contrato reservado, todavía no responde)
-
-- `GET /api/v1/estadisticas/competicion/{id}`: estadísticas y gráficos de una competición (WALL
-  objetivo 5). Sin página ni consultas de estadísticas todavía; el índice lo anuncia como `planeado`.
-  Cuando exista, reutilizará las consultas de esa página y el mismo sobre de respuesta.
+  cola más las derivadas (`acta`, `calendario`, `estadisticas`, `historiales`, `oficiales`).
 
 ## 3. Caché por etiquetas e invalidación
 
 Diseño de `RENDIMIENTO-BASE.md` §4, implementado en `apps/web/src/lib/cache.ts`:
 
 - Cada respuesta de recurso se guarda en `unstable_cache` con etiquetas: `grupo:12`, `equipo:345`,
-  `persona:789`, `club:6`, `acta`, `calendario`. La etiqueta `acta` y `calendario` son amplias a
-  propósito: el proyector apunta entidades (grupo, edición, federación, equipo, club, persona) y no una
-  etiqueta por partido; cuando cambia cualquiera de esas entidades se refrescan **todas** las actas y el
-  calendario (más trabajo de cálculo, nunca un dato viejo).
+  `persona:789`, `club:6`, `acta`, `calendario`, `estadisticas`, `historiales`, `oficiales`. Las
+  etiquetas amplias son a propósito: el proyector apunta entidades (grupo, edición, federación, equipo,
+  club, persona) y no una etiqueta por partido; cuando cambia cualquiera de esas entidades se refrescan
+  **todas** las actas, el calendario, las estadísticas de grupo, los historiales y las fichas de
+  oficiales (más trabajo de cálculo, nunca un dato viejo).
+- Las etiquetas amplias nuevas son `estadisticas` (`grupo:*`), `historiales` (`persona:*`, `equipo:*`,
+  `club:*`) y `oficiales` (`persona:*`). La derivación concreta está en `DERIVADAS` de
+  `apps/web/src/lib/cache.ts` y se prueba en `api-v1-ampliacion.test.ts`: un cambio de grupo refresca
+  estadísticas, historiales y oficiales; uno de equipo o club refresca historiales y oficiales.
 - Caducidad de seguridad: 5 minutos. Es la única diferencia con el diseño del documento (que la dejaba
   sin caducidad): si la invalidación no llegara, la API no se queda congelada para siempre.
 - `scripts/proyectar-lectura.mjs` ya apunta las etiquetas con `ops.invalida_grupo` al proyectar un
@@ -196,8 +267,9 @@ Diseño de `RENDIMIENTO-BASE.md` §4, implementado en `apps/web/src/lib/cache.ts
 
 Máquina compartida con los recolectores y **servidor de desarrollo** (`next dev`, no build de
 producción): los números incluyen el coste de desarrollo y oscilan entre pasadas. Evidencia completa:
-`tmp/api-mediciones.json` (p50/p95 por recurso), `tmp/api-curl.txt` (curl real) y
-`tmp/api-explain.json` (EXPLAIN).
+`tmp/api-mediciones.json` y `tmp/api-ampliacion-mediciones.json` (p50/p95 por recurso),
+`tmp/api-curl.txt` y `tmp/api-curl-ampliacion.txt` (peticiones reales) y `tmp/api-explain.json` y
+`tmp/api-ampliacion-explain.json` (EXPLAIN).
 
 ### Caché: cálculo (MISS) contra acierto (HIT) y 304
 
@@ -209,10 +281,19 @@ producción): los números incluyen el coste de desarrollo y oscilan entre pasad
 | ficha equipo | 62,8 ms | 84,9 ms | 34,7 ms | 64,7 ms | 70,2 ms | 11.495 B |
 | ficha jugador | 81,1 ms | 128,4 ms | 32,3 ms | 38,2 ms | 103,1 ms | 8.481 B |
 | ficha club | 83,6 ms | 154,8 ms | 38,4 ms | 67,0 ms | 81,7 ms | 217.695 B |
+| estadísticas competición | 114,7 ms | 208,3 ms | 15,2 ms | 30,0 ms | 76,6 ms | 4.022 B |
+| historial jugador | 71,8 ms | 130,9 ms | 31,3 ms | 37,3 ms | 44,5 ms | 72.202 B |
+| historial equipo | 41,4 ms | 130,1 ms | 22,9 ms | 32,6 ms | 47,5 ms | 3.211 B |
+| historial club | 120,2 ms | 182,3 ms | 33,2 ms | 52,1 ms | 62,7 ms | 269.214 B |
+| árbitro | 28,9 ms | 73,4 ms | 18,7 ms | 31,4 ms | 30,2 ms | 8.520 B |
+| entrenador | 30,7 ms | 42,6 ms | 16,7 ms | 33,7 ms | 32,5 ms | 8.901 B |
+| delegado | 29,8 ms | 35,9 ms | 15,4 ms | 30,2 ms | 31,0 ms | 8.841 B |
 
 MISS = primera petición de un recurso (consulta + montaje del JSON). HIT = misma URL desde la caché por
-etiquetas. 304 = petición condicional con el ETag (sin cuerpo). Todas las mediciones: 10 HIT, 12 MISS y
-8 condicionales por recurso, salvo el primer calentamiento.
+etiquetas. 304 = petición condicional con el ETag (sin cuerpo). Las seis primeras filas: 10 HIT, 12 MISS
+y 8 condicionales por recurso, salvo el primer calentamiento. **La ampliación**: 8 HIT, 6 MISS y 5
+condicionales por recurso (5/5 devolvieron 304). El historial de club es el cuerpo más grande (269 KB con
+un club de 500 inscripciones): está dentro de lo asumible y queda la paginación como pendiente.
 
 ### Consultas (EXPLAIN ANALYZE, BUFFERS; mejor de dos pasadas)
 
@@ -232,18 +313,28 @@ etiquetas. 304 = petición condicional con el ETag (sin cuerpo). Todas las medic
 | `partidos-de-persona` | 7,8 | 300 | indexado | no (`season`) |
 | `club-por-id` | 0,6 | 100 | indexado | no |
 | `equipos-del-club` | 9,4 | 300 | indexado | no |
+| `partidos-de-grupo` | 3,3 | 800 | indexado | no (`federation`) |
+| `eventos-del-grupo` | 0,7 | 300 | indexado | no |
+| `goleadores-de-estadísticas` | 5,4 | 500 | indexado | no (`federation`, `season`) |
+| `historial-de-jugador` | 6,2 | 400 | indexado | no (`season`) |
+| `historial-del-equipo` | 2,1 | 250 | indexado | no |
+| `historial-del-club` | 19,9 | 400 | indexado | no (`season`) |
+| `arbitro-por-id` | 3,5 | 400 | indexado | no |
+| `entrenador-por-id` | 2,6 | 400 | indexado | no |
+| `delegado-por-id` | 1,9 | 400 | indexado | no |
 
-**Conclusión de índices:** las 14 consultas que sirven la API están dentro de presupuesto y ninguna
+**Conclusión de índices:** las 23 consultas que sirven la API están dentro de presupuesto y ninguna
 recorre entera una tabla de hechos. **No se añade ningún índice y no hay migración nueva**; si el
 volumen crece, el primer sitio donde mirar es `partidos-del-calendario` (30 ms con la primera página de
-una federación; su presupuesto es 800).
+una federación; su presupuesto es 800) y el historial de club (20 ms con 500 inscripciones).
 
 ### Etag / 304 verificado con curl
 
 - `304` con `If-None-Match` en acta, competición, calendario y las tres fichas (8/8 condicionales por
-  recurso en la medición).
+  recurso en la medición) y en las siete rutas nuevas (5/5 por recurso).
 - `400` para id inválido, filtro mal formado y fecha imposible.
-- `404` para competición inexistente, partido sin acta (940046) y acta `unavailable` (453933).
+- `404` para competición inexistente, partido sin acta (940046), acta `unavailable` (453933), persona o
+  equipo inexistente, y **un jugador en la ficha de árbitro** (1181455): no se inventa una ficha vacía.
 - `401` en revalidar sin secreto; `200` con secreto y `maximo=0`.
 - `429` con `Retry-After` tras 300 peticiones en el mismo minuto desde una IP simulada.
 
@@ -261,6 +352,17 @@ una federación; su presupuesto es 800).
   pública no lleva campos de cuenta;
 - límite por IP (300 permitidas, 429 con `Retry-After`) y `X-Forwarded-For`.
 
+`apps/web/test/api-v1-ampliacion.test.ts` (12 pruebas):
+
+- índice: las siete rutas nuevas están anunciadas como `disponible`;
+- etiquetas nuevas (`grupo:* + estadisticas`, `persona|equipo|club:* + historiales`,
+  `persona:* + oficiales`) y su derivación;
+- contra el canónico: estadísticas de 3769 (32 partidos, 135 goles, goleadores), 304 real, 400 y 404;
+- historial de jugador 1181455 (144 apariciones), historial de equipo 17609 y de club 1495; 400/404;
+- oficiales: árbitro 657011, entrenador 1251791, delegado 1072476; 404 para un jugador en la ficha de
+  árbitro y un id inexistente; 400 con id mal formado;
+- ninguna respuesta nueva contiene campos de cuenta (usuario, favoritos, sesión, token).
+
 Además: `pnpm exec vitest run apps/web/test` y `pnpm --filter @facylf/web exec tsc --noEmit`.
 
 ## 6. Pendientes y decisiones para el Lead
@@ -270,11 +372,17 @@ Además: `pnpm exec vitest run apps/web/test` y `pnpm --filter @facylf/web exec 
 2. **Llamada del proyector al endpoint**: `scripts/proyectar-lectura.mjs` ya escribe las etiquetas, pero
    no llama a `POST /api/revalidar`; el temporizador de la web las recoge igualmente cada minuto. Si se
    quiere refresco inmediato, es una línea en ese script (fuera del alcance de esta tarea).
-3. **Estadísticas** (`/api/v1/estadisticas/competicion/{id}`): contrato reservado, sin página ni
-   consultas todavía (WALL objetivo 5).
-4. **Enlaces de navegación**: la API no toca pantallas; los enlaces `web` de cada recurso se pueden usar
+3. **Estadísticas, historiales y oficiales ya implementados** (ver §2). No queda contrato reservado en
+   la API v1; lo que faltan son las decisiones de producto sobre qué más abrir.
+4. **Tamaño del historial de club**: 269 KB con 500 inscripciones. Se sirve entero porque es el mismo
+   dato que la pantalla; si se consume desde fuera con frecuencia, conviene paginar por temporada o por
+   equipo (no se ha hecho porque cambiaría el contrato ya publicado y no hay necesidad medida).
+5. **Invalidación amplia**: las rutas nuevas usan etiquetas derivadas (`estadisticas`, `historiales`,
+   `oficiales`) que se refrescan con cualquier cambio de grupo/equipo/club/persona. Es más coste de
+   cálculo y nunca un dato viejo; si el tráfico crece, se puede afinar por grupo en los historiales.
+6. **Enlaces de navegación**: la API no toca pantallas; los enlaces `web` de cada recurso se pueden usar
    cuando el Lead integre fichas/acta.
-5. **Apertura exterior / CORS**: hoy no hay CORS abierto; abrir la API a otros orígenes exige decidir
+7. **Apertura exterior / CORS**: hoy no hay CORS abierto; abrir la API a otros orígenes exige decidir
    antes el proxy y el límite real.
-6. **Paginación**: el calendario usa `offset` (la consulta existente). Para más de ~10 páginas conviene
+8. **Paginación**: el calendario usa `offset` (la consulta existente). Para más de ~10 páginas conviene
    migrarla a paginación por clave; queda anotado en `RENDIMIENTO-BASE.md` §3.8.

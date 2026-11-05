@@ -51,18 +51,20 @@ const FUNCIONES: readonly Funcion[] = [
   {
     clave: 'rankings',
     etiqueta: 'Rankings',
-    descriptor: 'Goleadores',
-    href: '/explorar/estadisticas',
+    descriptor: 'Goleadores y tarjetas',
+    href: '/explorar/rankings',
   },
   {
     clave: 'ojeo',
     etiqueta: 'Ojeo',
     descriptor: 'Buscar talento',
+    href: '/explorar/ojeo',
   },
   {
     clave: 'comparar',
     etiqueta: 'Comparar',
     descriptor: 'Cara a cara',
+    href: '/explorar/comparar',
   },
 ];
 

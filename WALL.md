@@ -93,12 +93,75 @@ detrás. Se acabaron las explicaciones: se implementa.
 
 ## Revisión de las capturas (David, 05/11/2026)
 
-- [x] **Marca**: logo propio y nombre de producto mejor que FACYLF; quitar el pie «archivo privado / no\n  es una web oficial»; explicar en la barra superior qué es Explorar, Rankings, Ojeo y Comparar.\n  Hecho como **Balompié** (provisional) con logo de cancha, tagline, pie eliminado y descriptores en la\n  navegación; el nombre se cambia desde componentes/marca/marca.ts. Los títulos de las pantallas ya\n  dicen Balompié.\n\n- [x] **Jornadas**: tablas por jornada con resultados, equipos y actas enlazados; 4 tablas por fila en\n  PC y scroll vertical en móvil; árbitro en la jornada (asistentes en el acta); escudo en el contenedor;\n  corregir la barra de temporada para que la fecha derecha sea la de la última jornada jugada.\n  Hecho; la fecha usa echa_ultima_jugada y en móvil los equipos se apilan con el marcador a la derecha.\n  Los asistentes no están en core.match_official (sólo principal) y no se inventan.\n\n- [x] **Nombres cortos de equipo**: derivar/guardar «Isoba», «R. Valladolid», «Santa Marta»,\n  «Ponferradina», «Salamanca CF»… y usarlos donde no cabe el nombre largo; en móvil, resultado a la\n  derecha y equipos debajo uno del otro.\n  Hecho: migración 0060 (nalytics.nombre_corto_equipo), 34.904/34.904 equipos de CyL, reglas + 2.569\n  manuales; integrado en jornadas/acta/clasificación/calendario.\n\n- [x] **Acceso**: registro abierto para cualquiera (solo para favoritos), sin código de invitación;\n  separar «Entrar» y «Crear cuenta» en dos páginas; notificaciones móviles, más adelante.\n  Hecho: migración 0059 (modo abierto), /entrar y /crear-cuenta, avisos «más adelante» sin botones.\n\n- [x] **Historiales**: jugador, equipo, club, equipos de un club, equipo por temporadas y cada\n  temporada; reflejar varios equipos del mismo club y cambios a mitad de temporada.\n  Hecho: /explorar/jugador/[id]/historial, /explorar/equipo/[id]/historial y\n  /explorar/club/[id]/historial, enlazados desde las fichas. Declarados los huecos reales del canónico\n  (líneas incompletas, sin palmarés/plantilla histórica).\n\n- [x] **Estadísticas de árbitros, entrenadores y delegados**.\n  Hecho: /explorar/arbitro/[id], /explorar/entrenador/[id] y /explorar/delegado/[id] con datos\n  reales, medias y V-E-D; los asistentes de árbitro no existen en el canónico.\n\n## Terminado cuando
+- [x] **Marca**: logo propio y nombre de producto; pie «archivo privado» retirado; navegación explicada.
+  Hecho como **Balompié** (provisional) con logotipo de cancha, tagline, favicon, pie sustituido por un
+  enlace a Publicidad y descriptores en la navegación. El nombre se cambia en `componentes/marca/marca.ts`.
+- [x] **Jornadas**: tablas por jornada con resultados, equipos y actas enlazados; 4 tablas por fila en PC,
+  apiladas en móvil; árbitro, escudos y nombres cortos; fecha derecha = última jornada jugada
+  (`fecha_ultima_jugada`). Los asistentes de árbitro no están en `core.match_official` y no se inventan.
+- [x] **Nombres cortos de equipo**: migración 0060 (`analytics.nombre_corto_equipo`), 34.904/34.904
+  equipos de CyL, reglas + 2.569 manuales; integrados en jornadas, acta, clasificación y calendario.
+- [x] **Acceso**: registro abierto sin invitación (0059), `/entrar` y `/crear-cuenta` separados, avisos
+  «más adelante» sin botones falsos; sin verificación de correo ni captcha, documentado.
+- [x] **Historiales**: jugador, equipo y club, enlazados desde las fichas; varios equipos del mismo club y
+  cambios a mitad de temporada. Declarados los huecos del canónico.
+- [x] **Estadísticas de árbitros, entrenadores y delegados**: fichas con datos reales, medias y V-E-D.
+  Los asistentes de árbitro no existen en el canónico.
 
-Puedo pedir cualquier competición/temporada y ver calendario, clasificación, jornadas, actas y
-estadísticas sin que falte nada.
+## Pantallas restantes del prototipo (continuación)
+
+- [x] **Inicio / Main** rediseñado: buscador, competiciones reales de CyL y «Tus equipos» con sesión.
+- [x] **Rankings y Ojeo**: `/explorar/rankings` (goleadores/tarjetas, filtros y paginación) y
+  `/explorar/ojeo` (perfiles, edad calculada, minutos y posición) con datos reales y CyL por defecto.
+- [x] **Comparar jugadores**: `/explorar/comparar`, selección por nombre/id sin unir identidades.
+- [x] **Federación y Liga**: `/explorar/federacion/[codigo]` y `/explorar/liga/[id]` con cobertura,
+  resultados, goles por tramo, cantera y disciplina.
+- [x] **Cuenta**: `/mi-cuenta` con datos, preferencias de aviso, seguridad y cierre de sesión.
+- [x] **Administración**: `/admin` y `/admin/usuarios` con guardia de servidor, resumen, usuarios,
+  invitaciones, auditoría y paginación; sólo lectura y sin datos personales sensibles.
+- [x] **Datos, Salud y Estados**: `/explorar/datos`, `/explorar/salud` y `/explorar/estados` con datos
+  reales de observabilidad y estados honestos.
+- [x] **Publicidad**: `/explorar/publicidad`, enlazada desde el pie; espacios reales apagados y sin
+  campañas inventadas.
+- [x] **Backend/API de estadísticas, historiales y oficiales**: siete endpoints nuevos en `/api/v1` con
+  ETag/304, caché por etiquetas y contrato documentado.
+
+## Terminado cuando
+
+Puedo pedir cualquier competición/temporada y ver calendario, clasificación, jornadas, actas,
+estadísticas e historiales sin que falte nada.
+
 
 ## Bitácora
+
+- 05/11/2026: **pantallas restantes del prototipo completadas y API v1 ampliada.** Inicio/Main, Mi
+  cuenta, Rankings, Ojeo, Comparar, Federación, Liga, administración (`/admin` y `/admin/usuarios`),
+  Datos, Salud, Estados y Publicidad, con datos reales y CyL por defecto; cabecera con Rankings, Ojeo y
+  Comparar enlazados; portada con tema oscuro; siete endpoints nuevos en `/api/v1` (estadísticas,
+  historiales y oficiales) con ETag/304 y caché. QA ronda 12 **APTA** tras corregir el contraste del
+  comparador en oscuro y los textos internos de Datos/Salud. Puertas finales: suite completa **1.353/1**,
+  e2e **64/64**, web **770/1**, `tsc`, `lint` y `next build` verdes; `ops.chequeos()` sube el presupuesto
+  a 30 s porque bajo carga del banco de pruebas tarda más de 10 s (la pantalla lo cachea 5 min).
+
+- 05/11/2026: **pantallas de Liga y de Publicidad implementadas, pendientes de validación del Lead
+  (sin marcar ninguna casilla).** Rutas nuevas: `/explorar/liga/[id]` (el id es
+  `core.phase_group.id`, el mismo de la ficha de competición: resultados recientes de la última
+  jornada jugada, cuándo se marcan los goles con el tiempo añadido, minutos de cantera de los equipos
+  inferiores del mismo club, clasificación resumida y disciplina por equipo; enlaces a competición,
+  jornada, acta y ficha de cada equipo) y `/explorar/publicidad` (diseño y estado de los siete huecos,
+  reglas, y «sin espacios contratados»; enlazada desde el pie, no desde la cabecera). Consulta nueva
+  `apps/web/src/consultas/liga.ts` (`disciplina-y-cantera-del-grupo`, presupuesto 400 ms; mediana
+  33 ms en caliente) que reutiliza sin copiar `GRUPO_POR_ID`, `CLASIFICACION_DE_LA_PANTALLA`,
+  `PARTIDOS_DE_GRUPO` y `EVENTOS_DEL_GRUPO`; reglas puras en `apps/web/src/lib/liga.ts` y
+  `apps/web/src/lib/publicidad.ts`; componentes en `componentes/liga/` y `componentes/publicidad/`;
+  prueba `apps/web/test/liga-publicidad.test.ts` (27). Medido en el servidor de desarrollo: TTFB
+  0,85–0,96 s para la liga 797, 0,76–0,85 s para la 3769 y 0,08–0,10 s para publicidad; gzip 24,7 /
+  23,1 / 11,5 KB. axe 0 serias/críticas en 1440/360 claro y oscuro, sin desplazamiento horizontal;
+  404 real para id inexistente y página de liga sin datos con sus estados explícitos. **Límite
+  declarado**: los datos de campañas (`app.espacio_anuncio`, `app.campana_anuncio`) sólo los puede
+  leer `facylf_app`, así que la página pública de publicidad es informativa y no refleja campañas en
+  vivo; el estado comprobado el 05/11/2026 era: 7 huecos con proveedor «ninguno» y apagados, 0
+  campañas y 0 impresiones. Capturas en `tmp/liga-*.png` y `tmp/publicidad-*.png`.
 
 - 05/11/2026: creado el WALL desde el bloque 2. Ya hechos de la primera tanda anterior: clasificación
   (completa), jornada (listado y detalle), escudos de club y federación, zonas por reglamento, textos
@@ -354,3 +417,154 @@ estadísticas sin que falte nada.
   ficha del árbitro queda pendiente: `ACTA_DEL_PARTIDO` no devuelve el `person_id` de los oficiales y
   esa consulta vive en `partidos.ts`, fuera del alcance de esta tarea; cuando se añada el id, el enlace
   es una línea en `componentes/acta/ContextoActa.tsx`.
+- 05/11/2026: **API v1 ampliada con estadísticas, historiales y fichas de oficiales; pendiente de
+  validación del Lead (la casilla «Backend/API de estadísticas, historiales y oficiales» sigue SIN
+  marcar).** Siete endpoints nuevos, reutilizando las consultas existentes sin copiar SQL:
+  `GET /api/v1/estadisticas/competicion/[id]` (grupo-por-id + partidos + eventos + goleadores; resumen
+  con la función pura de la página), `GET /api/v1/ficha/jugador/[id]/historial`,
+  `/ficha/equipo/[id]/historial`, `/ficha/club/[id]/historial`, y
+  `GET /api/v1/oficiales/arbitro/[id]`, `/entrenador/[id]`, `/delegado/[id]`. Mismo sobre, errores, ETag/304, `Cache-Control` y límite de la
+  API v1; ids inválidos 400, recursos inexistentes 404 y **un jugador en la ficha de árbitro es 404**
+  (no se inventa una ficha vacía). Sin datos de cuenta. Etiquetas nuevas en `lib/cache.ts`:
+  `estadisticas` (grupo), `historiales` (persona/equipo/club) y `oficiales` (persona), con derivación
+  desde grupo/edición/federación/equipo/club/persona; el índice `/api/v1` ya las anuncia como
+  `disponible` (antes `estadisticas` era «planeado»). Medido en dev: MISS p50 28,9–120,2 ms, HIT p50
+  15,2–33,2 ms, 304 5/5 por recurso; `EXPLAIN` de las 10 consultas implicadas dentro de presupuesto y
+  sin `Seq Scan` en tablas de hechos (19,9 ms la más lenta, historial de club). **No se añade ningún
+  índice ni migración.** Pruebas nuevas `apps/web/test/api-v1-ampliacion.test.ts` (12) y contrato real
+  con 3769, 1181455, 17609, 1495, 657011, 1251791 y 1072476; `tsc` aislado de la API en verde. La suite
+  web completa queda en 633 pasadas y una suite externa roja (`rankings-ojeo.test.ts`, de otro agente en
+  vuelo); `tsc` global bloqueado por ese mismo fichero externo. `docs/plataforma-web/API.md` actualizado
+  con recursos, parámetros, errores, tabla de mediciones y pendientes; evidencia en
+  `tmp/api-ampliacion-mediciones.json`, `tmp/api-curl-ampliacion.txt` y
+  `tmp/api-ampliacion-explain.json`.
+- 05/11/2026: **Administración (AdminInicio y Admin) implementada, pendiente de validación (la
+  casilla «Administración» sigue SIN marcar).** Rutas **`/admin`** y **`/admin/usuarios`** con datos
+  reales de `consultas/admin.ts` (rol `facylf_app`): resumen de cuentas, invitaciones, avisos,
+  accesos sensibles, procesos, auditoría y lista de usuarios con filtros por estado/nombre. Guardia en
+  servidor: sin sesión → `/entrar?volver=<ruta>`; con sesión sin rol `administrador` o sin
+  `administrar_usuarios` → **404** (no 403, no se revela la zona); no se acepta `user_id` por la URL y
+  ambas páginas son `no-store`. **Sólo lectura**: no hay botones de aprobar/rechazar/bloquear; se dice
+  en pantalla. 2FA/verificación no implementadas, también dicho. Pruebas
+  `apps/web/test/admin-pantallas.test.ts` (22: decisión de guardia, guardia de servidor con sesión
+  simulada, render con fixtures y contrato de consultas reales). Chrome real 1440/360: 200 como
+  administrador, 404 como usuario normal, axe 0 y sin desplazamiento horizontal; capturas en
+  `tmp/admin-*.png`. Detalle en `docs/plataforma-web/ADMINISTRACION.md`.
+
+- 05/11/2026: **pantallas restantes · comparador de jugadores y ficha de federación, hechos y pendientes
+  de validación (casillas «Comparar jugadores» y «Federación y Liga» SIN marcar).** Rutas nuevas
+  **`/explorar/comparar`** (selección por nombre o id; si un nombre coincide con varias personas se
+  enseñan y no se elige solo; dos consultas en una foto: personas y trayectorias; métricas de carrera con
+  «sin datos» en el lado que falte, barras espejo y rejilla de trayectorias con tabla accesible) y
+  **`/explorar/federacion/[codigo]`** (por defecto redirige a `castilla-leon`; identidad con escudo,
+  «qué datos publica» medido, avisos con cifra, 12 de las 55 competiciones de 2026-27 con su nivel y
+  enlace a su grupo, y comparativa con otras federaciones). Consultas nuevas
+  `apps/web/src/consultas/comparar.ts` y `federacion-ficha.ts` (reutiliza `FICHA_FEDERACION` y
+  `AVISOS_DE_DATOS` de `federaciones.ts`); lógica en `apps/web/src/lib/comparar.ts` y
+  `lib/federacion-ficha.ts`; componentes en `componentes/comparar/` y `componentes/federacion/`.
+  Medido con rol lector: comparar 2 consultas · 13,5 ms; federación 4 consultas · 92,6 ms (la mayor,
+  `ficha-federación` todas, 84 ms; presupuestos 150/300/400/50 ms). Pruebas
+  `apps/web/test/comparar-federacion.test.ts` (30) y suite web con 732 pasadas; en el cierre fallan sólo
+  dos ficheros de otros agentes (`admin-pantallas` y `cabecera-sitio`) y `tsc` global queda bloqueado por
+  `datos-salud-estados` (ajeno); sin errores en los ficheros de esta tanda. Chrome real 1440/360: axe 0
+  en las dos, sin desplazamiento horizontal del documento a 360/400, 404 real para código inexistente o
+  inválido y redirección por defecto comprobada. Capturas en `tmp/comparar-1440.png`,
+  `tmp/comparar-360.png`, `tmp/federacion-1440.png` y `tmp/federacion-360.png`. Pendiente: la pantalla
+  **Liga** del par «Federación y Liga» (no incluida en esta tanda) y la validación del Lead.
+
+- 05/11/2026: **Inicio rediseñado y Mi cuenta implementados, pendientes de validación del Lead (los
+  puntos «Inicio / Main» y «Cuenta» de la revisión de capturas siguen SIN marcar).** `/` ya no es el
+  resumen técnico del archivo: hero de búsqueda que usa la misma consulta canónica que `/buscar`
+  (`/buscar?q=…`), «Explorar una competición» con seis competiciones reales de Castilla y León
+  (primer grupo de cada edición, para no repetir la misma competición por provincias; cobertura
+  medida en cada tarjeta, «Cobertura sin medir» cuando no hay punto de control) y enlace al selector
+  `/explorar/competiciones`; y «Tus equipos»: con sesión, hasta tres favoritos de `app.mis_accesos`
+  con último/próximo y enlace a su ficha; sin sesión, invitación honesta a entrar o crear cuenta, sin
+  equipos inventados; si los favoritos fallan, la portada sigue y lo dice. Consulta de portada
+  `grupos-del-selector` con `fed=castilla-leon`, 60 filas para sacar seis ediciones distintas: 44 ms
+  de mediana; una sola consulta de catálogo y, sólo con sesión, sesión + favoritos. `Mi cuenta`
+  (`/mi-cuenta`) lee `app.perfil(user_id)` con el rol `facylf_app` (una consulta, 23 ms): nombre,
+  estado (la fecha de validez manda: «Caducada»), paquete y fin, zona horaria, alta, rol, favoritos y
+  avisos sin leer; preferencias reales de aviso (canales, correo/resumen/hora, silencio, eventos) con
+  la frase de que los avisos automáticos aún no se envían; seguridad con lo que NO existe dicho
+  (verificación de correo, 2FA y cambio de contraseña no implementados) y cierre de sesión POST real
+  a `/api/cuentas/salir`; «Tus datos» dice que descarga y baja no están disponibles. Sin sesión invita
+  a entrar; si la cuenta no se puede leer, lo dice sin pintar una cuenta vacía. **El correo solo
+  puede enseñarse enmascarado si una función SQL lo expone: `facylf_app` no tiene permiso de lectura
+  sobre `app.credencial` y la pantalla lo dice («No se muestra en esta pantalla») en vez de inventar
+  una dirección.** Añadido el enlace «Mi cuenta» a la cabecera de Mi panel (sin tocar
+  `CabeceraSitio`). Ficheros nuevos: `consultas/mi-cuenta.ts`, `lib/cuenta-pantalla.ts`,
+  `lib/inicio.ts`, `componentes/inicio/InicioContenido.tsx`, `componentes/cuenta/MiCuenta.tsx`,
+  `app/mi-cuenta/page.tsx`, `app/page.tsx` reescrito y pruebas `inicio.test.ts` (10) y `cuenta.test.ts`
+  (14). Chrome real con una cuenta de prueba creada y borrada después: 1440/360, axe 0 serias/críticas
+  y sin desplazamiento horizontal en Inicio y Mi cuenta, con y sin sesión; capturas
+  `tmp/inicio-1440.png`, `tmp/inicio-360.png`, `tmp/inicio-sesion-1440.png`,
+  `tmp/inicio-sesion-360.png`, `tmp/cuenta-1440.png`, `tmp/cuenta-360.png`,
+  `tmp/cuenta-sin-sesion-1440.png` y `tmp/cuenta-sin-sesion-360.png`. `tsc` de los ficheros de esta
+  tanda en verde (al cerrar quedaba un error de otra prueba de otro agente en `datos-salud-estados`).
+  **Pendiente para el Lead**: (a) decidir si hace falta la función SQL para el correo enmascarado —
+  requiere migración nueva, que esta tarea no aplica—; (b) las preferencias de aviso y el cambio de
+  nombre/zona están en solo lectura porque no hay acción/API que guarde, y 2FA, verificación de
+  correo, cambio de contraseña, descarga y baja no existen; (c) la portada enseña seis competiciones
+  de la temporada más reciente del catálogo de CyL: decidir si se quiere una selección editorial por
+  categoría en vez del primer grupo de cada edición.
+
+- 05/11/2026: **Rankings y Ojeo implementados, pendiente de validación (casilla SIN marcar).** Rutas
+  `/explorar/rankings` y `/explorar/ojeo`, con datos reales y sin tocar `CabeceraSitio` (los enlaces
+  los integra el Lead). Rankings con pestañas Goleadores/Tarjetas y filtros federación/temporada/
+  competición/grupo/mínimo de partidos; por defecto CyL, la temporada más reciente y mínimo 5 partidos
+  (como el prototipo: con 0, la temporada en curso la encabezaban benjamines con 3 partidos y 20
+  goles); tabla con enlaces a jugador, equipo y competición, total real y paginación de 25. Ojeo con
+  federación/temporada/categoría/edad (calculada desde la temporada: sub-19 de 2026-27 = nacidos en
+  2008 o después)/minutos/posición; 40 perfiles por búsqueda (el total está acotado a 1.001 y se dice
+  «más de 1.000»), enlaces a ficha e historial y lista propia a 360 px porque la tabla de 900 no cabe.
+  **Los nombres de menores se publican**: la consulta de ojeo recibe el permiso en `true` y una prueba
+  exige nombre en filas `es_menor`. Consultas nuevas en `consultas/rankings.ts` (ranking por
+  tipo/edición/grupo con `count(*) over ()` para el total y `LIMIT/OFFSET`; ediciones de la federación
+  y temporada; categorías del ojeo). Medido contra el canónico: ranking 7–19 ms con mínimo 5 y
+  182–195 ms con mínimo 0; ediciones 0,8 ms; categorías 38 ms; ojeo 54–135 ms. Pruebas
+  `apps/web/test/rankings-ojeo.test.ts` 21/21 (filtros y URL, edad, contrato de las consultas y
+  canónico real) y `cabecera-sitio.test.ts` 12/12; `tsc` global en verde al cerrar. Chrome real: axe 0
+  serias/críticas en Rankings y Ojeo a 1440, 360, 400 y en oscuro; sin desplazamiento horizontal del
+  documento; capturas `tmp/rankings-1440.png`, `tmp/rankings-360.png`,
+  `tmp/rankings-oscuro-1440.png`, `tmp/rankings-tarjetas-1440.png`,
+  `tmp/rankings-pagina2-1440.png`, `tmp/rankings-vacio-1440.png`, `tmp/ojeo-1440.png`,
+  `tmp/ojeo-360.png`, `tmp/ojeo-oscuro-1440.png` y `tmp/ojeo-posicion-vacio-1440.png`.
+  **Pendiente para el Lead**: (a) enlazar «Rankings» a `/explorar/rankings` y activar «Ojeo» a
+  `/explorar/ojeo` (dejé `activo.ts` marcando esas rutas); (b) en el canónico la posición de campo
+  (`linea`) está vacía en todas las filas, así que filtrar por defensa/medio/delantero devuelve el
+  vacío explicado y sólo «Portero» tiene datos —no se inventa—; (c) el pie con «Publicidad» lo añadió
+  otro agente: la prueba de cabecera ya sólo exige que no vuelva el texto «Archivo privado».
+
+- 05/11/2026: **Datos, Salud y Estados implementados, pendiente de validación del Lead (la casilla sigue
+  SIN marcar).** Rutas nuevas `/explorar/datos` (calidad y cobertura), `/explorar/salud` (estado de la
+  plataforma) y `/explorar/estados` (vacíos, carga, error y 404). Fuente única, toda con el rol de
+  lectura: `ops.chequeos()` (68 comprobaciones con estado, valor y umbral), `ops.coverage_checkpoint`,
+  `ops.recuento_canonico`, `analytics.federacion_capacidad` y `analytics.parametro_capacidad`; sin datos
+  de cuentas ni de publicidad. Consultas en `apps/web/src/consultas/observabilidad.ts`
+  (`chequeos-de-la-plataforma`, `cobertura-por-temporada`, `capacidad-de-federaciones`,
+  `parametros-de-capacidad`, `frescura-y-cobertura`, `ejemplos-de-estados`); las comprobaciones y la
+  frescura se cachean 5 minutos (`consultas/observabilidad-cache.ts`), porque `ops.chequeos()` tarda
+  ~3,1 s por diseño (ventanas de 60 días sobre tablas de hechos) y `max(ingested_at)` recorre
+  `core.match_report` (~0,33 s). Medido con el rol de lectura: comprobaciones 3,07 s p50 (cacheadas;
+  presupuesto 6 s), cobertura 15,8 ms, capacidad 28,7 ms, parámetros 1,0 ms, frescura 328 ms, ejemplos
+  de estados 48 ms; ninguna consulta de pantalla hace `Seq Scan` sobre tablas de hechos salvo el
+  `max(ingested_at)` de la frescura, que está documentado. Reglas puras en
+  `apps/web/src/lib/observabilidad-pantalla.ts`: comprobación → nombre/unidad/umbral (lo desconocido se
+  enseña legible y no se inventa), peor estado por área, capacidad derivada de los umbrales REALES
+  (40 % de cambios, 15 % de tarjetas, 80 % de minuto, 30 % de actas), porcentajes imposibles (>100)
+  como «—», temporada de referencia = última cerrada y los cuatro motivos de estado vacío con sus
+  cifras reales. Componentes en `apps/web/src/componentes/observabilidad/` con el sistema de diseño y
+  una tabla propia con región enfocable (axe marcaba `scrollable-region-focusable` a 360 en la tabla
+  compartida). Pruebas `apps/web/test/datos-salud-estados.test.ts` **34 en verde**: reglas puras,
+  contrato real (68 comprobaciones, 12 temporadas de CyL, capacidad 2025-26, frescura y cuatro grupos
+  reales para Estados), 404 reales de rutas hijas y textos internos prohibidos; toda la web **770
+  pruebas en verde** (37 ficheros) y `tsc` global verde. Chrome real: 200 en las tres rutas, axe **0**
+  serias/críticas en 1440/360 claro y 1440 oscuro, sin desplazamiento horizontal del documento y sin
+  errores de consola; en caliente datos 0,64 s, salud 0,30 s y estados 0,23 s (servidor de desarrollo).
+  Capturas `tmp/datos-*.png`, `tmp/salud-*.png` y `tmp/estados-*.png`. **Límites**: (a) no se publican
+  datos de cuentas ni publicidad; (b) el tiempo de respuesta por petición no se enseña porque
+  `lib/observabilidad.ts` (`midiendo`/`anotaError`/`registraWebVital`) existe pero todavía no está
+  integrado en ninguna ejecución: la pantalla lo dice en vez de inventar p95; (c) los estados de cuenta
+  del prototipo (solicitud pendiente, acceso suspendido, paquete caducado) son de la pantalla de cuenta
+  y no se incluyen aquí.

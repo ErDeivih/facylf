@@ -62,7 +62,6 @@ describe('cabecera del sitio · marca', () => {
     expect(LAYOUT).not.toContain("'facylf");
     expect(LAYOUT).not.toContain('Archivo privado');
     expect(LAYOUT).not.toContain('No es una web oficial');
-    expect(LAYOUT).not.toContain('<footer');
   });
 });
 
@@ -104,13 +103,15 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
     expect(html).toContain('placeholder="Buscar jugador o club…"');
   });
 
-  it('cada función dice para qué sirve; Explorar y Rankings navegan y Ojeo/Comparar siguen pendientes', () => {
+  it('cada función dice para qué sirve y las cuatro navegan', () => {
     const nav = navFunciones(pinta());
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/competiciones"/);
-    expect(nav).toMatch(/<a[^>]*href="\/explorar\/estadisticas"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/rankings"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/ojeo"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/comparar"/);
     for (const [etiqueta, descriptor] of [
       ['Explorar', 'Competiciones y grupos'],
-      ['Rankings', 'Goleadores'],
+      ['Rankings', 'Goleadores y tarjetas'],
       ['Ojeo', 'Buscar talento'],
       ['Comparar', 'Cara a cara'],
     ]) {
@@ -122,14 +123,9 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
       expect(nav).toContain(`aria-describedby="funcion-${clave}-desc"`);
       expect(nav).toContain(`id="funcion-${clave}-desc"`);
     }
-    // Sólo navegan las que tienen pantalla; las otras dos se explican como pendientes: nombre
-    // accesible y `title` lo dicen, y en pantalla el descriptor cuenta qué serán.
-    expect((nav.match(/<a[\s>]/g) ?? []).length).toBe(2);
-    expect((nav.match(/aria-disabled="true"/g) ?? []).length).toBe(2);
-    expect(nav).toContain('Ojeo (todavía no tiene pantalla)');
-    expect(nav).toContain('Comparar (todavía no tiene pantalla)');
-    expect(nav).toContain('todavía no tiene pantalla');
-    expect(nav).not.toMatch(/<a[^>]*href="[^"]*(ojeo|comparar)/i);
+    expect((nav.match(/<a[\s>]/g) ?? []).length).toBe(4);
+    expect(nav).not.toContain('aria-disabled="true"');
+    expect(nav).not.toContain('todavía no tiene pantalla');
   });
 
   it('sólo la sección activa lleva aria-current, y la decide la ruta', () => {
@@ -183,9 +179,11 @@ describe('cabecera del sitio · qué ruta deja activa una sección', () => {
   it('Rankings está activa en la pantalla de estadísticas a la que enlaza', () => {
     expect(seccionActiva('/explorar/estadisticas')).toBe('rankings');
     expect(seccionActiva('/explorar/estadisticas/2025-26')).toBe('rankings');
-    // Las dos funciones que todavía no tienen pantalla no se marcan nunca.
-    expect(seccionActiva('/explorar/ojeo')).toBe('explorar');
-    expect(seccionActiva('/explorar/comparar')).toBe('explorar');
+    // La pantalla propia de rankings, ya lista para enlazarla desde la cabecera.
+    expect(seccionActiva('/explorar/rankings')).toBe('rankings');
+    // Ojeo y Comparar ya tienen pantalla propia.
+    expect(seccionActiva('/explorar/ojeo')).toBe('ojeo');
+    expect(seccionActiva('/explorar/comparar')).toBe('comparar');
   });
 
   it('en una página vieja no se marca ninguna sección', () => {

@@ -16,8 +16,11 @@ persona en `app.usuario_capacidad`:
 | `gestionar_reglamentos` | revisor de datos | ascensos, descensos y promociones de un grupo; parámetros de sanción |
 | `ver_menores_nombres` | sólo quien lo necesite, con motivo | nombres de menores (cada acceso queda en `app.registro_acceso`) |
 
-Seguridad del panel: 2FA obligatorio para entrar en `/admin`; sesión de administración de 8 h; cada acción
-de escritura pide confirmar; nada de borrar en caliente (se desactiva y se audita).
+Seguridad del panel: **la doble verificación está prevista pero todavía no implementada**; hoy la
+guardia es sesión + rol `administrador` + capacidad `administrar_usuarios`, comprobada en el servidor.
+La sesión usa la cookie `httpOnly` de `CUENTAS.md`; no hay una sesión de administración de 8 h
+separada. Cada acción de escritura pedirá confirmar cuando exista; ahora el panel es de sólo lectura.
+Nada de borrar en caliente (se desactiva y se audita).
 
 ## 2. Las áreas del panel
 
@@ -55,3 +58,26 @@ registros estructurados en JSON sin datos personales; presupuestos de tiempo por
 prueba mensual; cambios de esquema sólo por migraciones probadas; auditoría de cada acción manual.
 Cuando haga falta más (varias máquinas): exportar las métricas a Prometheus + Grafana (las tablas `ops.*` se
 pueden leer con un exportador SQL) y los registros a Loki; la estructura actual no cambia.
+
+## 6. Implementación web del panel (05/11/2026)
+
+Rutas: **`/admin`** (AdminInicio) y **`/admin/usuarios`** (Admin). Las consultas reales están en
+`apps/web/src/consultas/admin.ts` (rol `facylf_app`); no se ha inventado ningún dato ni gráfico.
+
+- **Guardia, en servidor y en cada página:** sin sesión → `/entrar?volver=<ruta>` (se conserva la
+  ruta); con sesión sin rol `administrador` **o** sin `app.puede(usuario, 'administrar_usuarios')` →
+  **404**, no 403: no se confirma a una cuenta normal que la zona existe. La decisión pura está en
+  `lib/admin.ts` y la guardia en `lib/admin-servidor.ts`. No se acepta `user_id` por la URL.
+- **Sin caché:** ambas páginas son dinámicas (`force-dynamic`) y responden `Cache-Control: no-store`;
+  son datos de cuentas y de operación y no se reutilizan entre usuarios.
+- **Sólo lectura:** se listan cuentas (estado, rol, paquete, permisos, último acceso, favoritos),
+  invitaciones, accesos sensibles, procesos, avisos y auditoría reciente. **No hay botones de
+  aprobar, rechazar, bloquear ni cambiar paquete**: las funciones SQL existen, pero conectar acciones
+  destructivas sin confirmación y 2FA sería peor que no tenerlas. La pantalla lo dice.
+- **Límite de la lista:** 100 cuentas por consulta y filtros por estado y nombre; no se finge una
+  paginación completa. La tabla se desplaza dentro de su contenedor en móvil, nunca el documento.
+- **404 propio:** `apps/web/src/app/admin/not-found.tsx` explica en español que la zona es de
+  administración y ofrece volver al inicio.
+- **2FA:** no implementada; se dice aquí y en la propia pantalla. No se simula.
+- Pruebas: `apps/web/test/admin-pantallas.test.ts` (decisión de guardia, guardia de servidor con
+  sesión simulada, render con fixtures y contrato de las consultas reales). Capturas: `tmp/admin-*`.

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import type { Route } from 'next';
 import { cookies, headers } from 'next/headers';
 import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/tema';
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
@@ -39,6 +41,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <body className="antialiased">
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
+        <footer className="mx-auto flex max-w-[1240px] flex-wrap justify-end px-5 pb-6 pt-1 text-nota">
+          <Link href={'/explorar/publicidad' as Route}
+            className="font-semibold text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
+            Publicidad
+          </Link>
+        </footer>
       </body>
     </html>
   );

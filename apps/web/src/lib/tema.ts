@@ -23,7 +23,7 @@ export const TEMA_COOKIE = 'tema';
 export const CABECERA_RUTA = 'x-pathname';
 
 /** Las zonas migradas al diseño nuevo hoy: el rediseño de competición y la entrada de usuarios. */
-const RUTAS_CON_TEMA = ['/explorar', '/entrar', '/mi-panel'] as const;
+const RUTAS_CON_TEMA = ['/', '/explorar', '/entrar', '/mi-panel'] as const;
 
 /**
  * ¿Esta ruta admite el tema oscuro? Sólo las pantallas del rediseño (`/explorar…` y `/entrar`). Las

@@ -41,6 +41,10 @@ export function PanelAccesos({ nombre, accesos, error = false }: {
           </p>
         </div>
         <nav aria-label="Accesos rápidos" className="flex flex-wrap gap-2">
+          <Link href={'/mi-cuenta' as Route}
+            className="inline-flex h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
+            Mi cuenta
+          </Link>
           <Link href={'/explorar/calendario' as Route}
             className="inline-flex h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
             Horarios y resultados
@@ -134,7 +138,11 @@ export function PanelAccesos({ nombre, accesos, error = false }: {
             Al cerrar la sesión, este navegador deja de recordar tu cuenta.
           </p>
         </div>
-        <form action="/api/cuentas/salir" method="post">
+        <form action="/api/cuentas/salir" method="post" className="ml-auto flex flex-wrap items-center gap-2">
+          <Link href={'/mi-cuenta' as Route}
+            className="inline-flex h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
+            Mi cuenta
+          </Link>
           <button type="submit"
             className="inline-flex h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
             Cerrar sesión

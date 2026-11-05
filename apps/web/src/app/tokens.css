@@ -97,6 +97,9 @@
      Sin este rol, esos sitios llevaban su propio gris claro a mano y en modo claro se quedaban
      ilegibles cuando el panel no era oscuro. */
   --texto-inverso: var(--color-tinta-50);
+  /* Segunda serie de gráficos/avatares: oscura en claro, clara en oscuro, con su propio texto. */
+  --serie-b:        var(--color-tinta-700);
+  --serie-b-texto:  var(--color-tinta-50);
 
   /* Superficie FUERTE del producto: la barra superior del prototipo y la insignia del marcador. Es
      oscura en los DOS temas (por eso no se deriva de --texto-inverso, que se invierte con el tema). */
@@ -182,6 +185,9 @@
 
   /* En oscuro, el texto sobre superficie fuerte es oscuro: la superficie fuerte ya es clara. */
   --texto-inverso: var(--color-tinta-950);
+  /* Segunda serie de gráficos/avatares: oscura en claro, clara en oscuro, con su propio texto. */
+  --serie-b:        var(--color-tinta-300);
+  --serie-b-texto:  var(--color-tinta-950);
 
   /* La cabecera sigue siendo la superficie más oscura del producto: en tema oscuro se separa del fondo
      con un peldaño más claro, no con una sombra. */

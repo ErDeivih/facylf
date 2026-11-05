@@ -69,8 +69,38 @@ export const ENDPOINTS_PUBLICOS: readonly EndpointPublico[] = [
   },
   {
     metodo: 'GET', ruta: '/api/v1/estadisticas/competicion/{id}', recurso: 'estadisticas-competicion',
-    descripcion: 'Estadísticas y gráficos de una competición (WALL objetivo 5). Contrato reservado; aún no responde.',
-    estado: 'planeado',
+    descripcion: 'Resumen de un grupo: partidos y resultados, goles por tramo, tarjetas por equipo y goleadores.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/ficha/jugador/{id}/historial', recurso: 'historial-jugador',
+    descripcion: 'Historial real de una persona: todas sus apariciones con equipo, club, competición, fechas, goles, tarjetas y minutos fiables.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/ficha/equipo/{id}/historial', recurso: 'historial-equipo',
+    descripcion: 'Las temporadas de la línea de un equipo (club, categoría y letra) con competición, puesto, balance y racha.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/ficha/club/{id}/historial', recurso: 'historial-club',
+    descripcion: 'Los equipos de un club, temporada a temporada, con su competición, grupo, puesto y balance.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/oficiales/arbitro/{id}', recurso: 'arbitro',
+    descripcion: 'Ficha de un árbitro principal: partidos, tarjetas y penaltis por partido, medias de sus competiciones y últimos partidos.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/oficiales/entrenador/{id}', recurso: 'entrenador',
+    descripcion: 'Ficha de un entrenador: partidos, victorias/empates/derrotas, equipos, clubes y asignaciones por temporada.',
+    estado: 'disponible',
+  },
+  {
+    metodo: 'GET', ruta: '/api/v1/oficiales/delegado/{id}', recurso: 'delegado',
+    descripcion: 'Ficha de un delegado de equipo: equipos y clubes, partidos, asignaciones por temporada y últimos partidos.',
+    estado: 'disponible',
   },
 ];
 

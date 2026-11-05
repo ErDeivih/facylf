@@ -44,14 +44,28 @@ export const ETIQUETAS: Record<string, (params: readonly unknown[]) => string[]>
   'trayectoria-de-persona': ([id]) => [`persona:${id}`],
   'partidos-de-persona': ([id]) => [`persona:${id}`],
   'opciones-del-calendario': () => ['calendario'],
+  // Ampliación v1: estadísticas, historiales y oficiales.
+  'resumen-de-estadísticas': ([id]) => [`grupo:${id}`, 'estadisticas'],
+  'historial-de-jugador': ([id]) => [`persona:${id}`, 'historiales'],
+  'historial-del-equipo': ([id]) => [`equipo:${id}`, 'historiales'],
+  'historial-del-club': ([id]) => [`club:${id}`, 'historiales'],
+  'arbitro-por-id': ([id]) => [`persona:${id}`, 'oficiales'],
+  'entrenador-por-id': ([id]) => [`persona:${id}`, 'oficiales'],
+  'delegado-por-id': ([id]) => [`persona:${id}`, 'oficiales'],
 };
 
 /**
  * Etiquetas que hay que refrescar ADEMÁS de las que llegan en la cola. El calendario y el acta dependen
  * de partidos, equipos y clubes, y el proyector apunta esas entidades pero no una etiqueta por partido.
+ * Las estadísticas, los historiales y las fichas de oficiales dependen de grupos enteros o de líneas de
+ * equipo, así que se refrescan con las mismas señales y se acepta que el refresco sea amplio: mejor
+ * recalcular que servir un dato viejo.
  */
 const DERIVADAS: Array<[RegExp, readonly string[]]> = [
-  [/^(grupo|grupo-externo|edicion|federacion|equipo|club|persona):/, ['calendario', 'acta']],
+  [/^(grupo|grupo-externo|edicion|federacion):/, [
+    'calendario', 'acta', 'estadisticas', 'historiales', 'oficiales',
+  ]],
+  [/^(equipo|club|persona):/, ['calendario', 'acta', 'historiales', 'oficiales']],
 ];
 
 /** Etiquetas amplias que hay que invalidar cuando cambia alguna de las recibidas. */

@@ -37,7 +37,7 @@ export type FilaUsuarioAdmin = {
   creado_en: string; ultimo_acceso: string | null; invitacion: string | null; capacidades: string[]; favoritos: number;
   avisos_sin_leer: number; push: boolean; motivo_estado: string | null; dias_esperando: number | null;
 };
-/** Parámetros: (1) estado o null, (2) texto o null (busca en nombre e id), (3) límite. */
+/** Parámetros: (1) estado o null, (2) texto o null (busca en nombre e id), (3) límite, (4) desplazamiento. */
 export const USUARIOS_ADMIN: Consulta<FilaUsuarioAdmin> = {
   nombre: 'admin-usuarios',
   rol: 'app',
@@ -59,8 +59,8 @@ export const USUARIOS_ADMIN: Consulta<FilaUsuarioAdmin> = {
       from app.usuario u
      where ($1::text is null or u.estado = $1)
        and ($2::text is null or u.nombre_visible ilike '%' || $2 || '%' or u.user_id = $2)
-     order by (u.estado = 'pendiente') desc, u.ultimo_acceso desc nulls last, u.creado_en desc
-     limit $3`,
+     order by (u.estado = 'pendiente') desc, u.ultimo_acceso desc nulls last, u.creado_en desc, u.user_id
+     limit $3 offset $4`,
 };
 
 // ── Cuentas (0043) ─────────────────────────────────────────────────────────────────────────────────
@@ -407,7 +407,7 @@ export const USO_POR_PANTALLA: Consulta<FilaUsoPantalla> = {
 
 export const PARAMETROS_ADMIN: Record<string, readonly unknown[]> = {
   'admin-panel-resumen': [],
-  'admin-usuarios': [null, null, 100],
+  'admin-usuarios': [null, null, 100, 0],
   'admin-invitaciones': [false, 100],
   'admin-cuentas-resumen': [],
   'admin-caducidades': [30],

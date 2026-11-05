@@ -1,8 +1,8 @@
 titulo: FACYLF — plataforma de futbol federado de Castilla y Leon
 estado: en-curso
-tarea: feedback de capturas aplicado: marca Balompié, jornadas en tablas, nombres cortos, registro abierto, historiales y oficiales
+tarea: todas las pantallas del prototipo y API v1 ampliada, con CyL prioritaria
 nivel: 2
-siguiente: validación de David del feedback de capturas; después, artboards fuera del bloque (administración, ojeo, rankings, comparador)
+siguiente: validación de David; después, recogida de datos de CyL hasta completar la federación y, sólo entonces, abrir otras
 bloqueado:
-resumen: El feedback de las capturas está aplicado: marca Balompié con logo y navegación explicada, jornadas en tablas con árbitro/escudos/actas y fecha de última jornada correcta, nombres cortos guardados para todos los equipos de CyL, registro abierto separado en Entrar y Crear cuenta, historiales de jugador/equipo/club y estadísticas de árbitros, entrenadores y delegados. QA ronda 10 APTA; quedan la validación de David y, fuera de este bloque, administración, ojeo, rankings, comparador y publicidad.
+resumen: Están implementadas todas las pantallas del prototipo: inicio, rankings, ojeo, comparar, federación, liga, cuenta, administración, datos, salud, estados y publicidad, con datos reales y Castilla y León por defecto. La API v1 amplía estadísticas, historiales y oficiales con ETag/304 y caché. Feedback de capturas aplicado y QA APTA. Pendiente: completar la recogida de CyL antes de abrir otras federaciones y validar con David.
 fecha: 2026-11-05

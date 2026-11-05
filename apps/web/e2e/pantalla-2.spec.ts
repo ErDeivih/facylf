@@ -193,10 +193,10 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const funciones = cabecera.getByRole('navigation', { name: 'Funciones' });
     await expect(funciones.getByRole('link', { name: 'Explorar' })).toHaveAttribute('aria-current', 'page');
 
-    // Lo que aún no tiene pantalla se enseña desactivado: ni enlace muerto ni contador inventado.
-    await expect(cabecera.locator('a[href*="rankings"]')).toHaveCount(0);
-    await expect(cabecera.locator('a[href*="ojeo"]')).toHaveCount(0);
-    await expect(cabecera.locator('a[href*="comparar"]')).toHaveCount(0);
+    // Las cuatro funciones tienen pantalla y navegan; ninguna queda como enlace muerto.
+    await expect(cabecera.locator('a[href="/explorar/rankings"]')).toHaveCount(1);
+    await expect(cabecera.locator('a[href="/explorar/ojeo"]')).toHaveCount(1);
+    await expect(cabecera.locator('a[href="/explorar/comparar"]')).toHaveCount(1);
     // No hay sistema de avisos ni cuentas todavía: un «3» en la campana sería un dato inventado.
     await expect(cabecera).not.toContainText(/\b[1-9]\d*\b/);
     // La cuenta ya tiene pantalla de entrada (sin sesión ni avatar inventado).
@@ -325,9 +325,14 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const cabecera = page.locator('header').first();
     await expect(cabecera).toContainText('Balompié');
     await expect(cabecera).toContainText('Competiciones y grupos');
-    await expect(cabecera).toContainText('Goleadores');
-    // El pie legal se retiró: no queda «archivo privado» ni «no es una web oficial».
-    await expect(page.locator('footer')).toHaveCount(0);
+    await expect(cabecera).toContainText('Goleadores y tarjetas');
+    await expect(cabecera).toContainText('Buscar talento');
+    await expect(cabecera).toContainText('Cara a cara');
+    // El pie legal se retiró; queda sólo el enlace a Publicidad, sin avisos de archivo privado.
+    const pie = page.locator('footer');
+    await expect(pie).toHaveCount(1);
+    await expect(pie).toContainText('Publicidad');
+    await expect(pie).not.toContainText(/archivo privado|no es una web oficial/i);
   });
 
   test('las historias de jugador, equipo y club se abren desde sus fichas', async ({ page }) => {
@@ -363,11 +368,47 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     }
   });
 
+  test('el comparador no tiene incidencias de contraste en tema oscuro', async ({ page, context }) => {
+    await context.addCookies([{ name: 'tema', value: 'oscuro', url: 'http://localhost:3000' }]);
+    await page.goto('/explorar/comparar?a=19057&b=19062');
+    await expect(page.getByRole('heading', { name: /Comparar jugadores/i }).first()).toBeVisible();
+    const resultado = await new AxeBuilder({ page }).analyze();
+    const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
   test('la portada no tiene incidencias serias ni críticas de accesibilidad', async ({ page }) => {
     await page.goto('/');
     const resultado = await new AxeBuilder({ page }).analyze();
     const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
     expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
+  test('las pantallas nuevas responden con datos o estado honesto', async ({ request }) => {
+    for (const ruta of [
+      '/',
+      '/explorar/rankings',
+      '/explorar/ojeo',
+      '/explorar/comparar',
+      '/explorar/federacion/castilla-leon',
+      '/explorar/liga/797',
+      '/explorar/liga/3769',
+      '/explorar/publicidad',
+      '/explorar/datos',
+      '/explorar/salud',
+      '/explorar/estados',
+      '/mi-cuenta',
+    ]) {
+      const respuesta = await request.get(ruta);
+      expect(respuesta.status(), ruta).toBe(200);
+      expect(respuesta.headers()['content-type'], ruta).toContain('text/html');
+    }
+  });
+
+  test('la administración exige sesión y no se anuncia a una cuenta normal', async ({ page }) => {
+    const respuesta = await page.goto('/admin');
+    expect(page.url()).toContain('/entrar');
+    expect(respuesta?.status()).toBe(200);
   });
 
   test('los nombres se publican y no hay fotos de personas', async ({ page }) => {
@@ -442,9 +483,11 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     expect(orden[0]).toContain('Balompié');
     expect(orden[1]).toContain('Explorar');
     expect(orden[2]).toContain('Rankings');
-    expect(orden[3]).toBe('Entrar o crear cuenta');
-    expect(orden[4]).toBe('Cambiar a tema oscuro');
-    expect(orden[5]).toContain('Buscar');
+    expect(orden[3]).toContain('Ojeo');
+    expect(orden[4]).toContain('Comparar');
+    expect(orden[5]).toBe('Entrar o crear cuenta');
+    expect(orden[6]).toBe('Cambiar a tema oscuro');
+    expect(orden[7]).toContain('Buscar');
   });
 
   test('el tema se resuelve en el servidor y el botón lo cambia y lo persiste', async ({ page, context, request }) => {
