@@ -13,6 +13,7 @@
  */
 
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
+import type { FilaPortadaGrupo } from '@/consultas/competiciones';
 import { fechaCorta } from './vocabulario-pantalla';
 
 /**
@@ -37,12 +38,87 @@ export type JornadaResumen = {
   hasta: string | null;
 };
 
+/**
+ * La portada con el campo que añade `GRUPO_POR_ID` para la fecha derecha de la barra. El tipo lo deja
+ * opcional para que las pruebas de render con una portada construida a mano sigan valiendo.
+ */
+export type PortadaConFechaUltimaJugada = FilaPortadaGrupo;
+
+/** La fecha de la última jornada jugada tal y como la sirve `GRUPO_POR_ID`, o `null` si aún no está. */
+export function fechaUltimaJugadaDePortada(portada: FilaPortadaGrupo): string | null {
+  const limpia = (portada.fecha_ultima_jugada ?? '').slice(0, 10);
+  return limpia === '' ? null : limpia;
+}
+
 /** La fecha que se enseña de un partido: la jugada y, si aún no se jugó, la prevista publicada. */
 export function fechaDePartido(p: { fecha: string | null; fecha_prevista?: string | null }): string | null {
   const jugada = (p.fecha ?? '').slice(0, 10);
   if (jugada !== '') return jugada;
   const prevista = (p.fecha_prevista ?? '').slice(0, 10);
   return prevista !== '' ? prevista : null;
+}
+
+/**
+ * La fecha de la última jornada JUGADA del grupo: la mayor fecha de los partidos con resultado.
+ *
+ * No es la última fecha del calendario (`fecha_fin`), que incluye los partidos programados y puede
+ * estar meses por delante. Un grupo con calendario pero sin resultados devuelve `null`, no la fecha
+ * prevista: no se ha jugado nada. Se usa como respaldo de `GRUPO_POR_ID.fecha_ultima_jugada` y en las
+ * páginas que ya tienen los partidos delante.
+ */
+export function fechaUltimaJugadaDePartidos(
+  partidos: readonly { fecha: string | null; fecha_prevista?: string | null; goles_local: number | null; goles_visitante: number | null }[],
+): string | null {
+  let ultima: string | null = null;
+  for (const p of partidos) {
+    if (p.goles_local === null || p.goles_visitante === null) continue;
+    const fecha = fechaDePartido(p);
+    if (fecha !== null && (ultima === null || fecha > ultima)) ultima = fecha;
+  }
+  return ultima;
+}
+
+/** Lo que se sabe de una jornada del listado: el resumen y sus partidos, en orden de publicación. */
+export type JornadaConPartidos = JornadaResumen & { lista: readonly PartidoDeJornada[] };
+
+/** Las jornadas con sus partidos, en una pasada y sin una consulta por jornada. */
+export function agrupaJornadasConPartidos(partidos: readonly PartidoDeJornada[]): JornadaConPartidos[] {
+  const porNumero = new Map<number, JornadaConPartidos>();
+  for (const p of partidos) {
+    const numero = Number(p.jornada);
+    if (!Number.isInteger(numero) || numero <= 0) continue;
+    const fila = porNumero.get(numero) ?? { numero, partidos: 0, jugados: 0, desde: null, hasta: null, lista: [] };
+    fila.partidos += 1;
+    if (p.goles_local !== null && p.goles_visitante !== null) fila.jugados += 1;
+    const fecha = fechaDePartido(p);
+    if (fecha !== null) {
+      if (fila.desde === null || fecha < fila.desde) fila.desde = fecha;
+      if (fila.hasta === null || fecha > fila.hasta) fila.hasta = fecha;
+    }
+    (fila.lista as PartidoDeJornada[]).push(p);
+    porNumero.set(numero, fila);
+  }
+  const jornadas = [...porNumero.values()].sort((a, b) => a.numero - b.numero);
+  for (const jornada of jornadas) {
+    (jornada.lista as PartidoDeJornada[]).sort((a, b) => a.orden - b.orden);
+  }
+  return jornadas;
+}
+
+/** El estado que se lee en la cabecera de una tabla de jornada. */
+export type EstadoDeJornada = { clave: 'jugada' | 'parcial' | 'programada' | 'sin-fecha'; etiqueta: string };
+
+/**
+ * Jugada, parcial, programada o sin fecha. Sólo cuenta como jugado un partido con los dos goles
+ * publicados; un `0` no se interpreta como «sin dato».
+ */
+export function estadoDeJornada(jornada: JornadaResumen): EstadoDeJornada {
+  if (jornada.partidos === 0) return { clave: 'sin-fecha', etiqueta: 'Sin partidos' };
+  if (jornada.jugados >= jornada.partidos) return { clave: 'jugada', etiqueta: 'Jugada' };
+  if (jornada.jugados > 0) return { clave: 'parcial', etiqueta: 'Parcial' };
+  return jornada.desde !== null
+    ? { clave: 'programada', etiqueta: 'Programada' }
+    : { clave: 'sin-fecha', etiqueta: 'Sin fecha' };
 }
 
 /**
@@ -135,10 +211,10 @@ export const rutaDeJornada = (grupoId: number, numero: number): string =>
 
 /** Título de la pestaña del navegador para el listado de jornadas (hallazgo C7 del QA). */
 export function tituloDeJornadas(x: { edicion: string; grupo: string }): string {
-  return `Jornadas · ${x.edicion} · ${x.grupo} — facylf`;
+  return `Jornadas · ${x.edicion} · ${x.grupo} — Balompié`;
 }
 
 /** Título de la pestaña del navegador para el detalle de una jornada. */
 export function tituloDeJornada(x: { numero: number; edicion: string; grupo: string }): string {
-  return `Jornada ${x.numero} · ${x.edicion} · ${x.grupo} — facylf`;
+  return `Jornada ${x.numero} · ${x.edicion} · ${x.grupo} — Balompié`;
 }

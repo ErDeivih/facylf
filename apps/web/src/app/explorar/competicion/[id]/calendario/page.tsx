@@ -19,6 +19,7 @@ import {
   rutaDeActaDePartido, rutaDeCalendario, tieneFiltrosDeGrupo, tituloDeCalendarioGrupo,
 } from '@/lib/calendario';
 import type { FiltrosCalendarioGrupo as FiltrosDeGrupo } from '@/lib/calendario';
+import { fechaUltimaJugadaDePortada } from '@/lib/jornadas';
 import { temporadasPublicables } from '@/lib/pantalla-competicion';
 
 /**
@@ -100,6 +101,7 @@ export default async function PantallaCalendario({ params, searchParams }: {
         rutaBase={`/explorar/competicion/${grupo.grupo_id}`}
         fechaInicio={grupo.fecha_inicio}
         fechaFin={grupo.fecha_fin}
+        fechaUltimaJugada={fechaUltimaJugadaDePortada(grupo)}
         activa="calendario"
       />
       <Suspense fallback={<div className="flex flex-col gap-[18px]"><EsqueletoCalendario filas={8} /></div>}>

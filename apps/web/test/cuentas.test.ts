@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import {
   avisoDeErrorRegistro, contrasenaValida, correoValido, estadoDeCredencial, normalizaCorreo,
-  normalizaInvitacion, nombreValido, rutaDeAcceso, textoAviso, urlVolverSegura,
+  nombreValido, rutaConVolver, rutaDeAcceso, textoAviso, urlVolverSegura,
 } from '../src/lib/cuentas';
 import {
   MAXIMO_CONTRASENA, hashContrasena, sha256Hex, tokenDeSesion, verificaContrasena,
@@ -36,11 +36,6 @@ describe('normalización y validación', () => {
     expect(contrasenaValida('123456789')).toBe(false);
     expect(contrasenaValida('x'.repeat(MAXIMO_CONTRASENA + 1))).toBe(false);
   });
-
-  it('el código de invitación se normaliza a mayúsculas', () => {
-    expect(normalizaInvitacion(' facylf-prueba-2026 ')).toBe('FACYLF-PRUEBA-2026');
-    expect(normalizaInvitacion(undefined)).toBe('');
-  });
 });
 
 describe('volver a una ruta interna', () => {
@@ -56,6 +51,13 @@ describe('volver a una ruta interna', () => {
     expect(urlVolverSegura(undefined)).toBeNull();
     // Los espacios de los extremos no convierten una ruta interna en externa: se recorta.
     expect(urlVolverSegura(' /x ')).toBe('/x');
+  });
+
+  it('las dos pantallas de acceso se enlazan conservando la vuelta', () => {
+    expect(rutaConVolver('/crear-cuenta', null)).toBe('/crear-cuenta');
+    expect(rutaConVolver('/entrar', '/mi-panel')).toBe('/entrar?volver=%2Fmi-panel');
+    expect(rutaConVolver('/crear-cuenta', '/explorar/equipo/8873?x=1'))
+      .toBe('/crear-cuenta?volver=%2Fexplorar%2Fequipo%2F8873%3Fx%3D1');
   });
 });
 
@@ -100,10 +102,7 @@ describe('mensajes de aviso', () => {
   });
 
   it('los errores de la base se traducen a códigos de aviso, nunca se muestran crudos', () => {
-    expect(avisoDeErrorRegistro(new Error('INVITACION_CADUCADA'))).toBe('invitacion-caducada');
-    expect(avisoDeErrorRegistro(new Error('INVITACION_AGOTADA'))).toBe('invitacion-agotada');
-    expect(avisoDeErrorRegistro(new Error('INVITACION_DE_OTRO_CORREO'))).toBe('invitacion-otro-correo');
-    expect(avisoDeErrorRegistro(new Error('REGISTRO_SOLO_CON_INVITACION'))).toBe('invitacion-requerida');
+    expect(avisoDeErrorRegistro(new Error('REGISTRO_SOLO_CON_INVITACION'))).toBe('registro-cerrado');
     expect(avisoDeErrorRegistro(new Error('CORREO_YA_REGISTRADO'))).toBe('registro');
     expect(avisoDeErrorRegistro(new Error('ERROR_RARO_DE_POSTGRES'))).toBe('no-disponible');
   });

@@ -79,11 +79,16 @@ describe('contrato estático de las consultas de la pantalla de competición', (
     expect(GRUPO_POR_ID.columnas).toContain('jornadas_previstas');
     expect(GRUPO_POR_ID.columnas).toContain('visibility_state');
     expect(GRUPO_POR_ID.columnas).toContain('origen_clasificacion');
+    // La fecha derecha de la barra es la de la última jornada JUGADA, no la última programada.
+    expect(GRUPO_POR_ID.columnas).toContain('fecha_ultima_jugada');
     expect(CLASIFICACION_DE_LA_PANTALLA.columnas).toContain('origen');
     expect(CLASIFICACION_DE_LA_PANTALLA.columnas).toContain('goles_favor_reconstruida');
     expect(ZONAS_DEL_GRUPO.columnas).toContain('descensos');
     expect(RACHAS_DEL_GRUPO.columnas).toContain('ultimos5');
     expect(RANKING_GOLEADORES.columnas).toContain('es_menor');
+    // Nombres cortos guardados en el canónico: la jornada los prefiere a los suyos.
+    expect(PARTIDOS_DE_GRUPO.columnas).toContain('local_nombre_corto');
+    expect(PARTIDOS_DE_GRUPO.columnas).toContain('visitante_nombre_corto');
   });
 });
 
@@ -112,6 +117,32 @@ describe.skipIf(!hayCanonico)('la pantalla 2 contra el canónico real (Castilla 
     expect(Number(g.jornadas_previstas)).toBe(30);
     expect(['oculta', 'parcial_privada', 'verificada_hasta_jornada', 'completa']).toContain(g.visibility_state);
     expect(['oficial', 'reconstruida', null]).toContain(g.origen_clasificacion);
+    // La fecha de la última jornada jugada nunca puede ser posterior a la del calendario completo.
+    if (g.fecha_ultima_jugada !== null) {
+      expect(String(g.fecha_ultima_jugada) <= String(g.fecha_fin)).toBe(true);
+    }
+  });
+
+  it('la fecha derecha de la barra es la jugada y no la programada', async () => {
+    const [conResultados, sinResultados] = await Promise.all([
+      consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [3769]),
+      consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [75252]),
+    ]);
+    // 3769 tiene cuatro jornadas jugadas y su calendario acaba ahí de momento.
+    expect(conResultados[0]!.fecha_ultima_jugada).toBe('2026-10-04');
+    // 75252 tiene calendario programado (17 oct) pero ningún resultado: no hay jornada jugada.
+    expect(sinResultados[0]!.fecha_fin).not.toBeNull();
+    expect(sinResultados[0]!.fecha_ultima_jugada).toBeNull();
+  });
+
+  it('los nombres cortos de los partidos llegan guardados para todos los equipos del grupo', async () => {
+    const filas = await consulta<Record<string, unknown>>(PARTIDOS_DE_GRUPO.sql,
+      [FEDERACION, '24218935', 1000]);
+    expect(filas.length).toBeGreaterThan(0);
+    for (const fila of filas) {
+      expect(String(fila.local_nombre_corto ?? '').trim().length).toBeGreaterThan(0);
+      expect(String(fila.visitante_nombre_corto ?? '').trim().length).toBeGreaterThan(0);
+    }
   });
 
   it('la clasificación es la del grupo: una fila por equipo, posiciones sin huecos y de dónde sale', async () => {
@@ -671,7 +702,7 @@ describe('el desplegable de temporada respeta la ventana publicada', () => {
 describe('el título de la pestaña', () => {
   it('nombra la competición y el grupo, no siempre «facylf»', () => {
     expect(tituloDeCompeticion({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Liga Nacional Juvenil · Primera - III — facylf');
+      .toBe('Liga Nacional Juvenil · Primera - III — Balompié');
   });
 });
 

@@ -12,6 +12,7 @@ import { ListaGrupos } from '@/componentes/catalogo/ListaGrupos';
 import { EsqueletoLista, SinGrupos, SinMasGrupos } from '@/componentes/catalogo/EstadosSelector';
 import { Paginacion } from '@/componentes/catalogo/Paginacion';
 import { CHIP } from '@/componentes/catalogo/controles';
+import { NOMBRE_PRODUCTO } from '@/componentes/marca/marca';
 import {
   TAMANO_PAGINA_SELECTOR, chipsDeFiltros, leeFiltrosSelector, opcionesDeSelector,
   type EstadoSelector, type OpcionesSelector, urlDeSelector,
@@ -33,7 +34,7 @@ import {
  *  · no explica cómo se calcula nada. El estado vive en la URL (`fed`, `temp`, `cat`, `mod`, `gen`,
  *    `prov`, `nivel`, `q`, `offset`) y los filtros son un formulario GET normal.
  */
-export const metadata: Metadata = { title: 'Competiciones — facylf' };
+export const metadata: Metadata = { title: `Competiciones — ${NOMBRE_PRODUCTO}` };
 export const dynamic = 'force-dynamic';
 
 type Parametros = Record<string, string | string[] | undefined>;

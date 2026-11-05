@@ -118,6 +118,14 @@ export function PanelAccesos({ nombre, accesos, error = false }: {
             </ul>
           )}
 
+      <section aria-labelledby="avisos-titulo"
+        className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4">
+        <h2 id="avisos-titulo" className="m-0 text-bloque font-bold text-[var(--texto)]">Avisos</h2>
+        <p className="m-0 mt-1 text-tabla leading-6 text-[var(--texto-suave)]">
+          Los avisos de resultados y cambios de horario llegarán más adelante.
+        </p>
+      </section>
+
       <section aria-labelledby="cuenta-titulo"
         className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4">
         <div>

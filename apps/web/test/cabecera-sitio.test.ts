@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -5,15 +6,16 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { seccionActiva, type SeccionActiva } from '../src/componentes/cabecera/activo';
 import { CabeceraSitio } from '../src/componentes/cabecera/CabeceraSitio';
+import { Logotipo } from '../src/componentes/marca/Logotipo';
+import { NOMBRE_PRODUCTO, TAGLINE, TITULO_POR_DEFECTO } from '../src/componentes/marca/marca';
 
 /**
- * Contrato de la cabecera común del sitio (prototipo «Cabecera»).
+ * Contrato de la cabecera común del sitio: marca, navegación y pie.
  *
- * Mira lo que ve el usuario, no cómo está hecha: la marca, la búsqueda global y su nombre accesible,
- * la navegación por funciones con Explorar como único enlace real, los iconos de panel y avisos
- * desactivados porque no hay pantalla ni sistema de avisos, y la cuenta como enlace real a `/entrar`
- * sin avatar ni nombre de usuario porque todavía no hay sesión. Lo que no existe no se finge: un «3»
- * en la campana o las iniciales de una persona serían datos inventados.
+ * Mira lo que ve el usuario, no cómo está hecha: el nombre del producto y su tagline, la búsqueda
+ * global con nombre accesible, las funciones **explicadas** (cada una dice para qué sirve), las que
+ * todavía no tienen pantalla como texto desactivado —nunca como enlace muerto—, la cuenta como enlace
+ * real a `/entrar` y el pie sin el aviso de archivo privado que se retiró.
  *
  * `next/link` se mockea porque este render no corre dentro de un router de Next; el enlace que produce
  * es el mismo `<a href>` que el usuario acaba viendo.
@@ -41,14 +43,57 @@ function navFunciones(html: string): string {
   return encontrado![0];
 }
 
-describe('cabecera del sitio · la barra del prototipo', () => {
-  it('es un <header> con la marca facylf que lleva a la portada', () => {
+const LAYOUT = readFileSync(new URL('../src/app/layout.tsx', import.meta.url), 'utf8');
+
+describe('cabecera del sitio · marca', () => {
+  it('es un <header> con la marca Balompié (ya no facylf) y su tagline, que lleva a la portada', () => {
     const html = pinta();
     expect(html.startsWith('<header')).toBe(true);
-    expect(html).toContain('facylf');
+    expect(soloTexto(html)).toContain(NOMBRE_PRODUCTO);
+    expect(soloTexto(html)).not.toContain('facylf');
     expect(html).toMatch(/<a[^>]*href="\/"/);
+    expect(soloTexto(html)).toContain(TAGLINE);
   });
 
+  it('el título por defecto es el de la marca y el pie «Archivo privado» ya no aparece', () => {
+    expect(TITULO_POR_DEFECTO).toContain(NOMBRE_PRODUCTO);
+    expect(TITULO_POR_DEFECTO).toContain('temporada a temporada');
+    expect(LAYOUT).toContain('TITULO_POR_DEFECTO');
+    expect(LAYOUT).not.toContain("'facylf");
+    expect(LAYOUT).not.toContain('Archivo privado');
+    expect(LAYOUT).not.toContain('No es una web oficial');
+    expect(LAYOUT).not.toContain('<footer');
+  });
+});
+
+describe('logotipo', () => {
+  it('es un SVG propio, del tamaño de la cabecera y decorativo (la marca va en texto)', () => {
+    const html = renderToStaticMarkup(createElement(Logotipo));
+    expect(html.startsWith('<svg')).toBe(true);
+    expect(html).toContain('viewBox="0 0 28 28"');
+    expect(html).toContain('width="28"');
+    expect(html).toContain('height="28"');
+    expect(html).toContain('aria-hidden="true"');
+    // Sin texto dentro del dibujo y sin colores literales: el color es un token del sistema.
+    expect(html).not.toContain('<text');
+    expect(html).not.toMatch(/#[0-9a-f]{3,8}\b|rgb\(/i);
+    expect(html).toContain('var(--accion)');
+  });
+
+  it('el favicon es el mismo dibujo y sigue siendo XML válido (sin guiones dobles en comentarios)', () => {
+    const icono = readFileSync(new URL('../src/app/icon.svg', import.meta.url), 'utf8');
+    expect(icono).toContain('<svg');
+    expect(icono).toContain('viewBox="0 0 28 28"');
+    expect(icono).not.toContain('<text');
+    // Un comentario XML no admite «--» dentro: el favicon dejaría de parsearse (pasó antes). Los
+    // delimitadores «<!--» y «-->» sí lo llevan, así que se mira el cuerpo de cada comentario.
+    const comentarios = [...icono.matchAll(/<!--([\s\S]*?)-->/g)].map((m) => m[1] ?? '');
+    expect(comentarios.length).toBeGreaterThan(0);
+    for (const comentario of comentarios) expect(comentario).not.toContain('--');
+  });
+});
+
+describe('cabecera del sitio · buscador y funciones explicadas', () => {
   it('el buscador global envía a /buscar?q= y tiene nombre accesible', () => {
     const html = pinta();
     expect(html).toMatch(/<input[^>]*type="search"/);
@@ -59,22 +104,38 @@ describe('cabecera del sitio · la barra del prototipo', () => {
     expect(html).toContain('placeholder="Buscar jugador o club…"');
   });
 
-  it('la navegación Funciones enseña Explorar como enlace y el resto desactivado, no como enlaces muertos', () => {
+  it('cada función dice para qué sirve; Explorar y Rankings navegan y Ojeo/Comparar siguen pendientes', () => {
     const nav = navFunciones(pinta());
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/competiciones"/);
-    for (const texto of ['Explorar', 'Rankings', 'Ojeo', 'Comparar']) {
-      expect(nav).toContain(texto);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/estadisticas"/);
+    for (const [etiqueta, descriptor] of [
+      ['Explorar', 'Competiciones y grupos'],
+      ['Rankings', 'Goleadores'],
+      ['Ojeo', 'Buscar talento'],
+      ['Comparar', 'Cara a cara'],
+    ]) {
+      expect(nav, `falta ${etiqueta}`).toContain(etiqueta);
+      expect(nav, `falta el descriptor de ${etiqueta}`).toContain(descriptor);
     }
-    // Sólo Explorar navega: los otros tres no tienen pantalla todavía.
-    expect((nav.match(/<a[\s>]/g) ?? []).length).toBe(1);
-    expect((nav.match(/aria-disabled="true"/g) ?? []).length).toBe(3);
-    for (const texto of ['Rankings', 'Ojeo', 'Comparar']) {
-      expect(nav, `${texto} debería estar desactivado`).toMatch(
-        new RegExp(`<span[^>]*aria-disabled="true"[^>]*>${texto}</span>`),
-      );
+    // Una descripción accesible por elemento, también cuando el descriptor no cabe en pantalla.
+    for (const clave of ['explorar', 'rankings', 'ojeo', 'comparar']) {
+      expect(nav).toContain(`aria-describedby="funcion-${clave}-desc"`);
+      expect(nav).toContain(`id="funcion-${clave}-desc"`);
     }
-    // Y no hay enlaces a pantallas que no existen.
-    expect(nav).not.toMatch(/<a[^>]*href="[^"]*(rankings|ojeo|comparar)/i);
+    // Sólo navegan las que tienen pantalla; las otras dos se explican como pendientes: nombre
+    // accesible y `title` lo dicen, y en pantalla el descriptor cuenta qué serán.
+    expect((nav.match(/<a[\s>]/g) ?? []).length).toBe(2);
+    expect((nav.match(/aria-disabled="true"/g) ?? []).length).toBe(2);
+    expect(nav).toContain('Ojeo (todavía no tiene pantalla)');
+    expect(nav).toContain('Comparar (todavía no tiene pantalla)');
+    expect(nav).toContain('todavía no tiene pantalla');
+    expect(nav).not.toMatch(/<a[^>]*href="[^"]*(ojeo|comparar)/i);
+  });
+
+  it('sólo la sección activa lleva aria-current, y la decide la ruta', () => {
+    expect(pinta(null)).not.toContain('aria-current');
+    expect(navFunciones(pinta('explorar'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Explorar/);
+    expect(navFunciones(pinta('rankings'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Rankings/);
   });
 
   it('panel y avisos siguen desactivados; cuenta es un enlace real a /entrar sin iniciales inventadas', () => {
@@ -107,13 +168,6 @@ describe('cabecera del sitio · la barra del prototipo', () => {
     const texto = soloTexto(pinta());
     expect(texto).not.toMatch(/\d/);
   });
-
-  it('sólo la sección activa lleva aria-current, y la decide la ruta', () => {
-    expect(pinta(null)).not.toContain('aria-current');
-    const activa = pinta('explorar');
-    expect(activa).toContain('aria-current="page"');
-    expect(navFunciones(activa)).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Explorar/);
-  });
 });
 
 describe('cabecera del sitio · qué ruta deja activa una sección', () => {
@@ -121,8 +175,17 @@ describe('cabecera del sitio · qué ruta deja activa una sección', () => {
     expect(seccionActiva('/explorar')).toBe('explorar');
     expect(seccionActiva('/explorar/competicion/3769')).toBe('explorar');
     expect(seccionActiva('/explorar/competiciones')).toBe('explorar');
+    expect(seccionActiva('/explorar/calendario')).toBe('explorar');
     expect(seccionActiva('/competiciones')).toBe('explorar');
     expect(seccionActiva('/competiciones/2025-26')).toBe('explorar');
+  });
+
+  it('Rankings está activa en la pantalla de estadísticas a la que enlaza', () => {
+    expect(seccionActiva('/explorar/estadisticas')).toBe('rankings');
+    expect(seccionActiva('/explorar/estadisticas/2025-26')).toBe('rankings');
+    // Las dos funciones que todavía no tienen pantalla no se marcan nunca.
+    expect(seccionActiva('/explorar/ojeo')).toBe('explorar');
+    expect(seccionActiva('/explorar/comparar')).toBe('explorar');
   });
 
   it('en una página vieja no se marca ninguna sección', () => {

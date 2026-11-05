@@ -38,8 +38,8 @@ export function CabeceraActa({ acta }: { acta: FilaActaCanonica }) {
   return (
     <section aria-labelledby="acta"
       className="rounded-[var(--radius-tarjeta)] bg-[var(--fondo-fuerte)] px-5 pt-4 pb-5 text-[var(--texto-fuerte)]">
-      <h1 id="acta" className="sr-only">
-        Acta: {acta.local} {marcador.texto} {acta.visitante}
+      <h1 id="acta" className="sr-only" title={`${acta.local} ${marcador.texto} ${acta.visitante}`}>
+        Acta: {acta.local_nombre_corto ?? acta.local} {marcador.texto} {acta.visitante_nombre_corto ?? acta.visitante}
       </h1>
 
       {contexto.length > 0 && (
@@ -64,9 +64,10 @@ export function CabeceraActa({ acta }: { acta: FilaActaCanonica }) {
             />
           </span>
           <Link href={`/explorar/equipo/${acta.local_id}`}
-            className="min-w-0 break-words text-center text-cuerpo font-bold leading-tight text-[var(--texto-fuerte)] hover:underline">
+            className="min-w-0 break-words text-center text-cuerpo font-bold leading-tight text-[var(--texto-fuerte)] hover:underline"
+            title={acta.local}>
             <span className="sr-only">Local: </span>
-            {acta.local}
+            {acta.local_nombre_corto ?? acta.local}
           </Link>
         </div>
 
@@ -107,9 +108,10 @@ export function CabeceraActa({ acta }: { acta: FilaActaCanonica }) {
             />
           </span>
           <Link href={`/explorar/equipo/${acta.visitante_id}`}
-            className="min-w-0 break-words text-center text-cuerpo font-bold leading-tight text-[var(--texto-fuerte)] hover:underline">
+            className="min-w-0 break-words text-center text-cuerpo font-bold leading-tight text-[var(--texto-fuerte)] hover:underline"
+            title={acta.visitante}>
             <span className="sr-only">Visitante: </span>
-            {acta.visitante}
+            {acta.visitante_nombre_corto ?? acta.visitante}
           </Link>
         </div>
       </div>

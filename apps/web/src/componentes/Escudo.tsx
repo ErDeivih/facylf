@@ -37,7 +37,7 @@ export function Escudo({ equipoId, nombre, clubId, tieneEscudo }: {
         alt=""
         aria-hidden="true"
         data-escudo="real"
-        loading="lazy"
+        loading="eager"
         decoding="async"
         className="h-[24px] w-[22px] flex-none object-contain"
       />

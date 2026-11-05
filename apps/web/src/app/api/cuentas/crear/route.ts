@@ -1,22 +1,25 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { altaCuenta, anotaEntrada, modoRegistro } from '@/lib/cuentas-db';
+import { altaCuenta, anotaEntrada } from '@/lib/cuentas-db';
 import { hashContrasena } from '@/lib/contrasenas';
 import {
   avisoDeErrorRegistro, contrasenaValida, correoValido, nombreValido,
-  normalizaCorreo, normalizaInvitacion, urlVolverSegura,
+  normalizaCorreo, urlVolverSegura,
 } from '@/lib/cuentas';
 import { iniciaSesion } from '@/lib/sesion';
 import { ipDe, permite } from '@/lib/limites';
 import { mismoOrigen } from '@/lib/seguridad';
 
 /**
- * Alta de cuenta.
+ * Alta de cuenta (`POST /api/cuentas/crear`).
  *
- * La contraseña se deriva en la web (scrypt) y `app.alta_cuenta` guarda usuario y credencial en UNA
- * transacción: si la invitación no vale, no queda usuario ni uso consumido. El modo sale de
- * `app.ajuste.registro_modo` (hoy `invitacion`); en `aprobacion` la cuenta nace pendiente y no se
- * abre sesión, y en `abierto` entra directamente.
+ * El registro está abierto: no hay código de invitación y no se consume ninguna. La contraseña se
+ * deriva en la web (scrypt) y `app.alta_cuenta` guarda usuario y credencial en UNA transacción. Si la
+ * base no está en modo `abierto` (por ejemplo, alguien lo cerró desde administración), se responde
+ * «El registro no está abierto ahora mismo.» sin detalle técnico.
+ *
+ * La cuenta nace activa con el paquete por defecto (hoy `esencial`), que es lo mismo que tiene
+ * cualquier usuario: sirve para favoritos y para lo público, no para administración.
  */
 export async function POST(peticion: Request): Promise<NextResponse> {
   if (!mismoOrigen(peticion)) return atras(peticion, 'origen', null);
@@ -32,7 +35,6 @@ export async function POST(peticion: Request): Promise<NextResponse> {
   const nombre = typeof datos.get('nombre') === 'string' ? String(datos.get('nombre')).trim() : '';
   const correo = normalizaCorreo(datos.get('correo'));
   const contrasena = typeof datos.get('contrasena') === 'string' ? String(datos.get('contrasena')) : '';
-  const codigo = normalizaInvitacion(datos.get('invitacion'));
   const destino = urlVolverSegura(datos.get('volver'));
   const acepto = datos.get('acepto');
 
@@ -43,15 +45,10 @@ export async function POST(peticion: Request): Promise<NextResponse> {
   if (acepto === null || acepto === '') return atras(peticion, 'acepto', destino);
 
   try {
-    const modo = await modoRegistro();
-    if (modo === null) return atras(peticion, 'no-disponible', destino);
-    if (modo === 'invitacion' && codigo === '') return atras(peticion, 'invitacion-requerida', destino);
-
-    // En aprobación/abierto no se usa el código aunque llegue: el modo vigente manda.
-    const codigoUsado = modo === 'invitacion' ? codigo : null;
     const userId = randomUUID();
     const passwordHash = await hashContrasena(contrasena);
-    const estado = await altaCuenta({ userId, correo, passwordHash, codigo: codigoUsado, nombre });
+    // Sin código de invitación: la cuenta se crea con el modo vigente de `app.ajuste`.
+    const estado = await altaCuenta({ userId, correo, passwordHash, codigo: null, nombre });
 
     if (estado === 'activo') {
       await anotaEntrada(correo, true);
@@ -69,7 +66,7 @@ export async function POST(peticion: Request): Promise<NextResponse> {
 }
 
 function atras(peticion: Request, aviso: string, volver: string | null): NextResponse {
-  const url = new URL('/entrar', peticion.url);
+  const url = new URL('/crear-cuenta', peticion.url);
   url.searchParams.set('aviso', aviso);
   if (volver) url.searchParams.set('volver', volver);
   return NextResponse.redirect(url, 303);

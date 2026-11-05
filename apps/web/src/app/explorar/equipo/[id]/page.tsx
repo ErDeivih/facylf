@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const equipo = await equipoDe(id);
-    return equipo ? { title: `${equipo.nombre_en_fuente} · ${equipo.temporada} — facylf` } : {};
+    return equipo ? { title: `${equipo.nombre_en_fuente} · ${equipo.temporada} — Balompié` } : {};
   } catch {
     return {};
   }
@@ -84,6 +85,12 @@ export default async function PaginaEquipo({ params }: { params: Promise<{ id: s
         { texto: `${equipo.nombre_en_fuente} · ${equipo.temporada}` },
       ]} />
       <CabeceraEquipo equipo={equipo} tieneEscudo={tieneEscudo} />
+      <div className="flex justify-end">
+        <Link href={`/explorar/equipo/${id}/historial`}
+          className="text-tabla font-semibold text-[var(--accion)] hover:underline">
+          Ver historial del equipo
+        </Link>
+      </div>
       <ResumenDelEquipo equipo={equipo} resumen={resumen} />
       <div className="grid gap-[18px] lg:grid-cols-2">
         <GolesPorTramo tramos={tramosCompletos(goles)} />

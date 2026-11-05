@@ -3,6 +3,7 @@ import type { Route } from 'next';
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
 import { Escudo } from '@/componentes/Escudo';
 import { fechaDePartido, type JornadaResumen, type PartidoDeJornada } from '@/lib/jornadas';
+import { nombresDelPartido } from '@/lib/nombres-equipo';
 import { marcadorDePartido } from '@/lib/pantalla-competicion';
 import { fechaCorta } from '@/lib/vocabulario-pantalla';
 
@@ -50,21 +51,25 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                 goles_visitante: partido.goles_visitante,
                 hora: null,
               });
+              const nombres = nombresDelPartido(partido);
               const ganaLocal = marcador.jugado && (partido.goles_local ?? 0) > (partido.goles_visitante ?? 0);
               const ganaVisitante = marcador.jugado && (partido.goles_visitante ?? 0) > (partido.goles_local ?? 0);
+              const arbitro = (partido.arbitro ?? '').trim();
               const meta = [
                 fechaCorta(fechaDePartido(partido)),
                 (partido.hora ?? '').trim() !== '' ? partido.hora!.trim() : null,
                 (partido.campo ?? '').trim() !== '' ? partido.campo!.trim() : null,
+                arbitro !== '' ? `Árbitro: ${arbitro}` : null,
               ].filter((pieza): pieza is string => pieza !== null);
               const acta = partido.calidad_acta !== null && hrefActa ? hrefActa(partido) : null;
               return (
                 <li key={partido.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2.5">
-                  <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 text-tabla">
-                    <span className="flex min-w-0 items-center justify-end gap-2 text-right">
+                  <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 text-tabla max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-y-1">
+                    <span className="flex min-w-0 items-center justify-end gap-2 text-right max-sm:col-start-1 max-sm:row-start-1 max-sm:flex-row-reverse max-sm:justify-start max-sm:text-left">
                       <span className="sr-only">Local: </span>
-                      <span className={`min-w-0 break-words ${ganaLocal ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}>
-                        {partido.local}
+                      <span className={`min-w-0 break-words ${ganaLocal ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}
+                        title={nombres.completo_local}>
+                        {nombres.local}
                       </span>
                       <Escudo
                         equipoId={partido.local_id}
@@ -76,12 +81,12 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                     <span
                       title={marcador.accesible}
                       className={marcador.jugado
-                        ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)]'
-                        : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)]'}>
+                        ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)] max-sm:col-start-2 max-sm:row-span-2 max-sm:self-center'
+                        : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)] max-sm:col-start-2 max-sm:row-span-2 max-sm:self-center'}>
                       {marcador.texto}
                       <span className="sr-only">, {marcador.accesible}</span>
                     </span>
-                    <span className="flex min-w-0 items-center gap-2">
+                    <span className="flex min-w-0 items-center gap-2 max-sm:col-start-1 max-sm:row-start-2">
                       <Escudo
                         equipoId={partido.visitante_id}
                         nombre={partido.visitante}
@@ -89,8 +94,9 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                         tieneEscudo={partido.visitante_tiene_escudo}
                       />
                       <span className="sr-only">Visitante: </span>
-                      <span className={`min-w-0 break-words ${ganaVisitante ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}>
-                        {partido.visitante}
+                      <span className={`min-w-0 break-words ${ganaVisitante ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}
+                        title={nombres.completo_visitante}>
+                        {nombres.visitante}
                       </span>
                     </span>
                   </div>

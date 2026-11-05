@@ -91,7 +91,9 @@ detrás. Se acabaron las explicaciones: se implementa.
   detalle en `docs/plataforma-web/CUENTAS.md`. Pruebas 94/94 (unitarias y flujo real contra
   PostgreSQL).
 
-## Terminado cuando
+## Revisión de las capturas (David, 05/11/2026)
+
+- [x] **Marca**: logo propio y nombre de producto mejor que FACYLF; quitar el pie «archivo privado / no\n  es una web oficial»; explicar en la barra superior qué es Explorar, Rankings, Ojeo y Comparar.\n  Hecho como **Balompié** (provisional) con logo de cancha, tagline, pie eliminado y descriptores en la\n  navegación; el nombre se cambia desde componentes/marca/marca.ts. Los títulos de las pantallas ya\n  dicen Balompié.\n\n- [x] **Jornadas**: tablas por jornada con resultados, equipos y actas enlazados; 4 tablas por fila en\n  PC y scroll vertical en móvil; árbitro en la jornada (asistentes en el acta); escudo en el contenedor;\n  corregir la barra de temporada para que la fecha derecha sea la de la última jornada jugada.\n  Hecho; la fecha usa echa_ultima_jugada y en móvil los equipos se apilan con el marcador a la derecha.\n  Los asistentes no están en core.match_official (sólo principal) y no se inventan.\n\n- [x] **Nombres cortos de equipo**: derivar/guardar «Isoba», «R. Valladolid», «Santa Marta»,\n  «Ponferradina», «Salamanca CF»… y usarlos donde no cabe el nombre largo; en móvil, resultado a la\n  derecha y equipos debajo uno del otro.\n  Hecho: migración 0060 (nalytics.nombre_corto_equipo), 34.904/34.904 equipos de CyL, reglas + 2.569\n  manuales; integrado en jornadas/acta/clasificación/calendario.\n\n- [x] **Acceso**: registro abierto para cualquiera (solo para favoritos), sin código de invitación;\n  separar «Entrar» y «Crear cuenta» en dos páginas; notificaciones móviles, más adelante.\n  Hecho: migración 0059 (modo abierto), /entrar y /crear-cuenta, avisos «más adelante» sin botones.\n\n- [x] **Historiales**: jugador, equipo, club, equipos de un club, equipo por temporadas y cada\n  temporada; reflejar varios equipos del mismo club y cambios a mitad de temporada.\n  Hecho: /explorar/jugador/[id]/historial, /explorar/equipo/[id]/historial y\n  /explorar/club/[id]/historial, enlazados desde las fichas. Declarados los huecos reales del canónico\n  (líneas incompletas, sin palmarés/plantilla histórica).\n\n- [x] **Estadísticas de árbitros, entrenadores y delegados**.\n  Hecho: /explorar/arbitro/[id], /explorar/entrenador/[id] y /explorar/delegado/[id] con datos\n  reales, medias y V-E-D; los asistentes de árbitro no existen en el canónico.\n\n## Terminado cuando
 
 Puedo pedir cualquier competición/temporada y ver calendario, clasificación, jornadas, actas y
 estadísticas sin que falte nada.
@@ -210,6 +212,16 @@ estadísticas sin que falte nada.
   las cuentas no tienen verificación de correo, recuperación de contraseña ni 2FA, y están dichas en
   `CUENTAS.md` sin fingirlas.
 
+- 05/11/2026: **feedback de capturas aplicado**. Marca provisional **Balompié** con logotipo propio,
+  pie legal retirado y navegación explicada; jornadas en tablas (4 por fila en PC, apiladas en móvil,
+  árbitro, escudos, actas y nombres cortos), fecha derecha corregida con `fecha_ultima_jugada`; nombres
+  cortos guardados para 34.904 equipos de CyL; registro abierto en `/entrar` + `/crear-cuenta`; historiales
+  de jugador, equipo y club enlazados desde las fichas; fichas de árbitro, entrenador y delegado. Los
+  asistentes de árbitro no están en el canónico y no se inventan. QA ronda 8 encontró dos bloqueantes
+  (acta sin nombres cortos y portada con axe), corregidos; ronda 9 cerró la portada y dejó abierto el
+  `h1` del acta; ronda 10 dio **APTA** con el `h1` corto y el completo en `title`. Suite completa
+  1.183/1, e2e 58/58, web 600/1, `tsc`, `lint` y `next build` verdes.
+
 - 05/11/2026: **QA ronda 6 (NO APTA) y ronda 7 (APTA)**. La ronda 6 encontró un contraste serious en
   la ficha de jugador en oscuro (chip de federación a 4,33:1) y cuatro importantes: federaciones de
   prueba visibles, `/mi-panel` sin tema, etiqueta «Actas» ambigua y tamaños de escudo. Corregido:
@@ -219,3 +231,126 @@ estadísticas sin que falte nada.
   axe 0 en jugador oscuro a 1440/360, 0 apariciones de federaciones de prueba, escudos exactos y
   base limpia (0 usuarios/sesiones/favoritos). `pnpm test` 1061, e2e 48/48, web 478, `tsc`, `lint` y
   `next build` en verde.
+- 05/11/2026: **revisión de capturas · ACCESO implementado, pendiente de validación (la casilla de
+  «Acceso» sigue SIN marcar).** Registro abierto: migración nueva **0059** pone
+  `app.ajuste.registro_modo = 'abierto'` (idempotente; no se tocan 0057/0058) y la web deja de pedir
+  código de invitación; `app.alta_cuenta`/`app.alta_usuario` crean la cuenta activa sin consumir
+  invitación, con el paquete por defecto (sólo favoritos y datos públicos). `/entrar` queda sólo para
+  entrar y el alta se separa en `/crear-cuenta`, con enlaces entre ambas y `volver` conservado.
+  «Avisos» se anuncia en `/mi-panel` como «más adelante», sin botones ni push. Se mantienen scrypt,
+  sesión con token hasheado, CSRF por `Origin` y los límites de entrada/alta. Pruebas actualizadas:
+  cuentas (23), flujo real contra PostgreSQL (4), `/entrar` (8), `/crear-cuenta` (9) y `/mi-panel`
+  (7); `tsc` verde. Chrome real 1440/360 con axe 0 y sin desplazamiento; capturas en
+  `tmp/acceso-*.png`. Detalle en `docs/plataforma-web/CUENTAS.md`.
+
+- 05/11/2026: **revisión de capturas, punto «Marca» implementado y pendiente de validación (casilla
+  SIN marcar).** Nombre provisional **Balompié** y tagline «fútbol federado, temporada a temporada» en
+  un único sitio (`componentes/marca/marca.ts`): cabecera, `metadata` del layout y título por defecto.
+  Logotipo propio en `componentes/marca/Logotipo.tsx` (baldosa del acento con la cancha dibujada:
+  rectángulo, línea de medio campo y círculo central; 28×28, decorativo porque la marca va en texto) y
+  `app/icon.svg` con el mismo dibujo. Se retira el pie «Archivo privado. No es una web oficial.» del
+  layout (sin sustituirlo). Las funciones de la barra se explican con un descriptor de dos líneas en
+  escritorio (≥1280) y `sr-only` + `aria-describedby` + `title` por debajo, porque el espacio es del
+  buscador: Explorar → «Competiciones y grupos» (a `/explorar/competiciones`), Rankings → «Goleadores»
+  (a `/explorar/estadisticas`, con `seccionActiva` marcándola), y Ojeo/Comparar quedan desactivadas
+  (`aria-disabled` + nombre accesible + `title`, sin enlaces muertos). El anillo de foco de la nav ya
+  no se recorta (padding interno del contenedor de desplazamiento). Pruebas
+  `apps/web/test/cabecera-sitio.test.ts` 12/12 (marca, tagline, logotipo, favicon sin «--» en
+  comentarios, funciones explicadas, pie ausente, órdenes de foco y sección activa); `tsc` verde.
+  Chrome real 1440/360 y oscuro con axe 0 serias/críticas, sin desplazamiento horizontal y objetivos de
+  44 px; capturas `tmp/marca-1440.png`, `tmp/marca-360.png`, `tmp/marca-oscuro-1440.png` (y
+  `tmp/marca-logo.png`, `tmp/marca-icono.png`, `tmp/marca-vieja-1440.png`). **Pendiente**: validación
+  del nombre y del logotipo; los `<title>` por pantalla de otros ficheros (`app/entrar`,
+  `app/mi-panel`, fichas, `lib/calendario.ts`, `lib/estadisticas.ts`, `lib/jornadas.ts`, `lib/acta.ts`,
+  `lib/pantalla-competicion.ts`) siguen diciendo «— facylf»: no se tocan aquí porque son de otros
+  agentes y algunos están en edición.
+
+- 05/11/2026: **revisión de capturas · nombres cortos de equipo y fecha de última jornada (datos),
+  pendiente de integración y validación.** La migración de nombres cortos se aplicó como **0060**
+  (el Lead la renombró para no chocar con `0059-registro-abierto`, que sigue intacta). Tabla
+  `analytics.nombre_corto_equipo` con `team_entry_id` PK, `nombre_corto` no vacío, `metodo`
+  (`regla`/`manual`), `confianza` 0..1 y `observado_en`; grants SELECT a `facylf_lector` y
+  SELECT/INSERT/UPDATE/DELETE a `facylf_publicador`. Poblado con
+  `scripts/nombres-cortos-equipos.mjs` (reglas en `scripts/lib/nombres-cortos.mjs`, decisiones manuales
+  incluidas) sobre los **34.904 equipos de CyL**: todos con nombre corto, 2.569 filas `manual` (7,36 %),
+  17 con confianza < 0,7 para revisar. Ejemplos guardados: `Isoba`, `R. Valladolid`, `Santa Marta`,
+  `Ponferradina`, `Salamanca CF`. Segunda pasada del script: 0 filas modificadas (idempotente).
+  Consultas ampliadas: `local_nombre_corto`/`visitante_nombre_corto` en `partidos-de-grupo` (y en el
+  acta), `equipo_corto` en `clasificación-de-la-pantalla`, `rival_corto` en `partidos-del-equipo`,
+  `equipo_corto`/`rival_corto` en `partidos-de-persona` y `fecha_ultima_jugada` en `grupo-por-id`
+  (3769: 2026-10-04; 75252: `null` pese a tener calendario el 2026-10-17). Medido con el rol de lectura:
+  `grupo-por-id` 9,5 ms, clasificación 10,8 ms, partidos 55,9 ms, partidos del equipo 7,2 ms y partidos
+  de persona 44,2 ms. Planes guardados actualizados. 13 pruebas nuevas y suite web en verde (541). En
+  el momento de cerrar, `tsc` fallaba sólo por `consultas/historial.ts`, un fichero en edición de otro
+  agente; mis ficheros compilan. El uso del nombre corto en jornadas/móvil y la fecha derecha de la
+  barra los integra `pantalla`.
+
+- 05/11/2026: **historial de jugador implementado, pendiente de validación del Lead (el punto
+  «Historiales» del feedback de capturas sigue SIN marcar: faltan equipo, club, equipos de un club y
+  equipo por temporadas).** Ruta nueva `/explorar/jugador/[id]/historial` (id `core.person.id`), sin
+  editar pantallas existentes; el enlace desde la ficha lo integra el Lead. Consulta nueva
+  `apps/web/src/consultas/historial.ts` (`historial-de-jugador`, una sola consulta: persona +
+  apariciones en JSON, con goles/tarjetas de `match_event` y minutos fiables del resumen por
+  equipo-temporada); reglas puras en `apps/web/src/lib/historial-jugador.ts` (tramos, cambios,
+  solapes, resumen); componentes en `apps/web/src/componentes/historial/`. Pruebas
+  `apps/web/test/historial-jugador.test.ts` (25), contrato real con la persona 1181455 (144
+  apariciones, 8 inscripciones, 5 temporadas, cambio real de club a mitad de 2015-16) y 19057 (dos
+  equipos del mismo club con fechas solapadas). `EXPLAIN (ANALYZE, BUFFERS)`: 7,06 ms (presupuesto 400;
+  el primer intento con `analytics.federacion_ficha` daba 590 ms y se quitó). Página en caliente
+  0,55–0,71 s en el servidor de desarrollo. Axe 0 serias/críticas en 1440/360 claro y oscuro, sin
+  desplazamiento horizontal, un solo `h1` y 404 real; capturas en `tmp/historial-jugador-*.png`.
+  Casos que no existen en el canónico: no hay dos inscripciones del mismo grupo en una temporada
+  (imposible por esquema) y las identidades nominales con «muchos equipos» (p. ej. 12137, 15 equipos)
+  son colisiones de nombre, no traspasos: la página conserva el aviso de identidad nominal y no fusiona.
+
+- 05/11/2026: **feedback de capturas de JORNADAS implementado, pendiente de validación del Lead (el
+  punto «Jornadas» de la revisión sigue SIN marcar).** `/explorar/competicion/[id]/jornadas` ahora son
+  tablas: una por jornada, con `Jornada N`, fechas publicadas y estado (jugada, parcial, programada,
+  sin fecha); resultados local-marcador-visitante con escudo en cada partido, filas enlazadas a
+  `/explorar/equipo/[id]`, árbitro publicado en cada partido y enlace a `/explorar/acta/[id]` sólo con
+  acta analizada. La rejilla es de 4 tablas por fila en escritorio (`sm:grid-cols-2` y
+  `xl:grid-cols-4`), 2 en tablet y 1 en móvil; en móvil cada partido apila los dos equipos y deja el
+  marcador a la derecha. Los nombres usan `local_nombre_corto`/`visitante_nombre_corto` guardados
+  (fallback puro `nombreCorto()` en `apps/web/src/lib/nombres-equipo.ts` para lo que falte; los casos
+  dudosos se quedan completos). La barra de temporada muestra a la derecha
+  `GRUPO_POR_ID.fecha_ultima_jugada` (`max(coalesce(played_at, fecha_prevista))` sólo de partidos con
+  resultado), no la última programada: 75256 enseña 3 oct y no el 4 oct del calendario; 75252 no tiene
+  ninguna jornada jugada y no finge la fecha del 17 oct. Se actualizaron `CabeceraCompeticion`, la
+  página de clasificación, calendario y estadísticas para pasar esa fecha; el detalle usa el mismo
+  componente de partidos (árbitro, escudos, actas) y la tarjeta lateral de clasificación pasa a
+  escudos/nombres cortos/árbitro/acta. Pruebas: `jornada-pantalla.test.ts` 31, `nombres-equipo.test.ts`
+  7 y `competicion-pantalla.test.ts` 63 (contrato de `fecha_ultima_jugada`, 3769 = 2026-10-04 y 75252 =
+  null, columnas de nombres cortos); las cinco suites relacionadas suman 195 en verde. `tsc` en verde al
+  cerrar. Chrome real: axe 0 serias/críticas y sin desplazamiento horizontal en 1440/400/360 claro y
+  1440 oscuro; capturas `tmp/jornadas-tablas-1440.png`, `-360`, `-400`, `-1440-oscuro`,
+  `tmp/jornadas-tablas-30665-1440.png`, `tmp/jornadas-tablas-75252-1440.png`,
+  `tmp/jornadas-clasificacion-797-1440.png`, `tmp/jornadas-detalle-1440.png` y
+  `tmp/jornadas-detalle-360.png`. **Pendiente para el Lead**: validar el conjunto; decidir si la tabla
+  de clasificación también debe usar `equipo_corto` (la consulta ya lo trae, la tabla sigue con el
+  nombre completo) y si el listado debe paginar/plegar jornadas cuando la temporada esté completa (hoy
+  pinta todas las publicadas seguidas).
+
+- 05/11/2026: **estadísticas de árbitros, entrenadores y delegados implementadas, pendiente de
+  validación del Lead (la casilla sigue SIN marcar).** Rutas nuevas `/explorar/arbitro/[id]`,
+  `/explorar/entrenador/[id]` y `/explorar/delegado/[id]` con el id canónico de `core.person`; contrato
+  en `docs/plataforma-web/` no cambiado (no se existe API todavía para estas fichas). Una consulta por
+  pantalla en `apps/web/src/consultas/oficiales.ts` (`arbitro-por-id`, `entrenador-por-id`,
+  `delegado-por-id`; `plan: indexado`, presupuesto 400 ms): **21,7 / 15,6 / 15,1 ms p50** con el rol de
+  lectura (EXPLAIN ANALYZE: 6,97 / 3,20 / 2,56 ms) y **ningún `Seq Scan`** en `core.match`,
+  `match_event`, `match_official`, `match_staff` ni `match_report`. La media del árbitro se compara con
+  la de TODA su competición (240 partidos con acta en 797, no sus 10). Reglas puras en
+  `apps/web/src/lib/oficiales.ts`: normaliza los 171 literales de rol del acta (español, euskera,
+  catalán e inglés) a familias —entrenador, segundo, portero, delegado de equipo, delegado de campo— y
+  con la MISMA regla que el SQL; V-E-D para la racha; medias que devuelven `null` (nunca 0) sin partidos
+  con acta. Componentes en `apps/web/src/componentes/oficiales/` (cabecera, piezas y una sección por
+  figura) reutilizando `Cifras`/`TARJETA` de estadísticas y los tokens del sistema. Pruebas
+  `apps/web/test/oficiales-pantalla.test.ts`: **33 en verde**, con contrato real (18951 = 10 partidos,
+  37 amarillas, 12 rojas, 4 penaltis y la competición 1101/240; 19080 = 30 partidos, 13-5-12; 19236 = 30
+  partidos como «DEL. Equipo»), 404 (id inexistente, no numérico, persona sin rol y rol cruzado) y
+  textos prohibidos (§8). `tsc` en verde. Chrome real: axe **0** serias/críticas en 1440/360 claro y 1440
+  oscuro, sin desplazamiento horizontal a 360; capturas `tmp/oficiales-arbitro-1440.png`, `-360`,
+  `tmp/oficiales-entrenador-*`, `tmp/oficiales-delegado-*` y `*-oscuro-1440.png`. **Límite**: sólo
+  árbitro principal (`core.match_official` no guarda asistentes; no se inventan). El enlace acta →
+  ficha del árbitro queda pendiente: `ACTA_DEL_PARTIDO` no devuelve el `person_id` de los oficiales y
+  esa consulta vive en `partidos.ts`, fuera del alcance de esta tarea; cuando se añada el id, el enlace
+  es una línea en `componentes/acta/ContextoActa.tsx`.

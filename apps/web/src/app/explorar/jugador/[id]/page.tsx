@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const persona = await personaDe(id);
-    return persona ? { title: `${persona.nombre_mostrado} — facylf` } : {};
+    return persona ? { title: `${persona.nombre_mostrado} — Balompié` } : {};
   } catch {
     return {};
   }
@@ -87,6 +88,12 @@ export default async function PaginaJugador({ params }: { params: Promise<{ id: 
         { texto: persona.nombre_mostrado },
       ]} />
       <CabeceraJugador jugador={persona} contexto={contexto} />
+      <div className="flex justify-end">
+        <Link href={`/explorar/jugador/${id}/historial`}
+          className="text-tabla font-semibold text-[var(--accion)] hover:underline">
+          Ver historial completo
+        </Link>
+      </div>
       <TotalesJugador totales={totales} />
       <div className="grid gap-[18px] lg:grid-cols-2">
         <MinutosPorTemporada filas={minutosPorTemporada(trayectoria)} />

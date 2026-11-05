@@ -73,6 +73,16 @@ describe('Mi panel', () => {
     expect(html).toMatch(/<form[^>]*action="\/api\/cuentas\/salir"[^>]*>[\s\S]*?Cerrar sesión[\s\S]*?<\/form>/);
   });
 
+  it('los avisos se anuncian como «más adelante», sin botones que finjan', () => {
+    const html = pinta([]);
+    const seccion = html.match(/<section[^>]*aria-labelledby="avisos-titulo"[\s\S]*?<\/section>/);
+    expect(seccion, 'no hay sección de avisos').not.toBeNull();
+    expect(seccion![0]).toContain('Avisos');
+    expect(seccion![0]).toContain('llegarán más adelante');
+    expect(seccion![0]).not.toContain('<button');
+    expect(seccion![0]).not.toMatch(/activar|push|notificaciones/i);
+  });
+
   it('si la base falla no se pinta un panel vacío que parezca «no sigues nada»', () => {
     const html = pinta([], true);
     expect(html).toContain('role="alert"');

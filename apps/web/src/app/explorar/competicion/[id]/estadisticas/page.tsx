@@ -26,6 +26,7 @@ import {
   idDeGrupoDeUrl, numero, porcentaje, puntosPorJornada, repartoDeResultados, temporadasParaCabecera,
   tituloDeEstadisticasGrupo, tramosCompletos, ultimosResultados,
 } from '@/lib/estadisticas';
+import { fechaUltimaJugadaDePortada } from '@/lib/jornadas';
 import { enVentana } from '@/lib/temporadas';
 
 /**
@@ -105,6 +106,7 @@ export default async function PantallaEstadisticasCompeticion({ params }: { para
         rutaBase={`/explorar/competicion/${grupo.grupo_id}`}
         fechaInicio={grupo.fecha_inicio}
         fechaFin={grupo.fecha_fin}
+        fechaUltimaJugada={fechaUltimaJugadaDePortada(grupo)}
         activa={activa}
       />
       <Suspense fallback={<EsqueletoEstadisticas />}>

@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/tema';
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
+import { TAGLINE, TITULO_POR_DEFECTO } from '@/componentes/marca/marca';
 import '@fontsource-variable/inter';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'facylf · fútbol federado',
-  description: 'Archivo consultable de competiciones, jornadas, equipos y jugadores de las federaciones territoriales.',
+  title: TITULO_POR_DEFECTO,
+  description: `Competiciones, jornadas, equipos y jugadores del fútbol federado. ${TAGLINE}.`,
   robots: { index: false, follow: false },
 };
 
@@ -38,9 +39,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <body className="antialiased">
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
-        <footer className="mx-auto max-w-[1240px] border-t border-[var(--borde)] px-5 py-6 text-nota text-[var(--texto-suave)]">
-          <p>Archivo privado. No es una web oficial.</p>
-        </footer>
       </body>
     </html>
   );

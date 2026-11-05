@@ -1,9 +1,10 @@
 # Cuentas de la web
 
-Estado: implementación del objetivo 7 del WALL (registro de usuarios con favoritos), 05/11/2026.
-Antes de esta entrega, `/entrar` era sólo el diseño preparado: los formularios no enviaban nada. Ahora
-hay alta, entrada, sesión, cierre y favoritos reales sobre `app.usuario`, `app.invitacion` y
-`app.favorito`, **sin Better Auth**.
+Estado: implementación del objetivo 7 del WALL (registro de usuarios con favoritos), 05/11/2026, con la
+revisión de capturas del mismo día: **registro abierto** (cualquiera puede crear cuenta, sólo para
+favoritos) y **`/entrar` y `/crear-cuenta` separadas**. Antes de esta entrega, `/entrar` era sólo el
+diseño preparado. Ahora hay alta, entrada, sesión, cierre y favoritos reales sobre `app.usuario`,
+`app.invitacion` y `app.favorito`, **sin Better Auth**.
 
 ## 1. Decisión de arquitectura
 
@@ -18,25 +19,31 @@ así que la web implementa lo mínimo seguro con lo que existe:
 | Favoritos | `app.guarda_favorito` / `app.quita_favorito` / `app.mis_accesos` | Ya existían (0031/0037). La web sólo añade los envoltorios de equipo, porque la ficha usa `team_entry.id` y la función guarda la línea a partir de `team_season.id`. |
 | Roles | `facylf_app` | La web nunca usa el rol de administración. `facylf_app` no tiene SELECT/INSERT directo sobre `credencial` ni `sesion`: sólo puede llamar a las funciones `security definer`. |
 
-**Migraciones nuevas:** `0057-cuentas-contrasena-y-sesion.sql` (tablas y funciones) y
-`0058-cierre-de-sesion-con-permisos.sql` (cierre y limpieza con los permisos de su dueño). No se edita
-ninguna migración aplicada. La cabecera de 0057 deja escrito el orden de reversión.
+**Migraciones nuevas:** `0057-cuentas-contrasena-y-sesion.sql` (tablas y funciones),
+`0058-cierre-de-sesion-con-permisos.sql` (cierre y limpieza con los permisos de su dueño) y
+`0059-registro-abierto.sql` (pone `app.ajuste.registro_modo = 'abierto'`; idempotente y reversible).
+No se edita ninguna migración aplicada. La cabecera de 0057 deja escrito el orden de reversión.
 
 ## 2. Flujo
 
 ### Alta
 
-1. `/entrar` lee `app.ajuste.registro_modo`:
-   - `invitacion` (hoy): pide código y `app.alta_usuario` valida existencia, caducidad, usos y correo
-     atado.
-   - `aprobacion`: la cuenta nace `pendiente`; no se crea sesión.
-   - `abierto`: nace `activo`.
+1. `/crear-cuenta` es una pantalla propia (decisión de David, 05/11/2026) y no pide invitación: el
+   modo vigente es **`abierto`** (0059). Cualquiera puede crear una cuenta, que sólo sirve para
+   favoritos y para lo público, con el paquete por defecto (`esencial`).
 2. La web normaliza el correo, valida nombre (1–60), contraseña (10–200) y aceptación, deriva el hash
-   y llama a `app.alta_cuenta`. Si algo falla, **no queda usuario ni uso de invitación consumido**.
-3. En `invitacion`/`abierto`, la cuenta activa abre sesión y va a `/mi-panel` (o a `volver`, siempre
-   una ruta interna). En `aprobacion` se enseña «Cuenta creada. Queda pendiente de aprobación».
+   y llama a `app.alta_cuenta(..., p_codigo = null)`. En modo abierto **no se consume ninguna
+   invitación**; `app.alta_usuario` inserta el usuario activo. Si la base no está en modo abierto se
+   responde «El registro no está abierto ahora mismo.».
+3. La cuenta activa abre sesión y va a `/mi-panel` (o a `volver`, siempre una ruta interna).
+4. Los modos `invitacion` y `aprobacion` siguen existiendo en SQL (y `app.invitacion` no se ha
+   tocado), pero la interfaz ya no pide código. Para volver a ellos basta cambiar el ajuste desde
+   administración; no hay pantalla todavía.
 
 ### Entrada
+
+`/entrar` es sólo la entrada y enlaza a `/crear-cuenta`; no muestra la tarjeta de alta. `volver` se
+conserva al pasar de una pantalla a la otra.
 
 1. Comprobación de `Origin`/`Host` (CSRF) y límite por IP en memoria (40 intentos/10 min).
 2. Freno por cuenta en la base (`app.espera_entrada`, 0043: 8 fallos seguidos / 15 min). Se pregunta
@@ -64,6 +71,8 @@ ninguna migración aplicada. La cabecera de 0057 deja escrito el orden de revers
   caracteres y se le quitan caracteres de control; sólo la ve el propio usuario.
 - `/mi-panel` lee `app.mis_accesos(user_id)` y traduce los enlaces de la web vieja a las rutas
   `/explorar/…`. Si un favorito no tiene último o próximo partido, esa línea no se pinta.
+- **Avisos:** la sección de avisos del panel dice que llegarán más adelante y no tiene botones; el
+  push no está implementado y no se simula.
 
 ## 3. Seguridad
 
@@ -83,23 +92,32 @@ ninguna migración aplicada. La cabecera de 0057 deja escrito el orden de revers
 
 ## 4. Cómo probarlo
 
-- Unitarias y de flujo: `pnpm exec vitest run apps/web/test/cuentas.test.ts apps/web/test/cuentas-flujo.test.ts apps/web/test/entrar.test.ts apps/web/test/mi-panel.test.ts`.
+- Unitarias y de flujo: `pnpm exec vitest run apps/web/test/cuentas.test.ts apps/web/test/cuentas-flujo.test.ts apps/web/test/entrar.test.ts apps/web/test/crear-cuenta.test.ts apps/web/test/mi-panel.test.ts`.
   El flujo contra PostgreSQL se salta si no hay `DATABASE_URL_APP`/`DATABASE_URL_MIGRACION`.
 - Tipos: `pnpm --filter @facylf/web exec tsc --noEmit`.
-- Manual: crear una invitación (no hay aún pantalla de administración de usuarios):
+- Manual: `/crear-cuenta` → nombre, correo, contraseña y aceptación (no hay código) → `/mi-panel` →
+  abrir una ficha de equipo/club/jugador y pulsar Guardar → cerrar sesión → `/entrar` con las mismas
+  credenciales.
+- La migración 0059 deja `app.ajuste.registro_modo = 'abierto'`. Comprobarlo:
+  `select valor from app.ajuste where clave = 'registro_modo';`.
 
-  ```sql
-  insert into app.invitacion (codigo, creada_por, paquete, usos_max)
-  values ('FACYLF-PRUEBA-2026', 'arranque', 'esencial', 20);
-  ```
+## 5. Registro abierto: qué cambia y qué no
 
-  Después `/entrar` → crear cuenta → `/mi-panel` → abrir una ficha de equipo/club/jugador y pulsar
-  Guardar.
+- **Qué cambia:** cualquiera puede crear una cuenta sin invitación. La cuenta nueva recibe el paquete
+  por defecto (`esencial`), que es el mismo que tiene un usuario normal: favoritos y datos públicos,
+  sin administración.
+- **Qué NO cambia:** contraseñas con scrypt, sesión con token hasheado, CSRF por `Origin`, límite de
+  10 altas por hora e IP, 40 intentos de entrada por 10 minutos e IP y freno por cuenta en la base.
+- **Riesgo asumido:** no hay verificación de correo ni captcha. Un tercero puede crear cuentas con
+  correos que no son suyos (sólo para favoritos). Si aparece abuso, se puede volver a `invitacion` o
+  `aprobacion` cambiando el ajuste, sin tocar código.
 
-## 5. Lo que todavía no hay (y no se finge)
+## 6. Lo que todavía no hay (y no se finge)
 
 - **Verificación de correo** y **recuperación de contraseña**: no hay correo saliente. No se muestra
   un enlace de recuperación que no funcionaría.
+- **Avisos y notificaciones push:** no implementados. El panel deja claro que llegarán más adelante,
+  sin botones que finjan.
 - **2FA**, panel de administración de usuarios e invitaciones, aprobación/rechazo desde pantalla: las
   funciones SQL existen (`app.aprueba_usuario`, `app.cambia_estado_usuario`,
   `app.crea_invitacion`) pero no hay pantalla; en modo `aprobacion` haría falta para activar cuentas.

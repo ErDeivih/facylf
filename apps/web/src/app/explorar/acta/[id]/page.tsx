@@ -76,12 +76,14 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
   const equipos: { local: EquipoEnActa; visitante: EquipoEnActa } = {
     local: {
       nombre: acta.local,
+      nombreCorto: acta.local_nombre_corto,
       equipoId: acta.local_id,
       clubId: acta.local_club_id,
       tieneEscudo: acta.local_tiene_escudo,
     },
     visitante: {
       nombre: acta.visitante,
+      nombreCorto: acta.visitante_nombre_corto,
       equipoId: acta.visitante_id,
       clubId: acta.visitante_club_id,
       tieneEscudo: acta.visitante_tiene_escudo,

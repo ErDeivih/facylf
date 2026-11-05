@@ -23,16 +23,24 @@ const PESTANAS = [
  * temporada no se pinta sin jornadas previstas, las fechas de los extremos sólo aparecen si existen y
  * los desplegables sólo si hay más de una opción real que elegir.
  */
-export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fechaInicio, fechaFin, activa = 'clasificacion' }: {
+export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fechaInicio, fechaFin, fechaUltimaJugada, activa = 'clasificacion' }: {
   grupo: FilaPortadaGrupo;
   grupos: readonly FilaGrupoDeLaEdicion[];
   temporadas: readonly FilaEdicionDeLaCompeticion[];
   rutaBase: string;
   fechaInicio: string | null;
+  /** Última fecha publicada del calendario, jugada o no. Sólo se usa si no llega la jugada. */
   fechaFin: string | null;
-  /** Pestaña que se está viendo; las dos que tienen pantalla se marcan y enlazan. */
+  /**
+   * Fecha de la última jornada JUGADA (partidos con resultado), no la última programada. Es la fecha
+   * derecha de la barra de temporada. Si no llega —campo aún no disponible— se pinta la del calendario
+   * para no dejar el extremo vacío, pero la fuente buena es ésta.
+   */
+  fechaUltimaJugada?: string | null;
+  /** Pestaña que se está viendo; las que tienen pantalla se marcan y enlazan. */
   activa?: 'clasificacion' | 'jornadas' | 'calendario' | 'estadisticas';
 }) {
+  const fechaDerecha = fechaUltimaJugada === undefined ? fechaFin : fechaUltimaJugada;
   const totalJornadas = grupo.jornadas_previstas;
   const jornadaActual = grupo.jornada_actual;
   const porcentaje = totalJornadas && totalJornadas > 0 && jornadaActual !== null
@@ -97,7 +105,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
                   ? `${totalJornadas} jornadas previstas`
                   : 'Sin jornadas publicadas'}
           </span>
-          <span>{fechaCorta(fechaFin) ?? ''}</span>
+          <span>{fechaCorta(fechaDerecha) ?? ''}</span>
         </div>
       </div>
 

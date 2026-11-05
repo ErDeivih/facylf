@@ -435,6 +435,11 @@ export type FilaPartidoDeEquipo = {
   condicion: string;
   rival_id: number;
   rival: string;
+  /**
+   * Nombre corto del rival (`analytics.nombre_corto_equipo`, 0060) para donde el completo no cabe.
+   * `null` si todavía no se ha derivado; la pantalla cae al nombre completo.
+   */
+  rival_corto?: string | null;
   /** Goles del equipo consultado y del rival. `null` cuando el marcador no está publicado. */
   goles_propios: number | null;
   goles_rival: number | null;
@@ -460,7 +465,7 @@ export const PARTIDOS_DEL_EQUIPO: Consulta<FilaPartidoDeEquipo> = {
   plan: 'indexado',
   presupuestoMs: 400,
   columnas: ['partido_id', 'jornada_numero', 'jornada_id', 'fecha', 'fecha_prevista', 'estado',
-    'condicion', 'rival_id', 'rival', 'goles_propios', 'goles_rival', 'resultado', 'campo',
+    'condicion', 'rival_id', 'rival', 'rival_corto', 'goles_propios', 'goles_rival', 'resultado', 'campo',
     'calidad_acta', 'total'],
   sql: `
     select m.id                                                        as partido_id,
@@ -472,6 +477,7 @@ export const PARTIDOS_DEL_EQUIPO: Consulta<FilaPartidoDeEquipo> = {
            case when m.home_team_entry_id = $1 then 'casa' else 'fuera' end as condicion,
            riv.id                                                      as rival_id,
            riv.nombre_en_fuente                                        as rival,
+           ncr.nombre_corto                                            as rival_corto,
            case when m.home_team_entry_id = $1 then m.goles_local else m.goles_visitante end as goles_propios,
            case when m.home_team_entry_id = $1 then m.goles_visitante else m.goles_local end   as goles_rival,
            case when m.goles_local is null or m.goles_visitante is null then 'sin_resultado'
@@ -488,6 +494,7 @@ export const PARTIDOS_DEL_EQUIPO: Consulta<FilaPartidoDeEquipo> = {
       left join core.matchday j on j.id = m.matchday_id
       left join core.venue v on v.id = m.venue_id
       left join core.match_report r on r.match_id = m.id
+      left join analytics.nombre_corto_equipo ncr on ncr.team_entry_id = riv.id
      where m.home_team_entry_id = $1 or m.away_team_entry_id = $1
      order by j.numero nulls last, m.fecha_prevista nulls last, m.id
      limit $2 offset $3`,

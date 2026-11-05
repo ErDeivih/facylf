@@ -2,17 +2,16 @@ import { MINIMO_CONTRASENA } from '@/lib/contrasenas';
 import { Campo, CLASE_BOTON_PRIMARIO, CLASE_CONTROL } from './campos';
 
 /**
- * Bloque «Crear cuenta» de `/entrar`.
+ * Formulario de alta de `/crear-cuenta`.
  *
- * Alta real con invitación (o aprobación, según `app.ajuste.registro_modo`). El formulario envía a
- * `POST /api/cuentas/crear`; la contraseña se deriva con scrypt en el servidor y la cuenta se crea
- * en una transacción. Si el modo no es `invitacion`, el código no se pide ni se usa.
+ * El registro está abierto: no hay código de invitación. La cuenta sirve para guardar favoritos y
+ * ver sus horarios y resultados. Envía a `POST /api/cuentas/crear`, que deriva la contraseña con
+ * scrypt y crea usuario y credencial en una transacción; la cuenta nace activa.
  *
  * El consentimiento dice la decisión vigente de la federación: hay consentimiento de tratamiento y
  * **los nombres de los menores se publican**; las **fotos** no.
  */
-export function FormularioCrearCuenta({ modo, volver }: { modo: string; volver: string | null }) {
-  const conInvitacion = modo === 'invitacion';
+export function FormularioCrearCuenta({ volver }: { volver: string | null }) {
   return (
     <form action="/api/cuentas/crear" method="post" className="flex flex-col gap-3.5">
       <input type="hidden" name="volver" value={volver ?? ''} />
@@ -54,22 +53,6 @@ export function FormularioCrearCuenta({ modo, volver }: { modo: string; volver: 
           className={CLASE_CONTROL}
         />
       </Campo>
-
-      {conInvitacion && (
-        <Campo id="alta-invitacion" etiqueta="Código de invitación">
-          <input
-            id="alta-invitacion"
-            name="invitacion"
-            type="text"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
-            maxLength={64}
-            required
-            className={`${CLASE_CONTROL} tracking-[0.06em]`}
-          />
-        </Campo>
-      )}
 
       <label className="flex items-start gap-2.5 text-tabla leading-6 text-[var(--texto)]">
         <input

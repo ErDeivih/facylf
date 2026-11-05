@@ -320,6 +320,56 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
 
+  test('la marca, la navegación explicada y el pie', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const cabecera = page.locator('header').first();
+    await expect(cabecera).toContainText('Balompié');
+    await expect(cabecera).toContainText('Competiciones y grupos');
+    await expect(cabecera).toContainText('Goleadores');
+    // El pie legal se retiró: no queda «archivo privado» ni «no es una web oficial».
+    await expect(page.locator('footer')).toHaveCount(0);
+  });
+
+  test('las historias de jugador, equipo y club se abren desde sus fichas', async ({ page }) => {
+    await page.goto('/explorar/jugador/19057');
+    await page.getByRole('link', { name: 'Ver historial completo' }).click();
+    await expect(page).toHaveURL(/\/explorar\/jugador\/19057\/historial$/);
+    await expect(page.locator('h1').first()).toBeVisible();
+
+    await page.goto('/explorar/equipo/2526');
+    await page.getByRole('link', { name: 'Ver historial del equipo' }).click();
+    await expect(page).toHaveURL(/\/explorar\/equipo\/2526\/historial$/);
+
+    await page.goto('/explorar/club/16');
+    await page.getByRole('link', { name: 'Ver historial del club' }).click();
+    await expect(page).toHaveURL(/\/explorar\/club\/16\/historial$/);
+  });
+
+  test('registro abierto en dos páginas, sin invitación', async ({ page }) => {
+    await page.goto('/entrar');
+    await expect(page.getByRole('heading', { name: 'Entrar' }).first()).toBeVisible();
+    await expect(page.locator('input[name="invitacion"]')).toHaveCount(0);
+    await page.getByRole('link', { name: /Crear una cuenta/ }).click();
+    await expect(page).toHaveURL(/\/crear-cuenta/);
+    await expect(page.getByRole('heading', { name: /Crear cuenta/ }).first()).toBeVisible();
+    await expect(page.locator('input[name="invitacion"]')).toHaveCount(0);
+  });
+
+  test('las fichas de árbitro, entrenador y delegado responden', async ({ page }) => {
+    for (const ruta of ['/explorar/arbitro/18951', '/explorar/entrenador/19080', '/explorar/delegado/19236']) {
+      const respuesta = await page.goto(ruta);
+      expect(respuesta?.status(), ruta).toBe(200);
+      await expect(page.locator('h1').first()).toBeVisible();
+    }
+  });
+
+  test('la portada no tiene incidencias serias ni críticas de accesibilidad', async ({ page }) => {
+    await page.goto('/');
+    const resultado = await new AxeBuilder({ page }).analyze();
+    const graves = resultado.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(graves.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  });
+
   test('los nombres se publican y no hay fotos de personas', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const goleadores = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) });
@@ -389,11 +439,12 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const orden = await page.evaluate(() => [...document.querySelectorAll('header a, header button:not([disabled]), header input')]
       .map((el) => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || '')
       .filter(Boolean));
-    expect(orden[0]).toContain('facylf');
+    expect(orden[0]).toContain('Balompié');
     expect(orden[1]).toContain('Explorar');
-    expect(orden[2]).toBe('Entrar o crear cuenta');
-    expect(orden[3]).toBe('Cambiar a tema oscuro');
-    expect(orden[4]).toContain('Buscar');
+    expect(orden[2]).toContain('Rankings');
+    expect(orden[3]).toBe('Entrar o crear cuenta');
+    expect(orden[4]).toBe('Cambiar a tema oscuro');
+    expect(orden[5]).toContain('Buscar');
   });
 
   test('el tema se resuelve en el servidor y el botón lo cambia y lo persiste', async ({ page, context, request }) => {

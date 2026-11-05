@@ -8,6 +8,7 @@ import {
 /** Lo que la alineación necesita de cada equipo para pintar su escudo y su nombre. */
 export type EquipoEnActa = {
   nombre: string;
+  nombreCorto?: string | null;
   equipoId: number;
   clubId: number | null;
   tieneEscudo: boolean;
@@ -53,7 +54,10 @@ export function AlineacionesActa({ alineaciones, equipos, eventos }: {
                       clubId={equipo.clubId}
                       tieneEscudo={equipo.tieneEscudo}
                     />
-                    <Link href={`/explorar/equipo/${equipo.equipoId}`} className="min-w-0 break-words hover:underline">{equipo.nombre}</Link>
+                    <Link href={`/explorar/equipo/${equipo.equipoId}`} className="min-w-0 break-words hover:underline"
+                      title={equipo.nombre}>
+                      {equipo.nombreCorto ?? equipo.nombre}
+                    </Link>
                     <span className="sr-only">{alineacion.lado === 'local' ? ' (local)' : ' (visitante)'}</span>
                   </h3>
                   <Grupo titulo="Titulares" jugadores={alineacion.titulares} eventos={eventos} />

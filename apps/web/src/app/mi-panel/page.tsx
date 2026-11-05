@@ -15,7 +15,7 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Mi panel — facylf',
+  title: 'Mi panel — Balompié',
 };
 
 export default async function MiPanel() {

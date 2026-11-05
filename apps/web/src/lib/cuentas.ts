@@ -4,9 +4,8 @@
  * Dos ideas gobiernan este fichero:
  *
  * 1. **La web nunca decide sola si un correo existe.** En la entrada, correo desconocido y contraseña
- *    incorrecta dan EXACTAMENTE el mismo texto; el intento se anota igual. El alta sí necesita
- *    mensajes concretos para el código de invitación (caducado, agotado, de otro correo), pero el
- *    correo duplicado se responde con un texto que no confirma si existe una cuenta.
+ *    incorrecta dan EXACTAMENTE el mismo texto; el intento se anota igual. El alta responde con un
+ *    texto que no confirma si ese correo ya tiene cuenta.
  * 2. **Nada de mensajes técnicos.** Cada código de aviso tiene una frase que una persona puede
  *    entender y que le dice qué puede hacer; el código viaja en la URL, nunca el texto.
  */
@@ -31,11 +30,6 @@ export function contrasenaValida(contrasena: string): boolean {
   return contrasena.length >= 10 && contrasena.length <= 200;
 }
 
-/** Un código de invitación se normaliza a mayúsculas y sin espacios; la base también lo hace. */
-export function normalizaInvitacion(valor: unknown): string {
-  return typeof valor === 'string' ? valor.trim().toUpperCase() : '';
-}
-
 /**
  * Rutas internas a las que se puede volver después de entrar o crear la cuenta.
  *
@@ -49,6 +43,11 @@ export function urlVolverSegura(valor: unknown): string | null {
   if (!ruta.startsWith('/') || ruta.startsWith('//') || ruta.startsWith('/\\')) return null;
   if (/[\u0000-\u001f\u007f]/.test(ruta)) return null;
   return ruta;
+}
+
+/** Enlace entre las dos pantallas de acceso sin perder a dónde se volvía. */
+export function rutaConVolver(ruta: string, volver: string | null): string {
+  return volver ? `${ruta}?volver=${encodeURIComponent(volver)}` : ruta;
 }
 
 /** Tipos de favorito que la interfaz puede guardar desde una ficha. */
@@ -115,11 +114,7 @@ export const TEXTOS_AVISO: Readonly<Record<string, string>> = {
   'nombre': 'Escribe un nombre de hasta 60 caracteres.',
   'contrasena': 'La contraseña debe tener entre 10 y 200 caracteres.',
   'acepto': 'Tienes que aceptar el uso de los datos para crear la cuenta.',
-  'invitacion-requerida': 'Hace falta un código de invitación para crear la cuenta.',
-  'invitacion': 'Ese código de invitación no existe.',
-  'invitacion-caducada': 'Ese código de invitación ha caducado.',
-  'invitacion-agotada': 'Ese código de invitación ya se ha usado.',
-  'invitacion-otro-correo': 'Ese código de invitación no corresponde a este correo.',
+  'registro-cerrado': 'El registro no está abierto ahora mismo.',
   'registro': 'No se ha podido crear la cuenta. Si ya tienes una, entra con tu correo.',
   'registro-pendiente': 'Cuenta creada. Queda pendiente de aprobación; podrás entrar cuando la aprueben.',
   'saliste': 'Has cerrado la sesión.',
@@ -131,8 +126,8 @@ export function textoAviso(codigo: unknown): string | null {
 }
 
 /**
- * Traduce el error que lanza la base (`INVITACION_CADUCADA`…) al código de aviso de la web.
- * Cualquier otra cosa es `registro` o `no-disponible`, nunca el texto crudo del motor.
+ * Traduce el error que lanza la base al código de aviso de la web. Cualquier otra cosa es
+ * `registro` o `no-disponible`, nunca el texto crudo del motor.
  */
 export function avisoDeErrorRegistro(error: unknown): string {
   const texto = error instanceof Error ? error.message : String(error);
@@ -141,11 +136,7 @@ export function avisoDeErrorRegistro(error: unknown): string {
     ['CORREO_NO_VALIDO', 'correo'],
     ['CONTRASENA_NO_VALIDA', 'contrasena'],
     ['CUENTA_NO_VALIDA', 'registro'],
-    ['INVITACION_NO_EXISTE', 'invitacion'],
-    ['INVITACION_CADUCADA', 'invitacion-caducada'],
-    ['INVITACION_AGOTADA', 'invitacion-agotada'],
-    ['INVITACION_DE_OTRO_CORREO', 'invitacion-otro-correo'],
-    ['REGISTRO_SOLO_CON_INVITACION', 'invitacion-requerida'],
+    ['REGISTRO_SOLO_CON_INVITACION', 'registro-cerrado'],
   ];
   return mapa.find(([codigo]) => texto.includes(codigo))?.[1] ?? 'no-disponible';
 }

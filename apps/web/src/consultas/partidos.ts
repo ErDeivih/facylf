@@ -51,6 +51,13 @@ export type FilaPartidoCanonico = {
   visitante_club_id?: number | null;
   local_tiene_escudo?: boolean | null;
   visitante_tiene_escudo?: boolean | null;
+  /**
+   * Nombre corto de cada inscripción (`analytics.nombre_corto_equipo`, 0060): el que cabe en la jornada
+   * y en el acta cuando el nombre publicado es largo. `null` si aún no se ha derivado; la pantalla cae
+   * al completo, nunca a una cadena vacía.
+   */
+  local_nombre_corto?: string | null;
+  visitante_nombre_corto?: string | null;
   goles_local: number | null;
   goles_visitante: number | null;
   campo: string | null;
@@ -66,7 +73,8 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
   presupuestoMs: 800,
   columnas: ['match_id', 'jornada', 'orden', 'fecha', 'fecha_prevista', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
     'local_codigo', 'visitante_codigo', 'local_club_id', 'visitante_club_id', 'local_tiene_escudo',
-    'visitante_tiene_escudo', 'goles_local', 'goles_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
+    'visitante_tiene_escudo', 'local_nombre_corto', 'visitante_nombre_corto', 'goles_local', 'goles_visitante',
+    'campo', 'arbitro', 'calidad_acta', 'estado'],
   sql: `
     select m.id                      as match_id,
            d.numero                  as jornada,
@@ -98,6 +106,10 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
                     where cal.club_id = tsl.club_id and cal.tipo = 'escudo' and cal.vigente) as local_tiene_escudo,
            exists (select 1 from core.club_asset cav
                     where cav.club_id = tsv.club_id and cav.tipo = 'escudo' and cav.vigente) as visitante_tiene_escudo,
+           -- Nombre corto guardado (0060) de cada inscripción, en la misma fila: la jornada y el acta lo
+           -- pintan sin aplicar reglas ni pedir otra consulta.
+           ncl.nombre_corto          as local_nombre_corto,
+           ncv.nombre_corto          as visitante_nombre_corto,
            m.goles_local,
            m.goles_visitante,
            v.nombre                  as campo,
@@ -113,6 +125,8 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       join core.team_entry ev on ev.id = m.away_team_entry_id
       join core.team_season tsl on tsl.id = el.team_season_id
       join core.team_season tsv on tsv.id = ev.team_season_id
+      left join analytics.nombre_corto_equipo ncl on ncl.team_entry_id = el.id
+      left join analytics.nombre_corto_equipo ncv on ncv.team_entry_id = ev.id
       left join core.venue v on v.id = m.venue_id
       left join core.match_report r on r.match_id = m.id
       left join core.match_official o on o.match_id = m.id and o.rol = 'principal'
@@ -347,6 +361,9 @@ export type FilaActaCanonica = {
   municipio: string | null;
   local: string;
   visitante: string;
+  /** Nombres cortos guardados (0060) de los dos equipos; `null` si aún no se han derivado. */
+  local_nombre_corto?: string | null;
+  visitante_nombre_corto?: string | null;
   local_id: number;
   visitante_id: number;
   local_club_id: number | null;
@@ -384,7 +401,8 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
   presupuestoMs: 500,
   columnas: ['match_id', 'jornada', 'federacion', 'federacion_nombre', 'temporada', 'edicion', 'edicion_id',
     'categoria', 'division', 'modalidad', 'ambito', 'grupo_id', 'grupo', 'grupo_codigo', 'fecha',
-    'fecha_prevista', 'hora', 'campo', 'municipio', 'local', 'visitante', 'local_id', 'visitante_id',
+    'fecha_prevista', 'hora', 'campo', 'municipio', 'local', 'visitante', 'local_nombre_corto',
+    'visitante_nombre_corto', 'local_id', 'visitante_id',
     'local_club_id', 'visitante_club_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'goles_local',
     'goles_visitante', 'penaltis_local', 'penaltis_visitante', 'estado', 'calidad_acta', 'eventos',
     'alineaciones', 'oficiales', 'cuerpo_tecnico', 'enfrentamientos'],
@@ -413,6 +431,8 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
            v.municipio                         as municipio,
            el.nombre_en_fuente                 as local,
            ev.nombre_en_fuente                 as visitante,
+           ncl.nombre_corto                    as local_nombre_corto,
+           ncv.nombre_corto                    as visitante_nombre_corto,
            el.id::int                          as local_id,
            ev.id::int                          as visitante_id,
            tsl.club_id::int                    as local_club_id,
@@ -516,6 +536,8 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
       join core.team_entry ev on ev.id = m.away_team_entry_id
       join core.team_season tsl on tsl.id = el.team_season_id
       join core.team_season tsv on tsv.id = ev.team_season_id
+      left join analytics.nombre_corto_equipo ncl on ncl.team_entry_id = el.id
+      left join analytics.nombre_corto_equipo ncv on ncv.team_entry_id = ev.id
       left join core.venue v on v.id = m.venue_id
       join core.match_report r on r.match_id = m.id
      where m.id = $1

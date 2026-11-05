@@ -35,7 +35,7 @@ function Contador({ titulo, valor, destino, detalle }: {
   const contenido = <>
     <p className="font-display text-xl tabular-nums">{numero(valor)}</p>
     <p className="text-[10px] uppercase tracking-wider text-[#5C646C]">{titulo}</p>
-    {detalle && <p className="mt-0.5 text-[10px] text-[#8A8E91]">{detalle}</p>}
+    {detalle && <p className="mt-0.5 text-[10px] text-[#5C646C]">{detalle}</p>}
   </>;
   return destino
     ? <Link href={destino} className="bg-white p-3 hover:bg-[#FAFBFA]">{contenido}</Link>
@@ -104,13 +104,13 @@ export default async function Inicio() {
       </p>
       <form action="/buscar" className="mt-4 flex flex-col gap-2 sm:flex-row">
         <input name="q" autoFocus className="control-filtro sm:flex-1" placeholder="Equipo, jugador, competición, técnico, árbitro…" />
-        <select name="federacion" className="control-filtro sm:w-56" defaultValue="todas">
+        <select name="federacion" aria-label="Federación" className="control-filtro sm:w-56" defaultValue="todas">
           <option value="todas">Todas las federaciones</option>
           {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
         </select>
         <button className="boton-primario sm:w-40">Buscar</button>
       </form>
-      <p className="mt-2 text-[11px] text-[#8A8E91]">
+      <p className="mt-2 text-[11px] text-[#5C646C]">
         La búsqueda por nombre la resuelven todavía las colas locales, no el canónico: puede no encontrar
         todo lo que se resume aquí. Los enlaces de esta portada sí leen el canónico.
       </p>
@@ -150,9 +150,9 @@ export default async function Inicio() {
             <td className="p-2">
               <Link href={`/canonico/${g.federacion}/${g.grupo_codigo}` as Route}
                 className="font-medium hover:text-club hover:underline">{g.edicion}</Link>
-              <span className="block text-[10px] text-[#8A8E91]">{g.grupo} · {etiqueta('categoria', g.categoria)}</span>
+              <span className="block text-[10px] text-[#5C646C]">{g.grupo} · {etiqueta('categoria', g.categoria)}</span>
             </td>
-            <td className="p-2 text-[12px] text-[#5C646C]">{g.federacion_nombre}<span className="block text-[10px] text-[#8A8E91]">{g.temporada}</span></td>
+            <td className="p-2 text-[12px] text-[#5C646C]">{g.federacion_nombre}<span className="block text-[10px] text-[#5C646C]">{g.temporada}</span></td>
             <td className="p-2 text-right">{numero(g.jornadas_previstas)}</td>
             <td className="p-2 text-right font-semibold">{numero(g.partidos_con_resultado)}/{numero(g.partidos_conocidos)}</td>
             <td className="p-2 text-right">{numero(g.actas_parseadas)}/{numero(g.actas_disponibles)}</td>
@@ -167,7 +167,7 @@ export default async function Inicio() {
         que no hay nada importado. Los grupos aparecen aquí en cuanto el importador los mide; su estado se
         puede seguir en <Link className="text-club hover:underline" href={'/canonico' as Route}>el estado del canónico</Link>.
       </p>}
-      <p className="border-t border-[#EDF0ED] p-3 text-[11px] text-[#8A8E91]">
+      <p className="border-t border-[#EDF0ED] p-3 text-[11px] text-[#5C646C]">
         Antes este bloque listaba los grupos de Salamanca: esa lista salía del repositorio local y el
         contenedor de la web no lo tiene montado. El canónico todavía no rellena la provincia de ninguna
         edición importada, así que en su lugar se listan los grupos con cobertura medida, que es lo que sí

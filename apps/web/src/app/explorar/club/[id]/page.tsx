@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const club = await clubDe(id);
-    return club ? { title: `${club.nombre_canonico} — facylf` } : {};
+    return club ? { title: `${club.nombre_canonico} — Balompié` } : {};
   } catch {
     return {};
   }
@@ -71,6 +72,12 @@ export default async function PaginaClub({ params }: { params: Promise<{ id: str
         { texto: club.nombre_canonico },
       ]} />
       <CabeceraClub club={club} tieneEscudo={tieneEscudo} />
+      <div className="flex justify-end">
+        <Link href={`/explorar/club/${id}/historial`}
+          className="text-tabla font-semibold text-[var(--accion)] hover:underline">
+          Ver historial del club
+        </Link>
+      </div>
       <ResumenDelClub club={club} equipos={equipos} />
       <EquiposDeLaTemporada filas={actuales} temporada={temporada} />
       <EvolucionDelClub evolucion={evolucionDelClub(equipos, 6)} />

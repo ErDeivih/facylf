@@ -1,32 +1,76 @@
 import Link from 'next/link';
+import type { Route } from 'next';
 import { Buscador } from '@/componentes/Buscador';
+import { Logotipo } from '@/componentes/marca/Logotipo';
+import { NOMBRE_PRODUCTO, TAGLINE_LINEAS } from '@/componentes/marca/marca';
 import type { Tema } from '@/lib/tema';
 import type { SeccionActiva } from './activo';
 import { BotonTema } from './BotonTema';
 
 /**
- * Cabecera común del sitio, copiada del tablero «Cabecera» del prototipo: barra de 64 px sobre la
- * superficie fuerte del producto, con el ancho interior de 1240 px centrado.
+ * Cabecera común del sitio: marca, búsqueda global y funciones.
  *
- * Es una pieza **pura y sin hooks**: la sección activa y el tema entran por prop, así que el layout
- * de servidor no necesita conocer la ruta. Quien la conoce es `CabeceraSitioActiva`, con
+ * Es una pieza **pura y sin hooks**: la sección activa y el tema entran por prop, así que el layout de
+ * servidor no necesita conocer la ruta. Quien la conoce es `CabeceraSitioActiva`, con
  * `usePathname`. El único trozo que tiene estado es `BotonTema`, que es un componente de cliente
  * aparte y sólo se ocupa de su botón.
  *
- * Lo que la cabecera NO finge, a propósito:
- *  · Rankings, Ojeo y Comparar no tienen pantalla: se enseñan como texto desactivado, no como
- *    enlaces muertos que llevarían a un 404;
- *  · no hay avisos ni contador: panel y avisos son botones desactivados sin cifra y sin iniciales
- *    inventadas. La cuenta sí tiene pantalla (`/entrar`), así que es un enlace real; como todavía no
- *    hay sesión, no enseña avatar ni nombre. El botón de tema sí funciona: no enseña un dato, cambia
- *    algo real.
+ * **Las funciones se explican.** «Explorar» o «Ojeo» no dicen por sí solos qué se va a encontrar, así
+ * que cada una lleva una segunda línea pequeña con lo que hay dentro. En escritorio (≥1280 px) se ve;
+ * por debajo, ese descriptor queda disponible para lectores de pantalla (`sr-only` +
+ * `aria-describedby`) y en el `title` del control, en vez de ocupar ancho que el buscador necesita.
  *
- * En móvil (<lg) el buscador baja a su propia fila a ancho completo; logo, navegación e iconos
- * quedan arriba. La navegación se desplaza en horizontal dentro de su caja, nunca el documento.
+ * Lo que la cabecera NO finge:
+ *  · Ojeo y Comparar no tienen pantalla: se enseñan como texto desactivado con su explicación
+ *    («próximamente» y el `title` completo), nunca como enlaces muertos que llevarían a un 404;
+ *  · no hay avisos ni contador: panel y avisos son botones desactivados sin cifra y sin iniciales
+ *    inventadas. La cuenta sí tiene pantalla (`/entrar`) y es un enlace real, sin avatar ni nombre.
+ *
+ * En móvil (<lg) el buscador baja a su propia fila a ancho completo; logo, navegación e iconos quedan
+ * arriba. La navegación se desplaza en horizontal dentro de su caja, nunca el documento.
  */
 
+type Funcion = {
+  clave: Exclude<SeccionActiva, null>;
+  etiqueta: string;
+  /** Qué se encuentra dentro, en dos o tres palabras que se lean sin contexto. */
+  descriptor: string;
+  /** Sólo las funciones con pantalla navegan. Las demás se explican y se quedan desactivadas. */
+  href?: string;
+  icono?: React.ReactNode;
+};
+
+const FUNCIONES: readonly Funcion[] = [
+  {
+    clave: 'explorar',
+    etiqueta: 'Explorar',
+    descriptor: 'Competiciones y grupos',
+    href: '/explorar/competiciones',
+    icono: <IconoExplorar />,
+  },
+  {
+    clave: 'rankings',
+    etiqueta: 'Rankings',
+    descriptor: 'Goleadores',
+    href: '/explorar/estadisticas',
+  },
+  {
+    clave: 'ojeo',
+    etiqueta: 'Ojeo',
+    descriptor: 'Buscar talento',
+  },
+  {
+    clave: 'comparar',
+    etiqueta: 'Comparar',
+    descriptor: 'Cara a cara',
+  },
+];
+
 const CLASE_SECCION =
-  'inline-flex h-11 items-center gap-[7px] whitespace-nowrap rounded-[var(--radius-lg)] px-3 text-sm font-semibold';
+  'inline-flex min-h-11 flex-col items-start justify-center gap-0.5 whitespace-nowrap rounded-[var(--radius-lg)] px-3 text-sm font-semibold';
+
+/** La segunda línea: visible a partir de 1280 px; por debajo, accesible pero sin ocupar ancho. */
+const CLASE_DESCRIPTOR = 'text-etiqueta font-medium tracking-[0.01em] sr-only xl:not-sr-only';
 
 function claseSeccion(activa: boolean): string {
   return `${CLASE_SECCION} ${
@@ -36,19 +80,13 @@ function claseSeccion(activa: boolean): string {
   }`;
 }
 
-const CLASE_SECCION_PENDIENTE = `${CLASE_SECCION} text-[var(--texto-fuerte-suave)]`;
+const CLASE_SECCION_PENDIENTE = `${CLASE_SECCION} cursor-not-allowed text-[var(--texto-fuerte-suave)] opacity-70`;
 
-function IconoMarca() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" className="shrink-0">
-      <rect width="28" height="28" rx="7" className="fill-[var(--accion)]" />
-      <circle cx="14" cy="14" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path d="M14 7v14M7 14h14" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
+function claseDescriptor(activa: boolean): string {
+  return `${CLASE_DESCRIPTOR} ${activa ? 'text-[var(--texto-suave)]' : 'text-[var(--texto-fuerte-suave)]'}`;
 }
 
-/** Iconos de trazo, una sola familia, en `currentColor`, 16-18 px. Decorativos: `aria-hidden`. */
+/** Icono de trazo, una sola familia, en `currentColor`, 16 px. Decorativo: `aria-hidden`. */
 function IconoExplorar() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="shrink-0">
@@ -109,14 +147,27 @@ export function CabeceraSitio({
   return (
     <header className="bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]">
       {/* 1240 de caja con 20 px de relleno a cada lado = 1200 interiores, y el mismo borde que `main`:
-          cabecera, migas y tarjetas empiezan en la misma x (el prototipo alinea las dos). */}
+          cabecera, migas y tarjetas empiezan en la misma x. */}
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-3.5 gap-y-2 px-5 py-2.5">
         <Link
           href="/"
-          className="order-1 flex min-h-11 items-center gap-[9px] text-lg font-extrabold tracking-[-0.02em] text-[var(--texto-fuerte)]"
+          aria-label={NOMBRE_PRODUCTO}
+          className="order-1 flex min-h-11 items-center gap-[9px] text-[var(--texto-fuerte)]"
         >
-          <IconoMarca />
-          facylf
+          <Logotipo />
+          <span className="flex flex-col justify-center leading-none">
+            <span className="text-lg font-extrabold leading-none tracking-[-0.02em]">{NOMBRE_PRODUCTO}</span>
+            {/*
+              La tagline describe el producto en dos líneas cortas. En móvil no cabe: se queda oculta
+              sin desaparecer del documento (no es información de la que dependa nada). Se acota el
+              ancho para que no le robe ancho al buscador.
+            */}
+            <span aria-hidden="true"
+              className="mt-0.5 hidden text-etiqueta font-medium leading-tight tracking-[0.01em] text-[var(--texto-fuerte-suave)] xl:block">
+              <span className="block">{TAGLINE_LINEAS[0]}</span>
+              <span className="block">{TAGLINE_LINEAS[1]}</span>
+            </span>
+          </span>
         </Link>
 
         {/*
@@ -136,38 +187,58 @@ export function CabeceraSitio({
           del flex de la cabecera y cada uno toma su `order`.
 
           El botón va DESPUÉS de la nav en el DOM, no dentro del grupo de iconos: así el recorrido de
-          Tab sigue el orden visual (logo → Explorar → tema → buscador). En escritorio queda tras los
-          iconos desactivados (order-3 los dos, y el DOM lo pone después). `key={tema}` lo remonta
-          cuando el tema cambia al navegar, para que su etiqueta no se quede con el estado anterior.
+          Tab sigue el orden visual (logo → Explorar → Rankings → cuenta → tema → buscador).
         */}
         <div className="order-3 flex w-full min-w-0 items-center gap-3.5 lg:contents">
           <nav aria-label="Funciones" className="min-w-0 flex-1 lg:order-2 lg:w-auto lg:flex-none">
-            <ul className="flex items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
-              <li className="shrink-0">
-                <Link
-                  href="/explorar/competiciones"
-                  aria-current={activo === 'explorar' ? 'page' : undefined}
-                  className={claseSeccion(activo === 'explorar')}
-                >
-                  <IconoExplorar />
-                  Explorar
-                </Link>
-              </li>
-              <li className="shrink-0">
-                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                  Rankings
-                </span>
-              </li>
-              <li className="shrink-0">
-                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                  Ojeo
-                </span>
-              </li>
-              <li className="shrink-0">
-                <span aria-disabled="true" title="Todavía no tiene pantalla" className={CLASE_SECCION_PENDIENTE}>
-                  Comparar
-                </span>
-              </li>
+            {/*
+              El `p-1` con `-m-1` deja dentro del contenedor de desplazamiento el hueco que necesita el
+              anillo de foco (2 px de trazo + 2 px de separación) sin crecer: el anillo no se recorta.
+            */}
+            <ul className="-m-1 flex items-center gap-1 overflow-x-auto p-1 [scrollbar-width:thin]">
+              {FUNCIONES.map((funcion) => {
+                const activa = activo === funcion.clave;
+                const descriptorId = `funcion-${funcion.clave}-desc`;
+                const contenido = (
+                  <>
+                    <span className="inline-flex items-center gap-[7px]">
+                      {funcion.icono}
+                      {funcion.etiqueta}
+                    </span>
+                    <span id={descriptorId} className={claseDescriptor(activa)}>{funcion.descriptor}</span>
+                  </>
+                );
+                return (
+                  <li key={funcion.clave} className="shrink-0">
+                    {funcion.href ? (
+                      <Link
+                        href={funcion.href as Route}
+                        aria-current={activa ? 'page' : undefined}
+                        aria-describedby={descriptorId}
+                        title={funcion.descriptor}
+                        className={claseSeccion(activa)}
+                      >
+                        {contenido}
+                      </Link>
+                    ) : (
+                      /*
+                        Sin pantalla no hay enlace: es texto desactivado. El estado se explica en el
+                        nombre accesible y en el `title`; en pantalla, el descriptor sigue diciendo qué
+                        será. Así el aviso no le roba ancho al buscador.
+                      */
+                      <span
+                        aria-disabled="true"
+                        aria-label={`${funcion.etiqueta} (todavía no tiene pantalla)`}
+                        aria-describedby={descriptorId}
+                        title={`${funcion.descriptor}: todavía no tiene pantalla`}
+                        className={CLASE_SECCION_PENDIENTE}
+                      >
+                        {contenido}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </nav>
 

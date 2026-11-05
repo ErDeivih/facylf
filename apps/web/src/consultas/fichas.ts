@@ -39,6 +39,9 @@ export type FilaPartidoDePersona = {
   edicion: string;
   rival_id: number;
   rival: string;
+  /** Nombres cortos guardados (0060) del equipo y del rival; `null` si aún no se han derivado. */
+  equipo_corto?: string | null;
+  rival_corto?: string | null;
   /** `casa` o `fuera`, ya resuelto desde el punto de vista del equipo de la persona. */
   condicion: string;
   /** `starter`, `substitute` o `called_up_unknown`: convocado no es lo mismo que jugado. */
@@ -70,9 +73,9 @@ export const PARTIDOS_DE_PERSONA: Consulta<FilaPartidoDePersona> = {
   descripcion: 'Los últimos partidos en los que una persona aparece en el acta, con equipo, club, competición, rival, marcador desde su punto de vista, si fue titular y sus goles y tarjetas de cada partido.',
   plan: 'indexado',
   presupuestoMs: 300,
-  columnas: ['partido_id', 'jornada_numero', 'fecha', 'temporada', 'equipo_id', 'equipo', 'club_id',
-    'grupo_id', 'edicion', 'rival_id', 'rival', 'condicion', 'convocatoria', 'goles_propios',
-    'goles_rival', 'resultado', 'goles', 'goles_penalti', 'amarillas', 'rojas', 'total'],
+  columnas: ['partido_id', 'jornada_numero', 'fecha', 'temporada', 'equipo_id', 'equipo', 'equipo_corto',
+    'club_id', 'grupo_id', 'edicion', 'rival_id', 'rival', 'rival_corto', 'condicion', 'convocatoria',
+    'goles_propios', 'goles_rival', 'resultado', 'goles', 'goles_penalti', 'amarillas', 'rojas', 'total'],
   sql: `
     select m.id                                as partido_id,
            j.numero                            as jornada_numero,
@@ -85,6 +88,8 @@ export const PARTIDOS_DE_PERSONA: Consulta<FilaPartidoDePersona> = {
            e.nombre_publicado                  as edicion,
            riv.id                              as rival_id,
            riv.nombre_en_fuente                as rival,
+           nce.nombre_corto                    as equipo_corto,
+           ncr.nombre_corto                    as rival_corto,
            case when m.home_team_entry_id = te.id then 'casa' else 'fuera' end as condicion,
            a.condition                         as convocatoria,
            case when m.home_team_entry_id = te.id then m.goles_local else m.goles_visitante end as goles_propios,
@@ -112,6 +117,8 @@ export const PARTIDOS_DE_PERSONA: Consulta<FilaPartidoDePersona> = {
       join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.season s on s.id = e.season_id
       left join core.matchday j on j.id = m.matchday_id
+      left join analytics.nombre_corto_equipo nce on nce.team_entry_id = te.id
+      left join analytics.nombre_corto_equipo ncr on ncr.team_entry_id = riv.id
       -- Los hechos de esa persona en ESE partido, en una sola lectura lateral (no una consulta por partido).
       left join lateral (
         select (count(*) filter (where e2.event_type = 'gol'

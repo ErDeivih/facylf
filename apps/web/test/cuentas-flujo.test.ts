@@ -11,8 +11,8 @@ import { hashContrasena, verificaContrasena } from '../src/lib/contrasenas';
 import { estadoDeCredencial } from '../src/lib/cuentas';
 
 /**
- * Flujo real de cuentas contra PostgreSQL: alta con invitación, verificación de contraseña, sesión,
- * favorito de club/equipo/jugador, quitar y cierre de sesión.
+ * Flujo real de cuentas contra PostgreSQL con el registro ABIERTO: alta sin invitación, verificación
+ * de contraseña, sesión, favorito de club/equipo/jugador, quitar y cierre de sesión.
  *
  * Usa el rol `facylf_app` para todo lo que hace la web. La limpieza final sí va con el rol de
  * migración, porque `facylf_app` no tiene permiso directo sobre `app.credencial` ni `app.sesion` (a
@@ -25,24 +25,27 @@ const motivo = motivoSinCanonico();
 const hayBase = hayApp && hayAdmin && motivo === null;
 
 const usuarios: string[] = [];
-const invitaciones: string[] = [];
 let admin: pg.Client | null = null;
-
-async function nuevaInvitacion(usosMax = 1): Promise<string> {
-  const codigo = `PRUEBA-${randomUUID().slice(0, 8).toUpperCase()}`;
-  await admin!.query(
-    `insert into app.invitacion (codigo, creada_por, paquete, usos_max, nota)
-     values ($1, 'prueba', 'esencial', $2, 'prueba del flujo de cuentas')`,
-    [codigo, usosMax],
-  );
-  invitaciones.push(codigo);
-  return codigo;
-}
 
 async function primeraFila<T extends pg.QueryResultRow>(sql: string): Promise<T> {
   const filas = await consulta<T>(sql);
   expect(filas[0], `la consulta no devolvió filas: ${sql}`).toBeDefined();
   return filas[0]!;
+}
+
+/** Alta abierta: se llama como la web, SIN código de invitación. */
+async function altaAbierta(nombre: string): Promise<{ userId: string; correo: string }> {
+  const userId = randomUUID();
+  usuarios.push(userId);
+  const correo = `abierto-${randomUUID().slice(0, 8)}@facylf.local`;
+  await altaCuenta({
+    userId,
+    correo,
+    passwordHash: await hashContrasena('clave-de-prueba-123'),
+    codigo: null,
+    nombre,
+  });
+  return { userId, correo };
 }
 
 beforeAll(async () => {
@@ -54,60 +57,47 @@ beforeAll(async () => {
 afterAll(async () => {
   if (admin) {
     if (usuarios.length > 0) await admin.query('delete from app.usuario where user_id = any($1::text[])', [usuarios]);
-    if (invitaciones.length > 0) await admin.query('delete from app.invitacion where codigo = any($1::text[])', [invitaciones]);
     await admin.end();
   }
   await cierraCanonico();
 });
 
-describe.skipIf(!hayBase)('flujo real de cuentas', () => {
-  it('lee el modo de registro y crea una cuenta activa con invitación', async () => {
-    expect(await modoRegistro()).toBe('invitacion');
-    const codigo = await nuevaInvitacion();
-    const userId = randomUUID();
-    usuarios.push(userId);
-    const correo = `flujo-${randomUUID().slice(0, 8)}@facylf.local`;
-    const hash = await hashContrasena('clave-de-prueba-123');
-
-    const estado = await altaCuenta({ userId, correo, passwordHash: hash, codigo, nombre: 'Cuenta de prueba' });
-    expect(estado).toBe('activo');
+describe.skipIf(!hayBase)('flujo real de cuentas con registro abierto', () => {
+  it('lee el modo abierto y crea una cuenta activa SIN invitación', async () => {
+    expect(await modoRegistro()).toBe('abierto');
+    const antes = await admin!.query<{ n: number }>('select coalesce(sum(usos), 0)::int as n from app.invitacion');
+    const { userId, correo } = await altaAbierta('Cuenta de prueba');
+    const despues = await admin!.query<{ n: number }>('select coalesce(sum(usos), 0)::int as n from app.invitacion');
+    // Sin código, el alta abierta no consume ninguna invitación.
+    expect(despues.rows[0]?.n).toBe(antes.rows[0]?.n);
 
     const credencial = await credencialDe(correo);
     expect(credencial?.user_id).toBe(userId);
-    expect(credencial?.password_hash).toBe(hash);
     expect(estadoDeCredencial(credencial!)).toBe('ok');
     expect(await verificaContrasena('clave-de-prueba-123', credencial!.password_hash)).toBe(true);
     expect(await verificaContrasena('otra-clave-123', credencial!.password_hash)).toBe(false);
   });
 
-  it('la invitación se consume una sola vez y un segundo alta con el mismo correo no deja restos', async () => {
-    const codigo = await nuevaInvitacion();
-    const userId = randomUUID();
-    usuarios.push(userId);
-    const correo = `duplicada-${randomUUID().slice(0, 8)}@facylf.local`;
-    const hash = await hashContrasena('clave-de-prueba-123');
-    await altaCuenta({ userId, correo, passwordHash: hash, codigo, nombre: 'Primera' });
-
-    const codigo2 = await nuevaInvitacion();
+  it('un segundo alta con el mismo correo se rechaza y no deja restos', async () => {
+    const { correo } = await altaAbierta('Primera');
     const otroId = randomUUID();
     usuarios.push(otroId);
     await expect(
-      altaCuenta({ userId: otroId, correo, passwordHash: hash, codigo: codigo2, nombre: 'Segunda' }),
+      altaCuenta({
+        userId: otroId,
+        correo,
+        passwordHash: await hashContrasena('clave-de-prueba-123'),
+        codigo: null,
+        nombre: 'Segunda',
+      }),
     ).rejects.toThrow(/CORREO_YA_REGISTRADO/);
 
-    const usos = await admin!.query<{ usos: number }>('select usos from app.invitacion where codigo = $1', [codigo2]);
-    expect(usos.rows[0]?.usos).toBe(0);
     const credencial = await credencialDe(correo);
-    expect(credencial?.user_id).toBe(userId);
+    expect(credencial?.user_id).not.toBe(otroId);
   });
 
   it('crea una sesión, la valida y la cierra', async () => {
-    const codigo = await nuevaInvitacion();
-    const userId = randomUUID();
-    usuarios.push(userId);
-    const correo = `sesion-${randomUUID().slice(0, 8)}@facylf.local`;
-    await altaCuenta({ userId, correo, passwordHash: await hashContrasena('clave-de-prueba-123'), codigo, nombre: 'Sesión' });
-
+    const { userId } = await altaAbierta('Sesión');
     const token = await creaSesionPara(userId);
     const sesion = await sesionPorToken(token);
     expect(sesion?.user_id).toBe(userId);
@@ -118,11 +108,7 @@ describe.skipIf(!hayBase)('flujo real de cuentas', () => {
   });
 
   it('guarda y quita favoritos de club, equipo y jugador con el user_id de la sesión', async () => {
-    const codigo = await nuevaInvitacion();
-    const userId = randomUUID();
-    usuarios.push(userId);
-    const correo = `favoritos-${randomUUID().slice(0, 8)}@facylf.local`;
-    await altaCuenta({ userId, correo, passwordHash: await hashContrasena('clave-de-prueba-123'), codigo, nombre: 'Favoritos' });
+    const { userId } = await altaAbierta('Favoritos');
 
     const club = await primeraFila<{ id: string }>('select id from core.club order by id limit 1');
     const equipo = await primeraFila<{ id: string }>('select id from core.team_entry order by id limit 1');

@@ -16,6 +16,8 @@ import { EsqueletoContenido } from '@/componentes/competicion/EsqueletoContenido
 import { Goleadores } from '@/componentes/competicion/Goleadores';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
+import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
+import { rutaDeActa, tieneActa } from '@/lib/acta';
 import { etiquetaCategoria, etiquetaDivision } from '@/lib/vocabulario-pantalla';
 
 /**
@@ -79,17 +81,21 @@ export default async function PantallaCompeticion({ params, searchParams }: {
   let portada: FilaPortadaGrupo | undefined;
   let hermanos: FilaGrupoDeLaEdicion[] = [];
   let temporadas: FilaEdicionDeLaCompeticion[] = [];
+  let partidos: FilaPartidoCanonico[] = [];
   try {
     portada = await portadaDe(id);
     if (portada) {
-      // Los desplegables de la cabecera van arriba: se resuelven antes del límite de suspensión.
-      const [h, t] = await consultaEnUnaFoto([
+      // Los desplegables de la cabecera y los partidos van arriba: la fecha derecha de la barra es la
+      // de la última jornada JUGADA y hay que saberla antes de pintar la cabecera.
+      const [h, t, p] = await consultaEnUnaFoto([
         { sql: GRUPOS_DE_LA_EDICION.sql, parametros: [portada.edicion_id] },
         { sql: EDICIONES_DE_LA_COMPETICION.sql, parametros: [portada.grupo_id] },
+        { sql: PARTIDOS_DE_GRUPO.sql, parametros: [portada.federacion, portada.grupo_codigo, 400] },
       ]);
       hermanos = h as unknown as FilaGrupoDeLaEdicion[];
       // El desplegable no ofrece temporadas que el pie declara no publicadas (hallazgo I9 del QA).
       temporadas = temporadasPublicables(t as unknown as FilaEdicionDeLaCompeticion[], undefined, portada?.edicion_id);
+      partidos = p as unknown as FilaPartidoCanonico[];
     }
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
@@ -100,6 +106,7 @@ export default async function PantallaCompeticion({ params, searchParams }: {
   if (!portada) notFound();
   const grupo = portada;
   const ruta = `/explorar/competicion/${grupo.grupo_id}`;
+  const fechaUltimaJugada = fechaUltimaJugadaDePortada(grupo) ?? fechaUltimaJugadaDePartidos(partidos);
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -122,10 +129,11 @@ export default async function PantallaCompeticion({ params, searchParams }: {
         rutaBase={ruta}
         fechaInicio={grupo.fecha_inicio}
         fechaFin={grupo.fecha_fin}
+        fechaUltimaJugada={fechaUltimaJugada}
       />
 
       <Suspense fallback={<EsqueletoContenido filas={Math.max(1, grupo.equipos)} />}>
-        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} />
+        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} />
       </Suspense>
     </div>
   );
@@ -135,28 +143,27 @@ export default async function PantallaCompeticion({ params, searchParams }: {
  * Todo lo que va debajo de la cabecera. Se lee en UNA sola foto del canónico: así la tabla, la forma, la
  * jornada y los goleadores no se contradicen si el importador escribe justo en ese momento.
  */
-async function Contenido({ grupo, jornadaPedida }: {
+async function Contenido({ grupo, jornadaPedida, partidos }: {
   grupo: FilaPortadaGrupo;
   jornadaPedida: string | undefined;
+  /** Los partidos ya se pidieron arriba: los necesita la fecha de la barra y la forma de la tabla. */
+  partidos: readonly FilaPartidoCanonico[];
 }) {
   let clasificacion: FilaClasificacionPantalla[] = [];
   let zonas: FilaZonas[] = [];
   let goleadores: FilaRanking[] = [];
-  let partidos: FilaPartidoCanonico[] = [];
   try {
-    const [c, z, g, p] = await consultaEnUnaFoto([
+    const [c, z, g] = await consultaEnUnaFoto([
       { sql: CLASIFICACION_DE_LA_PANTALLA.sql, parametros: [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
         sql: RANKING_GOLEADORES.sql,
         parametros: [grupo.federacion, grupo.temporada, null, null, grupo.grupo_id, 1, 8],
       },
-      { sql: PARTIDOS_DE_GRUPO.sql, parametros: [grupo.federacion, grupo.grupo_codigo, 400] },
     ]);
     clasificacion = c as unknown as FilaClasificacionPantalla[];
     zonas = z as unknown as FilaZonas[];
     goleadores = g as unknown as FilaRanking[];
-    partidos = p as unknown as FilaPartidoCanonico[];
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
       return <SinCanonico titulo="Competición" motivo={error.message} />;
@@ -200,6 +207,7 @@ async function Contenido({ grupo, jornadaPedida }: {
           partidos={partidosDeLaJornada}
           hrefAnterior={anterior === null ? null : conJornada(anterior)}
           hrefSiguiente={siguiente === null ? null : conJornada(siguiente)}
+          hrefActa={(partido) => (tieneActa(partido.calidad_acta) ? rutaDeActa(partido.match_id) : null)}
         />
         <Goleadores filas={goleadores} />
       </aside>

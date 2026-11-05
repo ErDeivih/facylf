@@ -30,7 +30,7 @@ export function EscudoFederacion({ codigo, nombre, tieneEscudo }: {
         alt=""
         aria-hidden="true"
         data-escudo="real"
-        loading="lazy"
+        loading="eager"
         decoding="async"
         className="size-14 flex-none rounded-[var(--radius-tarjeta)] object-contain"
       />

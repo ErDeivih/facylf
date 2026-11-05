@@ -46,6 +46,16 @@ export type FilaPortadaGrupo = {
   fecha_inicio: string | null;
   fecha_fin: string | null;
   /**
+   * Fecha del último partido CON RESULTADO publicado (`goles_local` y `goles_visitante` no nulos), no la
+   * última jornada programada. Es lo que necesita la barra de temporada para poner a la derecha hasta
+   * dónde se ha jugado de verdad. `null` si el grupo no tiene ningún resultado.
+   *
+   * Opcional en el tipo por la misma razón que `federacion_tiene_escudo`: `columnas` lo exige en cada
+   * fila y la prueba de contrato lo comprueba contra el canónico, pero una fila construida a mano no
+   * tiene que inventarse una fecha.
+   */
+  fecha_ultima_jugada?: string | null;
+  /**
    * Si la federación dueña de la competición tiene escudo vigente en `core.federation_asset`. Es lo que
    * decide si la cabecera pinta el escudo real o el marcador con las siglas. `false` no es «no lo sé»:
    * la consulta comprueba el registro vigente y, si no hay, no hay.
@@ -70,7 +80,7 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
     'edicion_id', 'grupo', 'grupo_codigo', 'categoria', 'division', 'modalidad', 'genero', 'ambito',
     'jornadas_previstas', 'equipos', 'partidos_conocidos', 'partidos_con_resultado',
     'complete_through_matchday', 'visibility_state', 'jornada_actual', 'origen_clasificacion', 'calculado_en',
-    'fecha_inicio', 'fecha_fin', 'federacion_tiene_escudo'],
+    'fecha_inicio', 'fecha_fin', 'fecha_ultima_jugada', 'federacion_tiene_escudo'],
   sql: `
     select g.id                       as grupo_id,
            f.codigo                   as federacion,
@@ -108,6 +118,13 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
               from core.match m where m.phase_group_id = g.id) as fecha_inicio,
            (select to_char(max(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
               from core.match m where m.phase_group_id = g.id) as fecha_fin,
+           -- Última fecha JUGADA: sólo partidos con resultado publicado. «fecha_fin» mezcla jugados y
+           -- programados; la barra de temporada necesita la de verdad para no afirmar que se jugó una
+           -- jornada que sólo está en el calendario.
+           (select to_char(max(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
+              from core.match m
+             where m.phase_group_id = g.id
+               and m.goles_local is not null and m.goles_visitante is not null) as fecha_ultima_jugada,
            -- El escudo de la federación (0056) se pide con un EXISTS: la cabecera sólo necesita saber
            -- si existe, no el binario. La web lo pide aparte a la ruta de escudos de federación y sólo
            -- si esto es cierto, así que una federación sin escudo no genera ni una petición.
@@ -224,6 +241,11 @@ export type FilaClasificacionPantalla = {
   club_id?: number | null;
   /** Si ese club tiene escudo vigente en `core.club_asset`. `false` = no hay; no es una incógnita. */
   tiene_escudo?: boolean | null;
+  /**
+   * Nombre corto de la inscripción (`analytics.nombre_corto_equipo`, 0060) para la tabla donde el
+   * nombre completo no cabe. `null` si todavía no se ha derivado; el componente cae al nombre completo.
+   */
+  equipo_corto?: string | null;
 };
 
 /**
@@ -241,7 +263,7 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
   presupuestoMs: 400,
   columnas: ['posicion', 'equipo_id', 'equipo', 'puntos', 'jugados', 'ganados', 'empatados', 'perdidos',
     'goles_favor', 'goles_contra', 'goles_favor_reconstruida', 'goles_contra_reconstruida', 'origen', 'jornada',
-    'club_id', 'tiene_escudo'],
+    'club_id', 'tiene_escudo', 'equipo_corto'],
   sql: `
     with elegido as (
       select case
@@ -275,13 +297,16 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
            -- vigente (club_asset_vigente_unico_idx), así que no hay recorrido completo.
            cl.id               as club_id,
            exists (select 1 from core.club_asset ca
-                    where ca.club_id = cl.id and ca.tipo = 'escudo' and ca.vigente) as tiene_escudo
+                    where ca.club_id = cl.id and ca.tipo = 'escudo' and ca.vigente) as tiene_escudo,
+           -- Nombre corto guardado (0060) para la tabla: una lectura por fila y sin reglas en el JSX.
+           nce.nombre_corto    as equipo_corto
       from core.standing_snapshot s
       join elegido el on el.origen = s.origen
       join ultima u on u.id = s.matchday_id
       join core.team_entry te on te.id = s.team_entry_id
       join core.team_season ts on ts.id = te.team_season_id
       join core.club cl on cl.id = ts.club_id
+      left join analytics.nombre_corto_equipo nce on nce.team_entry_id = te.id
       join core.matchday d on d.id = s.matchday_id
       left join lateral (
         select sr.goles_favor, sr.goles_contra

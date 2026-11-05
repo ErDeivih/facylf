@@ -416,8 +416,8 @@ describe('rutas, títulos y validación del id de la URL', () => {
 
   it('la pestaña del navegador dice qué competición y qué grupo', () => {
     expect(tituloDeCalendarioGrupo({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Calendario · Liga Nacional Juvenil · Primera - III — facylf');
-    expect(TITULO_DE_CALENDARIO).toBe('Calendario — facylf');
+      .toBe('Calendario · Liga Nacional Juvenil · Primera - III — Balompié');
+    expect(TITULO_DE_CALENDARIO).toBe('Calendario — Balompié');
   });
 });
 

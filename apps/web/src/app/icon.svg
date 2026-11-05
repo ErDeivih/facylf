@@ -1,14 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="32" height="32">
   <!--
-    Marca de la cabecera (componentes/cabecera/CabeceraSitio.tsx, IconoMarca): cuadrado redondeado con
-    el círculo y la cruz. Favicon servido por Next (convención app/icon.svg).
+    Favicon de Balompie: el mismo dibujo que el logotipo de la cabecera
+    (componentes/marca/Logotipo.tsx), una cancha con linea de medio campo y circulo central sobre la
+    baldosa del acento.
 
-    Es un fichero estático y el navegador lo carga fuera de la página: no hereda variables CSS, así
-    que lleva como literales los valores de los tokens de acento 700 y tinta 50 (tokens.css). No es un
-    componente: aquí no hay tokens que aplicar. (Sin guiones dobles en este comentario: XML no los
-    admite dentro de un comentario y el icono dejaría de parsearse.)
+    Es un fichero estatico que el navegador carga fuera de la pagina: no hereda variables CSS, asi que
+    lleva como literales los valores de los tokens de acento 700 y tinta 50 (tokens.css). No es un
+    componente: aqui no hay tokens que aplicar. Sin guiones dobles en este comentario porque XML no los
+    admite dentro de un comentario y el icono dejaria de parsearse.
   -->
   <rect width="28" height="28" rx="7" fill="oklch(0.45 0.105 215)" />
-  <circle cx="14" cy="14" r="7" fill="none" stroke="oklch(0.98 0.003 250)" stroke-width="2" />
-  <path d="M14 7v14M7 14h14" stroke="oklch(0.98 0.003 250)" stroke-width="1.5" />
+  <g fill="none" stroke="oklch(0.98 0.003 250)" stroke-width="1.6" stroke-linejoin="round">
+    <rect x="4.5" y="4.5" width="19" height="19" rx="3.5" />
+    <path d="M4.5 14h19" />
+    <circle cx="14" cy="14" r="3.4" />
+  </g>
 </svg>

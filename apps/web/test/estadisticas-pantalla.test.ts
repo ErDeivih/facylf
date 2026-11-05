@@ -188,9 +188,9 @@ describe('los filtros de la página de estadísticas', () => {
 
   it('las rutas y títulos de la pantalla', () => {
     expect(rutaDeEstadisticas(3769)).toBe('/explorar/competicion/3769/estadisticas');
-    expect(TITULO_ESTADISTICAS).toBe('Estadísticas — facylf');
+    expect(TITULO_ESTADISTICAS).toBe('Estadísticas — Balompié');
     expect(tituloDeEstadisticasGrupo({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Estadísticas · Liga Nacional Juvenil · Primera - III — facylf');
+      .toBe('Estadísticas · Liga Nacional Juvenil · Primera - III — Balompié');
   });
 });
 
