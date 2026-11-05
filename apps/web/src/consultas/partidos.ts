@@ -254,11 +254,281 @@ export const CLASIFICACION_DEL_GRUPO: Consulta<FilaClasificacion> = {
      limit 40`,
 };
 
-export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO] as const;
+/* ────────────────────────────────────────────────────────────────────────────────────────────────────
+ * ACTA DEL PARTIDO
+ * ──────────────────────────────────────────────────────────────────────────────────────────────────── */
+
+/** Un evento del acta, tal y como viaja en el JSON de `acta-del-partido`. */
+export type EventoDeActa = {
+  evento_id: number;
+  /** `gol`, `tarjeta_amarilla`, `tarjeta_roja`, `entra`, `sale` u `otro`. */
+  tipo: string;
+  /** En goles: `normal`, `penalti` o `propia_puerta`. En rojas, `doble_amarilla`. */
+  subtipo: string | null;
+  minuto: number | null;
+  /** Minutos de descuento publicados (90+3 → `minuto` 90, `minuto_extra` 3). */
+  minuto_extra: number | null;
+  lado: 'local' | 'visitante' | null;
+  /**
+   * En un gol en propia puerta, `lado` es el equipo del jugador que la mete y `lado_beneficiado` el que
+   * suma el gol. El marcador del acta se lee siempre por `lado_beneficiado`.
+   */
+  lado_beneficiado: 'local' | 'visitante' | null;
+  /** `jugador`, `tecnico`, `arbitro` o `desconocido`: no todo lo que se apunta en un acta es un jugador. */
+  sujeto_tipo: string;
+  persona_id: number | null;
+  /** Nombre publicado de la persona; `null` si la fuente no lo publicó (no se inventa). */
+  persona: string | null;
+  equipo_id: number | null;
+};
+
+/** Una persona convocada en el acta, con su condición y su dorsal. */
+export type JugadorDeActa = {
+  persona_id: number;
+  lado: 'local' | 'visitante';
+  /** `starter`, `substitute` o `called_up_unknown` (convocado sin condición publicada). */
+  condicion: string;
+  dorsal: number | null;
+  portero: boolean;
+  orden: number;
+  persona: string;
+  posicion: string | null;
+  capitan: boolean | null;
+};
+
+/** Un árbitro del partido. `rol` es el del esquema (`principal`, `asistente1`…). */
+export type OficialDeActa = {
+  rol: string;
+  persona: string;
+};
+
+/** Un miembro del cuerpo técnico, con el lado al que pertenece. */
+export type TecnicoDeActa = {
+  lado: 'local' | 'visitante' | null;
+  rol: string;
+  persona: string;
+};
+
+/** Un enfrentamiento anterior entre los dos clubes, en la misma categoría. */
+export type EnfrentamientoPrevio = {
+  match_id: number;
+  fecha: string | null;
+  temporada: string;
+  jornada: number;
+  local: string;
+  visitante: string;
+  goles_local: number | null;
+  goles_visitante: number | null;
+};
+
+/**
+ * Lo que la pantalla del acta necesita de un partido: contexto, marcador, calidad del acta y todo el
+ * contenido del acta en cinco bloques JSON. Una fila por partido.
+ */
+export type FilaActaCanonica = {
+  match_id: number;
+  jornada: number;
+  federacion: string;
+  federacion_nombre: string;
+  temporada: string;
+  edicion: string;
+  edicion_id: number;
+  categoria: string;
+  division: string;
+  modalidad: string;
+  ambito: string;
+  grupo_id: number;
+  grupo: string;
+  grupo_codigo: string;
+  fecha: string | null;
+  fecha_prevista: string | null;
+  hora: string | null;
+  campo: string | null;
+  municipio: string | null;
+  local: string;
+  visitante: string;
+  local_id: number;
+  visitante_id: number;
+  local_club_id: number | null;
+  visitante_club_id: number | null;
+  local_tiene_escudo: boolean;
+  visitante_tiene_escudo: boolean;
+  goles_local: number | null;
+  goles_visitante: number | null;
+  penaltis_local: number | null;
+  penaltis_visitante: number | null;
+  estado: string;
+  calidad_acta: string;
+  eventos: EventoDeActa[];
+  alineaciones: JugadorDeActa[];
+  oficiales: OficialDeActa[];
+  cuerpo_tecnico: TecnicoDeActa[];
+  enfrentamientos: EnfrentamientoPrevio[];
+};
+
+/**
+ * El acta completa de un partido, en UNA consulta. Parámetros: (1) `core.match.id`.
+ *
+ * Por qué el acta va entera en una fila con JSON: la pantalla necesita cinco listas (eventos,
+ * alineaciones, árbitros, cuerpo técnico y enfrentamientos anteriores) y pedirlas por separado sería
+ * un viaje por lista. Aquí cada bloque es una subconsulta correlacionada contra su índice por
+ * `match_id`, así que sigue siendo un recorrido indexado y una sola ida a la base, sin N+1.
+ *
+ * El filtro de calidad deja fuera las actas `unavailable`: la federación comprobó que no las ofrece y
+ * la página no puede inventarlas. Sin fila, la pantalla es un 404.
+ */
+export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
+  nombre: 'acta-del-partido',
+  descripcion: 'Acta completa de un partido: contexto, marcador, eventos con minuto y persona, alineaciones, árbitros, cuerpo técnico y enfrentamientos anteriores.',
+  plan: 'indexado',
+  presupuestoMs: 500,
+  columnas: ['match_id', 'jornada', 'federacion', 'federacion_nombre', 'temporada', 'edicion', 'edicion_id',
+    'categoria', 'division', 'modalidad', 'ambito', 'grupo_id', 'grupo', 'grupo_codigo', 'fecha',
+    'fecha_prevista', 'hora', 'campo', 'municipio', 'local', 'visitante', 'local_id', 'visitante_id',
+    'local_club_id', 'visitante_club_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'goles_local',
+    'goles_visitante', 'penaltis_local', 'penaltis_visitante', 'estado', 'calidad_acta', 'eventos',
+    'alineaciones', 'oficiales', 'cuerpo_tecnico', 'enfrentamientos'],
+  sql: `
+    select m.id::int                           as match_id,
+           d.numero                            as jornada,
+           f.codigo                            as federacion,
+           coalesce(ff.nombre_corto, f.nombre)  as federacion_nombre,
+           s.etiqueta                          as temporada,
+           e.nombre_publicado                  as edicion,
+           e.id::int                           as edicion_id,
+           e.categoria,
+           e.division,
+           e.modalidad,
+           e.ambito,
+           g.id::int                           as grupo_id,
+           g.nombre                            as grupo,
+           g.codigo_externo                    as grupo_codigo,
+           to_char(m.played_at, 'YYYY-MM-DD')  as fecha,
+           to_char(m.fecha_prevista, 'YYYY-MM-DD') as fecha_prevista,
+           -- La hora se publica en hora local española y el importador la guarda tal cual sobre played_at
+           -- (timestamptz). Se lee en UTC para no sumar dos horas a la hora de la federación.
+           case when m.hora_confirmada and m.played_at is not null
+                then to_char(m.played_at at time zone 'UTC', 'HH24:MI') end as hora,
+           v.nombre                            as campo,
+           v.municipio                         as municipio,
+           el.nombre_en_fuente                 as local,
+           ev.nombre_en_fuente                 as visitante,
+           el.id::int                          as local_id,
+           ev.id::int                          as visitante_id,
+           tsl.club_id::int                    as local_club_id,
+           tsv.club_id::int                    as visitante_club_id,
+           exists (select 1 from core.club_asset cal
+                    where cal.club_id = tsl.club_id and cal.tipo = 'escudo' and cal.vigente) as local_tiene_escudo,
+           exists (select 1 from core.club_asset cav
+                    where cav.club_id = tsv.club_id and cav.tipo = 'escudo' and cav.vigente) as visitante_tiene_escudo,
+           m.goles_local,
+           m.goles_visitante,
+           m.penaltis_local,
+           m.penaltis_visitante,
+           m.official_status                   as estado,
+           r.quality                           as calidad_acta,
+           -- Eventos en el orden en que los publicó la federación: es el orden del acta, no una
+           -- reconstrucción por minuto. La página decide qué se agrupa (un cambio son dos eventos).
+           coalesce((select jsonb_agg(jsonb_build_object(
+                        'evento_id', x.id, 'tipo', x.event_type, 'subtipo', x.subtipo,
+                        'minuto', x.minute_base, 'minuto_extra', x.minute_added,
+                        'lado', x.lado, 'lado_beneficiado', x.lado_beneficiado,
+                        'sujeto_tipo', x.sujeto_tipo,
+                        'persona_id', x.person_id, 'persona', p.nombre_mostrado,
+                        'equipo_id', x.team_entry_id)
+                      order by x.source_order)
+                     from core.match_event x
+                     left join core.person p on p.id = x.person_id
+                    where x.match_id = m.id), '[]'::jsonb) as eventos,
+           coalesce((select jsonb_agg(jsonb_build_object(
+                        'persona_id', a.person_id, 'lado', a.lado, 'condicion', a.condition,
+                        'dorsal', a.dorsal, 'portero', a.portero, 'orden', a.orden,
+                        'persona', pa.nombre_mostrado,
+                        'posicion', ad.posicion, 'capitan', ad.capitan)
+                      order by a.lado,
+                               case a.condition when 'starter' then 0 when 'substitute' then 1 else 2 end,
+                               a.orden)
+                     from core.appearance a
+                     join core.person pa on pa.id = a.person_id
+                     left join core.appearance_detalle ad on ad.appearance_id = a.id
+                    where a.match_id = m.id), '[]'::jsonb) as alineaciones,
+           coalesce((select jsonb_agg(jsonb_build_object('rol', o.rol, 'persona', po.nombre_mostrado)
+                      order by case o.rol when 'principal' then 0 when 'asistente1' then 1
+                                           when 'asistente2' then 2 when 'cuarto' then 3 else 4 end)
+                     from core.match_official o
+                     join core.person po on po.id = o.person_id
+                    where o.match_id = m.id), '[]'::jsonb) as oficiales,
+           coalesce((select jsonb_agg(jsonb_build_object(
+                        'lado', case when st.team_entry_id = m.home_team_entry_id then 'local'
+                                     when st.team_entry_id = m.away_team_entry_id then 'visitante' end,
+                        'rol', st.rol, 'persona', ps.nombre_mostrado)
+                      order by st.team_entry_id, st.rol)
+                     from core.match_staff st
+                     join core.person ps on ps.id = st.person_id
+                    where st.match_id = m.id), '[]'::jsonb) as cuerpo_tecnico,
+           -- Enfrentamientos anteriores entre los dos clubes en la MISMA categoría. Se busca por club
+           -- y no por nombre: un nombre igual no une dos equipos. El índice de team_season por club
+           -- acota la búsqueda a los equipos de esos dos clubes, y los partidos se leen por el índice de
+           -- equipo-fecha de la tabla de partidos.
+           coalesce((select jsonb_agg(jsonb_build_object(
+                        'match_id', h.match_id, 'fecha', h.fecha, 'temporada', h.temporada,
+                        'jornada', h.jornada, 'local', h.local, 'visitante', h.visitante,
+                        'goles_local', h.goles_local, 'goles_visitante', h.goles_visitante)
+                      order by h.fecha desc)
+                     from (
+                       select m2.id as match_id,
+                              to_char(coalesce(m2.played_at, m2.fecha_prevista::timestamptz), 'YYYY-MM-DD') as fecha,
+                              s2.etiqueta as temporada,
+                              d2.numero   as jornada,
+                              el2.nombre_en_fuente as local,
+                              ev2.nombre_en_fuente as visitante,
+                              m2.goles_local,
+                              m2.goles_visitante
+                         from core.team_entry el2
+                         join core.team_season tsl2 on tsl2.id = el2.team_season_id
+                         join core.match m2 on m2.home_team_entry_id = el2.id
+                         join core.team_entry ev2 on ev2.id = m2.away_team_entry_id
+                         join core.team_season tsv2 on tsv2.id = ev2.team_season_id
+                         join core.matchday d2 on d2.id = m2.matchday_id
+                         join core.phase_group g2 on g2.id = m2.phase_group_id
+                         join core.competition_edition e2 on e2.id = g2.competition_edition_id
+                         join core.season s2 on s2.id = e2.season_id
+                        where ((tsl2.club_id = tsl.club_id and tsv2.club_id = tsv.club_id)
+                            or (tsl2.club_id = tsv.club_id and tsv2.club_id = tsl.club_id))
+                          and tsl2.categoria = e.categoria
+                          and tsv2.categoria = e.categoria
+                          and m2.played_at is not null
+                          and m2.goles_local is not null
+                          and m2.id <> m.id
+                          and coalesce(m2.played_at, m2.fecha_prevista::timestamptz)
+                              < coalesce(m.played_at, m.fecha_prevista::timestamptz)
+                        order by m2.played_at desc
+                        limit 4
+                     ) h), '[]'::jsonb) as enfrentamientos
+      from core.match m
+      join core.phase_group g on g.id = m.phase_group_id
+      join core.competition_edition e on e.id = g.competition_edition_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      join core.season s on s.id = e.season_id
+      left join analytics.federacion_ficha ff on ff.codigo = f.codigo
+      join core.matchday d on d.id = m.matchday_id
+      join core.team_entry el on el.id = m.home_team_entry_id
+      join core.team_entry ev on ev.id = m.away_team_entry_id
+      join core.team_season tsl on tsl.id = el.team_season_id
+      join core.team_season tsv on tsv.id = ev.team_season_id
+      left join core.venue v on v.id = m.venue_id
+      join core.match_report r on r.match_id = m.id
+     where m.id = $1
+       and r.quality <> 'unavailable'
+     limit 1`,
+};
+
+export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
 
 export const PARAMETROS_PARTIDOS: Record<string, readonly unknown[]> = {
   'partidos-de-grupo': ['castilla-leon', '11379752', 400],
   'goles-de-partidos': ['castilla-leon', '11379752', 2000],
   'grupo-del-canónico': ['castilla-leon', '11379752'],
   'clasificación-del-grupo': ['castilla-leon', '11379752'],
+  'acta-del-partido': [94040],
 };

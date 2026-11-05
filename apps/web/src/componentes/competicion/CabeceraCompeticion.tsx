@@ -8,6 +8,7 @@ import { SelectorEnlace } from './SelectorEnlace';
 const PESTANAS = [
   { texto: 'Clasificación', activa: true },
   { texto: 'Jornadas', activa: false },
+  { texto: 'Calendario', activa: false },
   { texto: 'Goleadores', activa: false },
   { texto: 'Disciplina', activa: false },
   { texto: 'Equipos', activa: false },
@@ -29,7 +30,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
   fechaInicio: string | null;
   fechaFin: string | null;
   /** Pestaña que se está viendo; las dos que tienen pantalla se marcan y enlazan. */
-  activa?: 'clasificacion' | 'jornadas';
+  activa?: 'clasificacion' | 'jornadas' | 'calendario';
 }) {
   const totalJornadas = grupo.jornadas_previstas;
   const jornadaActual = grupo.jornada_actual;
@@ -105,8 +106,15 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
       <nav aria-label="Secciones" className="relative flex gap-0.5 overflow-x-auto border-t border-[var(--fondo-sutil)] px-3 py-1">
         {PESTANAS.map((p) => {
           const esActiva = (p.texto === 'Clasificación' && activa === 'clasificacion')
-            || (p.texto === 'Jornadas' && activa === 'jornadas');
-          const href = p.texto === 'Clasificación' ? rutaBase : p.texto === 'Jornadas' ? `${rutaBase}/jornadas` : null;
+            || (p.texto === 'Jornadas' && activa === 'jornadas')
+            || (p.texto === 'Calendario' && activa === 'calendario');
+          const href = p.texto === 'Clasificación'
+            ? rutaBase
+            : p.texto === 'Jornadas'
+              ? `${rutaBase}/jornadas`
+              : p.texto === 'Calendario'
+                ? `${rutaBase}/calendario`
+                : null;
           if (href === null) {
             return (
               <span key={p.texto} aria-disabled="true"

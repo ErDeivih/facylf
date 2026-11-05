@@ -89,7 +89,7 @@ export default async function PantallaCompeticion({ params, searchParams }: {
       ]);
       hermanos = h as unknown as FilaGrupoDeLaEdicion[];
       // El desplegable no ofrece temporadas que el pie declara no publicadas (hallazgo I9 del QA).
-      temporadas = temporadasPublicables(t as unknown as FilaEdicionDeLaCompeticion[]);
+      temporadas = temporadasPublicables(t as unknown as FilaEdicionDeLaCompeticion[], undefined, portada?.edicion_id);
     }
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {

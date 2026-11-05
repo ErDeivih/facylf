@@ -62,7 +62,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
               return (
                 <li key={p.match_id}
                   className="grid min-h-11 grid-cols-[minmax(0,1fr)_58px_minmax(0,1fr)] items-center gap-2 border-t border-[var(--fondo-sutil)] px-3.5 py-2 text-tabla text-[var(--texto)]">
-                  <span className={`truncate text-right ${ganaLocal ? 'font-bold' : 'font-medium'}`} title={p.local}>{p.local}</span>
+                  <Link href={`/explorar/equipo/${p.local_id}`} className={`truncate text-right hover:underline ${ganaLocal ? 'font-bold' : 'font-medium'}`} title={p.local}>{p.local}</Link>
                   <span
                     title={marcador.accesible}
                     className={marcador.jugado
@@ -71,7 +71,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
                     {marcador.texto}
                     <span className="sr-only">, {marcador.accesible}</span>
                   </span>
-                  <span className={`truncate ${ganaVisitante ? 'font-bold' : 'font-medium'}`} title={p.visitante}>{p.visitante}</span>
+                  <Link href={`/explorar/equipo/${p.visitante_id}`} className={`truncate hover:underline ${ganaVisitante ? 'font-bold' : 'font-medium'}`} title={p.visitante}>{p.visitante}</Link>
                 </li>
               );
             })}

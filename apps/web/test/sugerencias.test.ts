@@ -48,7 +48,7 @@ describe('sugerencias del buscador · nombres de menores', () => {
     expect(sugerencia.titulo).toBe('BURGO GARCIA, PABLO');
     expect(JSON.stringify(sugerencia)).toContain('BURGO');
     // El enlace se conserva y no hay ninguna foto en la sugerencia.
-    expect(sugerencia.url).toBe('/jugador/1586364');
+    expect(sugerencia.url).toBe('/explorar/jugador/1586364');
   });
 
   it('un jugador adulto conserva el literal que publica la federación', () => {
@@ -70,7 +70,7 @@ describe('sugerencias del buscador · nombres de menores', () => {
       tipo: 'club', nombre: 'BURGOS CF', es_menor: true, identidad_nominal: true, entidad_id: 22464,
     }));
     expect(sugerencia.titulo).toBe('BURGOS CF');
-    expect(sugerencia.url).toBe('/club/22464');
+    expect(sugerencia.url).toBe('/explorar/club/22464');
     expect(sugerencia.meta).toBe('');
   });
 
@@ -97,7 +97,7 @@ describe('sugerencias del buscador · el panel flotante', () => {
       titulo: 'BURGO GARCIA, PABLO',
       subtitulo: 'Real Federación de Castilla y León de Fútbol · C.D. Cuatrovientos · 2026-27',
       meta: 'identidad nominal',
-      url: '/jugador/1586364',
+      url: '/explorar/jugador/1586364',
       territorio: 'Real Federación de Castilla y León de Fútbol',
     }],
   };

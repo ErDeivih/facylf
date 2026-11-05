@@ -138,7 +138,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const datos = await respuesta.json() as { resultados: Array<{ tipo: string; titulo: string; url: string }> };
     const jugadores = datos.resultados.filter((r) => r.tipo === 'jugador');
     expect(jugadores.length).toBeGreaterThan(0);
-    const MENORES_BURG = new Set(['/jugador/1586364', '/jugador/1520230', '/jugador/1567937', '/jugador/1353383']);
+    const MENORES_BURG = new Set(['/explorar/jugador/1586364', '/explorar/jugador/1520230', '/explorar/jugador/1567937', '/explorar/jugador/1353383']);
     const menores = jugadores.filter((j) => MENORES_BURG.has(j.url));
     expect(menores.length).toBe(MENORES_BURG.size);
     for (const j of menores) {
@@ -156,7 +156,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
       page.waitForResponse((r) => r.url().includes('/api/buscar?q=burg') && r.status() === 200),
       buscador.pressSequentially('burg', { delay: 60 }),
     ]);
-    await expect(page.locator('a[href^="/jugador/"]').first()).toBeVisible();
+    await expect(page.locator('a[href^="/explorar/jugador/"]').first()).toBeVisible();
 
     // axe con el panel ABIERTO: la e2e solo medía el estado cerrado y el contraste del meta se colaba.
     const resultado = await new AxeBuilder({ page }).analyze();
@@ -233,6 +233,47 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const partidos = page.locator('section', { has: page.getByRole('heading', { name: 'Partidos' }) });
     await expect(partidos).toBeVisible();
     await expect(partidos).not.toContainText(/canónico|reconstruid|cálculo|según el reglamento/i);
+  });
+
+  test('desde la jornada se abre el acta con cronología y alineaciones', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}/jornada/4`);
+    const enlace = page.locator('a[href*="/explorar/acta/"]').first();
+    await expect(enlace).toBeVisible();
+    await enlace.click();
+    await expect(page).toHaveURL(/\/explorar\/acta\/\d+$/);
+    await expect(page.getByRole('heading', { name: /^Acta:/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Cronología' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Alineaciones' })).toBeVisible();
+  });
+
+  test('el calendario del grupo y el global responden con sus pestañas', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}/calendario`);
+    await expect(page.getByRole('heading', { name: 'Calendario' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Calendario' })).toHaveAttribute('aria-current', 'page');
+    await page.goto('/explorar/calendario');
+    await expect(page.getByRole('heading', { name: 'Calendario' }).first()).toBeVisible();
+  });
+
+  test('la ficha de equipo se abre desde la clasificación y la de jugador desde el acta', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    await page.locator('table tbody tr').first().locator('a[href^="/explorar/equipo/"]').click();
+    await expect(page).toHaveURL(/\/explorar\/equipo\/\d+$/);
+    await expect(page.locator('h1').first()).toBeVisible();
+
+    await page.goto('/explorar/acta/94040');
+    await page.locator('a[href^="/explorar/jugador/"]').first().click();
+    await expect(page).toHaveURL(/\/explorar\/jugador\/\d+$/);
+    await expect(page.locator('h1').first()).toBeVisible();
+  });
+
+  test('el selector resuelve «Segunda Juvenil 2017, Burgos» y abre la temporada histórica', async ({ page }) => {
+    await page.goto('/explorar/competiciones?fed=castilla-leon&temp=2016-17&cat=juvenil&q=Segunda');
+    const enlace = page.locator('a[href="/explorar/competicion/30665"]');
+    await expect(enlace).toBeVisible();
+    await enlace.click();
+    await expect(page).toHaveURL(/\/explorar\/competicion\/30665$/);
+    await expect(page.locator('#selector-temporada')).toHaveValue('30665');
+    await expect(page.getByRole('heading', { name: /2016-17|Segunda|Juvenil/i }).first()).toBeVisible();
   });
 
   test('los nombres se publican y no hay fotos de personas', async ({ page }) => {

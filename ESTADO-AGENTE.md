@@ -1,8 +1,8 @@
 titulo: FACYLF — plataforma de futbol federado de Castilla y Leon
 estado: en-curso
-tarea: revisión de David aplicada: escudos, zonas, textos, menores y registro preparado; pantalla Jornada hecha
+tarea: bloque 2 del mapa: todas las páginas del prototipo con backend; WALL creado
 nivel: 2
-siguiente: pantalla Acta del partido (siguiente de la primera tanda), con datos reales de CyL
+siguiente: Acta del partido (WALL 1), en paralelo calendario completo y fichas
 bloqueado:
-resumen: La pantalla 2 ya enseña escudos reales de club y el escudo de la federación, la clasificación marca 1 ascenso y 3 descensos como dicen las bases, los nombres se publican también en categorías de base (las fotos no) y se han quitado los textos internos; además están hechas la pantalla Jornada (listado y detalle) y el diseño preparado de entrada/registro. Quedan el acta del partido y la ficha de equipo de la primera tanda.
+resumen: Se acabaron las explicaciones: el bloque 2 del mapa manda implementar todas las páginas del prototipo con backend. El WALL.md recoge las siete casillas por orden (acta, calendario completo, fichas, selector de competición inventada, estadísticas, backend/caché y registro con favoritos). Ya están hechas clasificación y jornada; ahora se están construyendo acta, calendario y fichas con datos reales del canónico.
 fecha: 2026-11-05

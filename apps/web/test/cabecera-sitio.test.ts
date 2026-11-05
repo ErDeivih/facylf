@@ -61,7 +61,7 @@ describe('cabecera del sitio · la barra del prototipo', () => {
 
   it('la navegación Funciones enseña Explorar como enlace y el resto desactivado, no como enlaces muertos', () => {
     const nav = navFunciones(pinta());
-    expect(nav).toMatch(/<a[^>]*href="\/competiciones"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/competiciones"/);
     for (const texto of ['Explorar', 'Rankings', 'Ojeo', 'Comparar']) {
       expect(nav).toContain(texto);
     }
@@ -120,6 +120,7 @@ describe('cabecera del sitio · qué ruta deja activa una sección', () => {
   it('Explorar está activa en su catálogo real y en las pantallas de explorar', () => {
     expect(seccionActiva('/explorar')).toBe('explorar');
     expect(seccionActiva('/explorar/competicion/3769')).toBe('explorar');
+    expect(seccionActiva('/explorar/competiciones')).toBe('explorar');
     expect(seccionActiva('/competiciones')).toBe('explorar');
     expect(seccionActiva('/competiciones/2025-26')).toBe('explorar');
   });

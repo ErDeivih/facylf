@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { FilaClasificacionPantalla } from '@/consultas/competiciones';
 import { Escudo } from '@/componentes/Escudo';
 import { insigniaForma } from '@/lib/forma-equipo';
@@ -113,10 +114,11 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             pantalla lo lee entero) y en el `title` para el ratón. En escritorio no se
                             recorta: la tabla cabe.
                           */}
-                          <span className="block max-w-[11rem] truncate font-medium text-[var(--texto)] md:max-w-none"
+                          <Link href={`/explorar/equipo/${f.equipo_id}`}
+                            className="block max-w-[11rem] truncate font-medium text-[var(--texto)] hover:underline md:max-w-none"
                             title={f.equipo}>
                             {f.equipo}
-                          </span>
+                          </Link>
                         </div>
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">{f.jugados}</td>

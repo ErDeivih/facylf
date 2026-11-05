@@ -145,7 +145,7 @@ export function CabeceraSitio({
             <ul className="flex items-center gap-1 overflow-x-auto [scrollbar-width:thin]">
               <li className="shrink-0">
                 <Link
-                  href="/competiciones"
+                  href="/explorar/competiciones"
                   aria-current={activo === 'explorar' ? 'page' : undefined}
                   className={claseSeccion(activo === 'explorar')}
                 >

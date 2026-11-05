@@ -36,7 +36,7 @@ export function resultadoDeSugerencia(fila: FilaBusqueda): Sugerencia {
     titulo: esJugador ? nombreVisible(fila.es_menor, fila.nombre) : fila.nombre,
     subtitulo: [fila.federacion_nombre, fila.contexto].filter(Boolean).join(' · ') || 'Sin contexto en el canónico',
     meta: esJugador && fila.identidad_nominal ? 'identidad nominal' : '',
-    url: fila.tipo === 'club' ? `/club/${fila.entidad_id}` : `/jugador/${fila.entidad_id}`,
+    url: fila.tipo === 'club' ? `/explorar/club/${fila.entidad_id}` : `/explorar/jugador/${fila.entidad_id}`,
     territorio: fila.federacion_nombre ?? '',
   };
 }

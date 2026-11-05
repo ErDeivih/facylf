@@ -38,7 +38,7 @@ export type JornadaResumen = {
 };
 
 /** La fecha que se enseña de un partido: la jugada y, si aún no se jugó, la prevista publicada. */
-export function fechaDePartido(p: PartidoDeJornada): string | null {
+export function fechaDePartido(p: { fecha: string | null; fecha_prevista?: string | null }): string | null {
   const jugada = (p.fecha ?? '').slice(0, 10);
   if (jugada !== '') return jugada;
   const prevista = (p.fecha_prevista ?? '').slice(0, 10);

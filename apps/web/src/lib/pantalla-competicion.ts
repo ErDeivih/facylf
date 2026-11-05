@@ -263,11 +263,14 @@ const conocida = (v: string | null | undefined): v is string =>
  * que el pie (`lib/temporadas.ts`), sin tocar la consulta: la pantalla de una temporada antigua sigue
  * sirviéndose por URL, pero no se ofrece desde la cabecera.
  */
-export function temporadasPublicables<T extends { temporada: string }>(
+export function temporadasPublicables<T extends { temporada: string; edicion_id?: number }>(
   temporadas: readonly T[],
   minima: string = TEMPORADA_MINIMA,
+  incluirEdicion?: number | null,
 ): T[] {
-  return temporadas.filter((t) => t.temporada >= minima);
+  return temporadas.filter(
+    (t) => t.temporada >= minima || (incluirEdicion != null && t.edicion_id === incluirEdicion),
+  );
 }
 
 /**

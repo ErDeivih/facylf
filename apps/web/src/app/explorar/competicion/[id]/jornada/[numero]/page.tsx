@@ -8,6 +8,7 @@ import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraJornada } from '@/componentes/competicion/CabeceraJornada';
 import { MigaCompeticion } from '@/componentes/competicion/MigaCompeticion';
 import { PartidosDeJornada } from '@/componentes/competicion/PartidosDeJornada';
+import { rutaDeActa, tieneActa } from '@/lib/acta';
 import {
   detalleDeJornada, numeroDeJornada, rangoDeFechas, rutaDeJornada, rutaDeJornadas, tituloDeJornada,
   type PartidoDeJornada,
@@ -109,7 +110,13 @@ export default async function PantallaJornada({ params }: {
         hrefSiguiente={detalle.siguiente === null ? null : rutaDeJornada(portada.grupo_id, detalle.siguiente)}
         hrefClasificacion={`/explorar/competicion/${portada.grupo_id}`}
       />
-      <PartidosDeJornada jornada={detalle.jornada} partidos={detalle.partidos} />
+      <PartidosDeJornada
+        jornada={detalle.jornada}
+        partidos={detalle.partidos}
+        // Sólo los partidos con acta publicada enlazan: `unavailable` es «la fuente no la ofrece» y un
+        // enlace así llevaría a un 404.
+        hrefActa={(partido) => (tieneActa(partido.calidad_acta) ? rutaDeActa(partido.match_id) : null)}
+      />
     </div>
   );
 }

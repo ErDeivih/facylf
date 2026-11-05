@@ -12,9 +12,9 @@ import { fechaCorta } from '@/lib/vocabulario-pantalla';
  * Tres reglas que el componente hace cumplir y que son el motivo de que exista:
  *  · un partido sin marcador se pinta «—» y NUNCA 0-0: un cero se lee como un partido jugado;
  *  · sin hora publicada no hay hueco de hora (nada de 00:00), y sin campo tampoco;
- *  · el enlace al acta sólo existe si la pantalla de acta existe. Se recibe por `hrefActa` y hoy no se
- *    pasa porque esa pantalla todavía no está: un enlace muerto se ve igual que uno bueno hasta que se
- *    pulsa. Cuando exista, se pasa desde la página y sólo se enlazan los partidos con acta publicada.
+ *  · el enlace al acta sólo aparece si el partido tiene acta publicada: la página pasa `hrefActa`
+ *    devolviendo la ruta de `/explorar/acta/<id>` únicamente cuando `calidad_acta` no es nula ni
+ *    `unavailable`. Un partido sin acta no lleva a una página que no existe.
  *
  * Los escudos vienen en la MISMA fila del partido (`local_club_id`/`local_tiene_escudo` y sus parejas de
  * visitante): con escudo guardado se sirve `/api/escudo/club/<id>` y, si no lo hay, el marcador de

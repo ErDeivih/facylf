@@ -1,0 +1,27 @@
+{
+  "consulta": "acta-del-partido",
+  "presupuestoMs": 500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "BitmapOr",
+      "Hash",
+      "Hash Join",
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort",
+      "Subquery Scan"
+    ],
+    "seqScans": [
+      "appearance_detalle",
+      "season"
+    ],
+    "filas": 807
+  }
+}
