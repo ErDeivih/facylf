@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import {
-  canalesDeAviso, enmascaraCorreo, estadoDeCuenta, etiquetaCorreo, etiquetaRol, eventosActivos, fechaDia,
-  horaCorta, textoDelPaquete, type PerfilCuenta,
+  canalesDeAviso, enmascaraCorreo, estadoDeCuenta, etiquetaRol, fechaDia,
+  horaCorta, textoDelPaquete, ETIQUETAS_EVENTO, type PerfilCuenta,
 } from '@/lib/cuenta-pantalla';
 
 /**
@@ -22,16 +22,34 @@ const ENLACE_MENU = 'flex min-h-11 items-center rounded-[var(--radius-control)] 
 const BOTON = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
 const ETIQUETA = 'text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]';
 
-export function MiCuenta({ perfil, correo = null }: { perfil: PerfilCuenta; correo?: string | null }) {
+export function MiCuenta({ perfil, correo = null, aviso = null }: {
+  perfil: PerfilCuenta;
+  correo?: string | null;
+  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | null;
+}) {
   const estado = estadoDeCuenta(perfil);
   const correoVisible = correo === null ? null : enmascaraCorreo(correo);
   const preferencias = perfil.preferencias;
   const canales = canalesDeAviso(preferencias);
-  const eventos = eventosActivos(preferencias.eventos);
   return (
     <div className="mx-auto flex w-full max-w-[1040px] flex-col gap-[18px]">
       <header>
         <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">Mi cuenta</h1>
+        {aviso === 'preferencias' && (
+          <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">
+            Preferencias guardadas.
+          </p>
+        )}
+        {aviso === 'preferencias-error' && (
+          <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">
+            No se han guardado: revisa las horas y el modo de aviso.
+          </p>
+        )}
+        {aviso === 'origen' && (
+          <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">
+            La petición no venía de esta web; no se ha guardado nada.
+          </p>
+        )}
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
           {perfil.nombre !== null ? `Sesión de ${perfil.nombre}.` : 'Sesión abierta.'}
         </p>
@@ -73,8 +91,8 @@ export function MiCuenta({ perfil, correo = null }: { perfil: PerfilCuenta; corr
           <section id="avisos" aria-labelledby="avisos-titulo" className={`${TARJETA} flex flex-col gap-3`}>
             <h2 id="avisos-titulo" className="m-0 text-bloque font-bold text-[var(--texto)]">Avisos</h2>
             <p className="m-0 text-tabla text-[var(--texto-suave)]">
-              Los avisos automáticos todavía no se envían. Estas son las preferencias guardadas para cuando
-              estén disponibles.
+              Los avisos automáticos todavía no se envían. Puedes dejar guardadas tus preferencias para
+              cuando estén disponibles.
             </p>
             <dl className="m-0 grid gap-x-4 gap-y-2 sm:grid-cols-2">
               {canales.map((canal) => <Fila key={canal.etiqueta} etiqueta={canal.etiqueta} valor={canal.valor} />)}
@@ -82,24 +100,51 @@ export function MiCuenta({ perfil, correo = null }: { perfil: PerfilCuenta; corr
                 ? 'Ninguno'
                 : `${perfil.dispositivosPush} dispositivo${perfil.dispositivosPush === 1 ? '' : 's'}`} />
             </dl>
-            <div>
-              <p className={`m-0 ${ETIQUETA}`}>Eventos</p>
-              {eventos.length === 0
-                ? <p className="m-0 mt-0.5 text-tabla text-[var(--texto-suave)]">Ninguno seleccionado.</p>
-                : (
-                  <ul className="m-0 mt-1 flex list-none flex-wrap gap-1.5 p-0">
-                    {eventos.map((evento) => (
-                      <li key={evento} className="rounded-[999px] bg-[var(--fondo-sutil)] px-2.5 py-1 text-nota text-[var(--texto)]">
-                        {evento}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-            </div>
-            <p className="m-0 text-nota text-[var(--texto-suave)]">
-              Resumen por correo: {etiquetaCorreo(preferencias.correo)}
-              {preferencias.correo === 'resumen' ? ` a las ${horaCorta(preferencias.hora_resumen)}` : ''}.
-            </p>
+            <form action="/api/cuentas/preferencias" method="post" className="flex flex-col gap-3">
+              <label className="flex min-h-11 items-center gap-2 text-tabla text-[var(--texto)]">
+                <input type="checkbox" name="en_app" defaultChecked={preferencias.en_app} />
+                Avisos dentro de la aplicación
+              </label>
+              <label className="flex min-h-11 flex-col gap-1 text-tabla text-[var(--texto)]">
+                Correo
+                <select name="correo" defaultValue={preferencias.correo}
+                  className="h-11 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-cuerpo text-[var(--texto)]">
+                  <option value="nunca">Nunca</option>
+                  <option value="al_momento">Al momento</option>
+                  <option value="resumen">Un resumen al día</option>
+                </select>
+              </label>
+              <label className="flex min-h-11 flex-col gap-1 text-tabla text-[var(--texto)]">
+                Hora del resumen
+                <input type="time" name="hora_resumen" defaultValue={horaCorta(preferencias.hora_resumen)}
+                  className="h-11 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-cuerpo text-[var(--texto)]" />
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex min-h-11 flex-col gap-1 text-tabla text-[var(--texto)]">
+                  Silencio desde
+                  <input type="time" name="silencio_desde" defaultValue={preferencias.silencio_desde ? horaCorta(preferencias.silencio_desde) : ''}
+                    className="h-11 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-cuerpo text-[var(--texto)]" />
+                </label>
+                <label className="flex min-h-11 flex-col gap-1 text-tabla text-[var(--texto)]">
+                  Silencio hasta
+                  <input type="time" name="silencio_hasta" defaultValue={preferencias.silencio_hasta ? horaCorta(preferencias.silencio_hasta) : ''}
+                    className="h-11 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-cuerpo text-[var(--texto)]" />
+                </label>
+              </div>
+              <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
+                <legend className={`m-0 ${ETIQUETA}`}>Eventos</legend>
+                <div className="grid gap-1 sm:grid-cols-2">
+                  {Object.entries(ETIQUETAS_EVENTO).map(([codigo, etiqueta]) => (
+                    <label key={codigo} className="flex min-h-11 items-center gap-2 text-tabla text-[var(--texto)]">
+                      <input type="checkbox" name="eventos" value={codigo}
+                        defaultChecked={preferencias.eventos.includes(codigo)} />
+                      {etiqueta}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <button type="submit" className={BOTON}>Guardar preferencias</button>
+            </form>
           </section>
 
           <section id="seguridad" aria-labelledby="seguridad-titulo" className={`${TARJETA} flex flex-col gap-3`}>
@@ -121,7 +166,11 @@ export function MiCuenta({ perfil, correo = null }: { perfil: PerfilCuenta; corr
           <section id="tus-datos" aria-labelledby="tus-datos-titulo" className={`${TARJETA} flex flex-col gap-2`}>
             <h2 id="tus-datos-titulo" className="m-0 text-bloque font-bold text-[var(--texto)]">Tus datos</h2>
             <p className="m-0 text-tabla text-[var(--texto-suave)]">
-              La descarga de tus datos y la baja de la cuenta todavía no están disponibles desde la web.
+              Puedes descargar una copia de los datos de tu cuenta en formato JSON.
+            </p>
+            <a href="/api/cuentas/exportar" download className={BOTON}>Descargar mis datos</a>
+            <p className="m-0 text-nota text-[var(--texto-suave)]">
+              La baja de la cuenta todavía no está disponible desde la web.
             </p>
           </section>
         </div>

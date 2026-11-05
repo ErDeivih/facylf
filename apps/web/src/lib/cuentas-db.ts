@@ -3,6 +3,7 @@ import { CREDENCIAL_POR_CORREO, MODO_REGISTRO, SESION_POR_TOKEN, type FilaCreden
 import { MIS_ACCESOS, type FilaAcceso } from '@/consultas/usuario';
 import { sha256Hex, tokenDeSesion } from './contrasenas';
 import type { TipoFavorito } from './cuentas';
+import type { PreferenciasAviso } from '@/consultas/mi-cuenta';
 
 /**
  * Operaciones de cuenta contra PostgreSQL con el rol `facylf_app`.
@@ -118,4 +119,27 @@ export async function quitaFavorito(userId: string, id: number): Promise<boolean
 /** Favoritos con su nombre actual, último resultado y próximo partido. */
 export async function misAccesos(userId: string): Promise<FilaAcceso[]> {
   return ejecutaConsulta<FilaAcceso>(MIS_ACCESOS, [userId]);
+}
+
+/**
+ * Guarda las preferencias de aviso de la cuenta de la sesión.
+ *
+ * `app.guarda_preferencias` valida el correo y los eventos en la base; aquí se envía sólo el JSON
+ * construido por `lib/preferencias-cuenta.ts` y el `user_id` que sale de la cookie. Devuelve el error
+ * de validación tal cual para que la ruta pueda responder sin inventar un guardado.
+ */
+export async function guardaPreferencias(userId: string, preferencias: PreferenciasAviso): Promise<void> {
+  await consulta<{ guarda_preferencias: null }>(
+    'select app.guarda_preferencias($1, $2::jsonb) as guarda_preferencias',
+    [userId, JSON.stringify(preferencias)],
+    { rol: 'app' },
+  );
+}
+
+/** Exporta los datos de la cuenta de la sesión (JSON que devuelve la función SQL). */
+export async function exportaMisDatos(userId: string): Promise<unknown> {
+  const filas = await consulta<{ datos: unknown }>(
+    'select app.exporta_mis_datos($1) as datos', [userId], { rol: 'app' },
+  );
+  return filas[0]?.datos ?? null;
 }

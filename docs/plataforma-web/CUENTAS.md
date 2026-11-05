@@ -117,11 +117,23 @@ conserva al pasar de una pantalla a la otra.
 - **Verificación de correo** y **recuperación de contraseña**: no hay correo saliente. No se muestra
   un enlace de recuperación que no funcionaría.
 - **Avisos y notificaciones push:** no implementados. El panel deja claro que llegarán más adelante,
-  sin botones que finjan.
-- **2FA**, panel de administración de usuarios e invitaciones, aprobación/rechazo desde pantalla: las
-  funciones SQL existen (`app.aprueba_usuario`, `app.cambia_estado_usuario`,
-  `app.crea_invitacion`) pero no hay pantalla; en modo `aprobacion` haría falta para activar cuentas.
+  sin botones que finjan. Las preferencias sí se pueden guardar desde `/mi-cuenta`.
+- **2FA**, aprobación/rechazo desde pantalla: las funciones SQL existen (`app.aprueba_usuario`,
+  `app.cambia_estado_usuario`, `app.crea_invitacion`) pero **no se conectan**: el panel de
+  administración es de sólo lectura y lo dice. Conectar acciones destructivas sin 2FA y confirmación
+  sería peor que no tenerlas.
 - **Revocación de sesiones por dispositivo**: el cierre global funciona al bloquear la cuenta; no hay
   lista de dispositivos.
 - **Better Auth**: si se instala más adelante, hay que decidir si migra las credenciales de
   `app.credencial` o convive; no se instala sin pedirlo.
+
+## 7. Mi cuenta: preferencias y exportación
+
+- **`POST /api/cuentas/preferencias`**: formulario sin JavaScript, comprueba `Origin`, toma el
+  `user_id` de la cookie y llama a `app.guarda_preferencias`. Valida correo, horas y eventos; no
+  acepta `user_id` del formulario. Conserva `push` mientras no exista control.
+- **`GET /api/cuentas/exportar`**: descarga JSON de `app.exporta_mis_datos` para la sesión. No se
+  cachea (`no-store`); sin sesión redirige a entrar.
+- La pantalla `/mi-cuenta` enseña las preferencias guardadas y deja editarlas; el aviso de que los
+  envíos automáticos aún no existen sigue visible. La baja de cuenta y el cambio de contraseña no
+  están disponibles y se dicen.

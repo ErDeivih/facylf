@@ -19,7 +19,10 @@ export const metadata: Metadata = {
  * enmascarado queda pendiente de una función SQL que lo exponga (la web no tiene permiso de lectura
  * sobre la tabla de credenciales): hoy la pantalla lo dice, no inventa una dirección.
  */
-export default async function PantallaMiCuenta() {
+export default async function PantallaMiCuenta({ searchParams }: {
+  searchParams: Promise<{ aviso?: string }>;
+}) {
+  const { aviso } = await searchParams;
   const sesion = await sesionActual();
   if (!sesion) return <MiCuentaSinSesion />;
 
@@ -35,5 +38,6 @@ export default async function PantallaMiCuenta() {
   }
   if (!fila) return <MiCuentaError />;
 
-  return <MiCuenta perfil={normalizaPerfil(fila)} correo={null} />;
+  return <MiCuenta perfil={normalizaPerfil(fila)} correo={null}
+    aviso={aviso === 'preferencias' || aviso === 'preferencias-error' || aviso === 'origen' ? aviso : null} />;
 }

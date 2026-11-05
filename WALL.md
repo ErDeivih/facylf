@@ -139,6 +139,10 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 05/11/2026: **backend de Mi cuenta**: preferencias de aviso editables (`POST
+  /api/cuentas/preferencias`, validación y CSRF por `Origin`, `user_id` de la cookie) y descarga de
+  datos (`GET /api/cuentas/exportar`, `app.exporta_mis_datos`, `no-store`). La baja y el cambio de
+  contraseña siguen no disponibles y se dicen. Administración sigue deliberadamente en sólo lectura.
 - 05/11/2026: **pantallas restantes del prototipo completadas y API v1 ampliada.** Inicio/Main, Mi
   cuenta, Rankings, Ojeo, Comparar, Federación, Liga, administración (`/admin` y `/admin/usuarios`),
   Datos, Salud, Estados y Publicidad, con datos reales y CyL por defecto; cabecera con Rankings, Ojeo y

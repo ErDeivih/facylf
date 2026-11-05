@@ -167,6 +167,8 @@ describe('la pantalla de Mi cuenta', () => {
     expect(html).toContain('Un resumen al día · 08:00');
     expect(html).toContain('Sin avisos de 23:00 a 08:00.');
     expect(html).toContain('2 dispositivos');
+    expect(html).toContain('action="/api/cuentas/preferencias"');
+    expect(html).toContain('Guardar preferencias');
   });
 
   it('la seguridad dice lo que no existe y deja cerrar la sesión de verdad', () => {
@@ -179,10 +181,11 @@ describe('la pantalla de Mi cuenta', () => {
     expect(html).toContain('action="/api/cuentas/salir"');
     expect(html).toContain('method="post"');
     expect(html).toContain('Cerrar sesión');
-    // No hay botones que finjan cambiar contraseña, 2FA o descargar datos.
+    expect(html).toContain('Descargar mis datos');
+    expect(html).toContain('href="/api/cuentas/exportar"');
+    // No hay botones que finjan cambiar contraseña, 2FA ni darse de baja.
     expect(html).not.toContain('Cambiar contraseña');
     expect(html).not.toContain('Activar verificación');
-    expect(html).not.toContain('Descargar mis datos');
     expect(html).not.toContain('Darme de baja');
   });
 });
