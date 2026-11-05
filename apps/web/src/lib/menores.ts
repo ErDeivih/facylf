@@ -1,20 +1,21 @@
 /**
- * Regla de nombres de menores de edad (`CLAUDE.md`, `SEGURIDAD-OPERACION.md` §5).
+ * Nombres y fotos de menores de edad.
  *
- * La instancia es privada, pero un nombre de menor no se publica nunca sin el permiso
- * `ver_menores_nombres`. Las consultas traen `es_menor`; quien pinta decide con esta función, y no
- * con un `if` suelto en cada pantalla: si mañana cambia la etiqueta, cambia en un solo sitio.
+ * Decisión de David (05/11/2026, `DOCTRINA-CALIDAD.md` §9): la federación tiene **consentimiento de
+ * tratamiento** de los datos de los menores, así que **el nombre se publica igual que el de un
+ * adulto**. Lo que NO se publica son las **fotos**: hoy no hay ninguna foto de personas en la web y,
+ * si algún día se añade, queda fuera para los menores.
  *
- * No se inventa un nombre cuando la federación no lo publica: se dice que no está publicado.
+ * `esMenor` se conserva en la firma porque las consultas lo traen y porque es la marca que decide esa
+ * regla de fotos; para el nombre ya no cambia nada. No se inventa un nombre cuando la federación no lo
+ * publica: se dice que no está publicado.
  */
-export const ETIQUETA_MENOR = 'Jugador menor de edad';
 export const ETIQUETA_SIN_NOMBRE = 'Nombre no publicado';
 
 export function nombreVisible(
-  esMenor: boolean | null | undefined,
+  _esMenor: boolean | null | undefined,
   nombre: string | null | undefined,
 ): string {
-  if (esMenor === true) return ETIQUETA_MENOR;
   const limpio = (nombre ?? '').trim();
   return limpio === '' ? ETIQUETA_SIN_NOMBRE : limpio;
 }

@@ -10,9 +10,10 @@ import { CabeceraSitio } from '../src/componentes/cabecera/CabeceraSitio';
  * Contrato de la cabecera común del sitio (prototipo «Cabecera»).
  *
  * Mira lo que ve el usuario, no cómo está hecha: la marca, la búsqueda global y su nombre accesible,
- * la navegación por funciones con Explorar como único enlace real, y los iconos de panel/avisos/cuenta
- * desactivados porque no hay pantalla ni sistema de avisos. Lo que no existe no se finge: un «3» en la
- * campana o las iniciales de una persona serían datos inventados.
+ * la navegación por funciones con Explorar como único enlace real, los iconos de panel y avisos
+ * desactivados porque no hay pantalla ni sistema de avisos, y la cuenta como enlace real a `/entrar`
+ * sin avatar ni nombre de usuario porque todavía no hay sesión. Lo que no existe no se finge: un «3»
+ * en la campana o las iniciales de una persona serían datos inventados.
  *
  * `next/link` se mockea porque este render no corre dentro de un router de Next; el enlace que produce
  * es el mismo `<a href>` que el usuario acaba viendo.
@@ -76,10 +77,10 @@ describe('cabecera del sitio · la barra del prototipo', () => {
     expect(nav).not.toMatch(/<a[^>]*href="[^"]*(rankings|ojeo|comparar)/i);
   });
 
-  it('los iconos de panel, avisos y cuenta son botones desactivados sin contador ni iniciales inventadas', () => {
+  it('panel y avisos siguen desactivados; cuenta es un enlace real a /entrar sin iniciales inventadas', () => {
     const html = pinta();
     const pendientes = (html.match(/<button[\s\S]*?<\/button>/g) ?? []).filter((boton) => boton.includes('disabled'));
-    expect(pendientes).toHaveLength(3);
+    expect(pendientes).toHaveLength(2);
     for (const boton of pendientes) {
       expect(boton).toMatch(/type="button"/);
       expect(boton).toMatch(/disabled/);
@@ -87,7 +88,16 @@ describe('cabecera del sitio · la barra del prototipo', () => {
     }
     expect(html).toContain('Mi panel (todavía no tiene pantalla)');
     expect(html).toContain('Avisos (todavía no tiene pantalla)');
-    expect(html).toContain('Cuenta (todavía no tiene pantalla)');
+
+    // La cuenta ya tiene pantalla: es el único icono que navega. Sigue siendo un icono con nombre
+    // accesible y 44×44, no un avatar ni un nombre de usuario inventado.
+    const cuenta = html.match(/<a[^>]*href="\/entrar"[^>]*>[\s\S]*?<\/a>/);
+    expect(cuenta, 'la cabecera no enlaza a /entrar').not.toBeNull();
+    expect(cuenta![0]).toContain('aria-label="Entrar o crear cuenta"');
+    expect(cuenta![0]).toContain('size-11');
+    expect(cuenta![0]).toContain('aria-hidden="true"');
+    expect(cuenta![0]).not.toContain('disabled');
+
     const texto = soloTexto(html);
     expect(texto).not.toContain('DP');
     expect(texto).not.toContain('David');

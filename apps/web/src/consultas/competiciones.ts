@@ -45,6 +45,16 @@ export type FilaPortadaGrupo = {
   /** Primera y última fecha publicada en el calendario del grupo, para los extremos de la barra. */
   fecha_inicio: string | null;
   fecha_fin: string | null;
+  /**
+   * Si la federación dueña de la competición tiene escudo vigente en `core.federation_asset`. Es lo que
+   * decide si la cabecera pinta el escudo real o el marcador con las siglas. `false` no es «no lo sé»:
+   * la consulta comprueba el registro vigente y, si no hay, no hay.
+   *
+   * Opcional en el tipo, no en la consulta: `columnas` lo exige en cada fila y la prueba de contrato lo
+   * comprueba contra el canónico. Va opcional para que una fila construida a mano (pruebas de render)
+   * no tenga que inventarse un escudo que no le corresponde.
+   */
+  federacion_tiene_escudo?: boolean | null;
 };
 
 /**
@@ -60,7 +70,7 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
     'edicion_id', 'grupo', 'grupo_codigo', 'categoria', 'division', 'modalidad', 'genero', 'ambito',
     'jornadas_previstas', 'equipos', 'partidos_conocidos', 'partidos_con_resultado',
     'complete_through_matchday', 'visibility_state', 'jornada_actual', 'origen_clasificacion', 'calculado_en',
-    'fecha_inicio', 'fecha_fin'],
+    'fecha_inicio', 'fecha_fin', 'federacion_tiene_escudo'],
   sql: `
     select g.id                       as grupo_id,
            f.codigo                   as federacion,
@@ -97,7 +107,12 @@ export const GRUPO_POR_ID: Consulta<FilaPortadaGrupo> = {
            (select to_char(min(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
               from core.match m where m.phase_group_id = g.id) as fecha_inicio,
            (select to_char(max(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD')
-              from core.match m where m.phase_group_id = g.id) as fecha_fin
+              from core.match m where m.phase_group_id = g.id) as fecha_fin,
+           -- El escudo de la federación (0056) se pide con un EXISTS: la cabecera sólo necesita saber
+           -- si existe, no el binario. La web lo pide aparte a la ruta de escudos de federación y sólo
+           -- si esto es cierto, así que una federación sin escudo no genera ni una petición.
+           exists (select 1 from core.federation_asset fa
+                    where fa.federation_id = f.id and fa.tipo = 'escudo' and fa.vigente) as federacion_tiene_escudo
       from core.phase_group g
       join core.competition_edition e on e.id = g.competition_edition_id
       join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
@@ -198,6 +213,17 @@ export type FilaClasificacionPantalla = {
   goles_contra_reconstruida: number | null;
   origen: string;
   jornada: number;
+  /**
+   * El club canónico del equipo-temporada (`core.club.id`). Va en la MISMA fila que el equipo para que
+   * la tabla pinte todos sus escudos con una sola consulta: pedir el club de cada fila habría sido un
+   * N+1 de 16 peticiones por pantalla.
+   *
+   * Opcional en el tipo, no en la consulta (`columnas` lo exige): una fila construida a mano puede no
+   * traerlo y entonces el componente pinta su marcador de siempre.
+   */
+  club_id?: number | null;
+  /** Si ese club tiene escudo vigente en `core.club_asset`. `false` = no hay; no es una incógnita. */
+  tiene_escudo?: boolean | null;
 };
 
 /**
@@ -214,7 +240,8 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
   plan: 'indexado',
   presupuestoMs: 400,
   columnas: ['posicion', 'equipo_id', 'equipo', 'puntos', 'jugados', 'ganados', 'empatados', 'perdidos',
-    'goles_favor', 'goles_contra', 'goles_favor_reconstruida', 'goles_contra_reconstruida', 'origen', 'jornada'],
+    'goles_favor', 'goles_contra', 'goles_favor_reconstruida', 'goles_contra_reconstruida', 'origen', 'jornada',
+    'club_id', 'tiene_escudo'],
   sql: `
     with elegido as (
       select case
@@ -242,11 +269,19 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
            rh.goles_favor      as goles_favor_reconstruida,
            rh.goles_contra     as goles_contra_reconstruida,
            s.origen,
-           d.numero            as jornada
+           d.numero            as jornada,
+           -- El club y su escudo viajan con la fila de la tabla: la pantalla pinta los 16 escudos con
+           -- ESTA consulta y no pide uno por equipo. El EXISTS va contra el índice del registro
+           -- vigente (club_asset_vigente_unico_idx), así que no hay recorrido completo.
+           cl.id               as club_id,
+           exists (select 1 from core.club_asset ca
+                    where ca.club_id = cl.id and ca.tipo = 'escudo' and ca.vigente) as tiene_escudo
       from core.standing_snapshot s
       join elegido el on el.origen = s.origen
       join ultima u on u.id = s.matchday_id
       join core.team_entry te on te.id = s.team_entry_id
+      join core.team_season ts on ts.id = te.team_season_id
+      join core.club cl on cl.id = ts.club_id
       join core.matchday d on d.id = s.matchday_id
       left join lateral (
         select sr.goles_favor, sr.goles_contra

@@ -4,11 +4,13 @@ import { nombreVisible } from '@/lib/menores';
 /**
  * Goleadores del grupo, del prototipo.
  *
- * La marca de menor de edad manda: si `es_menor`, la pantalla enseña «Jugador menor de edad» y nunca
- * el nombre. Un goleador sin nombre publicado tampoco se inventa: se dice que no está publicado.
+ * El nombre se publica tal como lo da la federación, también el de un menor: hay consentimiento de
+ * tratamiento (decisión de David, 05/11/2026) y `nombreVisible()` es el único sitio donde se aplica la
+ * regla. Las fotos de personas no se publican. Un goleador sin nombre en la fuente no se inventa: se
+ * dice que no está publicado.
  *
- * «Ver todos» se apaga con su motivo: el ranking completo es otra pantalla que todavía no existe, y un
- * enlace a una pantalla que no existe es peor que un control apagado que dice por qué.
+ * «Ver todos» se apaga: el ranking completo es otra pantalla que todavía no existe y un enlace muerto
+ * sería peor que un control apagado.
  */
 export function Goleadores({ filas }: { filas: readonly FilaRanking[] }) {
   return (
@@ -16,15 +18,14 @@ export function Goleadores({ filas }: { filas: readonly FilaRanking[] }) {
       className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex items-baseline justify-between px-4 py-3.5">
         <h2 id="goleadores" className="m-0 text-bloque font-bold text-[var(--texto)]">Goleadores</h2>
-        <span aria-disabled="true" title="El ranking completo es otra pantalla, todavía sin implementar"
-          className="cursor-not-allowed text-tabla font-semibold text-[var(--texto-suave)]">
-          Ver todos<span className="sr-only"> (desactivado: el ranking completo todavía no tiene pantalla)</span>
+        <span aria-disabled="true" className="cursor-not-allowed text-tabla font-semibold text-[var(--texto-suave)]">
+          Ver todos
         </span>
       </div>
       {filas.length === 0
         ? (
           <p className="border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">
-            Este grupo no tiene goleadores publicados: sus actas no traen autoría de los goles.
+            Sin goleadores publicados.
           </p>
         )
         : (

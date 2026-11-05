@@ -420,6 +420,38 @@ Decisiones de David del 04/11/2026 (tarde) en `ESPECIFICACION.md`. Contrato de e
   componente a componente si se adapta o se rehace.
 - **Nivel**: 3 (alcance) → ejecutado como planificación.
 
+### 28. Revisión de la pantalla 2 por David (05/11/2026)
+
+David revisó la pantalla 2 y dejó siete correcciones; las siete van también a
+`DOCTRINA-CALIDAD.md` §8 y §9.
+
+- **Escudos de club**: los clubes/equipos tienen escudo y ya se guardaba en `core.club_asset`; hay que
+  enseñarlo en clasificación, fichas y jornadas, con el marcador determinista como respaldo si no hay
+  imagen. No se inventan escudos.
+- **Escudo de federación en la competición**: en la cabecera se pone el escudo de la federación, no las
+  siglas de la competición («LN»). Hay que recolectarlo del portal oficial, guardarlo con su
+  procedencia (`fuente_url`, `fuente_descripcion`) y servirlo desde el proyecto; si una federación no
+  lo publica, queda el respaldo con sus siglas y color, nunca un escudo inventado.
+- **Zonas de clasificación**: la Liga Nacional Juvenil de CyL descienden **3**, no 2. Se fija el
+  reglamento en `core.reglamento_grupo` (migración 0055) para que la vista lo use por delante de lo
+  aprendido: **1 asciende** (campeón a División de Honor, Normas LNJ RFEF art. 9) y **3 descienden**
+  (bases de la RFCYLF, confirmado por David). La fase de ascenso/promoción no se inventa: cuando las
+  bases digan cuántos puestos la juegan, se añade otra fila. Se prueba con el grupo real 797/3769.
+- **Fuera los textos que no le importan al cliente** (`DOCTRINA-CALIDAD.md` §8): «zonas según lo
+  ocurrido en las últimas temporadas», «cómo se ha calculado», el desplegable «Sobre estos datos», la
+  explicación del estado vacío y el pie de página con política de temporadas. Regla: de cada texto,
+  ¿sirve para decidir o actuar? Si no, se borra; no se sustituye por otro.
+- **Menores** (`DOCTRINA-CALIDAD.md` §9): la federación tiene consentimiento de tratamiento, así que
+  **el nombre se publica** igual que el de un adulto (buscador, goleadores, plantillas, actas). Las
+  **fotos** de personas, y en particular de menores, **no se publican** de momento. Se actualizan
+  `CLAUDE.md`, `AGENTS.md` y `SEGURIDAD-OPERACION.md` §5.
+- **Siguen las páginas del prototipo**, una a una, con el prototipo delante.
+- **Registro de usuarios**: diseño preparado (pantalla de entrada/creación de cuenta y acceso desde la
+  cabecera) para recordar clubes, equipos y jugadores favoritos y tener accesos rápidos a horarios,
+  resultados y avisos. El registro real (backend) vendrá después; no se finge que funciona.
+
+**Nivel**: 2/3 según la pieza. Implementado en la misma sesión salvo lo que se indica como pendiente.
+
 ---
 
 ## Preguntas de Nivel 3 que quedan abiertas (no bloquean el trabajo)

@@ -256,14 +256,18 @@ Quedan por escribir, y no existen hoy: `Marcador`, `LineaPartido`, `Alineacion`,
 `Escudo` del bloque de dominio, y `Cascara`, `BarraContexto`, `Miga`, `NavInferior` y `HojaFiltros`
 del de estructura.
 
-**Actualizado el 04/11/2026 con la pantalla 2.** Existen y están en uso, aunque no como «Cascara»
-completa: `CabeceraSitio` (barra superior según el tablero «Cabecera», pieza pura),
+**Actualizado el 05/11/2026 con la revisión de David.** Existen y están en uso, aunque no como
+«Cascara» completa: `CabeceraSitio` (barra superior según el tablero «Cabecera», pieza pura),
 `CabeceraSitioActiva` (la sección activa con `usePathname`), el `Buscador` adaptado a la superficie
-fuerte y `Escudo` (marcador de posición determinista: iniciales sobre color derivado del id, 22×24,
-`aria-hidden`; no es la identidad del club). La `Miga` de las pantallas nuevas sigue escrita dentro de
-la página de competición; se extraerá cuando haya una segunda pantalla que la use. `Cascara` completa
-(cabecera + contenedor + pie) sigue pendiente: hoy el ancho máximo lo comparten `layout.tsx` (1280 con
-20 px de relleno = 1240 interiores) y cada página.
+fuerte y `Escudo`: **imagen real del club** desde `core.club_asset` servida por
+`/api/escudo/club/<id>`, 22×24, decorativa; si el club no tiene escudo guardado se pinta el marcador
+determinista (iniciales sobre color derivado del id) en la misma caja, para no saltar de layout. El
+escudo es del club, no del equipo-temporada. `EscudoFederacion` (56×56) usa
+`/api/escudo/federacion/<codigo>` desde `core.federation_asset`; sin escudo, siglas de la federación
+sobre el color de acción. `MigaCompeticion` ya existe y la usan las pantallas nuevas de jornadas; la
+pantalla 2 conserva su miga inline y se unificará al tocarla. `Cascara` completa (cabecera + contenedor
++ pie) sigue pendiente: hoy el ancho máximo lo comparten `layout.tsx` (1280 con 20 px de relleno = 1240
+interiores) y cada página.
 
 La tabla `TablaResponsiva` está implementada **dentro** de `Clasificacion` (contenedor con
 `data-tabla-scroll`, `tabIndex=0`, `role=region` y las dos primeras columnas fijas); se extraerá a
@@ -273,7 +277,8 @@ componente propio cuando la use una segunda tabla.
 
 - ☐ `Cascara` — cabecera, navegación, contenedor y pie; única dueña del ancho máximo.
 - ☐ `BarraContexto` — federación y temporada activas; escribe en la URL, no en estado local.
-- ☐ `Miga` — breadcrumb derivado de la ruta canónica, con la competición y el grupo resueltos.
+- ☑ `Miga` — breadcrumb derivado de la ruta canónica, con la competición y el grupo resueltos;
+  implementada como `MigaCompeticion` y usada por las pantallas de jornadas.
 - ☐ `NavInferior` — barra inferior móvil: Inicio, Buscar, Competiciones, Scouting, Más.
 - ☐ `HojaFiltros` — panel lateral en móvil con resumen de filtros activos y botón de restablecer.
 
@@ -302,8 +307,10 @@ componente propio cuando la use una segunda tabla.
 - ☐ `SinCapacidad` — bloque que explica que la federación no publica ese dato, con enlace a
   [FEDERACIONES-MATRIZ.md](FEDERACIONES-MATRIZ.md). **Este componente es obligatorio** en cualquier
   vista que pueda quedarse sin métricas individuales.
-- ☐ `Escudo` — imagen de club con marcador de posición determinista (iniciales sobre color derivado
-  del identificador); tamaño fijo para no provocar salto de layout.
+- ☑ `Escudo` — imagen real del club desde `core.club_asset` servida por la web; si no hay, marcador
+  determinista con iniciales y color derivado del id. Tamaño fijo 22×24 para no provocar salto.
+- ☑ `EscudoFederacion` — 56×56, escudo real desde `core.federation_asset`; si no hay, siglas de la
+  federación sobre el color de acción. La federación es la dueña de la competición, no el club.
 
 ### Estados
 

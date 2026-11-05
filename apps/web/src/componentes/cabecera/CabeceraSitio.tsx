@@ -16,9 +16,10 @@ import { BotonTema } from './BotonTema';
  * Lo que la cabecera NO finge, a propósito:
  *  · Rankings, Ojeo y Comparar no tienen pantalla: se enseñan como texto desactivado, no como
  *    enlaces muertos que llevarían a un 404;
- *  · no hay avisos, ni cuentas, ni contador: los iconos de panel, avisos y cuenta son botones
- *    desactivados sin cifra y sin iniciales inventadas. El botón de tema sí funciona: no enseña un
- *    dato, cambia algo real.
+ *  · no hay avisos ni contador: panel y avisos son botones desactivados sin cifra y sin iniciales
+ *    inventadas. La cuenta sí tiene pantalla (`/entrar`), así que es un enlace real; como todavía no
+ *    hay sesión, no enseña avatar ni nombre. El botón de tema sí funciona: no enseña un dato, cambia
+ *    algo real.
  *
  * En móvil (<lg) el buscador baja a su propia fila a ancho completo; logo, navegación e iconos
  * quedan arriba. La navegación se desplaza en horizontal dentro de su caja, nunca el documento.
@@ -120,13 +121,12 @@ export function CabeceraSitio({
 
         {/*
           En móvil los iconos quedan visibles en la primera fila, a la derecha del logo. En escritorio
-          pasan a ir después de la navegación, como en el prototipo. Los tres son botones desactivados:
-          no entran en el orden de tabulación.
+          pasan a ir después de la navegación, como en el prototipo. Panel y avisos siguen desactivados
+          y no entran en el orden de tabulación; la cuenta es un enlace real a `/entrar` y sí entra.
         */}
         <div className="order-2 ml-auto flex items-center gap-1 lg:order-3 lg:ml-0">
           <BotonPendiente etiqueta="Mi panel" icono={<IconoEstrella />} />
           <BotonPendiente etiqueta="Avisos" icono={<IconoAviso />} />
-          <BotonPendiente etiqueta="Cuenta" icono={<IconoCuenta />} />
         </div>
 
         {/*
@@ -170,6 +170,14 @@ export function CabeceraSitio({
               </li>
             </ul>
           </nav>
+
+          <Link
+            href="/entrar"
+            aria-label="Entrar o crear cuenta"
+            className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] lg:order-3"
+          >
+            <IconoCuenta />
+          </Link>
 
           {permiteTema && <BotonTema key={tema} tema={tema} className="lg:order-3" />}
         </div>

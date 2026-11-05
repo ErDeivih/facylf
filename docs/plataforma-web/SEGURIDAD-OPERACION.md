@@ -77,6 +77,12 @@ CSP es defensa adicional y no sustituye el escape y diseño seguro. Referencias:
 
 ## 5. Privacidad por diseño
 
+**Decisión vigente (David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9):** la federación tiene
+**consentimiento de tratamiento**, así que los **nombres** de los menores se publican igual que los de
+un adulto; las **fotos** de personas, y en particular de menores, **no se publican** (hoy no hay
+ninguna foto de persona en la web; si se añade, queda fuera para menores). El resto de minimización
+sigue vigente: no se publican fecha de nacimiento, documento, contacto ni dirección.
+
 Antes de cualquier despliegue compartido:
 
 1. documentar finalidad y usuarios autorizados;

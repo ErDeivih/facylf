@@ -22,17 +22,18 @@ export const TEMA_COOKIE = 'tema';
  */
 export const CABECERA_RUTA = 'x-pathname';
 
-/** La única zona migrada al diseño nuevo hoy. Ahí el tema oscuro está probado. */
-const RUTA_CON_TEMA = '/explorar';
+/** Las zonas migradas al diseño nuevo hoy: el rediseño de competición y la entrada de usuarios. */
+const RUTAS_CON_TEMA = ['/explorar', '/entrar'] as const;
 
 /**
- * ¿Esta ruta admite el tema oscuro? Sólo el rediseño (`/explorar…`). Las páginas viejas todavía
- * tienen colores literales (`bg-white`, `#5C646C`…) que en oscuro quedan ilegibles, así que allí se
- * fuerza claro hasta que se migren. Se compara por segmento: `/explorarx` no cuenta.
+ * ¿Esta ruta admite el tema oscuro? Sólo las pantallas del rediseño (`/explorar…` y `/entrar`). Las
+ * páginas viejas todavía tienen colores literales (`bg-white`, `#5C646C`…) que en oscuro quedan
+ * ilegibles, así que allí se fuerza claro hasta que se migren. Se compara por segmento: `/explorarx`
+ * no cuenta.
  */
 export function esRutaConTema(ruta: string | null | undefined): boolean {
   if (!ruta) return false;
-  return ruta === RUTA_CON_TEMA || ruta.startsWith(`${RUTA_CON_TEMA}/`);
+  return RUTAS_CON_TEMA.some((base) => ruta === base || ruta.startsWith(`${base}/`));
 }
 
 

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
-import { TEMPORADA_MINIMA } from '@/lib/temporadas';
 import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/tema';
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
 import '@fontsource-variable/inter';
@@ -40,14 +39,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
         <footer className="mx-auto max-w-[1240px] border-t border-[var(--borde)] px-5 py-6 text-nota text-[var(--texto-suave)]">
-          <p>
-            Archivo privado construido desde fuentes federativas oficiales. Esta web no es oficial
-            y la cobertura de cada competición se indica dentro de su ficha.
-          </p>
-          <p className="mt-1">
-            Se publican las temporadas <b>{TEMPORADA_MINIMA}</b> en adelante. Las anteriores están
-            recopiladas y aplazadas: se incorporarán cuando se retome el histórico, no se han perdido.
-          </p>
+          <p>Archivo privado. No es una web oficial.</p>
         </footer>
       </body>
     </html>

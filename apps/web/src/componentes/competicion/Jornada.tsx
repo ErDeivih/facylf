@@ -33,8 +33,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
               </Link>
             )
             : (
-              <span aria-disabled="true" title="No hay jornada anterior publicada"
-                className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>‹</span>
+              <span aria-disabled="true" className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>‹</span>
             )}
           {hrefSiguiente
             ? (
@@ -44,15 +43,14 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente }: {
               </Link>
             )
             : (
-              <span aria-disabled="true" title="No hay jornada siguiente publicada"
-                className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>›</span>
+              <span aria-disabled="true" className={`${flecha} cursor-not-allowed border-dashed text-[var(--texto-suave)]`}>›</span>
             )}
         </div>
       </div>
       {partidos.length === 0
         ? (
           <p className="border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">
-            Esta jornada no tiene partidos publicados en el canónico.
+            Sin partidos publicados.
           </p>
         )
         : (

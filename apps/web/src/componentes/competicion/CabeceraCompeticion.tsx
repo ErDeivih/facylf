@@ -1,9 +1,10 @@
-import { siglas, subtituloCompeticion } from '@/lib/pantalla-competicion';
+import { EscudoFederacion } from '@/componentes/EscudoFederacion';
+import { subtituloCompeticion } from '@/lib/pantalla-competicion';
 import { fechaCorta } from '@/lib/vocabulario-pantalla';
 import type { FilaEdicionDeLaCompeticion, FilaGrupoDeLaEdicion, FilaPortadaGrupo } from '@/consultas/competiciones';
 import { SelectorEnlace } from './SelectorEnlace';
 
-/** Las pestañas del prototipo. Sólo la primera tiene pantalla; las demás se apagan con su motivo. */
+/** Las pestañas del prototipo. Clasificación y Jornadas tienen pantalla; las demás se apagan. */
 const PESTANAS = [
   { texto: 'Clasificación', activa: true },
   { texto: 'Jornadas', activa: false },
@@ -20,13 +21,15 @@ const PESTANAS = [
  * temporada no se pinta sin jornadas previstas, las fechas de los extremos sólo aparecen si existen y
  * los desplegables sólo si hay más de una opción real que elegir.
  */
-export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fechaInicio, fechaFin }: {
+export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fechaInicio, fechaFin, activa = 'clasificacion' }: {
   grupo: FilaPortadaGrupo;
   grupos: readonly FilaGrupoDeLaEdicion[];
   temporadas: readonly FilaEdicionDeLaCompeticion[];
   rutaBase: string;
   fechaInicio: string | null;
   fechaFin: string | null;
+  /** Pestaña que se está viendo; las dos que tienen pantalla se marcan y enlazan. */
+  activa?: 'clasificacion' | 'jornadas';
 }) {
   const totalJornadas = grupo.jornadas_previstas;
   const jornadaActual = grupo.jornada_actual;
@@ -37,11 +40,8 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
   return (
     <section className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex flex-wrap items-center gap-4 px-5 pt-5 pb-3.5">
-        {/* Insignia de la competición, como en el prototipo: iniciales del nombre publicado. */}
-        <div aria-hidden="true"
-          className="flex size-14 flex-none items-center justify-center rounded-[var(--radius-tarjeta)] bg-[var(--accion)] text-lg font-extrabold text-[var(--texto-inverso)]">
-          {siglas(grupo.edicion)}
-        </div>
+        {/* Escudo de la federación dueña de la competición; si no hay, sus siglas. */}
+        <EscudoFederacion codigo={grupo.federacion} nombre={grupo.federacion_nombre} tieneEscudo={grupo.federacion_tiene_escudo} />
         <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-1">
           <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
             {grupo.edicion} · {grupo.grupo}
@@ -103,22 +103,27 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
           (`overflow-x-auto`) y el enlace mide justo el alto (46 px), así que sin este relleno el
           `outline` de 2 px con offset 2 se recortaba arriba y abajo (hallazgo C5 del QA). */}
       <nav aria-label="Secciones" className="relative flex gap-0.5 overflow-x-auto border-t border-[var(--fondo-sutil)] px-3 py-1">
-        {PESTANAS.map((p) => p.activa
-          ? (
-            <a key={p.texto} href={rutaBase} aria-current="page"
-              className="flex h-[46px] items-center px-3 text-sm font-semibold whitespace-nowrap text-[var(--accion)] shadow-[inset_0_-3px_0_var(--accion)]">
+        {PESTANAS.map((p) => {
+          const esActiva = (p.texto === 'Clasificación' && activa === 'clasificacion')
+            || (p.texto === 'Jornadas' && activa === 'jornadas');
+          const href = p.texto === 'Clasificación' ? rutaBase : p.texto === 'Jornadas' ? `${rutaBase}/jornadas` : null;
+          if (href === null) {
+            return (
+              <span key={p.texto} aria-disabled="true"
+                className="flex h-[46px] cursor-not-allowed items-center px-3 text-sm font-medium whitespace-nowrap text-[var(--texto-suave)]">
+                {p.texto}
+              </span>
+            );
+          }
+          return (
+            <a key={p.texto} href={href} aria-current={esActiva ? 'page' : undefined}
+              className={esActiva
+                ? 'flex h-[46px] items-center px-3 text-sm font-semibold whitespace-nowrap text-[var(--accion)] shadow-[inset_0_-3px_0_var(--accion)]'
+                : 'flex h-[46px] items-center px-3 text-sm font-medium whitespace-nowrap text-[var(--texto-suave)] hover:text-[var(--texto)]'}>
               {p.texto}
             </a>
-          )
-          : (
-            // Las demás pestañas todavía no tienen pantalla. Se enseñan como el prototipo pero se
-            // desactivan: un enlace que lleva a «en obras» sin decirlo es peor que uno apagado.
-            <span key={p.texto} aria-disabled="true" title="Todavía no tiene pantalla"
-              className="flex h-[46px] cursor-not-allowed items-center px-3 text-sm font-medium whitespace-nowrap text-[var(--texto-suave)]">
-              {p.texto}
-              <span className="sr-only"> (desactivado: todavía no tiene pantalla)</span>
-            </span>
-          ))}
+          );
+        })}
       </nav>
     </section>
   );

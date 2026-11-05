@@ -2,7 +2,7 @@ import type { FilaClasificacionPantalla } from '@/consultas/competiciones';
 import { Escudo } from '@/componentes/Escudo';
 import { insigniaForma } from '@/lib/forma-equipo';
 import {
-  claseZona, estiloForma, etiquetaZona, formaDe, golesDeLaFila, hayReconstruccionCompleta, publicaGoles, zonaDe,
+  claseZona, estiloForma, etiquetaZona, formaDe, golesDeLaFila, publicaGoles, zonaDe,
   type ZonaPantalla, type ZonasDelGrupo,
 } from '@/lib/pantalla-competicion';
 
@@ -24,13 +24,8 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
   equipos: number;
 }) {
   const origen = filas[0]?.origen ?? null;
-  const jornada = filas[0]?.jornada ?? null;
   // Si la tabla oficial no publica goles (CyL los guarda a cero), se enseñan los reconstruidos.
   const usaReconstruccion = !publicaGoles(filas, origen);
-  const reconstruccionCompleta = hayReconstruccionCompleta(filas);
-  const hayAlgunaReconstruccion = filas.some(
-    (f) => f.goles_favor_reconstruida !== null && f.goles_contra_reconstruida !== null,
-  );
   const zonasPresentes = zonas
     ? ([
       ['asciende', zonas.ascensos],
@@ -56,11 +51,11 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
           */}
           <button type="button" disabled
             className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
-            Casa<span className="sr-only"> (desactivado: falta la proyección por condición casa/fuera)</span>
+            Casa
           </button>
           <button type="button" disabled
             className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
-            Fuera<span className="sr-only"> (desactivado: falta la proyección por condición casa/fuera)</span>
+            Fuera
           </button>
         </div>
       </div>
@@ -68,8 +63,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
       {filas.length === 0
         ? (
           <p className="px-4 pb-4 text-cuerpo text-[var(--texto-suave)]">
-            Este grupo no tiene clasificación publicada ni reconstruida. No se pinta una tabla vacía: no es
-            que todos los equipos tengan cero puntos, es que no hay tabla.
+            Sin clasificación publicada.
           </p>
         )
         : (
@@ -112,7 +106,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                       </td>
                       <td className={`${fijas} left-9 w-[13.75rem] border-t border-[var(--fondo-sutil)] px-1.5 py-0 text-left md:w-auto`}>
                         <div className="flex h-[var(--fila-densa)] min-w-0 items-center gap-2.5">
-                          <Escudo equipoId={f.equipo_id} nombre={f.equipo} />
+                          <Escudo equipoId={f.equipo_id} nombre={f.equipo} clubId={f.club_id} tieneEscudo={f.tiene_escudo} />
                           {/*
                             En móvil la celda del equipo se acota para que quepa junto al puesto (#) y no
                             tape la columna pegajosa; el nombre completo sigue en el DOM (un lector de
@@ -129,8 +123,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                       <td className="whitespace-nowrap border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">
                         {f.ganados}-{f.empatados}-{f.perdidos}
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]"
-                        title={usaReconstruccion ? 'Goles reconstruidos: la tabla oficial no los publica' : undefined}>
+                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">
                         {golesDeLaFila(f, usaReconstruccion)}
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-left">
@@ -162,7 +155,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
           </div>
         )}
 
-      {zonasPresentes.length > 0 && (
+      {filas.length > 0 && zonasPresentes.length > 0 && (
         <div className="flex flex-wrap gap-3.5 border-t border-[var(--fondo-sutil)] px-4 py-3 text-nota text-[var(--texto)]">
           {zonasPresentes.map(([zona]) => (
             <span key={zona} className="flex items-center gap-1.5">
@@ -172,41 +165,6 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
           ))}
         </div>
       )}
-
-      <p className="m-0 px-4 pb-3.5 text-nota text-[var(--texto-suave)]">
-        {zonasPresentes.length > 0
-          ? (zonas?.origen === 'reglamento'
-            ? 'Zonas según el reglamento de la competición.'
-            : `Zonas según lo ocurrido en las últimas ${zonas?.temporadas ?? '—'} temporadas de esta liga. Un administrador puede fijarlas con las bases de la competición.`)
-          : 'Este grupo no tiene zonas fijadas: no se pinta ninguna franja de color.'}
-        {' '}
-        {origen === 'oficial'
-          ? `La clasificación es la oficial publicada por la federación${jornada !== null ? `, hasta la jornada ${jornada}` : ''}.`
-          : origen === 'reconstruida'
-            ? `La clasificación está reconstruida a partir de los resultados: la federación no publicó tabla${jornada !== null ? ` en la jornada ${jornada}` : ''}.`
-            : ''}
-        {usaReconstruccion
-          ? (reconstruccionCompleta
-            ? ` Los goles no vienen en la tabla oficial: se enseñan los reconstruidos de la misma jornada${jornada !== null ? ` (jornada ${jornada})` : ''}.`
-            : hayAlgunaReconstruccion
-              ? ' La reconstrucción de goles de esa misma jornada está incompleta: donde falta se enseña «—».'
-              : ' No hay reconstrucción de goles de esa misma jornada: los goles se enseñan como «—».')
-          : ''}
-        {' '}
-        {filas.length > 0
-          ? `La forma cuenta los partidos hasta la misma jornada${jornada !== null ? ` (jornada ${jornada})` : ''}, del más antiguo al más reciente y como máximo cinco.`
-          : ''}
-      </p>
-
-      <details className="mx-4 mb-3.5 text-nota text-[var(--texto-suave)]">
-        <summary className="cursor-pointer text-[var(--accion)]">Sobre estos datos</summary>
-        <p className="mt-1.5">
-          La tabla la publica la federación tras cada jornada; esta ficha no la recalcula. Cuando la
-          federación no publica los goles, se enseñan los reconstruidos con los resultados publicados de
-          <b> la misma jornada</b>, y si esa jornada no tiene reconstrucción se enseña «—». Un partido sin
-          resultado publicado no cuenta como 0-0: aparece sin marcador.
-        </p>
-      </details>
     </section>
   );
 }

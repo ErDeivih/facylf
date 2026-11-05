@@ -21,11 +21,36 @@ export type FilaPartidoCanonico = {
    * publica la hora (ver `packages/canonico/src/lote.ts`). Sin ese dato no se inventa un 00:00.
    */
   hora: string | null;
+  /**
+   * Fecha PUBLICADA en el calendario (`core.match.fecha_prevista`), aunque el partido no se haya jugado
+   * todavía. `fecha` sale de `played_at` y por eso llega `null` en un grupo con calendario y sin
+   * resultados (75250, 75252); la jornada necesita esta fecha para orientar la pantalla. Mismo formato
+   * `YYYY-MM-DD` y mismo criterio: si la fuente no la publicó, es `null`, no una fecha inventada.
+   */
+  fecha_prevista?: string | null;
   /** Ids de inscripción de los dos equipos: hacen falta para calcular la forma desde los partidos. */
   local_id: number;
   visitante_id: number;
   local: string;
   visitante: string;
+  /**
+   * Código federativo del equipo en la fuente. Es lo que enlaza con la ficha del equipo y con su acta;
+   * el id de inscripción no sirve fuera de esta base.
+   *
+   * Los campos de club y código son opcionales EN EL TIPO, no en la consulta: `columnas` los exige y
+   * la prueba de contrato los comprueba contra el canónico. Van opcionales para que una fila
+   * construida a mano (pruebas de render) no tenga que inventarse un club.
+   */
+  local_codigo?: string | null;
+  visitante_codigo?: string | null;
+  /**
+   * El club canónico de cada equipo-temporada y si tiene escudo vigente. Van en la MISMA fila para que
+   * la jornada y el acta pinten los dos escudos con una sola consulta, sin pedir club por partido.
+   */
+  local_club_id?: number | null;
+  visitante_club_id?: number | null;
+  local_tiene_escudo?: boolean | null;
+  visitante_tiene_escudo?: boolean | null;
   goles_local: number | null;
   goles_visitante: number | null;
   campo: string | null;
@@ -39,13 +64,18 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
   descripcion: 'Partidos de un grupo importado, con marcador —o su ausencia—, hora publicada, campo, árbitro y calidad del acta.',
   plan: 'indexado',
   presupuestoMs: 800,
-  columnas: ['match_id', 'jornada', 'orden', 'fecha', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
-    'goles_local', 'goles_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
+  columnas: ['match_id', 'jornada', 'orden', 'fecha', 'fecha_prevista', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
+    'local_codigo', 'visitante_codigo', 'local_club_id', 'visitante_club_id', 'local_tiene_escudo',
+    'visitante_tiene_escudo', 'goles_local', 'goles_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
   sql: `
     select m.id                      as match_id,
            d.numero                  as jornada,
            m.source_order            as orden,
            to_char(m.played_at, 'YYYY-MM-DD') as fecha,
+           -- La fecha publicada en el calendario, para las jornadas de grupos que aún no han jugado:
+           -- «fecha» es la del partido jugado y ahí es null. Una fecha por columna, como el resto: no
+           -- se rellena «fecha» con la prevista (mezclaría «jugado» con «programado»).
+           to_char(m.fecha_prevista, 'YYYY-MM-DD') as fecha_prevista,
            case
              when m.hora_confirmada and m.played_at is not null
                -- La hora se publica en hora local española y el importador la guarda tal cual sobre
@@ -57,6 +87,17 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
            ev.id                     as visitante_id,
            el.nombre_en_fuente       as local,
            ev.nombre_en_fuente       as visitante,
+           el.codigo_externo         as local_codigo,
+           ev.codigo_externo         as visitante_codigo,
+           -- El club de cada equipo-temporada y su escudo, en la misma fila del partido: la jornada y
+           -- el acta pintan los dos escudos con esta consulta y no piden nada más. El EXISTS va contra
+           -- el índice del registro vigente, no recorre la tabla.
+           tsl.club_id               as local_club_id,
+           tsv.club_id               as visitante_club_id,
+           exists (select 1 from core.club_asset cal
+                    where cal.club_id = tsl.club_id and cal.tipo = 'escudo' and cal.vigente) as local_tiene_escudo,
+           exists (select 1 from core.club_asset cav
+                    where cav.club_id = tsv.club_id and cav.tipo = 'escudo' and cav.vigente) as visitante_tiene_escudo,
            m.goles_local,
            m.goles_visitante,
            v.nombre                  as campo,
@@ -70,6 +111,8 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       join core.matchday d on d.id = m.matchday_id
       join core.team_entry el on el.id = m.home_team_entry_id
       join core.team_entry ev on ev.id = m.away_team_entry_id
+      join core.team_season tsl on tsl.id = el.team_season_id
+      join core.team_season tsv on tsv.id = ev.team_season_id
       left join core.venue v on v.id = m.venue_id
       left join core.match_report r on r.match_id = m.id
       left join core.match_official o on o.match_id = m.id and o.rol = 'principal'

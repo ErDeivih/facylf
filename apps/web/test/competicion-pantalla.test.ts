@@ -34,7 +34,7 @@ import {
  *
  * Lo que se defiende:
  *  · la pantalla no puede prometer columnas que la consulta no dé;
- *  · el nombre de un menor de edad no se publica (invariante de `CLAUDE.md`);
+ *  · el nombre de un menor se publica (hay consentimiento de la federación); las fotos no;
  *  · el desconocido sigue siendo desconocido: la clasificación trae su origen y los `null` no se
  *    convierten en ceros.
  */
@@ -87,9 +87,9 @@ describe('contrato estático de las consultas de la pantalla de competición', (
   });
 });
 
-describe('la regla de los menores, que la página no puede saltarse', () => {
-  it('un menor de edad nunca enseña su nombre: se enseña la etiqueta', () => {
-    expect(nombreVisible(true, 'FALAGAN CASADO, ALVARO')).toBe('Jugador menor de edad');
+describe('los nombres de menores se publican y las fotos no', () => {
+  it('un menor conserva el nombre que publica la federación: hay consentimiento de tratamiento', () => {
+    expect(nombreVisible(true, 'FALAGAN CASADO, ALVARO')).toBe('FALAGAN CASADO, ALVARO');
   });
 
   it('un adulto conserva su nombre tal como lo publica la federación', () => {
@@ -190,6 +190,27 @@ describe('presentación de la pantalla de competición', () => {
     expect(siglas('1ª División Regional de Juveniles')).toBe('1D');
     expect(siglas('Primera - III')).toBe('PI');
     expect(siglas('')).toBe('?');
+  });
+
+  it('las zonas del grupo salen del reglamento cuando está fijado (Liga Nacional: 1 asciende, 3 descienden)', async () => {
+    const filas = await consulta<Record<string, unknown>>(ZONAS_DEL_GRUPO.sql, [GRUPO_CYL]);
+    expect(filas).toHaveLength(1);
+    const z = filas[0]!;
+    expect(z.origen).toBe('reglamento');
+    expect(Number(z.ascensos)).toBe(1);
+    expect(Number(z.descensos)).toBe(3);
+    expect(Number(z.promocion)).toBe(0);
+    expect(Number(z.promocion_permanencia)).toBe(0);
+  });
+
+  it('con el reglamento real, la zona de 16 equipos deja 1 arriba y 3 abajo', () => {
+    const zonas = { ascensos: 1, promocion: 0, descensos: 3, promocion_permanencia: 0, origen: 'reglamento', confianza: 0.95, temporadas: 11 };
+    expect(zonaDe(1, 16, zonas)).toBe('asciende');
+    expect(zonaDe(2, 16, zonas)).toBeNull();
+    expect(zonaDe(13, 16, zonas)).toBeNull();
+    expect(zonaDe(14, 16, zonas)).toBe('desciende');
+    expect(zonaDe(15, 16, zonas)).toBe('desciende');
+    expect(zonaDe(16, 16, zonas)).toBe('desciende');
   });
 
   it('las zonas se reparten desde arriba y desde abajo, y no se pisan', () => {
@@ -453,7 +474,7 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
   const sinZonas = null;
   const sinRachas = new Map<number, string>();
 
-  it('enseña los goles reconstruidos de la misma jornada y lo dice al pie', () => {
+  it('enseña los goles reconstruidos de la misma jornada sin explicar el cálculo', () => {
     const html = renderToStaticMarkup(createElement(Clasificacion, {
       filas: [filaBase],
       rachas: new Map([[17607, 'GG']]),
@@ -462,14 +483,14 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
     }));
     expect(html).toContain('5:1');
     expect(html).not.toContain('0:0');
-    expect(html).toMatch(/reconstruid/i);
-    expect(html).toMatch(/jornada 2/i);
+    // §8 de la doctrina: el cálculo se hace y se calla; no se explica al cliente.
+    expect(html).not.toMatch(/reconstruid|Sobre estos datos/i);
     // La tabla se desplaza dentro de su caja y las dos primeras columnas quedan fijas.
     expect(html).toContain('data-tabla-scroll');
     expect(html).toContain('scope="col"');
   });
 
-  it('si esa jornada no tiene reconstrucción enseña «—» y lo explica, en vez de un cero', () => {
+  it('si esa jornada no tiene reconstrucción enseña «—», no un cero', () => {
     const html = renderToStaticMarkup(createElement(Clasificacion, {
       filas: [{ ...filaBase, goles_favor_reconstruida: null, goles_contra_reconstruida: null }],
       rachas: sinRachas,
@@ -478,10 +499,9 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
     }));
     expect(html).toContain('—');
     expect(html).not.toContain('0:0');
-    expect(html).toMatch(/no hay reconstrucci/i);
   });
 
-  it('si la reconstrucción de esa jornada está a medias, lo dice y no promete una tabla completa', () => {
+  it('si la reconstrucción de esa jornada está a medias, no promete una tabla completa', () => {
     const html = renderToStaticMarkup(createElement(Clasificacion, {
       filas: [
         filaBase,
@@ -493,10 +513,9 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
     }));
     expect(html).toContain('5:1');
     expect(html).toContain('—');
-    expect(html).toMatch(/incompleta/i);
   });
 
-  it('sin clasificación no pinta una tabla vacía: lo dice', () => {
+  it('sin clasificación no pinta una tabla vacía: lo dice en una línea', () => {
     const html = renderToStaticMarkup(createElement(Clasificacion, {
       filas: [],
       rachas: sinRachas,
@@ -504,17 +523,17 @@ describe('la clasificación renderizada dice la verdad del dato', () => {
       equipos: 16,
     }));
     expect(html).not.toContain('<table');
-    expect(html).toMatch(/no tiene clasificación publicada/i);
+    expect(html).toContain('Sin clasificación publicada.');
   });
 
-  it('la forma que se pinta se explica al pie: misma jornada que la tabla', () => {
+  it('no añade explicaciones de cómo se calcula la forma', () => {
     const html = renderToStaticMarkup(createElement(Clasificacion, {
       filas: [filaBase],
       rachas: new Map([[17607, 'GG']]),
       zonas: sinZonas,
       equipos: 16,
     }));
-    expect(html).toMatch(/la forma cuenta los partidos hasta la misma jornada/i);
+    expect(html).not.toMatch(/la forma cuenta los partidos|Sobre estos datos/i);
   });
 });
 

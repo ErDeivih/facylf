@@ -10,9 +10,9 @@ import { resultadoDeSugerencia } from '../src/lib/sugerencias';
 /**
  * Contrato de las sugerencias del buscador de la cabecera.
  *
- * Lo que se defiende aquí es el invariante del proyecto: **un nombre de menor de edad no se publica
- * nunca**. La consulta ya trae `es_menor`; la página de sugerencias es la que decide con
- * `nombreVisible()` y no con un `if` suelto. Además, el panel flotante no puede llevar texto visible
+ * Lo que se defiende aquí: el nombre de un menor **se publica** (la federación tiene consentimiento de
+ * tratamiento, decisión de David del 05/11/2026) y las fotos de personas no se publican. La consulta
+ * trae `es_menor`; `nombreVisible()` no lo usa para ocultar el nombre. Además, el panel flotante no puede llevar texto visible
  * con `--texto-tenue` (tinta-500: 3,93:1, por debajo de AA): axe lo marcó como serio con el panel
  * abierto y este fichero lo fija.
  *
@@ -42,12 +42,12 @@ function fila(extra: Partial<FilaBusqueda> = {}): FilaBusqueda {
   };
 }
 
-describe('sugerencias del buscador · la regla de los menores', () => {
-  it('un jugador menor de edad nunca publica su nombre: se rotula', () => {
+describe('sugerencias del buscador · nombres de menores', () => {
+  it('un jugador menor de edad conserva su nombre: hay consentimiento de tratamiento', () => {
     const sugerencia = resultadoDeSugerencia(fila({ es_menor: true }));
-    expect(sugerencia.titulo).toBe('Jugador menor de edad');
-    expect(JSON.stringify(sugerencia)).not.toContain('BURGO');
-    // El enlace se conserva: la ficha existe y el nombre no viaja en la sugerencia.
+    expect(sugerencia.titulo).toBe('BURGO GARCIA, PABLO');
+    expect(JSON.stringify(sugerencia)).toContain('BURGO');
+    // El enlace se conserva y no hay ninguna foto en la sugerencia.
     expect(sugerencia.url).toBe('/jugador/1586364');
   });
 
@@ -94,7 +94,7 @@ describe('sugerencias del buscador · el panel flotante', () => {
     cuenta: { jugador: 1 },
     resultados: [{
       tipo: 'jugador',
-      titulo: 'Jugador menor de edad',
+      titulo: 'BURGO GARCIA, PABLO',
       subtitulo: 'Real Federación de Castilla y León de Fútbol · C.D. Cuatrovientos · 2026-27',
       meta: 'identidad nominal',
       url: '/jugador/1586364',

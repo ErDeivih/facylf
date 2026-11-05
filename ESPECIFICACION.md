@@ -67,7 +67,7 @@ con su veredicto (fallo real o deuda conocida), está en [`INFORME-PRUEBAS.md`](
   404 correcto bajo `Suspense`, y arreglado el fallo de goles reconstruidos mezclados de dos jornadas.
   Evidencia: [`SPEC-PANTALLA-2.md`](docs/plataforma-web/SPEC-PANTALLA-2.md) y
   [`DECISIONES.md`](DECISIONES.md) (decisiones 10-19); capturas en
-  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-04.png).
+  [`docs/plataforma-web/capturas/`](docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-05.png).
   También hechos: el **tema claro/oscuro** (cookie resuelta en servidor, control en la cabecera; sólo
   en rutas migradas) y la forma **V-E-D**. Faltan de la primera tanda: la **pantalla Jornada**, el
   **acta del partido** y la **ficha de equipo**. Quedan para después las demás pestañas y pantallas, el
@@ -150,3 +150,24 @@ El fichero existe en la raíz con datos reales y **se refresca cada 5 minutos** 
   (`/explorar…`): `proxy.ts` deja la ruta y en las páginas viejas se fuerza claro y no se ofrece el
   botón, porque usan colores literales (deuda previa de `DESIGN.md` §2) y el oscuro las dejaba
   ilegibles. El orden de foco coincide con el visual (logo → Explorar → tema → buscador).
+
+## Revisión de David (2026-11-05) — siete correcciones de la pantalla 2
+
+1. **Escudos de club** en clasificación, fichas y jornadas, desde `core.club_asset`, con respaldo
+   determinista si falta.
+2. **Escudo de la federación** en la cabecera de la competición en vez de las siglas; recolectado del
+   portal oficial y guardado con su origen.
+3. **Zonas**: Liga Nacional Juvenil de CyL = 1 asciende y **3 descienden** (no 2). Regla fijada en
+   `core.reglamento_grupo` (migración 0055) y probada con el grupo 797/3769. La fase de ascenso no se
+   inventa hasta conocer sus puestos en las bases.
+4. **Sin textos internos** (`DOCTRINA-CALIDAD.md` §8): fuera «zonas según…», «Sobre estos datos»,
+   explicaciones del estado vacío y el pie con política de temporadas.
+5. **Menores** (`DOCTRINA-CALIDAD.md` §9): nombres publicados (consentimiento de la federación);
+   **fotos no**. Se actualizan `CLAUDE.md`, `AGENTS.md` y `SEGURIDAD-OPERACION.md` §5.
+6. **Se sigue con las páginas del prototipo**, una a una; primera tanda: clasificación (hecha),
+   jornada, acta del partido y ficha de equipo.
+7. **Registro de usuarios**: diseño preparado (entrar/crear cuenta y acceso desde la cabecera) para
+   favoritos, horarios, resultados y avisos; el backend vendrá después.
+
+Regla de texto que queda escrita: de cada texto de la interfaz, **¿le sirve al cliente para decidir o
+actuar?** Si no, se borra.

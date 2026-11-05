@@ -13,8 +13,10 @@ arquitectura actual.
 - Club, equipo-temporada e inscripción en una competición son entidades diferentes.
 - Las SQLite y los archivos comprimidos son evidencia de ingesta. La web objetivo consulta el
   PostgreSQL canónico mediante un rol de sólo lectura.
-- La instancia es privada. No publiques nombres de menores ni abras datos a Internet sin una decisión
-  explícita y una revisión de `docs/plataforma-web/SEGURIDAD-OPERACION.md`.
+- La instancia es privada. Los nombres de menores **se publican** porque la federación tiene
+  consentimiento de tratamiento (decisión de David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9); las
+  **fotos** de personas, y en particular de menores, **no se publican**. No abras datos a Internet sin
+  una decisión explícita y una revisión de `docs/plataforma-web/SEGURIDAD-OPERACION.md`.
 - Conserva los límites, pausas, reintentos e idempotencia de los recolectores. No dupliques workers ni
   cambies su ritmo como efecto lateral de una tarea web.
 - No edites una migración de `infra/migraciones/` que ya haya sido aplicada: añade otra.

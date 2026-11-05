@@ -72,6 +72,26 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     expect(cuerpoDeLaTabla).not.toMatch(/\b[GP]\b/); // G/P no son forma visible
   });
 
+  test('los escudos se pintan al tamaño del prototipo (22×24 y 56×56)', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    const escudos = page.locator('table img[data-escudo="real"]');
+    await expect(escudos).toHaveCount(16);
+    const cajas = await escudos.evaluateAll((els) => els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return [Math.round(r.width), Math.round(r.height)];
+    }));
+    for (const [ancho, alto] of cajas) {
+      expect([ancho, alto]).toEqual([22, 24]);
+    }
+    const federacion = page.locator('img[src*="/api/escudo/federacion/"]');
+    await expect(federacion).toBeVisible();
+    const cajaFederacion = await federacion.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return [Math.round(r.width), Math.round(r.height)];
+    });
+    expect(cajaFederacion).toEqual([56, 56]);
+  });
+
   test('un nombre de 45 caracteres no rompe la tabla a 400 px y se puede leer', async ({ page }) => {
     // Grupo real de CyL (Tercera División de Fútbol Sala 2023-24) con un nombre de 61 caracteres. El
     // criterio §10.8 del sistema de diseño se comprueba con datos reales, no con 3769 (≤26).
@@ -110,21 +130,20 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     expect(desborde.scroll).toBeLessThanOrEqual(desborde.cliente + 1);
   });
 
-  test('el buscador no publica nombres de menores y no rompe la accesibilidad al abrirse', async ({ page, request }) => {
-    // El canónico trae `es_menor`; el endpoint de sugerencias tiene que rotular, no publicar el nombre.
+  test('el buscador publica los nombres (también de menores) y no rompe la accesibilidad al abrirse', async ({ page, request }) => {
+    // La federación tiene consentimiento de tratamiento: el nombre se publica; la marca `es_menor` ya
+    // no lo oculta. Lo que no se publica son las fotos, y la sugerencia no lleva ninguna.
     const respuesta = await request.get('/api/buscar?q=burg');
     expect(respuesta.status()).toBe(200);
     const datos = await respuesta.json() as { resultados: Array<{ tipo: string; titulo: string; url: string }> };
     const jugadores = datos.resultados.filter((r) => r.tipo === 'jugador');
     expect(jugadores.length).toBeGreaterThan(0);
-    // Los menores conocidos del canónico (verificado con SELECT: es_menor = true) no pueden salir con
-    // su nombre: se rotulan. No se usa un patrón de «nombre con coma» porque hay adultos de una sola
-    // palabra («Burgos», «burguet») y el formato no es la regla: la regla es es_menor.
     const MENORES_BURG = new Set(['/jugador/1586364', '/jugador/1520230', '/jugador/1567937', '/jugador/1353383']);
     const menores = jugadores.filter((j) => MENORES_BURG.has(j.url));
     expect(menores.length).toBe(MENORES_BURG.size);
     for (const j of menores) {
-      expect(j.titulo, `menor publicado en ${j.url}`).toBe('Jugador menor de edad');
+      expect(j.titulo, `menor oculto en ${j.url}`).not.toBe('Jugador menor de edad');
+      expect(j.titulo.length).toBeGreaterThan(4);
     }
 
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -180,6 +199,8 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     await expect(cabecera.locator('a[href*="comparar"]')).toHaveCount(0);
     // No hay sistema de avisos ni cuentas todavía: un «3» en la campana sería un dato inventado.
     await expect(cabecera).not.toContainText(/\b[1-9]\d*\b/);
+    // La cuenta ya tiene pantalla de entrada (sin sesión ni avatar inventado).
+    await expect(cabecera.getByRole('link', { name: 'Entrar o crear cuenta' })).toHaveAttribute('href', '/entrar');
   });
 
   test('las migas empiezan por el nombre corto real de la federación', async ({ page }) => {
@@ -192,17 +213,36 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
   test('los goles que enseña no son ceros disfrazados: la tabla oficial de CyL no publica goles', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const cuerpo = await page.locator(TABLA).innerText();
-    // Si la federación no publica goles, se enseñan los reconstruidos y la página lo dice.
+    // Si la federación no publica goles, se enseñan los reconstruidos; nunca 0:0 de relleno.
     expect(cuerpo).not.toContain('0:0');
-    await expect(page.getByText(/goles.*reconstruid/i).first()).toBeVisible();
+    expect(cuerpo).toMatch(/\d+:\d+/);
   });
 
-  test('ningún nombre de menor llega al HTML', async ({ page }) => {
+  test('la pestaña Jornadas lleva al listado y una jornada a sus partidos', async ({ page }) => {
+    await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
+    await page.getByRole('link', { name: 'Jornadas' }).click();
+    await expect(page).toHaveURL(new RegExp(`/explorar/competicion/${GRUPO_CYL}/jornadas$`));
+    await expect(page.getByRole('heading', { name: 'Jornadas' })).toBeVisible();
+
+    const enlaces = page.locator('a[href*="/jornada/"]');
+    await expect(enlaces.first()).toBeVisible();
+    await enlaces.first().click();
+    await expect(page).toHaveURL(new RegExp(`/explorar/competicion/${GRUPO_CYL}/jornada/\\d+$`));
+    await expect(page.getByRole('heading', { name: /^Jornada \d+$/ }).first()).toBeVisible();
+    // Marcador o «—», nunca un texto técnico de cómo se ha calculado.
+    const partidos = page.locator('section', { has: page.getByRole('heading', { name: 'Partidos' }) });
+    await expect(partidos).toBeVisible();
+    await expect(partidos).not.toContainText(/canónico|reconstruid|cálculo|según el reglamento/i);
+  });
+
+  test('los nombres se publican y no hay fotos de personas', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const goleadores = page.locator('section', { has: page.getByRole('heading', { name: 'Goleadores' }) });
     const texto = await goleadores.innerText();
-    // Los nombres en el canónico vienen como «APELLIDOS, NOMBRE»; un menor nunca debe salir así.
-    expect(texto).not.toMatch(/[A-ZÁÉÍÓÚÜÑ]{2,},\s+[A-ZÁÉÍÓÚÜÑ]/);
+    // Los nombres vienen como «APELLIDOS, NOMBRE» y ahora se publican también los de menores.
+    expect(texto).toMatch(/[A-ZÁÉÍÓÚÜÑ]{2,},\s+[A-ZÁÉÍÓÚÜÑ]/);
+    // Ninguna foto de persona: la sección no tiene imágenes.
+    expect(await goleadores.locator('img').count()).toBe(0);
   });
 
   test('a 400 px no hay desplazamiento horizontal del documento y la primera columna queda fija', async ({ page }) => {
@@ -266,8 +306,9 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
       .filter(Boolean));
     expect(orden[0]).toContain('facylf');
     expect(orden[1]).toContain('Explorar');
-    expect(orden[2]).toBe('Cambiar a tema oscuro');
-    expect(orden[3]).toContain('Buscar');
+    expect(orden[2]).toBe('Entrar o crear cuenta');
+    expect(orden[3]).toBe('Cambiar a tema oscuro');
+    expect(orden[4]).toContain('Buscar');
   });
 
   test('el tema se resuelve en el servidor y el botón lo cambia y lo persiste', async ({ page, context, request }) => {

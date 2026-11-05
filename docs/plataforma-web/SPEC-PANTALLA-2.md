@@ -88,18 +88,19 @@ reservas aceptadas y escritas en `DECISIONES.md` (decisiones 20-21).
 
 | Criterio | Evidencia |
 |---|---|
-| 200, 16 filas, puntos ordenados, `PJ=G+E+P`, forma de la misma jornada | `apps/web/e2e/pantalla-2.spec.ts` (**22/22** en móvil 360 y escritorio 1280) |
-| Cabecera del prototipo sin ficción; sin nombres de menores en el buscador | e2e + `apps/web/test/cabecera-sitio.test.ts` (8/8) y `sugerencias.test.ts` (9/9) |
+| 200, 16 filas, puntos ordenados, `PJ=G+E+P`, forma de la misma jornada | `apps/web/e2e/pantalla-2.spec.ts` (**30/30** en móvil 360 y escritorio 1280, 05/11/2026) |
+| Cabecera del prototipo sin ficción; nombres publicados (también de menores) y sin fotos | e2e + `apps/web/test/cabecera-sitio.test.ts` (8/8), `sugerencias.test.ts` (9/9) y `competicion-pantalla.test.ts` |
 | Migas con nombre corto real | e2e + consulta `federacion_corta` |
-| 400 px sin scroll de documento, columna fija y nombre de 61 caracteres legible | e2e (grupo 17863) + `capturas/pantalla-2-nombre-largo-17863-400-2026-11-04.png` |
-| Sin nombres de menores en la pantalla | e2e + `nombreVisible` probado |
+| 400 px sin scroll de documento, columna fija y nombre de 61 caracteres legible | e2e (grupo 17863) + `capturas/pantalla-2-nombre-largo-17863-400-2026-11-05.png` |
+| Escudos reales de club y escudo de la federación | `escudos.test.ts` (30), API `/api/escudo/...` y captura 05/11 |
+| Zonas según reglamento: 1 asciende, 3 descienden en Liga Nacional | migración 0055 + prueba contra 797/3769 |
 | 404 de verdad | e2e (`abc`, `0`, `-3`, `999999999`) |
 | axe sin serias/críticas, también con el buscador abierto | e2e en ambos proyectos y `tmp/qa.mjs` (0 violaciones) |
-| Goles de la misma jornada; forma de la misma jornada | pruebas de integración contra 3769, 797 y 1181; notas al pie renderizadas |
-| Estados: vacío, parcial, carga; error revisado por código | capturas `pantalla-2-estado-vacio-…`, esqueleto con 16 filas en el HTML, error no se puede provocar sin parar el canónico |
-| `pnpm test` / `tsc` / `lint` | 705 pruebas en verde (1 saltada) + 22 e2e; ver `ESTADO-AGENTE.md` de la sesión |
+| Goles de la misma jornada; forma de la misma jornada | pruebas de integración contra 3769, 797 y 1181; notas al pie ya retiradas por §8 |
+| Estados: vacío, parcial, carga; error revisado por código | captura `pantalla-2-estado-vacio-2026-11-05.png`, esqueleto con 16 filas en el HTML, error no se puede provocar sin parar el canónico |
+| `pnpm test` / `tsc` / `lint` | **815 en verde, 1 saltada** + 30 e2e; ver `ESTADO-AGENTE.md` |
 
-Capturas: `docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-04.png`,
-`…-360-…`, `…-400-…`, `pantalla-2-clasificacion-797-2026-11-04.png`,
-`pantalla-2-estado-vacio-2026-11-04.png`, `pantalla-2-oscuro-2026-11-04.png`,
-`pantalla-2-nombre-largo-17863-400-2026-11-04.png` y `cabecera-sitio-2026-11-04.png`.
+Capturas: `docs/plataforma-web/capturas/pantalla-2-clasificacion-3769-2026-11-05.png`,
+`…-360-…`, `…-400-…`, `pantalla-2-clasificacion-797-2026-11-05.png`,
+`pantalla-2-estado-vacio-2026-11-05.png`, `pantalla-2-oscuro-2026-11-05.png`,
+`pantalla-2-nombre-largo-17863-400-2026-11-05.png` y `cabecera-sitio-2026-11-05.png`.

@@ -6,7 +6,7 @@ Fútbol no profesional de España: recogida, base canónica e informes. Instanci
 - no inventar datos;
 - desconocido ≠ 0;
 - identidad con contexto;
-- no publicar nombres de menores;
+- los nombres de menores se publican (la federación tiene consentimiento de tratamiento); las fotos de personas, no;
 - no tocar migraciones aplicadas;
 - no cambiar el ritmo de los recolectores como efecto lateral.
 
@@ -52,4 +52,4 @@ Si encuentras trabajo que es de otro, apúntalo en su documento de estado; no lo
 - Tocar los ajustes del PC de David.
 - Bajar la pausa entre peticiones a una web.
 - Esquivar un bloqueo.
-- Sacar del PC datos con nombres de menores.
+- Sacar del PC fotos de personas o datos que no tengan cobertura de consentimiento; los nombres de menores sí se publican y no se ocultan (decisión de David, 05/11/2026).

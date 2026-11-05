@@ -44,9 +44,9 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   los goles reconstruidos se mezclaban de otra jornada. 39 pruebas de vitest + 16 de Playwright
   (móvil 360 y escritorio 1280) + axe sin serias/críticas. Contrato y evidencia en
   [`docs/plataforma-web/SPEC-PANTALLA-2.md`](docs/plataforma-web/SPEC-PANTALLA-2.md); decisiones 10-19
-  en [`DECISIONES.md`](DECISIONES.md); capturas `pantalla-2-clasificacion-3769-2026-11-04.png`,
-  `…-360-…`, `…-400-…`, `pantalla-2-clasificacion-797-2026-11-04.png`,
-  `pantalla-2-estado-vacio-2026-11-04.png`.
+  en [`DECISIONES.md`](DECISIONES.md); capturas `pantalla-2-clasificacion-3769-2026-11-05.png`,
+  `…-360-…`, `…-400-…`, `pantalla-2-clasificacion-797-2026-11-05.png`,
+  `pantalla-2-estado-vacio-2026-11-05.png`.
 
 - [x] **(Nivel 2) Cabecera común del sitio (pantalla 2 y siguientes).** Según `Cabecera.dc.html`:
   barra de 64 px, marca, navegación de funciones, buscador global adaptado del existente, enlaces sin
@@ -63,29 +63,49 @@ Regla del protocolo: **nunca menos de 5 tareas listas**. Si baja de 5, se genera
   pantallas**: clasificación (hecha), jornada, acta del partido y ficha de equipo. El resto de las 22
   se añade después, sobre la misma base. Decisiones 27 y actualización de la 22 en `DECISIONES.md`.
 
+- [x] **(Nivel 2) Revisión de la pantalla 2 (David, 05/11/2026).** Escudos reales de club en
+  clasificación y jornadas (16/16 en los grupos 797 y 3769, desde `core.club_asset`); escudo de la
+  federación en la cabecera (migración 0056, `core.federation_asset`, 22/23 federaciones; RFEF
+  pendiente porque su portal exige cookie y no hay HTML archivado); zonas fijadas por reglamento
+  (migración 0055: 1 ascenso, 3 descensos en Liga Nacional Juvenil) y probadas contra 797/3769; fuera
+  los textos internos (§8 de la doctrina); nombres de menores publicados y fotos no (§9), con
+  `CLAUDE.md`, `AGENTS.md` y `SEGURIDAD-OPERACION.md` actualizados. Capturas en
+  `docs/plataforma-web/capturas/…-2026-11-05.png`.
+
+- [x] **(Nivel 2) Pantalla Jornada (primera tanda).** `/explorar/competicion/[id]/jornadas` (listado)
+  y `/explorar/competicion/[id]/jornada/[numero]` (detalle), con escudos reales, marcador o «—», hora
+  y campo publicados, flechas de jornada vecina real y estados vacíos. 22 pruebas propias + e2e;
+  pestaña «Jornadas» enlazada desde la cabecera.
+
+- [x] **(Nivel 2) Diseño preparado de entrada/registro.** `/entrar` con los bloques Entrar y Crear
+  cuenta, copy de consentimiento vigente (nombres sí, fotos no) y acceso real desde la cabecera. Sin
+  backend: los formularios están preparados y avisan honestamente de que las cuentas aún no están
+  abiertas. 15 pruebas propias + capturas.
+
 ## Listas
 
-- [ ] **(Nivel 2, siguiente) Pantalla Jornada (primera tanda).** Contra el prototipo (`Competicion.dc.html`
-  pestaña Jornadas y la vista de jornada; `Jornada` de las 22): listado de jornadas del grupo con enlace
-  a cada una y estado (jugada / programada / sin datos), y detalle de una jornada con sus partidos,
-  resultado publicado o «—», y enlace al acta cuando exista. Reutilizar `partidos-de-grupo` y las
-  consultas de partidos; ruta nueva bajo `/explorar/competicion/[id]/jornada/[numero]` o pestaña, sin
-  romper la web vieja. Misma base visual que la pantalla 2, estados vacío/parcial/carga y pruebas
-  (vitest + e2e). Es la primera de las cuatro.
-
-- [ ] **(Nivel 2) Pantalla Acta del partido (primera tanda).** Prototipo `Acta.dc.html` (pantalla 3):
-  alineaciones, goles, tarjetas, cambios, árbitro y campo, con «desconocido ≠ 0» y sin nombres de
-  menores. Reutilizar las consultas de acta/apariciones existentes y la ruta vieja como contrato, pero
-  presentación nueva; enlazar desde la jornada. Pruebas de flujo y capturas.
+- [ ] **(Nivel 2, siguiente) Pantalla Acta del partido (primera tanda).** Prototipo `Acta.dc.html`
+  (pantalla 3): alineaciones, goles, tarjetas, cambios, árbitro y campo, con «desconocido ≠ 0». Los
+  nombres se publican (consentimiento de la federación); las fotos no. Reutilizar las consultas de
+  acta/apariciones existentes y la ruta vieja como contrato, pero presentación nueva; enlazar desde
+  la jornada (`hrefActa` ya está preparado en `PartidosDeJornada`). Pruebas de flujo y capturas.
 
 - [ ] **(Nivel 2) Pantalla Ficha de equipo (primera tanda).** Prototipo `Equipo.dc.html` (pantalla 4):
   cabecera del equipo con contexto (club, categoría, temporada), plantilla, evolución y últimos
   resultados, sobre las consultas de equipo/plantilla ya existentes. Presentación nueva y enlaces desde
   clasificación/jornada. Pruebas de flujo y capturas.
 
+- [ ] **(Nivel 2) Escudo de la RFEF.** Es la única federación sin escudo guardado: su portal exige
+  cookie de sesión y no hay HTML archivado. Mientras no se consiga, la cabecera de competiciones
+  nacionales cae al marcador con siglas; no se inventa.
+
 - [ ] **(Nivel 2) Resto de pestañas y pantallas, después de la primera tanda.** Goleadores, Disciplina,
   Equipos de la competición; las demás pantallas del prototipo se añaden sobre esta base, sin abrir 22
   frentes (decisión de David, 04/11/2026). Cuando toquen, cada una con su contrato y sus pruebas.
+
+- [ ] **(Nivel 2) Backend del registro y panel de favoritos.** Cuando David decida abrir cuentas:
+  autenticación con invitación, sesión, favoritos de club/equipo/jugador y avisos. El diseño ya está
+  preparado en `/entrar` y en la cabecera; **no** se finge que funciona.
 
 - [ ] **(Nivel 2) Pestañas Goleadores, Disciplina y Equipos de la pantalla 2.** Hoy están apagadas con
   `aria-disabled`. Goleadores ya tiene consulta (`ranking-goleadores`); Disciplina necesita tarjetas y
