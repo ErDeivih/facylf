@@ -126,6 +126,11 @@ detrás. Se acabaron las explicaciones: se implementa.
 - [x] **Backend/API de estadísticas, historiales y oficiales**: siete endpoints nuevos en `/api/v1` con
   ETag/304, caché por etiquetas y contrato documentado.
 
+- [ ] **Cobertura completa de Castilla y León**: a 05/11/2026 hay **133/889 competiciones completas**
+  (85 % por terminar) según `metricas-facylf.json`; las pantallas nuevas priorizan CyL por defecto y
+  muestran la cobertura real, pero la recogida la siguen haciendo los colectores programados
+  (servidor/PC, sin cambiar su ritmo). No se abre ninguna otra federación por defecto.
+
 ## Terminado cuando
 
 Puedo pedir cualquier competición/temporada y ver calendario, clasificación, jornadas, actas,
