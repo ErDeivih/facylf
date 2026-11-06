@@ -139,6 +139,12 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **diagnóstico del 133/889**: no es la cobertura ni los recolectores; el importador
+  al canónico no crea lotes desde el 29/10 12:19 (cola local con 41.783 trabajos pendientes) y la
+  cobertura se congela. Además `FACyLF proyector` fallaba por un error de sintaxis en
+  `scripts/proyectar-lectura.mjs` (backticks dentro del template SQL), corregido; `node --check` pasa.
+  Queda desbloquear la importación y volver a proyectar; detalle en
+  `docs/plataforma-web/DIAGNOSTICO-CYL-2026-11-06.md`.
 - 06/11/2026: **marca pendiente de elección.** David descarta Cantera y Futboly; quedan
   Marcador/Grada/Balompié/FutbolCyL. No se aplica ningún nombre nuevo hasta que elija: la interfaz
   conserva el nombre actual como marcador provisional. Se revisó la disposición de jornadas: equipos
@@ -598,3 +604,6 @@ estadísticas e historiales sin que falte nada.
 
 - [x] Priorizar los grupos de Castilla y León en el importador local. El orden anterior daba paso a grupos de otras federaciones y la última tanda del servidor cerró con 0 grupos importados y 3 cortes a los 60 minutos. La prueba de orden reproduce ese desplazamiento.
 - [ ] Aplicar el cambio al importador del servidor y medir el siguiente lote y el recuento canónico de competiciones completas. El panel sólo suma una competición cuando todos sus grupos se han certificado.
+
+- El 06/11 el canónico devolvió 3.600 grupos de CyL y cero recalculados en 24 horas. El proceso de importación del servidor seguía ejecutando una tanda y su copia local de `docker/importador.yml` y `scripts/importar-masivo.mjs` tenía cambios de operación. Integrar y comprobar la prioridad al terminar la tanda, revisando primero ese árbol.
+- Pruebas de la prioridad: 8 de 8 antes de añadir el caso, el caso nuevo falló con el orden anterior y 9 de 9 tras el arreglo. La suite de scripts pasó 226 de 226. La suite general previa tardó casi 16 minutos: 1.355 superadas, una omitida y un tiempo agotado en la prueba de corrección de acta del canónico.
