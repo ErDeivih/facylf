@@ -593,3 +593,8 @@ estadísticas e historiales sin que falte nada.
   integrado en ninguna ejecución: la pantalla lo dice en vez de inventar p95; (c) los estados de cuenta
   del prototipo (solicitud pendiente, acceso suspendido, paquete caducado) son de la pantalla de cuenta
   y no se incluyen aquí.
+
+## Ingesta de CyL (06/11/2026)
+
+- [x] Priorizar los grupos de Castilla y León en el importador local. El orden anterior daba paso a grupos de otras federaciones y la última tanda del servidor cerró con 0 grupos importados y 3 cortes a los 60 minutos. La prueba de orden reproduce ese desplazamiento.
+- [ ] Aplicar el cambio al importador del servidor y medir el siguiente lote y el recuento canónico de competiciones completas. El panel sólo suma una competición cuando todos sus grupos se han certificado.

@@ -8,8 +8,8 @@
  *
  * Tres decisiones que están en el código, no en la cabeza de quien lo lanza:
  *
- *   1. **Lo reciente primero** (temporada 2026-27, luego 2025-26) y, dentro de eso, los grupos con más actas: es
- *      lo que hace que la plataforma enseñe algo cuanto antes;
+ *   1. **Castilla y León primero**. En cada tramo, primero las temporadas recientes y, dentro de ellas,
+ *      los grupos con más actas;
  *   2. **La incidencia conocida del calendario y el acta NO para la importación**: la unidad se aparta, queda
  *      listada con su motivo en `estado/importacion.json` y el resto sigue. Saltársela en silencio sería perder
  *      datos de vista, y parar en cada una dejaría la carga a medias para siempre;

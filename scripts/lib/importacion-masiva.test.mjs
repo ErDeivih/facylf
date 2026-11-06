@@ -17,6 +17,15 @@ import {
 
 const unidad = (federacion, temporada, grupo, actas) => ({ federacion, temporada, grupo, actas });
 
+test('Castilla y León abre la tanda aunque otras federaciones tengan más actas', () => {
+  const orden = ordenaUnidades([
+    unidad('andalucia', '2026-27', 'g1', 300),
+    unidad('castilla-leon', '2024-25', 'g2', 8),
+    unidad('castilla-leon', '2026-27', 'g3', 12),
+  ]);
+  assert.deepEqual(orden.map((u) => u.grupo), ['g3', 'g2', 'g1']);
+});
+
 test('lo reciente va primero', () => {
   // El comparador devuelve la diferencia de años (sirve para ordenar, no para comparar con −1 exacto).
   assert.ok(ordenaTemporadas('2026-27', '2025-26') < 0, '2026-27 antes que 2025-26');

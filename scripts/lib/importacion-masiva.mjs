@@ -24,11 +24,13 @@ export function ordenaTemporadas(a, b) {
 }
 
 /**
- * El orden en el que se importan las unidades: temporada reciente primero y, a igual temporada, más actas
- * primero (más valor por minuto de CPU).
+ * Castilla y León abre la tanda. Dentro de cada prioridad, primero la temporada más reciente
+ * y, a igual temporada, el grupo con más actas.
  */
 export function ordenaUnidades(unidades) {
   return [...unidades].sort((a, b) => {
+    const porFederacion = Number(b.federacion === 'castilla-leon') - Number(a.federacion === 'castilla-leon');
+    if (porFederacion !== 0) return porFederacion;
     const porTemporada = ordenaTemporadas(a.temporada, b.temporada);
     if (porTemporada !== 0) return porTemporada;
     if ((b.actas ?? 0) !== (a.actas ?? 0)) return (b.actas ?? 0) - (a.actas ?? 0);
