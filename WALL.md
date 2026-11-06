@@ -139,6 +139,11 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **coordinación con Codex**. `14907a0` (prioridad CyL en el importador) ya está en la
+  historia de `fase-c`; no se duplica. Sus **9 pruebas** pasan. Verificado el servidor: la tanda activa
+  lleva **0 grupos** y **3 cortes de 60 min**, todos en Andalucía 2024-25; el contenedor todavía no
+  tiene el código de prioridad, así que no se reinicia mientras corre. La marca **Fondo Popular** va
+  en commits separados de la ingesta.
 - 06/11/2026: **objetivo CyL 2020-21…2026-27**. Estado por temporada (grupos completos/grupos):
   2020-21 182/337 · 2021-22 111/280 · 2022-23 157/286 · 2023-24 143/296 · 2024-25 169/289 ·
   2025-26 136/301 · 2026-27 1/237. Total CyL 134/889 ediciones; 1.474 grupos. Importador incremental
