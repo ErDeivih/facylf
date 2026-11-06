@@ -139,6 +139,9 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **server import avanza**. Tras desplegar la prioridad, la tanda de 2020-21 a 2023-24
+  ha importado 6 grupos de 2023-24 (6/6 presentes) y 1 de 2022-23 (1/1 presente), con más de 100.000
+  filas. El canónico del servidor sigue sin 2020-21/2021-22; la tanda actual cubre 2020-22.
 - 06/11/2026: **prioridad CyL desplegada en el importador del servidor**. Se reinició
   `facylf-importador` con el código de `14907a0` montado por fichero (sin reconstruir la imagen) y
   `--temporadas 2020-21,2021-22,2022-23,2023-24`; el batch anterior se interrumpió con 0 grupos.
