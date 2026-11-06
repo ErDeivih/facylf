@@ -98,7 +98,7 @@ export function fechaDeActa(fecha: string | null): string | null {
 
 /** Título de la pestaña del navegador: el partido y su jornada, no el título genérico del sitio. */
 export function tituloDeActa(x: { local: string; visitante: string; jornada: number }): string {
-  return `${x.local} - ${x.visitante} · Jornada ${x.jornada} — Cantera`;
+  return `${x.local} - ${x.visitante} · Jornada ${x.jornada} — Fondo Popular`;
 }
 
 /** Resultado de un partido en texto (`2 - 1`), o «—» si no está publicado. */

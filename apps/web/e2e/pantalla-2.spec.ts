@@ -352,7 +352,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
   test('la marca, la navegación explicada y el pie', async ({ page }) => {
     await page.goto(`/explorar/competicion/${GRUPO_CYL}`);
     const cabecera = page.locator('header').first();
-    await expect(cabecera).toContainText('Cantera');
+    await expect(cabecera).toContainText('Fondo Popular');
     await expect(cabecera).toContainText('Competiciones y grupos');
     await expect(cabecera).toContainText('Goleadores y tarjetas');
     await expect(cabecera).toContainText('Buscar talento');
@@ -509,7 +509,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
     const orden = await page.evaluate(() => [...document.querySelectorAll('header a, header button:not([disabled]), header input')]
       .map((el) => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || '')
       .filter(Boolean));
-    expect(orden[0]).toContain('Cantera');
+    expect(orden[0]).toContain('Fondo Popular');
     expect(orden[1]).toContain('Explorar');
     expect(orden[2]).toContain('Rankings');
     expect(orden[3]).toContain('Ojeo');

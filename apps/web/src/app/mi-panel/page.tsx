@@ -15,7 +15,7 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Mi panel — Cantera',
+  title: 'Mi panel — Fondo Popular',
 };
 
 export default async function MiPanel() {

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const fila = await arbitroDe(id);
-    return fila ? { title: `${fila.nombre} · Árbitro — Cantera` } : {};
+    return fila ? { title: `${fila.nombre} · Árbitro — Fondo Popular` } : {};
   } catch {
     // Sin canónico la página ya enseña su estado; el título por defecto del sitio vale.
     return {};

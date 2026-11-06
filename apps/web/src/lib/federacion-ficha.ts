@@ -232,10 +232,10 @@ export function federacionesComparables(
 
 /** Nombre para la pestaña de la federación. */
 export function tituloDeFederacion(nombre: string): string {
-  return `${nombre} — Cantera`;
+  return `${nombre} — Fondo Popular`;
 }
 
 /** Nombre para la pestaña del comparador. */
 export function tituloDelComparador(a: string | null, b: string | null): string {
-  return a !== null && b !== null ? `${a} y ${b} — Cantera` : 'Comparar jugadores — Cantera';
+  return a !== null && b !== null ? `${a} y ${b} — Fondo Popular` : 'Comparar jugadores — Fondo Popular';
 }

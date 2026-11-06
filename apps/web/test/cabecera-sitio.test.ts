@@ -46,7 +46,7 @@ function navFunciones(html: string): string {
 const LAYOUT = readFileSync(new URL('../src/app/layout.tsx', import.meta.url), 'utf8');
 
 describe('cabecera del sitio · marca', () => {
-  it('es un <header> con la marca Cantera (ya no facylf) y su tagline, que lleva a la portada', () => {
+  it('es un <header> con la marca Fondo Popular (ya no facylf) y su tagline, que lleva a la portada', () => {
     const html = pinta();
     expect(html.startsWith('<header')).toBe(true);
     expect(soloTexto(html)).toContain(NOMBRE_PRODUCTO);

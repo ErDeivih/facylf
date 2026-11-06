@@ -181,9 +181,9 @@ describe('jornadas: agrupación y fechas', () => {
 
   it('la pestaña del navegador dice la competición y, en el detalle, la jornada', () => {
     expect(tituloDeJornadas({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Jornadas · Liga Nacional Juvenil · Primera - III — Cantera');
+      .toBe('Jornadas · Liga Nacional Juvenil · Primera - III — Fondo Popular');
     expect(tituloDeJornada({ numero: 4, edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Jornada 4 · Liga Nacional Juvenil · Primera - III — Cantera');
+      .toBe('Jornada 4 · Liga Nacional Juvenil · Primera - III — Fondo Popular');
   });
 });
 

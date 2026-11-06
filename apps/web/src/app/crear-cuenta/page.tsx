@@ -17,7 +17,7 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Crear cuenta — Cantera',
+  title: 'Crear cuenta — Fondo Popular',
 };
 
 export default async function CrearCuenta({ searchParams }: {

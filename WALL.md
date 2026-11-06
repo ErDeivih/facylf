@@ -94,7 +94,7 @@ detrás. Se acabaron las explicaciones: se implementa.
 ## Revisión de las capturas (David, 05/11/2026)
 
 - [x] **Marca**: logo propio y nombre de producto; pie «archivo privado» retirado; navegación explicada.
-  Hecho como **Cantera** con logotipo de monograma C + balón, tagline, favicon, pie sustituido por un
+  Hecho como **Fondo Popular** con logotipo de monograma FP, tagline, favicon, pie sustituido por un
   enlace a Publicidad y descriptores en la navegación. El nombre se cambia en `componentes/marca/marca.ts`.
 - [x] **Jornadas**: tablas por jornada con resultados, equipos y actas enlazados; 4 tablas por fila en PC,
   apiladas en móvil; árbitro, escudos y nombres cortos; fecha derecha = última jornada jugada
@@ -159,13 +159,10 @@ estadísticas e historiales sin que falte nada.
   `scripts/proyectar-lectura.mjs` (backticks dentro del template SQL), corregido; `node --check` pasa.
   Queda desbloquear la importación y volver a proyectar; detalle en
   `docs/plataforma-web/DIAGNOSTICO-CYL-2026-11-06.md`.
-- 06/11/2026: **marca pendiente de elección.** David descarta Cantera y Futboly; quedan
-  Marcador/Grada/Balompié/FutbolCyL. No se aplica ningún nombre nuevo hasta que elija: la interfaz
-  conserva el nombre actual como marcador provisional. Se revisó la disposición de jornadas: equipos
-  apilados, etiquetas Campo/Árbitro a la derecha, 4 por fila en PC y una en móvil; nombres cortos de
-  Santa Marta ajustados a «Santa Marta». Entrar/Crear cuenta y pie legal ya estaban separados/retirados
-  y se comprobaron en HTML real.
-- 05/11/2026: **revisión de David aplicada con nombre Cantera.** Marca `Cantera` en cabecera, títulos
+- 06/11/2026: **marca definitiva Fondo Popular**, aprobada por David. Se aplica en cabecera, títulos,
+  textos, favicon y documentación; el logotipo es el monograma FP. Se mantienen rutas y nombres internos
+  (`facylf`). La app queda sirviendo en `localhost:3000`.
+- 05/11/2026: **revisión de David aplicada con nombre Fondo Popular.** Marca `Fondo Popular` en cabecera, títulos
   y textos, con logotipo propio (C con balón) y favicon a juego; verificado en el HTML real de `/`,
   `/canonico`, `/competiciones`, `/entrar` y `/crear-cuenta` que **no queda** «archivo privado» ni
   «no es una web oficial» (el pie sólo lleva el enlace a Publicidad). Acceso separado en dos páginas y
@@ -320,7 +317,7 @@ estadísticas e historiales sin que falte nada.
   las cuentas no tienen verificación de correo, recuperación de contraseña ni 2FA, y están dichas en
   `CUENTAS.md` sin fingirlas.
 
-- 05/11/2026: **feedback de capturas aplicado**. Marca **Cantera** con logotipo propio,
+- 05/11/2026: **feedback de capturas aplicado**. Marca **Fondo Popular** con logotipo propio,
   pie legal retirado y navegación explicada; jornadas en tablas (4 por fila en PC, apiladas en móvil,
   árbitro, escudos, actas y nombres cortos), fecha derecha corregida con `fecha_ultima_jugada`; nombres
   cortos guardados para 34.904 equipos de CyL; registro abierto en `/entrar` + `/crear-cuenta`; historiales
@@ -352,7 +349,7 @@ estadísticas e historiales sin que falte nada.
   `tmp/acceso-*.png`. Detalle en `docs/plataforma-web/CUENTAS.md`.
 
 - 05/11/2026: **revisión de capturas, punto «Marca» implementado y pendiente de validación (casilla
-  SIN marcar).** Nombre **Cantera** y tagline «fútbol federado, temporada a temporada» en
+  SIN marcar).** Nombre **Fondo Popular** y tagline «fútbol federado, temporada a temporada» en
   un único sitio (`componentes/marca/marca.ts`): cabecera, `metadata` del layout y título por defecto.
   Logotipo propio en `componentes/marca/Logotipo.tsx` (baldosa del acento con la cancha dibujada:
   rectángulo, línea de medio campo y círculo central; 28×28, decorativo porque la marca va en texto) y

@@ -416,8 +416,8 @@ describe('rutas, títulos y validación del id de la URL', () => {
 
   it('la pestaña del navegador dice qué competición y qué grupo', () => {
     expect(tituloDeCalendarioGrupo({ edicion: 'Liga Nacional Juvenil', grupo: 'Primera - III' }))
-      .toBe('Calendario · Liga Nacional Juvenil · Primera - III — Cantera');
-    expect(TITULO_DE_CALENDARIO).toBe('Calendario — Cantera');
+      .toBe('Calendario · Liga Nacional Juvenil · Primera - III — Fondo Popular');
+    expect(TITULO_DE_CALENDARIO).toBe('Calendario — Fondo Popular');
   });
 });
 

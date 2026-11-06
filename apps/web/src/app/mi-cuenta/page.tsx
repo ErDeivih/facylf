@@ -8,7 +8,7 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Mi cuenta — Cantera',
+  title: 'Mi cuenta — Fondo Popular',
 };
 
 /**

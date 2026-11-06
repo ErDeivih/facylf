@@ -247,7 +247,7 @@ export function marcadorDePartido(p: {
  * pestaña decía siempre el título del sitio y no se distinguía una ficha de otra.
  */
 export function tituloDeCompeticion(x: { edicion: string; grupo: string }): string {
-  return `${x.edicion} · ${x.grupo} — Cantera`;
+  return `${x.edicion} · ${x.grupo} — Fondo Popular`;
 }
 
 /** ¿El valor del vocabulario aporta algo, o es uno de los «no se sabe» del esquema? */

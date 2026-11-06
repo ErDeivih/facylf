@@ -11,11 +11,11 @@ import { sesionActual } from '@/lib/sesion';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Inicio — Cantera',
+  title: 'Inicio — Fondo Popular',
 };
 
 /**
- * Portada de Cantera.
+ * Portada de Fondo Popular.
  *
  * Tres bloques, como el prototipo:
  *  · búsqueda por nombre de equipo, jugador o club (la misma consulta canónica que `/buscar`);

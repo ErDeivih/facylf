@@ -127,7 +127,7 @@ export function textoDeTarjetas(tramo: { amarillas: number; rojas: number }): st
 
 /** Título de la pestaña del navegador para el historial. */
 export function tituloDeHistorial(nombre: string): string {
-  return `${nombre} · Historial — Cantera`;
+  return `${nombre} · Historial — Fondo Popular`;
 }
 
 /** La fecha completa (con año) de un cambio, para no confundir «13 mar» de dos temporadas. */

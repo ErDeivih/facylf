@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const fila = await delegadoDe(id);
-    return fila ? { title: `${fila.nombre} · Delegado — Cantera` } : {};
+    return fila ? { title: `${fila.nombre} · Delegado — Fondo Popular` } : {};
   } catch {
     return {};
   }

@@ -211,10 +211,10 @@ export const rutaDeJornada = (grupoId: number, numero: number): string =>
 
 /** Título de la pestaña del navegador para el listado de jornadas (hallazgo C7 del QA). */
 export function tituloDeJornadas(x: { edicion: string; grupo: string }): string {
-  return `Jornadas · ${x.edicion} · ${x.grupo} — Cantera`;
+  return `Jornadas · ${x.edicion} · ${x.grupo} — Fondo Popular`;
 }
 
 /** Título de la pestaña del navegador para el detalle de una jornada. */
 export function tituloDeJornada(x: { numero: number; edicion: string; grupo: string }): string {
-  return `Jornada ${x.numero} · ${x.edicion} · ${x.grupo} — Cantera`;
+  return `Jornada ${x.numero} · ${x.edicion} · ${x.grupo} — Fondo Popular`;
 }

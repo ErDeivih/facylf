@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="32" height="32">
   <!--
-    Favicon de Cantera: el mismo dibujo que el logotipo de la cabecera
-    (componentes/marca/Logotipo.tsx), una C con un balon en su abertura sobre la baldosa del acento.
+    Favicon de Fondo Popular: el mismo monograma FP que el logotipo de la cabecera
+    (componentes/marca/Logotipo.tsx), sobre la baldosa del acento.
 
     Es un fichero estatico que el navegador carga fuera de la pagina: no hereda variables CSS, asi que
     lleva como literales los valores de los tokens de acento 700 y tinta 50 (tokens.css). No es un
@@ -9,10 +9,9 @@
     admite dentro de un comentario y el icono dejaria de parsearse.
   -->
   <rect width="28" height="28" rx="7" fill="oklch(0.45 0.105 215)" />
-  <g fill="none" stroke="oklch(0.98 0.003 250)" stroke-width="2.6" stroke-linecap="round">
-    <path d="M19.2 8.4a8 8 0 1 0 0 11.2" />
-    <circle cx="19.4" cy="14" r="2.15" fill="oklch(0.98 0.003 250)" stroke="none" />
-    <path d="M17.7 12.4h3.4" stroke="oklch(0.45 0.105 215)" stroke-width="0.9" />
-    <path d="M19.4 11.8v4.4" stroke="oklch(0.45 0.105 215)" stroke-width="0.9" />
+  <g fill="none" stroke="oklch(0.98 0.003 250)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 19.5V8.5h5.5M8 13.5h4" />
+    <path d="M16 19.5V8.5h3.1a3.7 3.7 0 0 1 0 7.4H16" />
   </g>
+  <circle cx="21.6" cy="19.4" r="1.2" fill="oklch(0.98 0.003 250)" />
 </svg>

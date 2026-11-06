@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     const filas = await historialDe(id);
     const ancla = filaAncla(filas, id);
-    return ancla ? { title: `${ancla.equipo} · historial — Cantera` } : {};
+    return ancla ? { title: `${ancla.equipo} · historial — Fondo Popular` } : {};
   } catch {
     // Sin canónico la página ya enseña su estado; el título por defecto del sitio vale.
     return {};
