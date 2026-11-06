@@ -45,6 +45,15 @@ export const DECISIONES_MANUALES = {
   'C.D.I. de la Amistad Deltacinco': 'C.D.I. Amistad',
   'Salamanca C.F. UDS': 'Salamanca CF',
   'Unionistas de Salamanca C.F.': 'Unionistas',
+  // David pidió expresamente «Unión Deportiva Santa Marta → Santa Marta»; el nombre publicado
+  // añade «de Tormes» y los filiales llevan letra.
+  'U.D. SANTA MARTA': 'Santa Marta',
+  'U.D. SANTA MARTA DE TORMES': 'Santa Marta',
+  'U.D. Santa Marta de Tormes': 'Santa Marta',
+  'U.D. Santa Marta de Tormes "B"': 'Santa Marta B',
+  'U.D. Santa Marta de Tormes "C"': 'Santa Marta C',
+  'U.D. Santa Marta de Tormes "D"': 'Santa Marta D',
+  'U.D. Santa Marta de Tormes "E"': 'Santa Marta E',
   // Nombres de club con artículo o con patrocinador que la regla no puede separar con seguridad.
   'C.D. Juventud del Círculo Católico': 'Círculo Católico',
   'C.D. Juventud del Circulo Católico': 'Círculo Católico',

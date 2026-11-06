@@ -139,6 +139,12 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **marca pendiente de elección.** David descarta Cantera y Futboly; quedan
+  Marcador/Grada/Balompié/FutbolCyL. No se aplica ningún nombre nuevo hasta que elija: la interfaz
+  conserva el nombre actual como marcador provisional. Se revisó la disposición de jornadas: equipos
+  apilados, etiquetas Campo/Árbitro a la derecha, 4 por fila en PC y una en móvil; nombres cortos de
+  Santa Marta ajustados a «Santa Marta». Entrar/Crear cuenta y pie legal ya estaban separados/retirados
+  y se comprobaron en HTML real.
 - 05/11/2026: **revisión de David aplicada con nombre Cantera.** Marca `Cantera` en cabecera, títulos
   y textos, con logotipo propio (C con balón) y favicon a juego; verificado en el HTML real de `/`,
   `/canonico`, `/competiciones`, `/entrar` y `/crear-cuenta` que **no queda** «archivo privado» ni

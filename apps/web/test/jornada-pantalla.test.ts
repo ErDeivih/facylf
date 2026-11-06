@@ -304,8 +304,8 @@ describe('las tablas de jornadas', () => {
     expect(soloSinResultado).toContain('—');
     expect(soloSinResultado).not.toContain('0 - 0');
     // La tabla apila los equipos en la columna izquierda y deja el resultado a la derecha.
-    expect(html).toContain('style="width:62%"');
-    expect(html).toContain('style="width:38%"');
+    expect(html).toContain('style="width:58%"');
+    expect(html).toContain('style="width:42%"');
     expect(html).toContain('min-w-0 truncate');
   });
 
@@ -391,7 +391,7 @@ describe('los partidos de una jornada', () => {
     const html = render();
     expect(html).toContain('Árbitro: ');
     expect(html).toContain('MARTÍN EZQUERRA, PABLO');
-    expect(html).toContain('grid-cols-[minmax(0,1fr)_auto]');
+    expect(html).toContain('grid-cols-[minmax(0,1fr)_minmax(0,44%)]');
     expect(html).toContain('items-end');
     expect(html).toContain('truncate');
   });

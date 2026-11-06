@@ -87,8 +87,8 @@ function JornadaEnTabla({ jornada, hrefJornada, hrefActa }: {
       <table className="w-full table-fixed border-collapse text-nota max-sm:text-tabla">
         <caption className="sr-only">Resultados de la jornada {jornada.numero}</caption>
         <colgroup>
-          <col style={{ width: '62%' }} />
-          <col style={{ width: '38%' }} />
+          <col style={{ width: '58%' }} />
+          <col style={{ width: '42%' }} />
         </colgroup>
         <tbody>
           {jornada.lista.map((partido) => (
@@ -149,24 +149,28 @@ function FilaDePartido({ partido, hrefActa }: {
           </Link>
         </div>
       </td>
-      <td className="min-w-0 py-2 pl-1 pr-2.5 text-right">
-        <div className="flex min-w-0 flex-col items-end gap-0.5">
+      <td className="min-w-0 border-l border-[var(--fondo-sutil)] py-2 pl-2.5 pr-2.5 text-right">
+        <div className="flex min-w-0 flex-col items-end gap-1">
           <span title={marcador.accesible}
             className={marcador.jugado
-              ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 font-bold text-[var(--texto-fuerte)]'
-              : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 font-semibold text-[var(--texto-suave)]'}>
+              ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 text-tabla font-bold text-[var(--texto-fuerte)]'
+              : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-tabla font-semibold text-[var(--texto-suave)]'}>
             {marcador.texto}
             <span className="sr-only">, {marcador.accesible}</span>
           </span>
           {campo !== '' && (
-            <span className="max-w-full truncate text-etiqueta leading-tight text-[var(--texto-suave)]" title={campo}>
-              {campo}
+            <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
+              title={`Campo: ${campo}`}>
+              <span className="flex-none text-[9px] uppercase tracking-[0.04em]">Campo</span>
+              <span className="min-w-0 truncate text-[var(--texto)]">{campo}</span>
             </span>
           )}
           {arbitro !== '' && (
-            <span className="max-w-full truncate text-etiqueta leading-tight text-[var(--texto-suave)]"
+            <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
               title={`Árbitro: ${arbitro}`}>
-              <span className="sr-only">Árbitro: </span>{arbitro}
+              <span className="flex-none text-[9px] uppercase tracking-[0.04em]" aria-hidden="true">Árbitro</span>
+              <span className="sr-only">Árbitro: </span>
+              <span className="min-w-0 truncate text-[var(--texto)]">{arbitro}</span>
             </span>
           )}
           {acta !== null && (

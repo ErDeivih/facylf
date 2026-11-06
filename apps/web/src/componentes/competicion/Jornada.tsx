@@ -70,7 +70,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
               const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
               return (
                 <li key={p.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2">
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,44%)] items-start gap-2 sm:grid-cols-[minmax(0,1fr)_320px]">
                     <div className="flex min-w-0 flex-col gap-1">
                       <Link href={enlaceEquipo(p.local_id)} title={nombres.completo_local}
                         className="flex min-w-0 items-center gap-2">
@@ -89,24 +89,28 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                         </span>
                       </Link>
                     </div>
-                    <div className="flex min-w-0 flex-col items-end gap-0.5 text-right">
+                    <div className="flex min-w-0 flex-col items-end gap-1 border-l border-[var(--fondo-sutil)] pl-2 text-right">
                       <span title={marcador.accesible}
                         className={marcador.jugado
-                          ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 font-bold text-[var(--texto-fuerte)]'
-                          : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 font-semibold text-[var(--texto-suave)]'}>
+                          ? 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] px-1.5 py-0.5 text-tabla font-bold text-[var(--texto-fuerte)]'
+                          : 'whitespace-nowrap tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-tabla font-semibold text-[var(--texto-suave)]'}>
                         {marcador.texto}
                         <span className="sr-only">, {marcador.accesible}</span>
                       </span>
                       {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
                       {campo !== '' && (
-                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]" title={campo}>
-                          {campo}
+                        <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
+                          title={`Campo: ${campo}`}>
+                          <span className="flex-none text-[9px] uppercase tracking-[0.04em]">Campo</span>
+                          <span className="min-w-0 truncate text-[var(--texto)]">{campo}</span>
                         </span>
                       )}
                       {arbitro !== '' && (
-                        <span className="max-w-[180px] truncate text-etiqueta leading-tight text-[var(--texto-suave)]"
+                        <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
                           title={`Árbitro: ${arbitro}`}>
-                          <span className="sr-only">Árbitro: </span>{arbitro}
+                          <span className="flex-none text-[9px] uppercase tracking-[0.04em]" aria-hidden="true">Árbitro</span>
+                          <span className="sr-only">Árbitro: </span>
+                          <span className="min-w-0 truncate text-[var(--texto)]">{arbitro}</span>
                         </span>
                       )}
                       {acta !== null && (
