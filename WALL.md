@@ -139,6 +139,13 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **primer desbloqueo de CyL**. Importador masivo arreglado para Windows (`pnpm.cmd`) y con
+  filtro `--temporadas`; proyector programado corregido; tarea `FACyLF importador incremental` (cada 30
+  min, logs en `estado/importacion.log`) y proyector con `FACYLF_LP_PUBLICO=true`; supervisor de CyL
+  con techo de 20 s en el cálculo del próximo trabajo y worker reiniciado. Cobertura **133 → 134**
+  ediciones completas: el grupo 3789 (2013-14) pasa a completa al aceptar el cálculo las jornadas de
+  7/9 con total 240; el resto de la cola son duplicados o grupos a los que les faltan resultados.
+  La tarea incremental sigue corriendo.
 - 06/11/2026: **diagnóstico del 133/889**: no es la cobertura ni los recolectores; el importador
   al canónico no crea lotes desde el 29/10 12:19 (cola local con 41.783 trabajos pendientes) y la
   cobertura se congela. Además `FACyLF proyector` fallaba por un error de sintaxis en

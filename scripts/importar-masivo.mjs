@@ -49,6 +49,9 @@ const SECO = argumentos.includes('--seco');
 const SOLO_ESTADO = argumentos.includes('--estado');
 const REINTENTAR_APARTADOS = argumentos.includes('--reintentar-apartados');
 const PEDIDAS = arg('federaciones', '').split(',').filter(Boolean);
+/* Permite una tanda de temporadas concretas: la cola del PC puede estar por detrás del canónico en la
+ * temporada en curso (la trae el servidor) y no debe reimportarla. */
+const TEMPORADAS = arg('temporadas', '').split(',').filter(Boolean);
 
 /** Federación de la cola → nombre que espera el importador (sólo uno cambia; ver `origen/cola.ts`). */
 const nombreParaImportador = (federacion) => (federacion === 'federacion' ? 'castilla-leon' : federacion);
@@ -108,6 +111,7 @@ function unidadesDeLasColas() {
           anota(`  (aviso) ${federacion}: la temporada ${codigo} no está en la tabla de temporadas de la cola; se salta`);
           continue;
         }
+        if (TEMPORADAS.length > 0 && !TEMPORADAS.includes(etiqueta)) continue;
         unidades.push({
           federacion: nombreParaImportador(federacion),
           federacionCola: federacion,
@@ -156,13 +160,16 @@ function motivoDeSalida(salida) {
  * Ahora el corte es configurable y por defecto de 60 min.
  */
 const TIMEOUT_GRUPO_MS = Number(process.env.FACYLF_IMPORTAR_TIMEOUT_MIN ?? 60) * 60_000;
+/* En Windows `pnpm` es un `.cmd`: `spawn('pnpm')` no lo resuelve y falla con ENOENT (visto 06/11/2026,
+ * con la cola llena y la tanda entera fallando en 0 s). En el servidor Linux sigue siendo `pnpm`. */
+const PNPM = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 function importaUnidad(unidad, { timeoutMs = TIMEOUT_GRUPO_MS } = {}) {
   return new Promise((listo) => {
-    const orden = spawn('pnpm', ['--filter', '@facylf/canonico', 'importar',
+    const orden = spawn(PNPM, ['--filter', '@facylf/canonico', 'importar',
       '--federacion', unidad.federacion, '--temporada', unidad.temporada, '--grupo', unidad.grupo],
     // Grupo de procesos propio (Linux): al cortar por tiempo hay que matar también al `tsx` que lanza pnpm, que
     // si no sigue vivo, sigue escribiendo y retiene la tubería hasta acabar (visto el 30/09/2026).
-    { cwd: RAIZ, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
+    { cwd: RAIZ, windowsHide: true, shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let salida = '';
     let matadoPorTiempo = false;
     const recoge = (d) => { salida += d.toString(); };

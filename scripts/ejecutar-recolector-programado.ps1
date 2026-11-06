@@ -1,4 +1,4 @@
-﻿param(
+param(
     # Si se indica una federación con perfil en perfiles/, supervisa ESE recolector con su
     # perfil y su carpeta propia. Sin esto, supervisa Castilla y León (comportamiento original).
     [string]$Federacion = ''
@@ -128,7 +128,21 @@ try {
         $baseDatos = Join-Path $carpetaEstado 'cola-v2.sqlite'
         $ayuda = Join-Path $PSScriptRoot 'proximo-trabajo.mjs'
         if ((Test-Path -LiteralPath $baseDatos) -and (Test-Path -LiteralPath $ayuda)) {
-            $salida = (& $node $ayuda $baseDatos 2>$null | Select-Object -First 1)
+            # El cálculo del próximo trabajo puede quedarse esperando un lock de SQLite (visto 06/11/2026:
+            # el supervisor quedaba colgado aquí y no arrancaba el worker). Se le pone un techo y, si no
+            # contesta, se vuelve a los 300 s en vez de bloquear la federación.
+            $trabajo = Start-Job -ScriptBlock {
+                param($nodo, $script, $db)
+                & $nodo $script $db 2>$null
+            } -ArgumentList $node, $ayuda, $baseDatos
+            if (Wait-Job $trabajo -Timeout 20) {
+                $salida = Receive-Job $trabajo | Select-Object -First 1
+            } else {
+                Stop-Job $trabajo -ErrorAction SilentlyContinue
+                $salida = ''
+                Escribe-Registro 'El cálculo del próximo trabajo no respondió en 20 s; se usa la espera de 300 s.'
+            }
+            Remove-Job $trabajo -Force -ErrorAction SilentlyContinue
             if ("$salida" -match '^\d+$') { $espera = [Math]::Max(20, [Math]::Min(3600, [int]$salida)) }
         }
         Escribe-Registro "El worker termino con codigo $codigo; siguiente intento en $espera s."

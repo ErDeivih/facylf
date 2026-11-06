@@ -1483,12 +1483,28 @@ async function recalculaCobertura(
     if (!todosConResultado) break;
     completaHasta = numero;
   }
-  const completa = esperadas !== null && completaHasta !== null && completaHasta >= esperadas
+  const partidosEsperados = esperadas === null ? null : partidosPorJornada * esperadas;
+  /*
+   * Un calendario real no siempre reparte el mismo número de partidos por jornada: con 16 equipos y
+   * 30 jornadas puede haber jornadas de 7 y de 9 porque la fuente desplaza un partido de fecha. Antes
+   * se exigía `partidosPorJornada` en TODAS y esos grupos quedaban `parcial_privada` para siempre
+   * aunque tuvieran los 240 resultados y las 237 actas (medido 06/11/2026: grupo 3789 de 2013-14).
+   * Si están todas las jornadas 1..N, todos los partidos tienen resultado y el total no baja del
+   * esperado, la cobertura es completa aunque el reparto por jornada no sea uniforme.
+   */
+  const todasLasJornadas = esperadas !== null && esperadas > 0
+    && numeros.length === esperadas
+    && numeros.every((numero, i) => numero === i + 1);
+  const totaleCuadra = partidosEsperados !== null && datos.partidos.length >= partidosEsperados;
+  const completaPorTotal = todasLasJornadas && totaleCuadra
     && conResultado.length === datos.partidos.length;
+  const completa = completaPorTotal || (esperadas !== null && completaHasta !== null && completaHasta >= esperadas
+    && conResultado.length === datos.partidos.length);
   const visibility = completa && datos.resumen.actas_parseadas >= datos.resumen.actas_disponibles
     ? 'completa'
     : completaHasta !== null && completaHasta > 0 ? 'verificada_hasta_jornada'
       : datos.partidos.length > 0 ? 'parcial_privada' : 'oculta';
+  const completeThrough = completaPorTotal && completa ? esperadas : completaHasta;
 
   const cobertura: Cobertura = {
     jornadas_esperadas: esperadas,
@@ -1497,16 +1513,9 @@ async function recalculaCobertura(
     partidos_conocidos: datos.partidos.length,
     partidos_con_resultado: conResultado.length,
     ...datos.resumen,
-    complete_through_matchday: completaHasta,
+    complete_through_matchday: completeThrough,
     visibility_state: visibility,
   };
-  /*
-   * `partidos_esperados` estaba SIEMPRE nulo, así que quien consulta no podía comparar lo que hay con lo que
-   * debería haber. Se llena con la cuenta de una liga regular —la mitad de los equipos del grupo por jornada
-   * prevista— y queda como referencia, no como promesa: si el grupo es un fragmento, la diferencia entre
-   * `partidos_conocidos` y `partidos_esperados` es la que lo dice.
-   */
-  const partidosEsperados = esperadas === null ? null : partidosPorJornada * esperadas;
   await cliente.query(
     `insert into ops.coverage_checkpoint (phase_group_id, jornadas_esperadas, jornadas_descubiertas, jornadas_cerradas,
         partidos_esperados, partidos_conocidos, partidos_con_resultado, actas_enlazadas, actas_disponibles, actas_parseadas,

@@ -2,7 +2,7 @@ titulo: FACYLF — plataforma de futbol federado de Castilla y Leon
 estado: en-curso
 tarea: todas las pantallas del prototipo y API v1 ampliada, con CyL prioritaria
 nivel: 2
-siguiente: Desbloquear la importación de CyL (41.783 trabajos pendientes en la cola local) y volver a proyectar; después medir cuántas ediciones pasan a completas.
-bloqueado: La puesta en marcha de la prioridad en el servidor espera que termine la tanda activa y se concilie con los cambios locales de su importador.
-resumen: Causa del 133/889: el importador al canónico está parado desde el 29/10 (no hay lotes nuevos) mientras los recolectores siguen descargando a la cola local (41.783 trabajos pendientes); la cobertura no se recalcula. Además el proyector programado fallaba por un error de sintaxis en proyectar-lectura.mjs, ya corregido. No es la cola de invalidación de caché. Detalle en docs/plataforma-web/DIAGNOSTICO-CYL-2026-11-06.md. Jornadas y acceso siguen verificados.
+siguiente: Seguir la tarea `FACyLF importador incremental` y medir cobertura; al terminar, revisar por qué muchas competiciones siguen incompletas (faltan resultados, no actas).
+bloqueado:
+resumen: Primera tanda de desbloqueo: importación local arreglada (spawn pnpm.cmd y filtro de temporadas), proyector corregido, supervisores revisados y tarea incremental creada. Cobertura CyL de 133 a 134 ediciones completas; 1 grupo pasó a completa y se corrigió el cálculo para calendarios con jornadas irregulares. La tarea sigue corriendo; la cola tiene trabajos pero los grupos importados ya estaban en el canónico o les faltan resultados. LP se proyecta con FACYLF_LP_PUBLICO=true.
 fecha: 2026-11-06
