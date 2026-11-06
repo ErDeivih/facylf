@@ -139,6 +139,13 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 06/11/2026: **objetivo CyL 2020-21…2026-27**. Estado por temporada (grupos completos/grupos):
+  2020-21 182/337 · 2021-22 111/280 · 2022-23 157/286 · 2023-24 143/296 · 2024-25 169/289 ·
+  2025-26 136/301 · 2026-27 1/237. Total CyL 134/889 ediciones; 1.474 grupos. Importador incremental
+  programado cada 30 min, proyector corregido y con LP pública, supervisor con timeout y worker de
+  CyL reiniciado. **Ninguna temporada objetivo está completa**: faltan resultados y algunas
+  clasificaciones; 2026-27 está en curso. La app queda sirviendo en localhost:3000 con los datos que
+  hay ahora.
 - 06/11/2026: **primer desbloqueo de CyL**. Importador masivo arreglado para Windows (`pnpm.cmd`) y con
   filtro `--temporadas`; proyector programado corregido; tarea `FACyLF importador incremental` (cada 30
   min, logs en `estado/importacion.log`) y proyector con `FACYLF_LP_PUBLICO=true`; supervisor de CyL
