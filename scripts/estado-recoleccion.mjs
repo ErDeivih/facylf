@@ -81,7 +81,7 @@ function plazasOcupadas() {
  * lleva por delante lo que quede, así que no hay una herramienta equivalente al barrido de Windows.
  */
 function memoriaDelProyectoLinux() {
-  const salida = spawnSync('ps', ['-eo', 'rss=,args='], { encoding: 'utf8', timeout: 30000 });
+  const salida = spawnSync('ps', ['-eo', 'rss=,args='], { encoding: 'utf8', timeout: 30000, windowsHide: true });
   let kb = 0;
   for (const linea of String(salida.stdout ?? '').split('\n')) {
     if (!/perfil-chrome|recolector-[a-z-]+\.mjs|ingesta-fin-de-semana/.test(linea)) continue;
@@ -101,7 +101,7 @@ function procesosDelProyecto() {
    * con la primera versión de este informe: «memoria ? GB»—.
    */
   const memoria = spawnSync(RUTA_POWERSHELL, ['-NoProfile', '-File', join(import.meta.dirname, 'medir-memoria-proyecto.ps1'), raiz],
-    { encoding: 'utf8', timeout: 60000 });
+    { encoding: 'utf8', timeout: 60000, windowsHide: true });
   // OJO con la coma decimal: en un sistema en español, PowerShell devuelve «10,19» y `Number('10,19')` es
   // `NaN`. La medición era correcta y el informe decía «?» por esto.
   const gb = Number(String(memoria.stdout ?? '').trim().split(/\s+/).pop().replace(',', '.'));
@@ -114,7 +114,7 @@ function procesosDelProyecto() {
   let huerfanos = null;
   const rutaLimpieza = join(import.meta.dirname, 'limpiar-chrome-huerfano.ps1');
   if (existsSync(rutaLimpieza)) {
-    const salida = spawnSync(RUTA_POWERSHELL, ['-NoProfile', '-File', rutaLimpieza, '-Simular'], { encoding: 'utf8', timeout: 120000 });
+    const salida = spawnSync(RUTA_POWERSHELL, ['-NoProfile', '-File', rutaLimpieza, '-Simular'], { encoding: 'utf8', timeout: 120000, windowsHide: true });
     // Sin la tilde a propósito: la salida del proceso hijo no llega en UTF-8 y «huérfanos» puede venir con los
     // acentos rotos. Exigirlos era la razón de que este dato saliera `null` teniendo el número delante.
     const m = /rfanos de recolector: (\d+) procesos/.exec(String(salida.stdout ?? ''));

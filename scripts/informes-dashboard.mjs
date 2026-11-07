@@ -22,7 +22,7 @@ const conPdf=args.includes('--pdf')||args.includes('--pdf-si');
 if(!soloRender)await c.connect();
 mkdirSync('informes/dashboard',{recursive:true});
 const salidas=[];
-function ejecutar(script, params){const r=spawnSync(process.execPath,[script,...params],{encoding:'utf8',stdio:'pipe',timeout:600000});if(r.status!==0)throw Error(r.stderr||r.stdout||r.error);console.log(r.stdout.trim());}
+function ejecutar(script, params){const r=spawnSync(process.execPath,[script,...params],{encoding:'utf8',stdio:'pipe',timeout:600000,windowsHide:true});if(r.status!==0)throw Error(r.stderr||r.stdout||r.error);console.log(r.stdout.trim());}
 function guardarVisor(snapshot,slug){
  const html=renderDashboard(snapshot,{photo:(person,season)=>{
   for(const ext of ['jpg','jpeg','png','webp']){const p=`informes/fotos/${slug}-${person}-${season}.${ext}`;if(existsSync(p))return `data:image/${ext==='jpg'?'jpeg':ext};base64,${readFileSync(p).toString('base64')}`;}

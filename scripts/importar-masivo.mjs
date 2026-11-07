@@ -160,16 +160,21 @@ function motivoDeSalida(salida) {
  * Ahora el corte es configurable y por defecto de 60 min.
  */
 const TIMEOUT_GRUPO_MS = Number(process.env.FACYLF_IMPORTAR_TIMEOUT_MIN ?? 60) * 60_000;
-/* En Windows `pnpm` es un `.cmd`: `spawn('pnpm')` no lo resuelve y falla con ENOENT (visto 06/11/2026,
- * con la cola llena y la tanda entera fallando en 0 s). En el servidor Linux sigue siendo `pnpm`. */
-const PNPM = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+/*
+ * Windows abre una consola por cada `cmd.exe` intermedio. `pnpm` es un `.cmd`, así que `spawn('pnpm')`
+ * y `shell: true` lanzaban cmd.exe por cada grupo y la ventana aparecía mientras David trabajaba
+ * (visto 07/11/2026). Se lanza directamente el CLI de tsx con el node actual: ni pnpm, ni shell, ni cmd.
+ * En el servidor y en el PC la ruta del paquete es la misma dentro del monorepo.
+ */
+const TSX_CLI = join(RAIZ, 'packages', 'canonico', 'node_modules', 'tsx', 'dist', 'cli.mjs');
+const CLI_CANONICO = join(RAIZ, 'packages', 'canonico', 'src', 'cli.ts');
 function importaUnidad(unidad, { timeoutMs = TIMEOUT_GRUPO_MS } = {}) {
   return new Promise((listo) => {
-    const orden = spawn(PNPM, ['--filter', '@facylf/canonico', 'importar',
+    const orden = spawn(process.execPath, [TSX_CLI, CLI_CANONICO,
       '--federacion', unidad.federacion, '--temporada', unidad.temporada, '--grupo', unidad.grupo],
-    // Grupo de procesos propio (Linux): al cortar por tiempo hay que matar también al `tsx` que lanza pnpm, que
-    // si no sigue vivo, sigue escribiendo y retiene la tubería hasta acabar (visto el 30/09/2026).
-    { cwd: RAIZ, windowsHide: true, shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
+    // Grupo de procesos propio (Linux): al cortar por tiempo hay que matar también al hijo de tsx.
+    // En Windows no se usa shell y `windowsHide` evita la consola.
+    { cwd: RAIZ, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let salida = '';
     let matadoPorTiempo = false;
     const recoge = (d) => { salida += d.toString(); };

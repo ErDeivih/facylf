@@ -565,7 +565,7 @@ function mideNavegadorDeEstePerfil() {
   try {
     const ruta = join(import.meta.dirname, 'medir-navegador-perfil.ps1');
     const ps = process.env.SystemRoot ? join(process.env.SystemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe') : 'powershell.exe';
-    const r = spawnSync(ps, ['-NoProfile', '-File', ruta, rutaPerfilChrome()], { encoding: 'utf8', timeout: 30000 });
+    const r = spawnSync(ps, ['-NoProfile', '-File', ruta, rutaPerfilChrome()], { encoding: 'utf8', timeout: 30000, windowsHide: true });
     const mb = Number(String(r.stdout ?? '').trim().split(/\s+/).pop().replace(',', '.'));
     return Number.isFinite(mb) && mb > 0 ? mb : null;
   } catch { return null; }
@@ -598,7 +598,7 @@ function limpiaChromeHuerfanoDeEstePerfil() {
     const ps = process.env.SystemRoot
       ? join(process.env.SystemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe')
       : 'powershell.exe';
-    const salida = spawnSync(ps, ['-NoProfile', '-Command', guion], { encoding: 'utf8', timeout: 30000 });
+    const salida = spawnSync(ps, ['-NoProfile', '-Command', guion], { encoding: 'utf8', timeout: 30000, windowsHide: true });
     if (salida.error) {
       console.log(`  · no se pudo limpiar el navegador de su perfil (${salida.error.code ?? salida.error.message}); se sigue recolectando.`);
       return;

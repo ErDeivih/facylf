@@ -32,6 +32,8 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SNAPSHOT = join(RAIZ, 'pruebas', 'reconstruccion', 'ciclo-importacion.json');
+const TSX_CLI = join(RAIZ, 'packages', 'canonico', 'node_modules', 'tsx', 'dist', 'cli.mjs');
+const IMPORTAR_TODO = join(RAIZ, 'scripts', 'importar-todo.mts');
 
 const argumentos = process.argv.slice(2);
 const arg = (nombre) => {
@@ -50,12 +52,10 @@ const extra = federacion === null ? [] : ['--federacion', federacion];
  */
 function ejecuta(comando, args, { json = false, heredar = false } = {}) {
   const inicio = Date.now();
-  // En Windows `pnpm` es un `.cmd`, así que hace falta el shell. Se le pasa UN comando ya montado y no una
-  // lista de argumentos: con `shell: true` y una lista, Node avisa (DEP0190) de que los argumentos se
-  // concatenan sin escapar.
-  const r = spawnSync([comando, ...args].join(' '), {
+  // Sin shell y con windowsHide: en Windows cada `pnpm`/`cmd` intermedio abría una consola.
+  const r = spawnSync(comando, args, {
     cwd: RAIZ,
-    shell: true,
+    windowsHide: true,
     stdio: heredar ? 'inherit' : ['ignore', 'pipe', 'inherit'],
     encoding: 'utf8',
     maxBuffer: 512 * 1024 * 1024,
@@ -93,31 +93,31 @@ console.log(`═══ ciclo de importación · ${new Date().toLocaleString('es-
 console.log('\n── midiendo antes…');
 let plan = null;
 if (!sinPlan) {
-  const r = ejecuta('pnpm', ['importar:todo', '--plan', ...extra]);
+  const r = ejecuta(process.execPath, [TSX_CLI, IMPORTAR_TODO, '--plan', ...extra]);
   plan = { ...delPlan(r.salida), segundos: r.segundos };
   console.log(`   el plan: ${plan.porHacer ?? '?'} grupo(s) por hacer · ${plan.sinTablaOficial ?? '?'} sólo por la tabla oficial (${r.segundos} s)`);
 }
-const estadoAntes = JSON.parse(ejecuta('node', ['scripts/estado-importacion.mjs', '--json', ...extra]).salida);
-const actasAntes = JSON.parse(ejecuta('node', ['scripts/mide-actas-sin-informe.mjs', '--json', ...extra]).salida);
-const bitacoraAntes = JSON.parse(ejecuta('node', ['scripts/mide-bitacora-de-colas.mjs', '--json', ...extra]).salida);
+const estadoAntes = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'estado-importacion.mjs'), '--json', ...extra]).salida);
+const actasAntes = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'mide-actas-sin-informe.mjs'), '--json', ...extra]).salida);
+const bitacoraAntes = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'mide-bitacora-de-colas.mjs'), '--json', ...extra]).salida);
 
 /* ── 2. Importar (si se ha pedido) ───────────────────────────────────────────────────────────────────── */
 let importacion = null;
 if (aplicar) {
   console.log('\n── importando todo lo que falte (esto es lo que tarda)…');
-  const r = ejecuta('pnpm', ['importar:todo', ...extra], { heredar: true });
+  const r = ejecuta(process.execPath, [TSX_CLI, IMPORTAR_TODO, ...extra], { heredar: true });
   importacion = { segundos: r.segundos, ok: r.ok };
   console.log(`   importación terminada en ${Math.round(r.segundos / 60)} min (${r.ok ? 'sin fallo de proceso' : 'el proceso terminó con error'})`);
 }
 
 /* ── 3. Las medidas de después ───────────────────────────────────────────────────────────────────────── */
 console.log('\n── midiendo después…');
-const estadoDespues = JSON.parse(ejecuta('node', ['scripts/estado-importacion.mjs', '--json', ...extra]).salida);
-const actasDespues = JSON.parse(ejecuta('node', ['scripts/mide-actas-sin-informe.mjs', '--json', ...extra]).salida);
-const bitacoraDespues = JSON.parse(ejecuta('node', ['scripts/mide-bitacora-de-colas.mjs', '--json', ...extra]).salida);
+const estadoDespues = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'estado-importacion.mjs'), '--json', ...extra]).salida);
+const actasDespues = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'mide-actas-sin-informe.mjs'), '--json', ...extra]).salida);
+const bitacoraDespues = JSON.parse(ejecuta(process.execPath, [join(RAIZ, 'scripts', 'mide-bitacora-de-colas.mjs'), '--json', ...extra]).salida);
 let planDespues = null;
 if (!sinPlan) {
-  const r = ejecuta('pnpm', ['importar:todo', '--plan', ...extra]);
+  const r = ejecuta(process.execPath, [TSX_CLI, IMPORTAR_TODO, '--plan', ...extra]);
   planDespues = { ...delPlan(r.salida), segundos: r.segundos };
 }
 

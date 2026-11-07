@@ -75,9 +75,11 @@ for (const codigo of federaciones) {
     continue;
   }
   const inicio = Date.now();
-  const ejecucion = spawnSync('npx', ['tsx', 'packages/canonico/src/cli.ts',
+  const ejecucion = spawnSync(process.execPath, [
+    join(RAIZ, 'packages', 'canonico', 'node_modules', 'tsx', 'dist', 'cli.mjs'),
+    join(RAIZ, 'packages', 'canonico', 'src', 'cli.ts'),
     '--federacion', codigo, '--temporada', grupo.etiqueta, '--grupo', grupo.grupo, ...(seco ? ['--seco'] : [])], {
-    cwd: RAIZ, encoding: 'utf8', shell: true,
+    cwd: RAIZ, encoding: 'utf8', windowsHide: true,
   });
   const salida = `${ejecucion.stdout ?? ''}${ejecucion.stderr ?? ''}`;
   const segundos = Math.round((Date.now() - inicio) / 1000);

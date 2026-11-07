@@ -139,6 +139,13 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 07/11/2026: **fin de las ventanas de consola**. El importador ya no lanza `pnpm.cmd` ni
+  `shell:true`: invoca `node` con `packages/canonico/node_modules/tsx/dist/cli.mjs` y el CLI
+  directamente. El recolector lanza PowerShell con `windowsHide:true`; también se han puesto
+  `windowsHide` y lanzamiento directo en `ciclo-importacion`, `importar-muestra-federaciones`,
+  `estado-recoleccion`, `copia-seguridad` e `informes-dashboard`. Las tareas programadas siguen con
+  el lanzador oculto.
+
 - 06/11/2026: **server import avanza**. Tras desplegar la prioridad, la tanda de 2020-21 a 2023-24
   ha importado 6 grupos de 2023-24 (6/6 presentes) y 1 de 2022-23 (1/1 presente), con más de 100.000
   filas. El canónico del servidor sigue sin 2020-21/2021-22; la tanda actual cubre 2020-22.

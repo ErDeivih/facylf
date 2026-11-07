@@ -37,7 +37,7 @@ const BASE = 'facylf', USUARIO = 'facylf_admin';
 const url = (process.env.DATABASE_URL_PUBLICADOR ?? '').trim();
 
 function docker(...a) {
-  const r = spawnSync('docker', a, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync('docker', a, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
   if (r.status !== 0) throw new Error(`docker ${a.slice(0, 3).join(' ')}… → ${r.status}: ${(r.stderr || r.stdout || '').slice(0, 500)}`);
   return r.stdout;
 }
