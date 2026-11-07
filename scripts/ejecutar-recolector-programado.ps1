@@ -114,10 +114,11 @@ try {
         Limpia-NavegadorHuerfano
         Limpia-CacheNavegador
         Escribe-Registro 'Arrancando o reanudando la ingesta.'
-        $orden = "`"$node`" `"$recolector`" arrancar"
-        if ($Federacion) { $orden += " --perfil `"$perfilJson`"" }
-        $orden += " >> `"$registro`" 2>&1"
-        & $env:ComSpec /d /s /c $orden
+        $argumentos = @($recolector, 'arrancar')
+        if ($Federacion) { $argumentos += @('--perfil', $perfilJson) }
+        # Sin cmd /c: el supervisor ya corre oculto y el hijo hereda esa consola oculta. Si se pasa por
+        # `$env:ComSpec` se crea un cmd.exe/conhost visible por cada worker (visto 07/11/2026).
+        & $node @argumentos *>> $registro
         $codigo = $LASTEXITCODE
         # Espera inteligente: cuando el único trabajo que queda está aplazado a una fecha futura
         # (jornadas de la temporada actual aún sin jugar), o cuando hay una pausa preventiva en
