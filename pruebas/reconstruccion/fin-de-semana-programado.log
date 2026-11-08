@@ -307,3 +307,14 @@ Node.js v24.21.0
   informe: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-24.json
   legible: F:\EspacioCodigo\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-24.md
 2026-10-26 10:34:09  --- fin (codigo 0) ---
+2026-11-04 15:32:31  --- pasada del fin de semana (excluidas: melilla,aragon,asturias,baleares,canarias,cantabria,castilla-la-mancha,ceuta,euskadi,extremadura,galicia,murcia,navarra,rioja,andalucia,madrid,cataluna,valencia,bizkaia,gipuzkoa,araba,laspalmas,tenerife) ---
+═══ ingesta del fin de semana · ventana 2026-10-31 (sábado) → 2026-11-01 (domingo)
+   (se dejan fuera 23 federación(es) de otro equipo: andalucia, araba, aragon, asturias, baleares, bizkaia, canarias, cantabria, castilla-la-mancha, cataluna, ceuta, euskadi, extremadura, galicia, gipuzkoa, laspalmas, madrid, melilla, murcia, navarra, rioja, tenerife, valencia)
+  federacion           jornadas  35 · comprobadas   0 · faltan por repasar  35 (reabiertas 0) · partidos    0 · actas    0 (sin actas encoladas)
+  rfef                 sin jornadas en la ventana
+
+  TOTAL: 1 federaciones con jornadas del finde · 35 jornadas (0 comprobadas) · 0 partidos · 0 actas (0 hechas, 0 pendientes) · faltan por repasar 35 jornadas (0 reabiertas ahora)
+
+  informe: F:\Proyectos\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-31.json
+  legible: F:\Proyectos\facylf\pruebas\reconstruccion\fin-de-semana-2026-10-31.md
+2026-11-04 15:34:16  --- fin (codigo 0) ---

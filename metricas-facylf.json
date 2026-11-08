@@ -1,8 +1,8 @@
 {
   "cyl": {
     "competiciones_total": 889,
-    "completas": 133,
-    "porcentaje": 85
+    "completas": 139,
+    "porcentaje": 84
   },
   "temporadas": [
     {
@@ -12,7 +12,7 @@
     },
     {
       "temporada": "2025-26",
-      "hecho": 19,
+      "hecho": 20,
       "total": 71
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "temporada": "2023-24",
-      "hecho": 21,
+      "hecho": 24,
       "total": 83
     },
     {
@@ -32,7 +32,7 @@
     },
     {
       "temporada": "2021-22",
-      "hecho": 11,
+      "hecho": 12,
       "total": 66
     },
     {
@@ -72,7 +72,7 @@
     },
     {
       "temporada": "2013-14",
-      "hecho": 4,
+      "hecho": 5,
       "total": 46
     },
     {
@@ -82,8 +82,8 @@
     }
   ],
   "ritmo": {
-    "pc_por_min": 0.8,
-    "servidor_por_min": 25,
-    "medido": "2026-11-04T20:33"
+    "pc_por_min": 16.4,
+    "servidor_por_min": 21,
+    "medido": "2026-11-08T20:08"
   }
 }
