@@ -1,4 +1,4 @@
-﻿<#
+<#
   Supervisor del recolector de la Comunidad Valenciana.
 
   Es el equivalente de `ejecutar-recolector-programado.ps1`, pero para la plataforma iSquad, que
@@ -74,8 +74,9 @@ try {
         }
 
         Escribe-Registro 'Arrancando o reanudando la ingesta de Valencia.'
-        $orden = "`"$node`" `"$recolector`" arrancar >> `"$registro`" 2>&1"
-        & $env:ComSpec /d /s /c $orden
+        # Sin cmd /c: el supervisor ya está oculto y el hijo hereda esa consola oculta. Con ComSpec
+        # se creaba un cmd.exe/conhost visible por cada worker.
+        & $node $recolector arrancar *>> $registro
         $codigo = $LASTEXITCODE
 
         # Espera inteligente: si lo único que queda está aplazado a una fecha futura, o hay una

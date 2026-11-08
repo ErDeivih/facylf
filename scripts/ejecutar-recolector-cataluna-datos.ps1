@@ -1,4 +1,4 @@
-﻿# Captura de datos de Cataluña (FCF): calendario, clasificación y actas de los grupos ya descubiertos.
+# Captura de datos de Cataluña (FCF): calendario, clasificación y actas de los grupos ya descubiertos.
 #
 # Es un supervisor, igual que el de las demás federaciones: arranca el worker, espera a que termine su
 # tanda y lo vuelve a arrancar. Cada tanda recicla el navegador (que en este portal es pesado) para
@@ -95,10 +95,9 @@ try {
         # Antes de cada tanda se vuelca el catálogo descubierto a la cola: es local, idempotente y así
         # los grupos que el descubridor va resolviendo entran en la cola sin esperar a que termine su
         # sesión (que puede durar horas).
-        $volcado = "`"$node`" `"$recolector`" preparar >> `"$registro`" 2>&1"
-        & $env:ComSpec /d /s /c $volcado
-        $orden = "`"$node`" `"$recolector`" arrancar --max $Max --min-ms $MinMs --max-ms $MaxMs >> `"$registro`" 2>&1"
-        & $env:ComSpec /d /s /c $orden
+        # Sin cmd /c: el supervisor ya está oculto y el hijo hereda esa consola oculta.
+        & $node $recolector preparar *>> $registro
+        & $node $recolector arrancar --max $Max --min-ms $MinMs --max-ms $MaxMs *>> $registro
         $codigo = $LASTEXITCODE
         # Si la cola se queda sin trabajo (o todo está aplazado), se da una vuelta larga antes de
         # volver a mirar: no tiene sentido abrir un navegador cada minuto para no hacer nada.
