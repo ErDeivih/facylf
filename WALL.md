@@ -139,6 +139,8 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 08/11/2026: **tanda real CyL 2020-21/2021-22**. 43 grupos importados, 0 apartados, 0 fallos y **0 competiciones nuevas completas**; la cola local de esas dos temporadas quedó agotada (270 unidades, 82 apartadas). No hay más datos en la cola para cerrarlas sin resolver los grupos con equipos sin identificar. Servidor: 2024-25 sube a 45/31; 2020-21 24/13 y 2021-22 2/0. La tarea programada sigue con 2026-27→2020-21. Ventanas: sin cmd de facylf en el árbol real.
+
 - 08/11/2026: **capturas nuevas de Fondo Popular**. La app sirve datos reales de 2020-21 y 2021-22: capturas en `docs/plataforma-web/capturas/fondo-popular-2020-21-jornadas-2026-11-08.png`, `...-2020-21-clasificacion...`, `...-2021-22-jornadas...` y `...-inicio...`. También se comprobó una ejecución real del importador sin `cmd.exe` en el árbol de procesos; la tanda CyL 2020-21/2021-22 sigue en `estado/importacion.log`.
 
 - 07/11/2026: **fin de las ventanas de consola**. El importador ya no lanza `pnpm.cmd` ni
