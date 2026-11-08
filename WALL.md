@@ -139,6 +139,8 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 08/11/2026: **faltas exactas de 2021-22**. 142 grupos incompletos y 9.815 partidos; cola local 1.991 jornadas, 5 actas, 62 calendarios y 64 clasificaciones. La tanda de importación terminó con 0 hechas, 1 fallo aislado (38234) y 0 completas; local 12/66. Detalle por grupo en `docs/plataforma-web/FALTAS-2021-22.md`. Siguiente: 2022-23.
+
 - 08/11/2026: **2021-22 sigue en recuperación**. La sesión lleva 200 calendarios hechos y 73 pendientes; quedan 2.005 jornadas. La tanda de importación procesó 114 grupos y no añadió completas; un grupo falló por acta/calendario incoherentes (38234). Local 2021-22 12/66. Después toca 2022-23.
 
 - 08/11/2026: **plan de recuperación de 2020-21/2021-22**. El bloqueo no es el importador: la cola tiene 551 actas y 1.665 jornadas pendientes de 2020-21, y 2.005 jornadas de 2021-22; el suelo de temporadas (2023-24) y la asignación sin 2020-21 las dejaban fuera. Se añadió 2020-21 a `temporadas-asignadas.txt` y se arrancó una sesión de recolector con `FACYLF_TEMPORADA_MINIMA=2020-21`. Plan completo en `docs/plataforma-web/PLAN-RECUPERACION-2020-2021.md`.
