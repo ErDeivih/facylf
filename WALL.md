@@ -139,6 +139,8 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 08/11/2026: **capturas nuevas de Fondo Popular**. La app sirve datos reales de 2020-21 y 2021-22: capturas en `docs/plataforma-web/capturas/fondo-popular-2020-21-jornadas-2026-11-08.png`, `...-2020-21-clasificacion...`, `...-2021-22-jornadas...` y `...-inicio...`. También se comprobó una ejecución real del importador sin `cmd.exe` en el árbol de procesos; la tanda CyL 2020-21/2021-22 sigue en `estado/importacion.log`.
+
 - 07/11/2026: **fin de las ventanas de consola**. El importador ya no lanza `pnpm.cmd` ni
   `shell:true`: invoca `node` con `packages/canonico/node_modules/tsx/dist/cli.mjs` y el CLI
   directamente. El recolector lanza PowerShell con `windowsHide:true`; también se han puesto
