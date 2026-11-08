@@ -139,6 +139,8 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 08/11/2026: **2022-23: 58 ediciones incompletas y 7.554 partidos**. La cola local tiene 2.599 jornadas, 1.375 actas, 113 calendarios y 117 clasificaciones pendientes; el importador apartó 11 grupos porque el origen trae 3-7 partidos frente a 84-210 del canónico. Detalle por edición en `docs/plataforma-web/FALTAS-2022-23.md`. También se commitearon los 9 artefactos pendientes.
+
 - 08/11/2026: **faltas exactas de 2021-22**. 142 grupos incompletos y 9.815 partidos; cola local 1.991 jornadas, 5 actas, 62 calendarios y 64 clasificaciones. La tanda de importación terminó con 0 hechas, 1 fallo aislado (38234) y 0 completas; local 12/66. Detalle por grupo en `docs/plataforma-web/FALTAS-2021-22.md`. Siguiente: 2022-23.
 
 - 08/11/2026: **2021-22 sigue en recuperación**. La sesión lleva 200 calendarios hechos y 73 pendientes; quedan 2.005 jornadas. La tanda de importación procesó 114 grupos y no añadió completas; un grupo falló por acta/calendario incoherentes (38234). Local 2021-22 12/66. Después toca 2022-23.
