@@ -1,0 +1,20 @@
+﻿[
+    {
+        "federacion":  "andalucia",
+        "temporada":  "2010-11",
+        "competicion":  "lp1842",
+        "grupo":  "lp1842",
+        "nombre":  "466",
+        "motivo":  "RESUMEN: 1 grupo(s) · 975 filas insertadas · 6 actualizadas · 0 rechazadas · validación correcta en 1/1",
+        "salida":  "F:\\Proyectos\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-andalucia-2010-11-lp1842.txt"
+    },
+    {
+        "federacion":  "andalucia",
+        "temporada":  "2010-11",
+        "competicion":  "lp1854",
+        "grupo":  "lp1854",
+        "nombre":  "646",
+        "motivo":  "RESUMEN: 1 grupo(s) · 853 filas insertadas · 15 actualizadas · 0 rechazadas · validación correcta en 1/1",
+        "salida":  "F:\\Proyectos\\facylf\\pruebas\\reconstruccion\\salidas\\importacion-andalucia-2010-11-lp1854.txt"
+    }
+]

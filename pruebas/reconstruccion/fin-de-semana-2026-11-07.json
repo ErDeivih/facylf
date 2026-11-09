@@ -1,0 +1,56 @@
+{
+  "ventana": {
+    "desde": "2026-11-07",
+    "hasta": "2026-11-08"
+  },
+  "cuando": "2026-11-09T09:21:54.463Z",
+  "soloInforme": false,
+  "totales": {
+    "federaciones": 1,
+    "jornadas": 140,
+    "comprobadas": 0,
+    "planificadas": 140,
+    "reabiertas": 0,
+    "partidos": 0,
+    "actas": 0,
+    "actasHechas": 0,
+    "actasPendientes": 0
+  },
+  "federaciones": [
+    {
+      "federacion": "federacion",
+      "jornadasDelFinde": 140,
+      "jornadasComprobadas": 0,
+      "planificadas": 140,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [
+        "22/24218932/24218933/J10 (sin actas encoladas)",
+        "22/24218934/24218935/J9 (sin actas encoladas)",
+        "22/24218936/24218937/J8 (sin actas encoladas)",
+        "22/24218938/24218939/J9 (sin actas encoladas)",
+        "22/24218938/24218940/J9 (sin actas encoladas)",
+        "22/24218941/24218942/J7 (sin actas encoladas)",
+        "22/24218941/24218943/J9 (sin actas encoladas)",
+        "22/24218941/24218944/J9 (sin actas encoladas)"
+      ],
+      "fallo": null
+    },
+    {
+      "federacion": "rfef",
+      "jornadasDelFinde": 0,
+      "jornadasComprobadas": 0,
+      "planificadas": 0,
+      "reabiertas": 0,
+      "clasificaciones": 0,
+      "partidos": 0,
+      "actas": 0,
+      "actasPorEstado": {},
+      "faltan": [],
+      "fallo": null
+    }
+  ]
+}
