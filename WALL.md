@@ -152,6 +152,12 @@ estadísticas e historiales sin que falte nada.
   recolectar CyL** (se para `facylf-federacion-1`, reversible) y **el PC asume las 15 temporadas** (asignación
   reciente-primero), porque es la única máquina que completa ese portal (2.876/2.886 peticiones ok). Castilla-La
   Mancha queda sin explicar (su portal responde en 595 ms y sigue a 0 %): prueba pendiente con sus URLs.
+  **Castilla-La Mancha, resuelto a medias:** es el mismo mecanismo que CyL pero menos severo (su portal es 6-7×
+  más rápido, 327 recursos) y tras el corte de 60 s **mete 1 de cada 8 páginas** (una de 54,2 s). **Decisión: no se
+  para**, porque 12,5 % es más que cero y su temporada en curso se quedaría a cero.
+  **Paquetes de `_traspaso`:** el importador llegó a usar el paquete viejo de 2022-23 (13/10) antes de exigir
+  frescura; ahora solo acepta paquetes extraídos hoy y guarda la fecha del paquete en la clave de lo ya importado,
+  así que cuando llega uno nuevo se reimportan sus grupos. El de 2014-15 del 26/10 está ilegible: se reextrae.
   **Nombres cortos**: con la importación en marcha aparecen equipos nuevos sin nombre; hay que ejecutar
   `node scripts/nombres-cortos-equipos.mjs --federacion castilla-leon` al cerrar cada tanda (idempotente), o la
   prueba `nombres-cortos.test.ts` se pone roja.
