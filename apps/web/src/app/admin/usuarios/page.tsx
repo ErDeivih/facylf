@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Usuarios — Administración — facylf',
+  title: 'Usuarios — Administración — Fondo Popular',
 };
 
 const ESTADOS = new Set<string>(ESTADOS_USUARIO);

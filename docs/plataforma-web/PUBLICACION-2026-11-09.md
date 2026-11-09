@@ -66,6 +66,10 @@ Plan aprobado por David: **el canónico del PC es la fuente de verdad**, se vuel
 
 ## Lo que hay que saber
 
+- **La web se reconstruyó el 09/11 a las 21:00** con los tres arreglos que pidió David (marca Fondo Popular —el
+  contenedor servía un build del 06/11 anterior a la marca—, fallback de escudos verificado y aviso de identidad
+  por club). El build tarda unos 4 minutos con `pnpm --filter @facylf/web build` (webpack, 8 GB de heap) y hay que
+  reiniciar el `next start`.
 - **Esta base es una foto** (19:46 local). Lo que se importe después en el PC **no aparece** hasta refrescar:
   volcar de nuevo y restaurar en otra base nueva (p. ej. `facylf_canonico_2`), apuntar la web y conservar la
   anterior. Nunca se restaura encima ni se borra la vieja.

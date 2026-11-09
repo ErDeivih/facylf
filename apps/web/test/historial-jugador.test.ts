@@ -16,7 +16,8 @@ import {
  * Lo que se defiende, porque es justo lo que la trayectoria agregada no enseñaba:
  *  · un jugador puede tener **varios equipos del mismo club** en una temporada;
  *  · puede **cambiar de equipo o de club a mitad de temporada**, y eso se marca;
- *  · dos tramos con fechas solapadas NO son un cambio: son dos equipos a la vez;
+ *  · dos tramos con fechas solapadas NO son un cambio; si son del mismo club es cantera y no se avisa,
+ *    y sólo se avisa cuando son dos CLUBES distintos en la misma temporada (regla de David, 09/11/2026);
  *  · partidos, titularidades, goles, tarjetas y minutos salen de las actas; los minutos sólo se
  *    enseñan si son fiables, y si no se dice «sin datos», nunca un cero;
  *  · identidad con contexto: si la identidad es nominal, la página lo avisa (la consulta trae la marca).
@@ -179,12 +180,26 @@ describe('historial: agrupación en tramos', () => {
     expect(temporada!.transiciones[0]).toMatchObject({ tipo: 'cambio-equipo', fecha: '2017-09-10' });
   });
 
-  it('dos tramos con fechas solapadas no son un cambio: son dos equipos a la vez', () => {
+  it('dos equipos del mismo club con fechas solapadas NO son un aviso: es cantera, no dos clubes', () => {
     const [temporada] = agrupaHistorial(SIMULTANEOS);
-    expect(temporada!.transiciones).toHaveLength(1);
-    expect(temporada!.transiciones[0]!.tipo).toBe('simultaneo');
+    // Un jugador puede subir con equipos de categorías superiores del mismo club: eso no es un problema.
+    expect(temporada!.transiciones.filter((t) => t.tipo === 'simultaneo')).toEqual([]);
     // Y no aparecen como «cambio» en la lista de cambios a mitad de temporada.
     expect(cambiosAMitadDeTemporada(agrupaHistorial(SIMULTANEOS))).toEqual([]);
+  });
+
+  it('dos CLUBES distintos con fechas solapadas sí se avisan', () => {
+    const dosClubes = [
+      aparicion({ match_id: 30, team_entry_id: 700, temporada: '2023-24', fecha: '2023-09-16', equipo: 'C.D. Uno', club_id: 1, club: 'C.D. Uno' }),
+      aparicion({ match_id: 31, team_entry_id: 700, temporada: '2023-24', fecha: '2024-02-10', equipo: 'C.D. Uno', club_id: 1, club: 'C.D. Uno' }),
+      aparicion({ match_id: 32, team_entry_id: 701, temporada: '2023-24', fecha: '2024-01-20', equipo: 'C.D. Dos', club_id: 2, club: 'C.D. Dos' }),
+    ];
+    const [temporada] = agrupaHistorial(dosClubes);
+    expect(temporada!.transiciones.filter((t) => t.tipo === 'simultaneo')).toHaveLength(1);
+    expect(temporada!.transiciones.find((t) => t.tipo === 'simultaneo')).toMatchObject({
+      desdeClubId: 1,
+      hastaClubId: 2,
+    });
   });
 
   it('sin fechas no se afirma que haya cambio', () => {
@@ -262,14 +277,26 @@ describe('historial: la tabla por temporada y equipo', () => {
     sinTextoProhibido(html);
   });
 
-  it('marca los cambios de temporada: cambio de club, mismo club y dos equipos a la vez', () => {
+  it('marca los cambios de temporada: cambio de club y cambio de equipo del mismo club', () => {
     const html = renderToStaticMarkup(createElement(TablaHistorial, { temporadas }));
     expect(html).toContain('Cambio de club');
     expect(html).toContain('Cambio de equipo');
-    expect(html).toContain('Dos equipos a la vez');
+    // Dos equipos del mismo club con fechas solapadas son cantera: no se avisa de nada (regla de David).
+    expect(html).not.toContain('Dos equipos a la vez');
+    expect(html).not.toContain('Dos clubes a la vez');
     // Un cambio de club no se presenta como si fuera del mismo club.
     expect(html).toContain('U.M. Escobedo');
     expect(html).toContain('Internacional F.C.');
+  });
+
+  it('avisa de «dos clubes a la vez» cuando el solape es entre clubes distintos', () => {
+    const dosClubes = [
+      aparicion({ match_id: 40, team_entry_id: 800, temporada: '2022-23', fecha: '2022-09-10', equipo: 'C.D. Uno', club_id: 11, club: 'C.D. Uno' }),
+      aparicion({ match_id: 41, team_entry_id: 800, temporada: '2022-23', fecha: '2023-02-11', equipo: 'C.D. Uno', club_id: 11, club: 'C.D. Uno' }),
+      aparicion({ match_id: 42, team_entry_id: 801, temporada: '2022-23', fecha: '2023-01-14', equipo: 'C.D. Dos', club_id: 12, club: 'C.D. Dos' }),
+    ];
+    const html = renderToStaticMarkup(createElement(TablaHistorial, { temporadas: agrupaHistorial(dosClubes) }));
+    expect(html).toContain('Dos clubes a la vez');
   });
 
   it('sin minutos fiables lo dice, no pinta un cero', () => {
@@ -353,13 +380,14 @@ describe.skipIf(!hayCanonico)('historial contra el canónico real', () => {
     expect(t2017.transiciones[0]!.fecha).toBe('2017-09-10');
   });
 
-  it('una persona con dos equipos del mismo club solapados (19057) se enseña como dos equipos a la vez', async () => {
+  it('una persona con dos equipos del mismo club solapados (19057) NO se marca como dos clubes', async () => {
     const fila = await historialReal(PERSONA_MISMO_CLUB);
     const temporadas = agrupaHistorial(fila!.apariciones);
     const t = temporadas.find((temporada) => temporada.temporada === '2023-24')!;
     expect(t.tramos).toHaveLength(2);
     expect(new Set(t.tramos.map((tramo) => tramo.club)).size).toBe(1);
-    expect(t.transiciones[0]!.tipo).toBe('simultaneo');
+    // Mismo club: no hay aviso de dos clubes a la vez (es cantera).
+    expect(t.transiciones.filter((transicion) => transicion.tipo === 'simultaneo')).toEqual([]);
   });
 
   it('los minutos de la persona son fiables y no se multiplican por partido', async () => {

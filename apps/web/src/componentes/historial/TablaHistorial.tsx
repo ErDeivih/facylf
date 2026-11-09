@@ -9,11 +9,11 @@ import {
  * Historial por temporada y por equipo.
  *
  * En escritorio es una tabla por temporada (equipos, fechas, partidos, titularidades, minutos, goles y
- * tarjetas) con una fila de aviso entre dos tramos cuando hay cambio de equipo/club, dos equipos a la vez
+ * tarjetas) con una fila de aviso entre dos tramos cuando hay cambio de equipo/club, dos clubes a la vez
  * o fechas que no permiten afirmar un cambio. En móvil la misma información va en tarjetas, para no
  * arrastrar una tabla de nueve columnas: el documento nunca se desplaza en horizontal.
  *
- * Nunca se usa sólo color: los avisos dicen «Cambio de club», «Cambio de equipo», «Dos equipos a la vez»
+ * Nunca se usa sólo color: los avisos dicen «Cambio de club», «Cambio de equipo», «Dos clubes a la vez»
  * con texto, y las tarjetas son «A 2 · R 1», no dos manchas.
  */
 export function TablaHistorial({ temporadas }: { temporadas: readonly TemporadaDeHistorial[] }) {
@@ -217,8 +217,8 @@ function AvisoDeTransicion({ transicion }: { transicion: TransicionDeHistorial }
   if (transicion.tipo === 'simultaneo') {
     return (
       <span className={`${base} border-l-[var(--texto-tenue)] bg-[var(--fondo-sutil)] text-[var(--texto-suave)]`}>
-        <b>Dos equipos a la vez:</b> las fechas de {transicion.desdeEquipo} y {transicion.hastaEquipo} se solapan;
-        no fue un cambio.
+        <b>Dos clubes a la vez:</b> las fechas de {transicion.desdeEquipo} y {transicion.hastaEquipo} se solapan
+        y son clubes distintos; conviene revisarlo.
       </span>
     );
   }

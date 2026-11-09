@@ -141,6 +141,18 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (noche, 21:00): **tres arreglos de David aplicados y desplegados en la URL pública.** (1) **Marca**:
+  lo que se veía era «Cantera» porque el contenedor servía un build del 06/11 anterior a la marca definitiva; el
+  código ya decía Fondo Popular, así que se reconstruyó la web y se redesplegó (título, cabecera y metadatos; fuera
+  el nombre interno de los títulos de `/admin` y del export de datos). (2) **Escudos**: solo **36 clubes de CyL de
+  930** tienen escudo real guardado, y por tanto **6.274 equipos de 35.110**; el resto pinta el fallback de iniciales
+  sobre escudo determinista (comprobado en la web: 110 deterministas con iniciales frente a 71 reales en una
+  jornada). Los 37 `club_asset` que hay tienen binario, así que no hay imágenes rotas: lo que falta es recolección de
+  escudos. (3) **Aviso de identidad**: la regla era por equipo; ahora compara por **club**: dos equipos del mismo club
+  con fechas solapadas es cantera y no se avisa, solo se avisa «Dos clubes a la vez» entre clubes distintos en la
+  misma temporada. Prueba en rojo antes del cambio y **27/27** después; verificado en la URL con el jugador 19057
+  (sin aviso) y 313/318 (con aviso). La web sigue leyendo `facylf_canonico` del servidor.
+
 - 09/11/2026 (noche, 20:50): **el canónico del PC está publicado como base nueva en el servidor (`facylf_canonico`)**,
   plan de David ejecutado sin saltarse pasos: fuente congelada → recuento de 98 tablas (115.860.212 filas) → volcado
   `pg_dump -Fc` de 1,35 GiB (sha256 `ec9faad…`, copia en el PC y en el servidor) → base nueva con rol `facylf_app`

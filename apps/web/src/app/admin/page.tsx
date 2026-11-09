@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Administración — facylf',
+  title: 'Administración — Fondo Popular',
 };
 
 export default async function PaginaAdmin() {

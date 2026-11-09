@@ -5,7 +5,8 @@
  * Las reglas que fija, y que son el motivo de que exista este fichero:
  *  · un tramo es una inscripción (`team_entry`) dentro de una temporada; la misma temporada puede tener
  *    varios tramos (varios equipos, incluso del mismo club);
- *  · dos tramos con fechas solapadas NO son un cambio: son dos equipos a la vez (cedido, filial, copa…);
+ *  · dos tramos con fechas solapadas NO son un cambio: si son del mismo club, es cantera y no se avisa;
+ *    sólo se avisa cuando son dos CLUBES distintos en la misma temporada;
  *  · sin fechas no se afirma que haya cambio; decir «no se sabe» es distinto de inventar una fecha;
  *  · los minutos son del equipo-temporada y sólo se enseñan si son fiables; si no, «Sin datos», nunca 0.
  */
@@ -260,7 +261,11 @@ function transicionesDe(tramos: readonly TramoDeHistorial[]): TransicionDeHistor
       });
       continue;
     }
-    // Las fechas se solapan: son dos equipos a la vez, no un cambio.
+    // Las fechas se solapan. Si los dos equipos son del MISMO club no hay nada que avisar: es un
+    // futbolista que sube a un equipo de categoría superior del mismo club (cantera), algo normal y
+    // permitido. Sólo es un aviso si son dos CLUBES distintos en la misma temporada (regla de David,
+    // 09/11/2026): un jugador no puede jugar en dos clubes a la vez.
+    if (anterior.clubId === siguiente.clubId) continue;
     transiciones.push({ ...base, tipo: 'simultaneo', fecha: null });
   }
   return transiciones;
