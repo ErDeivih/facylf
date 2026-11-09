@@ -28,6 +28,11 @@ Coste incremental de la opción recomendada: **0 €/mes de infraestructura** (e
 más el dominio (precio **no verificado** hoy: no se inventa) y, si se quiere, el túnel (sin tarifa
 publicada en la documentación consultada; ver §4).
 
+**Corrección de plan (9/11/2026, aportada por el Lead y medida aquí):** el paso 2 del plan de §5 **no
+debe ser migrar la base de recolección del servidor**, sino **construir la base de publicación desde el
+canónico del PC**, que ya está en 0060 y tiene 548 ediciones de CyL más. Está desarrollado en §5-bis, con
+las medidas de volcado, transferencia, restauración y los riesgos de roles/versión comprobados.
+
 ---
 
 ## 1 · Qué hay hoy, medido
@@ -421,12 +426,18 @@ el ahorro sea ficticio.
 
 ### 4.4 Migraciones: el paso que desbloquea todo
 
-El servidor está en **0015** y el repositorio en **0060**. Sin aplicar 0016–0060 (y sin crear `facylf_app` y
+El servidor está en **0015** y el repositorio en **0060**. Sin un esquema al día (y sin crear `facylf_app` y
 la política de La Preferente) **la mayoría de las pantallas nuevas no pueden enseñar nada** (portada,
-catálogo, clasificaciones con zonas, rankings, ojeo, fichas con escudo, cuentas y administración). Ese paso:
-- escribe en la base del servidor (no es «medir»): **lo tiene que autorizar David**;
-- hay que hacerlo con copia previa y ventana tranquila (hay 19 recolectores escribiendo);
-- y conviene ensayarlo contra una copia de la base (restaurar el `.dump` en otro contenedor y migrar allí).
+catálogo, clasificaciones con zonas, rankings, ojeo, fichas con escudo, cuentas y administración).
+
+Dos caminos, y **el recomendado es el segundo** (§5-bis):
+- **A · migrar la base de recolección del servidor** (0016→0060, 45 migraciones sobre 16 GB): escribe en la
+  base del servidor (no es «medir»), necesita autorización de David y ventana tranquila con los 19
+  recolectores; y **aun así le faltarían 548 ediciones de CyL que sólo están en el PC** (medido: las 259
+  ediciones CYL del servidor ya existen en el PC; el PC tiene 548 más).
+- **B · restaurar en el servidor una base NUEVA volcada desde el PC**, que ya viaja migrada a 0060
+  (`ops.migracion` del PC: 60 migraciones). No se toca la base de recolección; el detalle y las medidas
+  están en §5-bis.
 
 ### 4.5 Legal y privacidad
 
@@ -490,7 +501,7 @@ Cada paso lleva **el comando que demuestra que está hecho** (todos ejecutables 
 |---|---|---|---|
 | 0 | **Decisiones de §4.6** (dominio, apertura, migraciones, LP, legal) | — | David |
 | 1 | 🔒 **Arreglar DNS del host** (`/etc/resolv.conf` → resolutores que funcionen) | `ssh servidor getent hosts github.com` devuelve una IP (hoy rc=2) | `sudo` |
-| 2 | 🔒 **Copia previa y migrar el canónico** 0015→0060 (ensayo en copia primero) | `docker exec facylf-postgres psql -U facylf_admin -d facylf -Atc "select max(numero) from ops.migracion"` → **60**; `to_regclass('app.sesion')` no nulo; `pg_roles` incluye `facylf_app`; `pg_class.relrowsecurity` de `core.competition_edition` = `t` | David autoriza; `facylf_admin` |
+| 2 | 🔒 **Base de publicación desde el canónico del PC** (camino recomendado, §5-bis): volcar el PC, crear `facylf_web` + rol `facylf_app` en el servidor y restaurar. *Plan A alternativo: migrar la base de recolección 0015→0060 (no recomendado: le faltan 548 ediciones).* | `docker exec facylf-postgres psql -U facylf_admin -d facylf -Atc "select max(numero) from ops.migracion"` en **facylf_web** → **60**; `to_regclass('app.sesion')` no nulo; `pg_roles` incluye `facylf_app`; `pg_class.relrowsecurity` de `core.competition_edition` en facylf_web = `t`; `select count(*) from core.match` coincide con el origen | David autoriza; `facylf_admin` |
 | 3 | **Añadir variables de la web** (`DATABASE_URL_APP`, `REVALIDACION_SECRETO`) al `.env` y al compose, sin tocar lo demás | `docker inspect facylf-web --format '{{range .Config.Env}}{{println .}}{{end}}' \| grep -c DATABASE_URL_APP` → 1 | David (decidir); escritura en `.env` |
 | 4 | **Construir y desplegar la imagen nueva** del repo (`docker compose -p facylf --env-file docker/.env -f docker/web.yml up -d --build`) | `docker image inspect facylf-web:local --format '{{.Created}}'` es de hoy; `curl -s -o /dev/null -w '%{http_code}' http://100.117.58.93:3100/explorar/competiciones` → **200**; `/api/v1/indice` → 200 y `ETag` + 304; `/explorar/competicion/368` → 200 con marcadores | David autoriza desplegar; **no** ejecutarlo en esta tarea |
 | 5 | **Medir la web nueva con la flota en marcha** y decidir si se le da prioridad de CPU (cgroup/slice) | `docker stats --no-stream facylf-web`; `curl` de `/explorar/competicion/368` con TTFB repetible; sin `oom_kill` | `sudo` para límites de la rebanada |
@@ -505,6 +516,122 @@ Cada paso lleva **el comando que demuestra que está hecho** (todos ejecutables 
 **Lo que no he hecho y no puedo hacer sin permiso:** nada de los pasos 1–12. En particular no he levantado
 contenedores, no he construido la imagen, no he aplicado migraciones, no he tocado `.env`, ni compose, ni
 he ejecutado `sudo`. Sólo lectura y medición.
+
+---
+
+## 5-bis · Alternativa recomendada: la base de publicación se construye desde el canónico del PC
+
+Corrección de plan del 9/11/2026. El paso 2 de §5 (migrar la base de recolección del servidor) **no es el
+camino bueno**: la base que va a tener CyL completo es la del PC. Este apartado fija el plan alternativo
+con las medidas hechas ese día; **no cambia nada de §2 (infraestructura), §3 (costes) ni §4 (legal)**.
+
+### 5-bis.1 · Por qué (medido, no opinión)
+
+| Hecho | Medición (9/11/2026) | Comando |
+|---|---|---|
+| CyL en el PC | **807 ediciones** (283 con `visibility_state='completa'`), **15 temporadas**, **244.743 partidos**, **5.638.385 apariciones**, **3.354.585 eventos**, **229.995 personas** | `psql` sobre el canónico del PC |
+| CyL en el servidor | **259 ediciones** (183 completas), 7 temporadas, **90.193 partidos** | `psql` sobre el canónico del servidor |
+| Ediciones del servidor que no están en el PC | **0** (las 259 se encuentran por `temporada|codigo_externo`) | comparación de listas |
+| Ediciones del PC que no están en el servidor | **548** | idem |
+| Esquema del PC | **60 migraciones** (`0060-nombres-cortos-equipo.sql`), esquemas `app`, `auth`, `dwh`, `externo`, y **RLS de La Preferente** aplicada | `ops.migracion`, `pg_class` |
+| Esquema del servidor | **15 migraciones** (`0015-diario-borrado.sql`) | `ops.migracion` |
+| Consolidación en marcha (dato del Lead) | **1.265 grupos con hueco, 91.787 partidos, 86.893 actas** que se traen del servidor al PC | — |
+
+Conclusión: migrar la base del servidor cuesta **45 migraciones sobre 16 GB** y **no aporta ni una edición
+nueva** (sólo datos dentro de ediciones que el PC ya cataloga). Restaurar una base volcada del PC parte de
+**0060 ya aplicado** y de las 807 ediciones. Por eso el plan pasa a ser: **consolidar en el PC, volcar, y
+publicar una copia en el servidor**.
+
+### 5-bis.2 · Los pasos
+
+| # | Paso | Puerta de verificación | Permisos |
+|---|---|---|---|
+| B1 | **Consolidar en el PC** (en marcha: paquetes por temporada del servidor al PC con `extrae-temporada-cola.mjs` + `scp` + `importar-temporada.ps1`) | `node scripts/estado-importacion.mjs` sin huecos nuevos; recuento de partidos/actas de CyL creciendo hacia el objetivo | David (ritmo de la flota) |
+| B2 | **Volcar el PC**: `pg_dump -Fc --no-owner` (llave del rol admin del PC) | fichero de **~1,27 GiB** (medido: 1.332.591.552 B en **455 s**); `pg_restore --list` lo lee sin error | lectura |
+| B3 | 🔒 **Preparar el servidor**: crear el rol `facylf_app` **y** la base nueva `facylf_web` (el volcado **no** trae `CREATE ROLE` ni `CREATE DATABASE`: ver 5-bis.3) | `pg_roles` incluye `facylf_app`; `pg_database` incluye `facylf_web`; la base está vacía | David autoriza; `facylf_admin` |
+| B4 | 🔒 **Transferir y restaurar**: `docker save`/`scp` del volcado (1,27 GiB a 1,6 MB/s ≈ **13–14 min**) y `pg_restore -d facylf_web --no-owner --exit-on-error` | `pg_restore` termina con código 0; recuentos coinciden con el origen (`count(*) from core.match`, `count(*) from core.competition_edition`, `max(numero) from ops.migracion` = 60); `pg_class.relrowsecurity` de `core.competition_edition` = `t` | David autoriza; `facylf_admin` |
+| B5 | **Construir la imagen en el PC** (el host del servidor no resuelve DNS, no puede `docker build`) y llevarla: `docker save | ssh servidor docker load` (540 MiB ≈ **5,6–5,9 min** a 1,6 MB/s) | el `Id` de la imagen coincide en PC y servidor; `docker image inspect facylf-web:local` en el servidor es de hoy | escritura en Docker del servidor (autoriza David) |
+| B6 | **Apuntar la web a la base de publicación**: `DATABASE_URL_LECTOR` → `facylf_lector@facylf_web`, `DATABASE_URL_APP` → `facylf_app@facylf_web`, `REVALIDACION_SECRETO`; y `FACYLF_EXCLUIR` para dejar sólo CyL si David quiere el producto CyL-only (hoy excluye `valencia,madrid,cataluna`) | `curl` de `/explorar/competiciones` → 200; `/explorar/competicion/368` → 200 con marcadores; `/api/v1/indice` → 200 y 304 con ETag; `select count(*) from core.match` de `facylf_web` = el del PC | David (decide CyL-only y variables) |
+| B7 | **Dominio + Cloudflare Tunnel** (o Funnel) delante de la web | `curl -sI https://<dominio>/` → 200 con TLS; el contenido coincide con la IP de Tailscale | David (cuenta/dominio); `sudo` si cloudflared va en el host |
+| B8 | **Frescura**: decidir cada cuánto se refresca la copia (re-volcar/re-restaurar) o si la recolección se traslada al PC y el servidor sólo publica | documento con la cadencia y una prueba de refresco; la web sigue respondiendo durante el refresco (restaurar en base nueva + `ALTER`/cambio de compose, nunca `DROP` de la que sirve) | David (decisión de operación) |
+
+### 5-bis.3 · Qué se rompe al publicar una copia restaurada (y cómo se evita)
+
+Comprobado sobre el volcado real del PC (`pg_dump --schema-only` inspeccionado):
+
+1. **Los roles no viajan en el volcado.** `pg_dump` de una sola base **no** incluye `CREATE ROLE`,
+   `CREATE DATABASE` ni `GRANT … ON DATABASE` (verificado: no aparecen en el volcado de esquema). El volcado
+   sí incluye **131 referencias a `facylf_app`** y **116 a `facylf_lector`** (GRANT de esquemas/tablas y la
+   política RLS `web_sin_la_preferente` de 0053). El clúster del servidor ya tiene `facylf_admin`,
+   `facylf_lector` y `facylf_publicador`, pero **no `facylf_app`**: hay que **crear ese rol antes de
+   restaurar** (`create role facylf_app login password '…'`), o la restauración falla en los `GRANT` y en la
+   política. **No** usar `--no-acl` para esquivarlo: se perdería el mínimo privilegio y el RLS de La
+   Preferente, que es justo lo que protege la decisión D2.
+2. **La base se crea a mano.** `CREATE DATABASE facylf_web OWNER facylf_admin` antes de restaurar. El PC no
+   tenía ACL de base propia (`datacl` vacío: `PUBLIC` puede conectar), así que una base nueva con la ACL por
+   defecto deja conectar a `facylf_lector`/`facylf_app`; si se endurece, `GRANT CONNECT`.
+3. **Propiedad de objetos.** El volcado medido se hizo con `--no-owner`; al restaurar como `facylf_admin`,
+   todo queda a nombre de `facylf_admin` (superusuario del servidor). Con `--owner` habría que garantizar que
+   cada dueño exista con el mismo nombre.
+4. **Extensiones.** PC y servidor tienen **las mismas cuatro**: `plpgsql`, `pg_stat_statements`, `pg_trgm`,
+   `unaccent` (medido). El volcado trae `CREATE EXTENSION IF NOT EXISTS … WITH SCHEMA public`; se restaura sin
+   problema (el servidor ya las tiene y `pg_stat_statements` está precargado).
+5. **Versión: riesgo descartado.** PC y servidor usan **PostgreSQL 18.6** (misma imagen `postgres:18`,
+   `18.6-1.pgdg13+2`) y **`pg_dump`/`pg_restore` 18.6 en ambos**. El volcado se restaura sin saltos de
+   versión. Regla para el futuro: **no se restaura un volcado con un `pg_restore` de versión menor que la del
+   `pg_dump`**; mantener la imagen fijada en los dos extremos.
+6. **Disco del servidor.** Restaurar la base completa son **36 GB** nuevos: 85 GB usados + 36 = 121 GB de
+   211 (quedarían ~90 GB libres), más copias del nuevo dump (~1,3 GB × 7 días ≈ 9 GB). Cabe, pero hay que
+   vigilarlo; la alternativa CyL-only pesa mucho menos (abajo).
+7. **Frescura.** La base de publicación es una **copia**: lo que se recolecte después no aparece hasta el
+   siguiente refresco. Hay que decidir cadencia (B8) y decirlo en la web si un día se abre al público; si no,
+   el aficionado ve una foto. El plan de refresco seguro es restaurar en una base nueva y cambiar el compose,
+   no restaurar encima de la que sirve.
+8. **La base de recolección del servidor (0015) deja de ser la fuente de la web.** Sigue siendo la base donde
+   trabajan los 19 recolectores; la web nueva lee `facylf_web`. Son dos bases en el mismo clúster, con roles
+   separados; no se mezclan.
+9. **RLS de La Preferente incluida.** La política 0053 viaja en el volcado y, al restaurar, `facylf_lector`
+   sigue sin ver las ediciones de LP. Es una ventaja del plan B: la protección llega con los datos.
+
+### 5-bis.4 · ¿Cuánto pesa CyL y qué se transfiere? (medido + estimado)
+
+**Medido hoy en el PC:** base completa **36 GB**; volcado completo `-Fc` **1.332.591.552 bytes = 1,270,9 MiB
+(1,24 GiB)**, en **455 s**. Es decir, el volcado comprime a un **3,45 %** del tamaño de la base.
+
+**Huella de CyL en el PC (estimación con cuota medida por tabla).** Cuotas de CyL sobre el total del PC:
+partidos 11,66 %, apariciones 22,93 %, eventos 28,10 %, personas 9,89 %, `match_staff` 22,90 %,
+`match_report` 24,72 %, `person_source_identity` 17,69 %, `match_source` 11,75 %, `match_official` 13,15 %,
+`team_entry` 8,57 %, `matchday` 9,56 %, `standing_snapshot` 12,54 %, `source.external_ref` 13,15 %.
+Aplicado a los tamaños reales de cada tabla del PC: `core.appearance` 8.000 MB × 0,2293 ≈ 1.834 MB;
+`core.match_event` 5.375 × 0,2810 ≈ 1.510 MB; `match_staff` 1.058 × 0,2290 ≈ 242 MB;
+`person_source_identity` 1.057 × 0,1769 ≈ 187 MB; `match` 998 × 0,1166 ≈ 116 MB; `match_source` 499 ×
+0,1175 ≈ 59 MB; `person` 455 × 0,0989 ≈ 45 MB; `person_name` 401 × 0,0989 ≈ 40 MB; `match_report` 345 ×
+0,2472 ≈ 85 MB; `match_official` 228 × 0,1315 ≈ 30 MB; `identity_candidate` 163 × ~0,10 ≈ 16 MB;
+`team_entry` 145 × 0,0857 ≈ 12 MB; `matchday` 117 × 0,0956 ≈ 11 MB; `standing_snapshot` 115 × 0,1254 ≈
+14 MB; `source.external_ref` 1.515 × 0,1315 ≈ 199 MB. **Total ≈ 4,4 GB de `core` + `source`**.
+
+- **Base de publicación completa** (restaurar todo el canónico del PC): **36 GB** de base, volcado de
+  **1,24 GiB**; transferencia a 1,6 MB/s ≈ **13–14 min**; restauración **no medida** (exigiría crear una base,
+  y este encargo es sólo lectura) — estimación **10–20 min** para 36 GB con reconstrucción de índices.
+- **Base de publicación CyL-only**: `core`+`source` de CyL **≈ 4,4 GB**, más la proyección `analytics` de
+  CyL (estimación: 10–30 % de los 7,55 GB del PC, es decir **0,8–2,3 GB**), más `app`/`ops` mínimos: total
+  **≈ 5,5–7 GB**. Volcado estimado (mismo 3,45 %) **≈ 190–240 MB** → transferencia **≈ 2–2,5 min** y
+  restauración de pocos minutos. **Pero** construir una base CyL-only exige un export filtrado y una
+  proyección sólo de CyL que **hoy no están scriptados**: es trabajo extra. La forma honesta de empezar es
+  **restaurar la base completa** y filtrar por `FACYLF_EXCLUIR` si se quiere enseñar sólo CyL.
+
+**Imagen de la web:** 540 MiB; `docker save` sin comprimir → transferencia **≈ 5,6–5,9 min** a 1,6 MB/s
+(comprimida con gzip bajaría, a costa de CPU en los dos extremos).
+
+### 5-bis.5 · Lo que hay que decidir de este plan
+
+1. **¿CyL-only o todo?** Restaurar la base completa es más simple y honesto; enseñar sólo CyL se hace con
+   `FACYLF_EXCLUIR`, pero las demás federaciones seguirían ocupando disco y copias.
+2. **¿Se para la recolección en el servidor o sigue?** Si el PC consolida y publica, hay que decidir si los
+   19 recolectores del servidor siguen escribiendo en `facylf` (para consolidar luego al PC) o se trasladan.
+3. **Cadencia de refresco** de `facylf_web` (B8) y quién la ejecuta.
+4. **Autorización** para crear rol/base, restaurar y recrear el contenedor de la web en el servidor.
+5. **Nombre de la base y del dominio**: propuesta `facylf_web` y un dominio por decidir.
 
 ---
 
@@ -588,6 +715,20 @@ curl -s -o /dev/null -w '%{http_code} ttfb=%{time_starttransfer}s total=%{time_t
 docker exec -i -e PGPASSWORD=*** facylf-postgres psql -U facylf_admin -d facylf -Atc \
   "select pg_size_pretty(pg_database_size('facylf'))"          # 36 GB
 # y select count(*) from core.season / core.competition_edition por federación
+
+# Volcado del canónico del PC (medido el 9/11/2026: 1.332.591.552 B en 455 s)
+cmd /c "docker exec -e PGPASSWORD facylf-postgres pg_dump -U facylf_admin -d facylf \
+  -Fc --no-owner > tmp\despliegue\pc-facylf.dump"
+
+# Versiones de las herramientas (riesgo de restauración): PC y servidor
+docker exec facylf-postgres pg_dump --version                       # 18.6
+ssh servidor "docker exec facylf-postgres pg_restore --version"     # 18.6
+
+# Qué contiene un volcado de esquema (roles, base, ACL)
+cmd /c "docker exec -e PGPASSWORD facylf-postgres pg_dump -U facylf_admin -d facylf \
+  --schema-only --no-owner > tmp\despliegue\pc-schema.sql"
+# grep: NO aparecen CREATE ROLE / CREATE DATABASE / ON DATABASE
+# grep: 131 referencias a facylf_app y 116 a facylf_lector (GRANT + política RLS)
 ```
 
 ## 8 · Anexo B · Fuentes de precios consultadas (9/11/2026)
