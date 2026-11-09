@@ -141,15 +141,18 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
-- 09/11/2026 (tarde): **verificación del pageLoad de 60 s.** El arreglo hace lo que pedía —ya no hay ni un fallo a
-  30 s; los fallos se han movido a 60,1-60,6 s— pero **el acierto no sube**: CyL y Castilla-La Mancha siguen a 0 %
-  en la ventana posterior (último acierto de CyL el 09/11 a las 12:46Z; el de CLM, el 07/11 a las 20:48Z). Descartados
-  con medidas: CPU/cuotas (`nr_throttled` ≈ 0), memoria (75 % y 37 % del tope, `oom_kill=0`), DNS y red (HTTP 200
-  desde el contenedor), hosting (los cuatro portales en la misma IP). Quedan dos candidatos: el portal de CyL, que
-  desde ese contenedor tarda 5.687 ms frente a 590-710 ms de los otros tres, o el perfil de Chrome de esos dos
-  contenedores (los dos más antiguos). Prueba que lo decide: una carga manual con Chrome limpio y registro de red.
-  La extracción de paquetes se ha sacado del contenedor del recolector de CyL a `facylf-monitor` para no contaminar
-  su cgroup. **Nombres cortos**: con la importación en marcha aparecen equipos nuevos sin nombre; hay que ejecutar
+- 09/11/2026 (tarde): **verificación del pageLoad de 60 s y cambio de reparto de CyL.** El arreglo hace lo que pedía
+  —ya no hay ni un fallo a 30 s; los fallos se han movido a 60,1-60,6 s— pero **el acierto no sube**: CyL y
+  Castilla-La Mancha siguen a 0 % en la ventana posterior (último acierto de CyL el 09/11 a las 12:46Z; el de CLM, el
+  07/11 a las 20:48Z). Descartados con medidas: CPU/cuotas (`nr_throttled` ≈ 0), memoria (75 % y 37 % del tope,
+  `oom_kill=0`), DNS y red (HTTP 200 desde el contenedor), hosting (los cuatro portales en la misma IP) y **el perfil
+  de Chrome**: con un Chrome virgen y registro de red, la portada tarda 87,6 s y la página que falla no termina en
+  90,9 s (438 recursos, 392 scripts). El cuello es la página × el camino al portal: `rfcylf.es` tarda **5.687 ms**
+  desde el servidor frente a 590-710 ms de los otros tres portales de la misma IP. **Decisión: el servidor deja de
+  recolectar CyL** (se para `facylf-federacion-1`, reversible) y **el PC asume las 15 temporadas** (asignación
+  reciente-primero), porque es la única máquina que completa ese portal (2.876/2.886 peticiones ok). Castilla-La
+  Mancha queda sin explicar (su portal responde en 595 ms y sigue a 0 %): prueba pendiente con sus URLs.
+  **Nombres cortos**: con la importación en marcha aparecen equipos nuevos sin nombre; hay que ejecutar
   `node scripts/nombres-cortos-equipos.mjs --federacion castilla-leon` al cerrar cada tanda (idempotente), o la
   prueba `nombres-cortos.test.ts` se pone roja.
 
