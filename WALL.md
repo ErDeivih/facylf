@@ -141,6 +141,18 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (tarde): **verificación del pageLoad de 60 s.** El arreglo hace lo que pedía —ya no hay ni un fallo a
+  30 s; los fallos se han movido a 60,1-60,6 s— pero **el acierto no sube**: CyL y Castilla-La Mancha siguen a 0 %
+  en la ventana posterior (último acierto de CyL el 09/11 a las 12:46Z; el de CLM, el 07/11 a las 20:48Z). Descartados
+  con medidas: CPU/cuotas (`nr_throttled` ≈ 0), memoria (75 % y 37 % del tope, `oom_kill=0`), DNS y red (HTTP 200
+  desde el contenedor), hosting (los cuatro portales en la misma IP). Quedan dos candidatos: el portal de CyL, que
+  desde ese contenedor tarda 5.687 ms frente a 590-710 ms de los otros tres, o el perfil de Chrome de esos dos
+  contenedores (los dos más antiguos). Prueba que lo decide: una carga manual con Chrome limpio y registro de red.
+  La extracción de paquetes se ha sacado del contenedor del recolector de CyL a `facylf-monitor` para no contaminar
+  su cgroup. **Nombres cortos**: con la importación en marcha aparecen equipos nuevos sin nombre; hay que ejecutar
+  `node scripts/nombres-cortos-equipos.mjs --federacion castilla-leon` al cerrar cada tanda (idempotente), o la
+  prueba `nombres-cortos.test.ts` se pone roja.
+
 - 09/11/2026: **shell recuperado; dos causas del estancamiento encontradas y una corregida en producción.** (1) El
   recolector de CyL **del PC** llevaba desde el 08/11 con `temporadas-asignadas.txt` en «2024-25» (temporada del
   servidor): pinchaba la del servidor y no las suyas. Corregido a sus 7 y worker reiniciado (el PC, medido, hacía
