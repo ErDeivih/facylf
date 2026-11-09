@@ -141,6 +141,18 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (noche): **Fondo Popular sirviendo datos reales en una URL pública provisional.** Web Next en el PC
+  (puerto 3001, build del 06/11) leyendo el canónico del PC con `facylf_lector`, publicada con un quick tunnel de
+  Cloudflare sin cuenta: `https://algorithm-infinite-sessions-assumed.trycloudflare.com`. Comprobado por HTTP:
+  portada, selector, competición 44 (jornadas con marcadores reales, clasificación con puntos, calendario y
+  estadísticas), acta 2000559 (alineaciones, goles, árbitro y tarjetas) y ficha de federación, todo 200. `/api/v1`
+  da 404 porque la compilación es del 06/11. **La URL es efímera**: Tailscale Funnel está desactivado en el tailnet y
+  se activa con un clic de David (`https://login.tailscale.com/f/funnel?node=njbseLxAqx11CNTRL`); después,
+  `tailscale funnel 3001` da la URL fija. Pasos, cuentas y decisiones pendientes en
+  [`docs/CUENTAS-Y-ACCESOS.md`](docs/CUENTAS-Y-ACCESOS.md). Tabla de cierre por temporada y lo que se queda fuera:
+  [`docs/plataforma-web/CIERRE-CYL-TABLA-FINAL.md`](docs/plataforma-web/CIERRE-CYL-TABLA-FINAL.md) — **163/807
+  completas** (eran 138 al empezar el día) y las 178 ediciones irreducibles con su causa.
+
 - 09/11/2026 (tarde, avance de datos): **la cobertura del canónico del PC sube de 140 a 163 ediciones completas en una
   hora.** La consolidación desde el servidor cierra **2024-25: 20 → 41 de 79 ediciones completas** con el paquete
   fresco (117 grupos con hueco, grupos de 11.000-16.000 filas). En paralelo, la tanda de importación desde la cola del
