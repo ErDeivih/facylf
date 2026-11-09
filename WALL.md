@@ -151,7 +151,9 @@ estadísticas e historiales sin que falte nada.
   `tailscale funnel 3001` da la URL fija. Pasos, cuentas y decisiones pendientes en
   [`docs/CUENTAS-Y-ACCESOS.md`](docs/CUENTAS-Y-ACCESOS.md). Tabla de cierre por temporada y lo que se queda fuera:
   [`docs/plataforma-web/CIERRE-CYL-TABLA-FINAL.md`](docs/plataforma-web/CIERRE-CYL-TABLA-FINAL.md) — **163/807
-  completas** (eran 138 al empezar el día) y las 178 ediciones irreducibles con su causa.
+  completas** (eran 138 al empezar el día) y las 178 ediciones irreducibles con su causa. A las 19:20 son **183**:
+  2022-23 sube de 12 a 32 con el paquete fresco y el worker del PC con las 15 temporadas hace **56/56 peticiones ok
+  y 2,6 s de media**, incluida una de 55,8 s que con el corte de 30 s se habría perdido.
 
 - 09/11/2026 (tarde, avance de datos): **la cobertura del canónico del PC sube de 140 a 163 ediciones completas en una
   hora.** La consolidación desde el servidor cierra **2024-25: 20 → 41 de 79 ediciones completas** con el paquete

@@ -1,6 +1,6 @@
 # Cierre de CyL · tabla por temporada y qué se queda fuera
 
-Foto del **09/11/2026, 18:50**, sobre el canónico del PC (el que sirve la web pública). Una edición está completa
+Foto del **09/11/2026, 19:20**, sobre el canónico del PC (el que sirve la web pública). Una edición está completa
 cuando todos sus grupos tienen `ops.coverage_checkpoint.visibility_state='completa'`. La cifra de «ediciones» es la
 unión de los dos canónicos (auditoría de las 17:30): el servidor no tiene ninguna edición que no esté en el PC.
 
@@ -16,12 +16,12 @@ unión de los dos canónicos (auditoría de las 17:30): el servidor no tiene nin
 | 2019-20 | 56 | 1 | 55 | **tanda de importación pendiente** (la tanda 1 la cubrió en parte) |
 | 2020-21 | 31 | 9 | 22 | 154 grupos con hueco en el servidor (3.610 actas); 13 sin origen |
 | 2021-22 | 66 | 12 | 54 | hueco de recolección: 31 ediciones necesitan más jornadas/actas de la cola del PC |
-| 2022-23 | 70 | 12 | 44 | 129 grupos con hueco en el servidor (12.362 actas); paquete fresco en extracción |
+| 2022-23 | 70 | 32 | 38 | **el paquete fresco la subió de 12 a 32**; el resto necesita recolección de lo que el portal publique |
 | 2023-24 | 83 | 24 | 45 | el servidor tiene 14 ediciones más completas que el PC, pero su cola ya no las ofrece: queda recolección |
 | 2024-25 | 79 | 41 | 23 | **la consolidación desde el servidor la subió de 20 a 41**; quedan 23 con huecos de recolección |
 | 2025-26 | 71 | 20 | 43 | 43 ediciones con huecos; la cola del servidor tiene 8 más completas que el PC |
 | 2026-27 | 56 | 1 | 55 | **temporada en curso**: no se puede cerrar hasta que termine; el PC ya la recolecta |
-| **Total** | **807** | **163** | **644** | |
+| **Total** | **807** | **183** | **624** | |
 
 ## Lo que se queda fuera y por qué (auditoría de las 17:30, actualizable)
 
