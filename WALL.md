@@ -126,10 +126,12 @@ detrás. Se acabaron las explicaciones: se implementa.
 - [x] **Backend/API de estadísticas, historiales y oficiales**: siete endpoints nuevos en `/api/v1` con
   ETag/304, caché por etiquetas y contrato documentado.
 
-- [ ] **Cobertura completa de Castilla y León**: a 05/11/2026 hay **133/889 competiciones completas**
-  (85 % por terminar) según `metricas-facylf.json`; las pantallas nuevas priorizan CyL por defecto y
-  muestran la cobertura real, pero la recogida la siguen haciendo los colectores programados
-  (servidor/PC, sin cambiar su ritmo). No se abre ninguna otra federación por defecto.
+- [ ] **Cobertura completa de Castilla y León**: medido el 09/11/2026 en los dos canónicos, la **unión** es de
+  **807 ediciones y 221 completas** (586 incompletas en las dos; el PC solo tiene 138 y el servidor 152, y sus
+  temporadas se reparten). **Causa raíz del estancamiento encontrada y corregida el 09/11:** el recolector de CyL
+  del PC tenía asignada `2024-25` (temporada del servidor) y no las suyas, y en el servidor el `pageLoad` de 30 s
+  tiraba el 83 % de las peticiones (corregido a 60 s, commit `3ef2c3b`). La consolidación (traer del servidor al
+  canónico del PC los 1.265 grupos con hueco) está en marcha. Detalle: `docs/plataforma-web/CIERRE-CYL-2026-11-09.md`.
 
 ## Terminado cuando
 
@@ -138,6 +140,21 @@ estadísticas e historiales sin que falte nada.
 
 
 ## Bitácora
+
+- 09/11/2026: **shell recuperado; dos causas del estancamiento encontradas y una corregida en producción.** (1) El
+  recolector de CyL **del PC** llevaba desde el 08/11 con `temporadas-asignadas.txt` en «2024-25» (temporada del
+  servidor): pinchaba la del servidor y no las suyas. Corregido a sus 7 y worker reiniciado (el PC, medido, hacía
+  2.876 peticiones ok de 2.886 en 24 h, 0,1 % de error). (2) En **el servidor**, el 83 % de las peticiones de CyL se
+  perdía: el 100 % de los fallos caía entre 29,0 y 31,5 s por el `pageLoad: 30_000`, con la CPU saturada (PSI 89-96 %;
+  16 recolectores × 0,5 CPU sobre 4 núcleos, más el contenedor ajeno `lyfta` en bucle). Arreglado con prueba en rojo:
+  `scripts/lib/tiempos-navegador.mjs` (60 s), desplegado con huellas OK y reiniciados CyL y Castilla-La Mancha
+  (commit `3ef2c3b`). Queda un segundo fallo del servidor por arreglar: `ENOENT` de la ficha de espera en
+  `adquiereSlotChrome` (876 salidas con código 1). **Medición de la cobertura real**: canónico del PC 138/807
+  ediciones completas, servidor 152/259, **unión 221/807** (586 incompletas en las dos). **Consolidación en marcha**:
+  traer al canónico del PC los 1.265 grupos con hueco de las 8 temporadas del servidor (91.787 partidos, 86.893
+  actas); el paquete de 2024-25 (483 MB, 120 grupos) ya está importándose. **Despliegue**: lo que corre en el
+  servidor es la web VIEJA del 24/09 y su canónico está en la migración 0015 de 60; plan y costes en
+  `docs/plataforma-web/DESPLIEGUE-FONDO-POPULAR.md`.
 
 - 08/11/2026: **2022-23: 58 ediciones incompletas y 7.554 partidos**. La cola local tiene 2.599 jornadas, 1.375 actas, 113 calendarios y 117 clasificaciones pendientes; el importador apartó 11 grupos porque el origen trae 3-7 partidos frente a 84-210 del canónico. Detalle por edición en `docs/plataforma-web/FALTAS-2022-23.md`. También se commitearon los 9 artefactos pendientes.
 
