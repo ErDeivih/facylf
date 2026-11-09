@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (noche, 21:10): **2019-20 cerrada por la vía del PC y worker al 100 % tres horas seguidas.** La 2ª
+  pasada de 2019-20 hizo 51 grupos más sin fallos: el hueco real de esa temporada baja de 5.112 actas a **3 actas en
+  3 grupos** (216/216 claves «hecho»). Ojo: la cobertura por ediciones de 2019-20 no se mueve todavía (sigue 1/56)
+  porque sus grupos tienen calendario, jornada y clasificación pendientes en la cola, y el importador solo mete
+  actas: eso lo cierra el recolector. Acierto del worker con las 15 temporadas: **56/56 (2,6 s) → 17/17 (4,9 s) →
+  128/128 (2,0 s)**, cero fallos de 30 s. Sigue con 2015-16 (115 grupos/868 actas) y después 2013-14 (115/476);
+  cuando cierren, toca refrescar la base publicada.
+
 - 09/11/2026 (noche, 21:00): **tres arreglos de David aplicados y desplegados en la URL pública.** (1) **Marca**:
   lo que se veía era «Cantera» porque el contenedor servía un build del 06/11 anterior a la marca definitiva; el
   código ya decía Fondo Popular, así que se reconstruyó la web y se redesplegó (título, cabecera y metadatos; fuera
