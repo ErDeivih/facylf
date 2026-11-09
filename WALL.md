@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (tarde, avance de datos): **la cobertura del canónico del PC sube de 140 a 163 ediciones completas en una
+  hora.** La consolidación desde el servidor cierra **2024-25: 20 → 41 de 79 ediciones completas** con el paquete
+  fresco (117 grupos con hueco, grupos de 11.000-16.000 filas). En paralelo, la tanda de importación desde la cola del
+  PC cierra **2017-18: 8 → 10 de 60**, con 293.910 filas y el hueco de grupos de **102 a 2** (faltan 3 actas de
+  6.543); un solo grupo falla, `17134`, por acta que no cuadra con el calendario (identidad, no origen). El worker del
+  PC ya recolecta las 15 temporadas (cataloga 2026-27 primero) a 46/46 peticiones ok y 1,7 s de media. La extracción
+  de 2022-23 corre en `facylf-monitor` y el importador espera el paquete fresco.
+
 - 09/11/2026 (tarde): **verificación del pageLoad de 60 s y cambio de reparto de CyL.** El arreglo hace lo que pedía
   —ya no hay ni un fallo a 30 s; los fallos se han movido a 60,1-60,6 s— pero **el acierto no sube**: CyL y
   Castilla-La Mancha siguen a 0 % en la ventana posterior (último acierto de CyL el 09/11 a las 12:46Z; el de CLM, el
