@@ -14,6 +14,7 @@ import { actaSinContenidoDeportivo } from './lib/acta-vacia.mjs';
 // Sin publicidad ni rastreadores en el navegador: es la palanca de CPU y memoria más directa (medido 20/09/2026).
 import { bloqueaTerceros } from './lib/bloqueo-terceros.mjs';
 import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
+import { decisionDeRepaso, metadatoDeRepaso } from './lib/repaso-actas.mjs';
 import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
@@ -2770,8 +2771,22 @@ async function ejecutar(db) {
         // Antes se CONTABAN las actas desactualizadas cada 25 trabajos, y ese `count(*)` recorre la tabla `actas`
         // entera (con el JSON de cada una): en las colas de 1,5-2 GB eran 2-4 minutos parado cada 25 trabajos
         // (medido el 16/10/2026: CyL y Madrid con un silencio así cada 5-8 min). Ahora se cuenta UNA vez por sesión
-        // y luego se descuenta lo reparado: las actas nuevas ya se guardan con el parser actual.
-        if (hechos % 25 === 0 && actasDesactualizadasEnSesion === null) actasDesactualizadasEnSesion = cuentaActasDesactualizadas(db);
+        // y luego se descuenta lo reparado: las actas nuevas ya se guardan con el parser actual. Y desde el
+        // 09/11/2026 tampoco se repite en cada arranque: si el último recuento dejó la cola limpia con la misma
+        // versión de parser y fue hace menos de 24 h, se salta (en el PC, con la cola en HDD, eran 40-60 min de
+        // bloqueo por sesión y esa noche hubo varios reinicios). La decisión vive en `lib/repaso-actas.mjs`.
+        if (hechos % 25 === 0 && actasDesactualizadasEnSesion === null) {
+          let guardado = null;
+          try { guardado = JSON.parse(leeMetadato(db, 'actas_repaso') ?? 'null'); } catch { guardado = null; }
+          if (decisionDeRepaso({ guardado, versionActual: VERSION_PARSER_ACTA, ahoraMs: Date.now() }) === 'saltar') {
+            actasDesactualizadasEnSesion = 0;
+          } else {
+            actasDesactualizadasEnSesion = cuentaActasDesactualizadas(db);
+            guardaMetadato(db, 'actas_repaso', metadatoDeRepaso({
+              versionActual: VERSION_PARSER_ACTA, pendientes: actasDesactualizadasEnSesion, ahoraMs: Date.now(),
+            }));
+          }
+        }
         if (hechos % 25 === 0 && actasDesactualizadasEnSesion > 0) {
           const mantenimiento = reparaActasDesactualizadas(db, 5);
           actasDesactualizadasEnSesion = Math.max(0, actasDesactualizadasEnSesion - 5);
