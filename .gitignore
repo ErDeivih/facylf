@@ -95,3 +95,6 @@ pruebas/reconstruccion/canonico/
 pruebas/reconstruccion/importacion-resumen-*.json
 pruebas/reconstruccion/vigilancia-programada.log
 pruebas/reconstruccion/vigilancia-flota.jsonl
+
+# Volcados del canónico guardados en el PC (no se suben: pesan GB)
+backups/
