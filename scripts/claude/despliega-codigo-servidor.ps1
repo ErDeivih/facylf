@@ -15,7 +15,7 @@ param([switch]$SoloComprobar)
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $destino = '/srv/data/facylf'
-$claves = @('scripts/recolector-local.mjs', 'scripts/lib/recolector-local.mjs', 'scripts/recolector-valencia.mjs', 'scripts/lib/temporadas-asignadas.mjs')
+$claves = @('scripts/recolector-local.mjs', 'scripts/lib/recolector-local.mjs', 'scripts/recolector-valencia.mjs', 'scripts/lib/temporadas-asignadas.mjs', 'scripts/lib/tiempos-navegador.mjs')
 
 if (-not $SoloComprobar) {
   # Un tar evita copiar fichero a fichero (960 ficheros) y conserva la estructura; se descomprime encima.

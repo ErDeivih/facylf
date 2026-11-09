@@ -14,6 +14,7 @@ import { actaSinContenidoDeportivo } from './lib/acta-vacia.mjs';
 // Sin publicidad ni rastreadores en el navegador: es la palanca de CPU y memoria más directa (medido 20/09/2026).
 import { bloqueaTerceros } from './lib/bloqueo-terceros.mjs';
 import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
+import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
   basePrioridadCompeticion, enTransaccion, establecePausaGlobal, extraeGrupos, extraeJornadas,
@@ -2631,7 +2632,10 @@ async function ejecutar(db) {
   }
   const creaDriver = async () => {
     const nuevo = await new Builder().forBrowser('chrome').setChromeOptions(opcionesChrome()).build();
-    await nuevo.manage().setTimeouts({ pageLoad: 30_000, script: 15_000, implicit: 0 });
+    // El pageLoad estaba a 30 s y medido (09/11/2026) tiraba 8 de cada 10 peticiones de CyL: las que salían
+    // bien tardaban 18-20 s. Ver scripts/lib/tiempos-navegador.mjs.
+    const { pageLoad, script } = tiemposNavegador();
+    await nuevo.manage().setTimeouts({ pageLoad, script, implicit: 0 });
     await bloqueaTerceros(nuevo);
     return nuevo;
   };
