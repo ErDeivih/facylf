@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 09/11/2026 (noche, 20:50): **el canónico del PC está publicado como base nueva en el servidor (`facylf_canonico`)**,
+  plan de David ejecutado sin saltarse pasos: fuente congelada → recuento de 98 tablas (115.860.212 filas) → volcado
+  `pg_dump -Fc` de 1,35 GiB (sha256 `ec9faad…`, copia en el PC y en el servidor) → base nueva con rol `facylf_app`
+  creado → `pg_restore` nice 19 → **código 0 sin errores**, 28 GB → **cotejo 98/98 tablas y 115.860.212 filas
+  idénticas** → la web pasa a leerla por túnel SSH. La base vieja y sus contenedores, intactos; no se ha borrado
+  nada. Cobertura de CyL idéntica (183/807) y RLS de La Preferente comprobada (0 `lp%` visibles). DNS del servidor
+  arreglado con sudo (no resolvía nada). Publicado en `docs/plataforma-web/PUBLICACION-2026-11-09.md`.
+
 - 09/11/2026 (noche): **Fondo Popular sirviendo datos reales en una URL pública provisional.** Web Next en el PC
   (puerto 3001, build del 06/11) leyendo el canónico del PC con `facylf_lector`, publicada con un quick tunnel de
   Cloudflare sin cuenta: `https://algorithm-infinite-sessions-assumed.trycloudflare.com`. Comprobado por HTTP:

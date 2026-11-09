@@ -10,18 +10,39 @@ estable y el producto publicable.
 |---|---|---|---|
 | **Web Fondo Popular** (Next 16, build del 06/11) | PC, `127.0.0.1:3001`, lee el canónico del PC con `facylf_lector` | `cd apps\web` + `node node_modules\next\dist\bin\next start -p 3001` con `DATABASE_URL_LECTOR` del `.env` | cerrar el proceso `next start` |
 | **Túnel publico** (Cloudflare quick tunnel, sin cuenta) | PC, `tmp\cloudflared.exe` | `tmp\cloudflared.exe tunnel --url http://127.0.0.1:3001 --no-autoupdate` | cerrar el proceso `cloudflared` |
-| **Canónico** que sirve la web | PostgreSQL del PC (`facylf-postgres`, 127.0.0.1:5433) | Docker Desktop | `docker compose -f infra/docker-compose.yml down` |
+| **Canónico** que sirve la web | **Base nueva `facylf_canonico` del servidor** (28 GB, copia exacta del canónico del PC del 09/11 19:46), leída por un **túnel SSH** `127.0.0.1:5434 → servidor:5433` | túnel: `ssh -N -L 5434:127.0.0.1:5433 servidor`; web: `tmp\sirve-web-servidor.ps1` | cerrar el proceso `ssh -N` y la web |
 
 **URL pública de hoy:** `https://algorithm-infinite-sessions-assumed.trycloudflare.com`
 
 > **Aviso honesto:** el quick tunnel es para probar, no para producción. La URL **cambia cada vez que se reinicia
 > `cloudflared`** y Cloudflare no lo da como servicio estable. Para una URL fija hace falta el paso 2.
+> Además, la web lee la base del servidor **por un túnel SSH**, así que el TTFB sube a 9-10 s (con la base local eran
+> 3 s). Para producción la web debe correr en el servidor, al lado de la base; es el siguiente paso del plan.
 
 Comprobado por HTTP contra esa URL (09/11 18:48): `/`, `/explorar/competiciones`, `/explorar/competicion/44`,
 `/jornadas`, `/jornada/1`, `/calendario`, `/estadisticas`, `/explorar/acta/2000559` y
 `/explorar/federacion/castilla-leon` responden **200** con marcadores reales (9-4, 1-6…), clasificación con puntos y
 actas con alineaciones, goles, árbitro y tarjetas. `/api/v1/indice` da 404: la compilación desplegada es del 06/11 y
 no incluye la API; se arregla reconstruyendo la web (paso 3).
+
+## 1-bis · DNS del servidor: resuelto (09/11, con el `sudo` de David)
+
+El host tenía `/etc/resolv.conf` con los resolutores de Tailscale (`100.100.1.1`, `100.90.1.1`) y Tailscale tiene
+el DNS desactivado, así que **no resolvía nada** (`getent hosts github.com` fallaba) y `docker pull` no podía con el
+registro. Arreglado con estas tres órdenes (dejando copia del original en `/etc/resolv.conf.antes-20261109`):
+
+```bash
+sudo nmcli connection modify 011bd9db-81bc-39fd-9126-bb159be8447e \
+  ipv4.dns '192.168.1.1,1.1.1.1,8.8.8.8' ipv4.ignore-auto-dns yes
+printf 'nameserver 192.168.1.1\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n' | sudo tee /etc/resolv.conf
+getent hosts github.com        # ahora devuelve IP
+docker pull hello-world:latest # ahora funciona
+```
+
+No se reinició la conexión para no cortar la sesión SSH: NetworkManager aplicará la misma configuración en el
+siguiente reconnect. Si algún día vuelve a fallar, se repite el bloque.
+
+
 
 ## 2 · Para que la URL sea fija y gratuita: activar Tailscale Funnel (2 minutos, solo David)
 
