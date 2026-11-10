@@ -85,3 +85,11 @@ Nada de esto hace falta para la URL actual; son los pasos para pasar de foto a *
 ```powershell
 (Invoke-WebRequest -Uri 'https://erdeivih.github.io/fondo-popular-demo/explorar/competicion/44/jornadas/' -UseBasicParsing).StatusCode  # 200
 ```
+
+## App real publicada (túnel temporal, 10/11/2026)
+
+La app completa está disponible por **https://ringtones-studies-plastic-assumptions.trycloudflare.com** mientras se decide el dominio propio. Es un túnel rápido de Cloudflare (cloudflared tunnel --url http://127.0.0.1:3001, sin cuenta ni DNS): la URL **cambia cada vez que se reinicia** el túnel, así que sirve para enseñar el producto, no como dirección definitiva.
+
+Comprobado por HTTP: portada 1,2 s, selector 285 ms, competición 479 ms (clasificación, 19 filas), jornada 450 ms (36 resultados y árbitros), acta 341 ms (cronología, alineaciones, 196 nombres), ficha de equipo 299 ms, historial de jugador 729 ms, rankings 646 ms, y /api/v1 231 ms. En la app real **sí funcionan las fichas de equipo y los rankings**; es la demo estática la que no los lleva (sus enlaces daban 404 y su listado se cargaba por JavaScript).
+
+Para levantarla de nuevo: 	mp\cloudflared.exe tunnel --url http://127.0.0.1:3001 --no-autoupdate, con la app sirviendo en el 3001 (	mp\sirve-web-servidor.ps1, base acylf_canonico_4).
