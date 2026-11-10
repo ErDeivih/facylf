@@ -71,15 +71,15 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Clasificación: desplázate en horizontal para ver todas las columnas"
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
-            <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 600 }}>
+            <table className="w-full table-fixed border-separate border-spacing-0 text-tabla md:table-auto md:min-w-[600px]">
               <caption className="sr-only">
                 Clasificación del grupo: posición, partidos jugados, victorias-empatadas-derrotas, goles y puntos de cada equipo.
               </caption>
               <thead>
                 <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
-                  <th scope="col" className={`${fijas} left-0 w-9 py-2 pl-4 pr-1.5 text-left font-semibold`}>#</th>
+                  <th scope="col" className={`${fijas} left-0 w-7 py-2 pl-2 pr-1 text-left font-semibold md:w-9 md:pl-4 md:pr-1.5`}>#</th>
                   <th scope="col" className={`${fijas} left-9 px-1.5 py-2 text-left font-semibold`}>Equipo</th>
-                  <th scope="col" className="px-1.5 py-2 font-semibold" title="Partidos jugados">PJ</th>
+                  <th scope="col" className="w-8 px-0.5 py-2 font-semibold md:w-auto md:px-1.5" title="Partidos jugados">PJ</th>
                   {/*
                     El recuento de victorias-empatadas-derrotas también se rotula V-E-D: la aplicación
                     usa V-E-D para Victoria/Empate/Derrota en toda la interfaz (decisión de David,
@@ -88,9 +88,9 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                   */}
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Victorias-Empates-Derrotas">V-E-D</th>
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Goles a favor y en contra">Goles</th>
-                  <th scope="col" className="px-1.5 py-2 text-left font-semibold"
+                  <th scope="col" className="w-9 py-2 pl-0.5 pr-1 font-semibold md:w-auto md:pl-1.5 md:pr-4">Pts</th>
+                  <th scope="col" className="w-[3.75rem] px-0.5 py-2 text-left font-semibold md:w-auto md:px-1.5"
                     title="Últimos 5 partidos hasta la jornada de la tabla, del más antiguo al más reciente">Forma</th>
-                  <th scope="col" className="py-2 pl-1.5 pr-4 font-semibold">Pts</th>
                 </tr>
               </thead>
               <tbody>
@@ -105,7 +105,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                           <span className="w-[22px] font-bold text-[var(--texto)]">{f.posicion}</span>
                         </div>
                       </td>
-                      <td className={`${fijas} left-9 w-[13.75rem] border-t border-[var(--fondo-sutil)] px-1.5 py-0 text-left md:w-auto`}>
+                      <td className={`${fijas} left-8 w-auto min-w-[5.5rem] border-t border-[var(--fondo-sutil)] px-1 py-0 text-left md:left-9 md:w-[13.75rem] md:px-1.5 lg:w-auto`}>
                         <div className="flex h-[var(--fila-densa)] min-w-0 items-center gap-2.5">
                           <Escudo equipoId={f.equipo_id} nombre={f.equipo} clubId={f.club_id} tieneEscudo={f.tiene_escudo} />
                           {/*
@@ -115,7 +115,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             recorta: la tabla cabe.
                           */}
                           <Link href={`/explorar/equipo/${f.equipo_id}`}
-                            className="block max-w-[11rem] truncate font-medium text-[var(--texto)] hover:underline md:max-w-none"
+                            className="block max-w-[3.75rem] md:max-w-[11rem] truncate font-medium text-[var(--texto)] hover:underline md:max-w-[11rem] lg:max-w-none"
                             title={f.equipo}>
                             {f.equipo}
                           </Link>
@@ -129,15 +129,22 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                           </details>
                         </div>
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">{f.jugados}</td>
-                      <td className="hidden whitespace-nowrap border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)] md:table-cell">
+                      <td className="border-t border-[var(--fondo-sutil)] px-1 text-[var(--texto-suave)]">{f.jugados}</td>
+                      <td className="hidden whitespace-nowrap border-t border-[var(--fondo-sutil)] px-1 text-[var(--texto-suave)] md:table-cell">
                         {f.ganados}-{f.empatados}-{f.perdidos}
                       </td>
                       <td className="hidden border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)] md:table-cell">
                         {golesDeLaFila(f, usaReconstruccion)}
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-left">
-                        <div className="flex gap-[3px]">
+
+                      <td className="border-t border-[var(--fondo-sutil)] py-0 pl-1 pr-2 text-cuerpo font-extrabold text-[var(--texto)] md:pl-1.5 md:pr-4">
+                        {f.puntos}
+                      </td>
+                      <td className="border-t border-[var(--fondo-sutil)] px-1 text-left md:px-1.5">
+                        <span className="whitespace-nowrap text-etiqueta font-bold tracking-[0.08em] text-[var(--texto-suave)] md:hidden">
+                          {forma.map((signo) => insigniaForma(signo).letra).join('')}
+                        </span>
+                        <div className="hidden gap-[3px] md:flex">
                           {forma.map((signo, i) => {
                             const { letra, etiqueta } = insigniaForma(signo);
                             // `role="img"` + `aria-label`: un lector de pantalla oye «Victoria» y la
@@ -146,16 +153,13 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             // visible), así que la palabra va en el nombre accesible, no en un span.
                             return (
                               <span key={`${letra}-${i}`} role="img" aria-label={etiqueta} title={etiqueta}
-                                className="flex size-5 items-center justify-center rounded-[5px] text-[10px] font-bold"
+                                className="flex size-4 items-center justify-center rounded-[5px] text-[9px] font-bold md:size-5 md:text-[10px]"
                                 style={estiloForma(signo)}>
                                 {letra}
                               </span>
                             );
                           })}
                         </div>
-                      </td>
-                      <td className="border-t border-[var(--fondo-sutil)] py-0 pl-1.5 pr-4 text-cuerpo font-extrabold text-[var(--texto)]">
-                        {f.puntos}
                       </td>
                     </tr>
                   );

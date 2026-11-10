@@ -58,7 +58,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
           </h1>
           {subtitulo !== '' && <span className="text-tabla text-[var(--texto-suave)]">{subtitulo}</span>}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
           {grupos.length > 1 && (
             <SelectorEnlace
               etiqueta="Grupo"
