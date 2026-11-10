@@ -141,6 +141,16 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (madrugada, 04:11): **reanudada la consolidación de CyL, que se había parado sola a las 19:32.** El
+  importador de paquetes llevaba solo 277 grupos hechos (2024-25, 2022-23 y 33 de 2026-27) y se quedó parado sin
+  error visible; relanzado con la lista de huecos: **968 grupos pendientes** en 8 temporadas del servidor
+  (2014-15 358 · 2026-27 187 · 2020-21 154 · 2016-17 142 · 2018-19 124 · y 1 en 2022-23, 2024-25 y 2012-13), a 7-20 s
+  por grupo. Añadidos los **21 grupos con actas** de 2023-24 y 2025-26 que faltaban; el resto de sus huecos (120 y
+  119) no tiene ni una acta en el paquete: esas temporadas necesitan **recolección**, no importación. La tarea
+  `FACyLF importador incremental` queda Disabled mientras dura la consolidación (hay que rehabilitarla al acabar).
+  Medido con `tmp/gaps-de-paquete.mjs` (nuevo): paquete de 2014-15 con 384 grupos y **0 completos** en el canónico;
+  2023-24 con 293 grupos y 168 completos; 2025-26 con 301 y 166.
+
 - 10/11/2026 (madrugada): **refresco exacto de la base publicada y arreglo del bloqueo de arranque del worker.** El
   primer volcado salió 14 tablas por detrás porque el importador y el proyector siguieron escribiendo: se
   congelaron las siete tareas escritoras, se exigió **recuento T1 = T2** (98 tablas, **116.986.467 filas**) y se
