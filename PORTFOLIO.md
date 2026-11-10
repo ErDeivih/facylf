@@ -1,4 +1,4 @@
-# Fondo Popular — plataforma de datos del fútbol federado de Castilla y León
+# Fondo Popular — plataforma de datos del fútbol y del fútbol sala de Castilla y León
 
 **Demo pública:** <https://erdeivih.github.io/fondo-popular-demo/> · **Estado:** publicada y en mantenimiento
 activo · **Temporada visible en la demo:** 2026-27 (foto estática) · **App completa:** local/servidor propio, todas
@@ -8,7 +8,7 @@ las temporadas.
 
 ## 1. El problema
 
-El fútbol federado de Castilla y León (fútbol sala incluido) está repartido en portales de federación con
+El fútbol y el fútbol sala de Castilla y León están repartidos en portales de federación con
 calendarios, jornadas, clasificaciones y actas en HTML, sin una base consultable: cada temporada se publica en su
 propia página, los nombres de clubes y equipos varían entre fuentes, y no hay forma de responder preguntas
 sencillas («¿cuántos partidos de la temporada 2014-15 tienen acta?», «¿qué equipos de Soria han jugado en categoría

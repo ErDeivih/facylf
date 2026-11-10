@@ -22,12 +22,9 @@ const RUTAS = [
   '/explorar/competicion/44/calendario',
   '/explorar/competicion/44/estadisticas',
   '/explorar/acta/2000559',
-  '/explorar/jugador/19057/historial',
+  '/explorar/jugador/89502/historial',
   '/explorar/federacion/castilla-leon',
-  '/explorar/rankings',
-  '/explorar/estadisticas',
   '/buscar',
-  '/explorar/ojeo',
   '/explorar/comparar',
   '/entrar',
   '/crear-cuenta',
@@ -42,7 +39,7 @@ mkdirSync(salida, { recursive: true });
  *  nodo suelto que se meta dentro de <body>, así que el cartel desaparecía de la página servida. Un pseudo-elemento
  *  no está en el DOM y React no lo puede quitar. */
 function cartelDeDemo(html) {
-  const aviso = '<style id="aviso-demo">body::before{content:"Demostración estática · datos de la temporada 2026-27 · sin API ni base de datos detrás · la app completa está en el servidor propio de Fondo Popular";display:block;position:sticky;top:0;z-index:99999;padding:7px 14px;background:#111418;color:#e8eaed;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;border-bottom:1px solid #2a2f36;box-sizing:border-box}</style>';
+  const aviso = '<style id="aviso-demo">body::before{content:"Demostración estática · fútbol y fútbol sala de Castilla y León · temporada 2026-27 · sin API ni base de datos detrás · la app completa está en el servidor propio de Fondo Popular";display:block;position:sticky;top:0;z-index:99999;padding:7px 14px;background:#111418;color:#e8eaed;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;border-bottom:1px solid #2a2f36;box-sizing:border-box}</style>';
   return html.replace('</head>', aviso + '</head>');
 }
 
@@ -58,10 +55,38 @@ function reescribe(html) {
     .replaceAll(/\/api\/escudo\/federacion\/([\w-]+)/g, `${base}/escudos-fed/$1`)
     // Todo lo demás que es absoluto desde la raíz del dominio (sin repetir el subdirectorio).
     .replaceAll(/(["'(])\/(?!\/)(?!fondo-popular-demo\/)/g, `$1${base}/`)
+    // Sin fichas de equipo: sus plantillas publican nombres de jugadores de categorías de menores (RGPD). Los
+    // enlaces se llevan al selector en vez de dejar un 404. Las reglas toleran el prefijo ya puesto (si no, se
+    // duplicaría: /fondo-popular-demo/fondo-popular-demo/...).
+    .replaceAll(/\/explorar\/equipo\/\d+/g, `${base}/explorar/competiciones`)
+    .replaceAll(new RegExp(`${base}${base}/explorar/competiciones`, 'g'), `${base}/explorar/competiciones`)
+    // Rankings y Ojeo fuera de la demo: publican nombres de jugadores de categorías de menores.
+    .replaceAll(new RegExp(`${base}\\/explorar\\/(rankings|ojeo)`, 'g'), `${base}/explorar/competiciones`)
+    .replaceAll(/\/explorar\/(rankings|ojeo)/g, `${base}/explorar/competiciones`)
     // Fuera el JavaScript: esto es una foto estática. Sin hidratación no hay router que pida rutas SIN el
     // prefijo de publicación (eso era el 404/503 que veían los coordinadores) y cada enlace es una carga de
     // página normal contra el fichero que existe. La interactividad no es parte de la demo.
     .replace(/<script[\s\S]*?<\/script>/gi, '');
+}
+
+/** Quita de la navegación las entradas que ya no tienen página en la demo (Rankings, Ojeo). */
+/** Sustituye "APELLIDOS, NOMBRE" por iniciales ("A. B., C.") en el HTML de la demo. */
+function redactaNombres(html) {
+  return html.replace(/([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*(?:\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*)*),\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*(?:\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*)*)/g,
+    (_, apellidos, nombre) => {
+      const iniciales = (parte) => parte.split(/\s+/).filter(Boolean).map((w) => w[0] + '.').join(' ');
+      return `${iniciales(apellidos)}, ${iniciales(nombre)}`;
+    });
+}
+
+function prepara(html) {
+  return redactaNombres(quitaDeNavegacion(reescribe(html)));
+}
+
+function quitaDeNavegacion(html) {
+  return html
+    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?funcion-(rankings|ojeo)[\s\S]*?<\/li>/g, '')
+    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/(rankings|ojeo)[\s\S]*?<\/li>/g, '');
 }
 
 const escudos = new Set();
@@ -86,7 +111,7 @@ for (const ruta of [...RUTAS]) {
       }
     }
     for (const m of html.matchAll(/\/api\/escudo\/federacion\/([\w-]+)/g)) escudosFed.add(m[1]);
-    html = reescribe(html);
+    html = prepara(html);
     const destino = join(salida, ruta === '/' ? 'index.html' : join(ruta.slice(1), 'index.html'));
     mkdirSync(dirname(destino), { recursive: true });
     writeFileSync(destino, html);
@@ -111,7 +136,6 @@ writeFileSync(join(salida, '404.html'), `<!DOCTYPE html><html lang="es"><head><m
 // /explorar y /rankings responden 404 porque no hay fichero en esa carpeta; con esto son páginas reales.
 const ALIAS = [
   ['/explorar', '/explorar/competiciones'],
-  ['/rankings', '/explorar/rankings'],
   ['/competiciones', '/explorar/competiciones'],
 ];
 for (const [rutaAlias, rutaReal] of ALIAS) {
@@ -120,7 +144,7 @@ for (const [rutaAlias, rutaReal] of ALIAS) {
     if (!respuesta.ok) { rutasMal.push(`${rutaAlias} (origen ${respuesta.status})`); continue; }
     let html = await respuesta.text();
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
-    html = reescribe(html);
+    html = prepara(html);
     const destinoAlias = join(salida, ...rutaAlias.split('/').filter(Boolean), 'index.html');
     mkdirSync(dirname(destinoAlias), { recursive: true });
     writeFileSync(destinoAlias, html);
@@ -136,7 +160,7 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
     if (!respuesta.ok) { rutasMal.push(`${rutaActa} (${respuesta.status})`); continue; }
     let html = await respuesta.text();
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
-    html = reescribe(html);
+    html = prepara(html);
     const destinoActa = join(salida, 'explorar', 'acta', String(id), 'index.html');
     mkdirSync(dirname(destinoActa), { recursive: true });
     writeFileSync(destinoActa, html);
@@ -151,7 +175,7 @@ for (const rutaJornada of [...jornadasDeLaPortada].slice(0, 16)) {
     if (!respuesta.ok) { rutasMal.push(`${rutaJornada} (${respuesta.status})`); continue; }
     let html = await respuesta.text();
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
-    html = reescribe(html);
+    html = prepara(html);
     const trozos = rutaJornada.split('/').filter(Boolean);
     const destinoJornada = join(salida, ...trozos, 'index.html');
     mkdirSync(dirname(destinoJornada), { recursive: true });
