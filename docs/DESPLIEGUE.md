@@ -7,7 +7,7 @@
 | **Demo pública** | **https://erdeivih.github.io/fondo-popular-demo/** | Foto **estática** de la web, generada desde la app. **Solo enseña la temporada 2026-27**. No tiene API ni base de datos detrás: las páginas y los escudos son ficheros del propio sitio. Sirve para que cualquiera vea la web sin abrir nada. |
 | **App completa (local)** | `http://127.0.0.1:3001` en el PC · y por túnel, en el servidor propio | La aplicación real: todas las temporadas del canónico, búsqueda, selector con filtros, actas, historial, panel. Es la que se usa para trabajar. |
 
-La demo se regenera con `node tmp/espeja-para-pages.mjs` (ver más abajo) y **no es la app**: si algo no aparece en
+La demo se regenera con `node scripts/claude/espeja-para-pages.mjs` (ver más abajo) y **no es la app**: si algo no aparece en
 la demo, primero se comprueba en la app completa. Las dos se llaman igual (Fondo Popular) pero tienen alcances
 distintos; cuando se hable de «la web», conviene decir cuál.
 
