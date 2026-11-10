@@ -1243,6 +1243,10 @@ function aplazaClave(db, clave, siguiente) {
  * HTML vacíos que se hubieran guardado antes de jugarse se volverán a consultar
  * después de la fecha real, sin afectar a temporadas terminadas. */
 function aplazaFuturoTemporadaActual(db) {
+  // Recorre las jornadas futuras de la temporada en curso y las aplaza (65,9 s en frío medidos el 10/11/2026). Es
+  // idempotente y no tiene prisa: una vez al día basta y el arranque deja de costar un minuto de disco.
+  if (!tocaRepaso({ ultimaVez: leeMetadato(db, 'aplaza_futuro_revisado_en') })) return { jornadas: 0, clasificaciones: 0 };
+  guardaMetadato(db, 'aplaza_futuro_revisado_en', new Date().toISOString());
   const actual = temporadaActual(db);
   if (!actual) return { jornadas: 0, clasificaciones: 0 };
   const hoy = fechaLocal();
