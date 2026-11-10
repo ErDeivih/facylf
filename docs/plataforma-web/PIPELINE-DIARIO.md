@@ -410,4 +410,20 @@ jornadas y actas) no sirve de nada. El camino es dejar que la recolección compl
 eso el contador 206/867 no se mueve mientras solo haya actas nuevas de temporadas antiguas. La reimportación se paró
 sin dejar cambios: las unidades rechazadas no escriben nada.
 
+## Ensayo del ciclo diario (10/11/2026, 20:05)
 
+Ejecutado `scripts/ciclo-diario-cyl.ps1 -SoloComprobar`, que **mide y no toca nada** (no importa, no trae del
+servidor, no cambia la rotación). Salida:
+
+```
+servidor: memoria disponible 9,5 GiB - swap 0,2 GiB - carga 8,8 -> hay margen
+plan del PC: importar-masivo.mjs --federaciones federacion --minutos 30 --limite 0 (temporadas: las pendientes de la cola)
+plan del servidor: traer 2026-27, 2024-25, 2022-23, 2020-21 (de 8 temporadas suyas; maximo 4 por pasada)
+CYL COMPLETAS: 206 de 867 ediciones (23,8 %)
+```
+
+Es decir: el ciclo de las **04:30** (siguiente ejecución el 11/11) está sano, el servidor tiene margen, y el plan es
+importar 30 minutos de cola del PC y traer cuatro temporadas del servidor. Ojo: la importación del PC va por
+`importar-masivo`, que **se salta lo ya hecho**, así que las actas nuevas de la rotación no entrarán por ahí salvo
+que su grupo se haya re-recolectado entero (ver el apartado de la validación). Lo que sí hará el ciclo es **consolidar
+las temporadas del servidor**, que es la otra mitad del objetivo.
