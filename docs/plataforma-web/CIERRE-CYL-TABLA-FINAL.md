@@ -23,8 +23,9 @@ del 09/11). La cifra de ediciones es la del canónico del PC, que ya contiene to
 | 2026-27 | 57 | 1 | 1/239 | temporada en curso (el PC la recolecta ahora) |
 | **Total** | **867** | **206** | — | **23,8 %** de las ediciones completas |
 
-Al empezar el día eran **138 de 807**. La subida a 867 ediciones es porque 2014-15 entró con sus 58 ediciones de
-la federación (más las 3 de La Preferente que ya estaban).
+Al empezar el día eran **138 de 807**. El universo pasó de 807 a **867** por el propio cierre: 2014-15 tenía 3
+ediciones (sólo La Preferente) y hoy tiene 61 → **+58**; y los paquetes frescos crearon **+2** ediciones nuevas
+(2012-13 y 2026-27 pasaron de 2 y 56 a 3 y 57). En total +60, de ahí 867.
 
 ## Lo que se importó hoy (paquetes del servidor, idempotente y reanudable)
 
