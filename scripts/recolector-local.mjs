@@ -17,6 +17,7 @@ import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
 import { pendientesAPartirDe } from './lib/repaso-actas.mjs';
 import { latidoDeFicha } from './lib/ficha-espera.mjs';
 import { tocaRepaso } from './lib/guardia-repasos.mjs';
+import { enVentanaNocturna } from './lib/ventana-nocturna.mjs';
 import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
@@ -1188,6 +1189,9 @@ function cierraCompeticionesSinDatos(db) {
   const haceUnDia = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const ultima = leeMetadato(db, 'competiciones_sin_datos_revisadas_en');
   if (ultima && ultima > haceUnDia) return { competiciones: 0, actas: 0 };
+  // Recorre la tabla de actas entera (0,8 GB): se hace de noche, no a media tarde (medido el 10/11/2026: se
+  // comió la recolección más de una hora). Si no es la ventana, NO se marca el metadato: lo hará esa noche.
+  if (!enVentanaNocturna({})) return { competiciones: 0, actas: 0 };
   guardaMetadato(db, 'competiciones_sin_datos_revisadas_en', new Date().toISOString());
   const actual = temporadaActual(db);
   if (actual === null) return { competiciones: 0, actas: 0 };
