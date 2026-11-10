@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (madrugada, 04:33): **reordenada la importación para atacar primero el agujero mayor: 2014-15.**
+  El driver iba por 2026-27 (temporada en curso, poco retorno de cobertura) y 2014-15 era el bloque grande (358
+  grupos, 26.013 actas, 0 completos en el canónico). Reordenado a 2014-15 → 2020-21 → 2016-17 → 2018-19 → 2012-13 →
+  2026-27 → 2023-24 → 2025-26 → 2022-23 → 2024-25 (reanudable: no se pierde nada). Efecto medido en 8 minutos:
+  **2014-15 pasa de 3 ediciones (solo las de La Preferente) a 21, con 8 completas**, y el total del canónico del PC
+  sube de **183/807 a 188/825** ediciones completas. Sigue en marcha; a 2-14 s por grupo se espera cerrar sus 358
+  grupos en unos 25-30 minutos más.
+
 - 10/11/2026 (madrugada, 04:22): **grupos completos por temporada, medidos con la importación en marcha**:
   2026-27 **1/237** · 2025-26 166/301 · 2024-25 232/289 · 2023-24 169/296 · 2022-23 215/286 · 2021-22 138/280 ·
   2020-21 182/337 · 2019-20 **5/224** · 2018-19 143/270 · 2017-18 143/247 · 2016-17 144/286 · 2015-16 148/311 ·
