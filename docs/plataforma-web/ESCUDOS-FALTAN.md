@@ -302,24 +302,20 @@ base, ni la web, ni las migraciones. Las consultas que se usaron para el diagnó
   hicieron sólo para verificar sus bytes y no se guardaron. Y no se ha hecho `git commit` ni `push`.
 
 
-## 8. Lo que se arregló ese mismo día (10/11, 12:05)
 
-A los **12 clubes con evidencia dura** de la tabla §3.2 (mismo código de equipo de la federación que su fila
-hermana) se les copió el escudo vigente con `scripts/claude/fija-escudos-hermanos.sql`, que es **idempotente**
-(sólo inserta si el club destino no tiene ya escudo vigente; una segunda pasada inserta 0 filas, comprobado). No se
-borró nada y cada fila copiada deja en `fuente_descripcion` de dónde salió y por qué.
+## 8. Lo que se decidió ese mismo día: no se copian (10/11, 13:00)
 
-| Medida | Antes | Después |
-|---|---:|---:|
-| Clubes con escudo | 36 | **48** |
-| Inscripciones (`core.team_entry`) de CyL con escudo | 6.789 | **7.073** (+284) |
-| Inscripciones sin escudo | 31.668 | **31.384** |
+Los dos coordinadores avisaron de que **los escudos son signos de cada club y pueden tener derechos**. Por eso esta
+tarea NO se cierra copiando escudos: se cierra sabiendo cuántos faltan y por qué.
 
-Lo que **no** se toca, a propósito: los 16 clubes que sólo coinciden por nombre y el de siglas (necesitan revisión a
-mano), los 345 clubes partidos en varias filas en los que ninguna tiene escudo y los 527 de fila única. ¿Por qué?
-Porque copiar por parecido de nombre es inventar identidad; y los 872 restantes no tienen escudo en ningún sitio del
-canónico: **eso es recolección**, no un fallo de la web. El registro completo está en `tmp/escudos-faltan.csv` y se
-regenera con `node scripts/claude/lista-escudos.mjs`.
-
-Tras la copia sigue siendo cierto lo de §2: los 48 escudos que sirve `/api/escudo/club/<id>` son binarios buenos
-(36 verificados uno a uno + 12 copiados de esos mismos 36).
+- A primera hora del 10/11 se copiaron **12 escudos** a los clubes hermanos de la tabla §3.2 (misma fila de club
+  partida, evidencia del código de equipo de la federación). **Se revirtieron el mismo día**: se borraron las 12
+  filas insertadas y hoy vuelve a haber **36 clubes con escudo** (los que ya venían). El SQL conservado
+  (`scripts/claude/fija-escudos-hermanos.sql`) es ahora un registro de lo que se hizo y se deshizo, con «NO USAR».
+- La decisión completa está en [`DECISIONES.md`](../../DECISIONES.md): **iniciales por defecto y escudo real sólo
+  con permiso del club**; ni copiar de la federación ni recolectar del portal.
+- Lo que sí queda de valor es el diagnóstico: **901 clubes sin escudo** (de 937), repartidos en 12 con evidencia
+  dura de escudo en otra fila, 16 por nombre (heurística, a revisar a mano), 1 por siglas, 345 clubes partidos en
+  varias filas y **527 de fila única sin escudo en ningún sitio**. El registro se regenera con
+  `node scripts/claude/lista-escudos.mjs` y el CSV está en `tmp/escudos-faltan.csv`.
+- Los 36 escudos existentes siguen verificados uno a uno (§2): 0 corruptos, todos PNG con huella que cuadra.

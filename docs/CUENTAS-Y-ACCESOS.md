@@ -51,20 +51,24 @@ docker pull hello-world:latest # ahora funciona
 No se reinició la conexión para no cortar la sesión SSH: NetworkManager aplicará la misma configuración en el
 siguiente reconnect. Si algún día vuelve a fallar, se repite el bloque.
 
-**Estado comprobado el 10/11 a las 11:45:** la configuración sigue puesta en la conexión
-(`ipv4.dns:192.168.1.1,1.1.1.1,8.8.8.8`, `ipv4.ignore-auto-dns:yes`) y **la resolución funciona** (`getent hosts
-github.com` → 20.250.119.67, `pypi.org` → IPv6). El fichero `/etc/resolv.conf` puede seguir enseñando los
-resolutores de Tailscale porque NetworkManager lo regenera al conectar; mientras `getent hosts` resuelva, no hay
-nada que tocar. Si dejara de resolver:
+**Resuelto del todo el 10/11 a las 12:35**, con `sudo` (sin contraseña en ese servidor):
 
 ```bash
-# regenera /etc/resolv.conf desde la configuración de la conexión (corte de red de 2-3 s)
-sudo nmcli connection up 011bd9db-81bc-39fd-9126-bb159be8447e
-# y si aun así no resuelve, repetir el bloque de tres órdenes de arriba
+# 1) La configuración ya estaba puesta en la conexión (nmcli). Se reaplica SIN tirar el enlace:
+sudo nmcli device reapply enp2s0
+# 2) Comprobación: los resolutores buenos salen los primeros y todo resuelve
+cat /etc/resolv.conf      # nameserver 192.168.1.1 / 1.1.1.1 / 8.8.8.8
+getent hosts github.com   # 20.250.119.67
+getent hosts pypi.org     # IPv6 reales de Fastly
 ```
 
-Para publicar **no** hace falta el DNS del servidor: la web pública está en GitHub Pages y la base se sirve desde
-la copia `facylf_canonico_4`; el DNS del servidor solo afecta a `docker pull`, `apt` y clones de git.
+`nmcli device reapply` es la orden que hay que usar: regenera `/etc/resolv.conf` desde la configuración de la
+conexión y **no corta la sesión SSH** (a diferencia de `nmcli connection up`). Antes de reaplicar, `/etc/resolv.conf`
+seguía con los resolutores de Tailscale (`100.100.1.1`, `100.90.1.1`) porque lo escribió tailscaled en su día;
+después quedan detrás de los buenos y no estorban. Si algún día vuelve a fallar, se repite ese bloque.
+
+Para publicar **no** hace falta el DNS del servidor: la web pública está en GitHub Pages y la base se sirve desde la
+copia `facylf_canonico_4`; el DNS del servidor solo afecta a `docker pull`, `apt` y clones de git.
 
 
 
