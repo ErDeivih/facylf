@@ -132,3 +132,17 @@ nuestras pausas de 7-13 s, que son deliberadas. Por eso los ~15.700 trabajos pen
 
 Si algún día se quiere acelerar, la palanca sería subir el paralelismo con más máquinas **respetando** el portal (o
 resolver el acceso desde el servidor), nunca bajar las pausas: eso está prohibido por la regla del proyecto.
+
+## Chequeo de salud en un comando
+
+Para las rondas de seguimiento (y para David) hay un solo comando, de solo lectura, que dice si todo está en pie:
+
+```powershell
+node scripts\claude\salud-cyl.mjs
+```
+
+Comprueba: que el registro del worker se haya movido en los últimos 10 minutos, trabajos pendientes y apartados de
+la cola, actas hechas y pendientes de la temporada en rotación, último trabajo terminado, espacio libre en E: y F:, y
+que respondan la demo pública (`/` y `/explorar`) y la app real por el túnel (`/` y un acta). Sale con código 1 si
+algo falla. Medido el 10/11 a las 20:20: **todo en orden** (44 actas hechas de 2018-19, 954 pendientes, 339,6 GB
+libres en E:, 138,6 en F:, demo y app 200).
