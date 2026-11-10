@@ -51,7 +51,7 @@ La aplicación tiene que estar sirviendo en `http://127.0.0.1:3001` (ver `tmp\si
 túnel SSH a la base y la web). Después:
 
 ```powershell
-node tmp\espeja-para-pages.mjs http://127.0.0.1:3001 tmp/site-pages /fondo-popular-demo
+node scripts\claude\espeja-para-pages.mjs http://127.0.0.1:3001 tmp/site-pages /fondo-popular-demo
 cd tmp\site-pages
 git add -A ; git -c user.email=agente@facylf.local -c user.name="Agente FACyLF" commit -m "Fondo Popular: refresco de la foto"
 git push origin main
