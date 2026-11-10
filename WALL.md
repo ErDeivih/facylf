@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (madrugada, 04:22): **grupos completos por temporada, medidos con la importación en marcha**:
+  2026-27 **1/237** · 2025-26 166/301 · 2024-25 232/289 · 2023-24 169/296 · 2022-23 215/286 · 2021-22 138/280 ·
+  2020-21 182/337 · 2019-20 **5/224** · 2018-19 143/270 · 2017-18 143/247 · 2016-17 144/286 · 2015-16 148/311 ·
+  2014-15 **3/3** (solo las de La Preferente: los 384 grupos de la federación están en la cola de importación) ·
+  2013-14 85/231 · 2012-13 2/2. Los dos huecos que más pesan son 2014-15 (importación) y 2019-20 (recolección: el
+  worker está con sus clasificaciones). Nuevo `tmp/reejecuta-fallos.ps1` para sacar el motivo completo de los
+  grupos que fallan (el driver solo guardaba «Exit status 1»).
+
 - 10/11/2026 (madrugada, 04:11): **reanudada la consolidación de CyL, que se había parado sola a las 19:32.** El
   importador de paquetes llevaba solo 277 grupos hechos (2024-25, 2022-23 y 33 de 2026-27) y se quedó parado sin
   error visible; relanzado con la lista de huecos: **968 grupos pendientes** en 8 temporadas del servidor
