@@ -369,4 +369,23 @@ no ha dicho esa línea. Qué mirar según lo que diga el registro:
 - `tmp/medir-canonico-cyl.sql` — la consulta de la auditoría con la definición de «completa».
 - `estado/ciclo-diario-idempotencia.json` — la evidencia numérica de la prueba de idempotencia (local, no versionada).
 
+## Importación de temporadas antiguas: unidades apartadas por datos parciales (10/11/2026)
 
+Al probar una tanda del importador incremental sobre las temporadas antiguas recién abiertas
+(`--federaciones federacion --temporadas 2014-15,2018-19,... --minutos 10`) la tanda terminó **sin importar nada**:
+de 743 unidades, 1.978 ya estaban hechas, 437 apartadas y 2 pendientes; las dos pendientes se apartaron solas con
+este motivo:
+
+```
+✗ La validación del lote ha fallado: partidos 9≠277, actas analizadas 6≠270 [origen≠canónico]
+  (el ORIGEN trae menos que el canónico: ¿cola vieja? Importa desde el paquete del servidor; el canónico queda como está)
+```
+
+**No es un fallo: es la protección que impide pisar el canónico con menos datos de los que ya tiene.** La cola tiene
+solo las actas recién recogidas de esas competiciones, mientras el canónico conserva el paquete completo que se
+importó en su día desde el servidor. Esas unidades se importan **por el camino de paquete** (cuando la temporada se
+cierra y se empaqueta), no por el incremental.
+
+Consecuencia práctica para estos días de rotación: lo que el recolector va guardando en la cola de temporadas
+antiguas **no cambia la cobertura** hasta que se ejecute el ciclo diario o se empaquete la temporada. El contador
+206/867 no es un fallo de la recolección; es que la importación de esas unidades va por otro camino.
