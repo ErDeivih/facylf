@@ -10,20 +10,18 @@ fecha: 2026-11-10
 
 ## Bloqueo
 
-**Estado: los arreglos del arranque están hechos y medidos; lo que frena ahora la recolección es la contención del
-disco, no el código.** El desarrollo y la publicación están al día.
+**Estado: sin bloqueo de código; el worker está pagando el repaso diario que le tocaba.**
 
-- **(a) Dónde me quedé.** El arranque del worker se arregló por partes y con medida: `activa-actas` pasó de
-  **188,9 s a 0,4 s** (índice `actas_estado` forzado), y `actas-sin-trabajo` (110-112 s) y `aplaza-futuro`
-  (66-96 s) quedaron con guardia diaria (metadatos `actas_sin_trabajo_revisadas_en` y `aplaza_futuro_revisado_en`
-  escritos). Pero el arranque de las 17:49 lleva ya **14 min solo para llegar a `competiciones-sin-datos`**, un paso
-  que en la traza anterior costaba 0,0 s: la cola de 2,4 GB se lee a pocos MB/min y hay 26 procesos de Chrome y
-  varios recolectores de multideporte compitiendo por el mismo disco.
-- **(b) Qué falta revisar.** Confirmar si el retraso es sólo contención (disco/CPU) o si algo tiene bloqueada la
-  cola: el WAL no cambia desde las 17:15 y no hay peticiones nuevas desde las 16:46, con el worker sin pedir.
-- **(c) Qué necesito de David u otro chat.** Nada urgente: su parte (dominio, textos legales, La Preferente) sigue
-  pendiente. Si la contención sigue, lo razonable es **parar temporalmente los recolectores de multideporte mientras
-  se cierra CyL**, y eso es una decisión de producto (afecta a otras federaciones), no mía.
-- **(d) Siguiente paso concreto.** **No reiniciar el worker** (los reinicios de esta tarde lo interrumpían a mitad
-  del arranque): dejarlo terminar; si en 30 min sigue sin pedir, medir qué proceso satura el disco y proponer a David
-  parar temporalmente los recolectores de multideporte. Después, medir cobertura y refrescar base y foto si hay lote.
+- **(a) Dónde me quedé.** Los arreglos del arranque están medidos y guardados (`activa-actas` 188,9 s → 0,4 s por el
+  índice; `actas-sin-trabajo` y `aplaza-futuro` con guardia diaria). El worker de las 17:49 lleva desde las 18:00
+  en `competiciones-sin-datos`: al comprobar los metadatos se ve que `competiciones_sin_datos_revisadas_en` había
+  caducado justo a las 18:00 (24 h desde la última), así que **toca el repaso completo de actas** (0,81 GB) y no es
+  un cuelgue; ya lo ha marcado y el siguiente arranque lo saltará. Con la contención actual (39 procesos node y 26
+  de Chrome, CPU al 49 %) ese barrido tarda decenas de minutos.
+- **(b) Qué falta revisar.** Sólo confirmar que, al terminar ese barrido, empieza a pedir y que el siguiente arranque
+  se queda en ~20-30 s con las cuatro guardias. La cola no está bloqueada (escritura de prueba en 3 ms).
+- **(c) Qué necesito de David u otro chat.** Nada urgente. Si la contención sigue impidiendo cerrar CyL, proponerle
+  **parar temporalmente los recolectores de multideporte**; es decisión de producto y no la tomo yo.
+- **(d) Siguiente paso concreto.** **No reiniciar** el worker: dejarlo terminar el barrido (máximo una vez al día) y
+  comprobar en el registro que pasa a pedir; después, medir cobertura y refrescar base y foto si hay lote. El
+  procedimiento completo queda en `docs/plataforma-web/OPERACION-ARRANQUE.md`.
