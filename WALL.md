@@ -141,6 +141,15 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (tarde): **FACyLF publicada y demostrable.** Base `facylf_canonico_4` publicada con cotejo exacto
+  (**98/98 tablas y 123.601.068 filas**), web dinámica apuntando a ella y **demo pública** regenerada con el build
+  de hoy: https://erdeivih.github.io/fondo-popular-demo/ (12/12 rutas, aviso de demostración 2026-27, provincia
+  múltiple con las 9 provincias y tildes, escudos reales servidos tras corregir el doble prefijo de rutas).
+  Añadido `PORTFOLIO.md` con problema, competencias demostradas (ETL, modelo de datos, KPIs, calidad y depuración),
+  tabla por temporada, cinco capturas en `docs/portfolio/`, tecnologías, estado y límites. Árbol limpio: 36 ficheros
+  comiteados (planes regenerados con el filtro CyL y la provincia múltiple). Mesa de trabajo: 206/867 ediciones
+  completas; el resto, recolección o falta de origen.
+
 - 10/11/2026 (mediodía): **entregado el encargo «pipeline diario» de David.** Pipeline programado
   (`scripts/ciclo-diario-cyl.ps1`, idempotente y demostrado con recuentos antes/después), tarea `FACyLF ciclo diario
   CyL` diaria a las 04:30 **con StartWhenAvailable**, comprobación de codificación que **falla con exit 1** (CyL

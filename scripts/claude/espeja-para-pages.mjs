@@ -31,24 +31,27 @@ const RUTAS = [
 if (existsSync(salida)) rmSync(salida, { recursive: true, force: true });
 mkdirSync(salida, { recursive: true });
 
-/** Aviso de que esto es la demo: foto estática y SOLO la temporada 2026-27 (la app completa es otra cosa). */
+/** Aviso de que esto es la demo: foto estática y SOLO la temporada 2026-27 (la app completa es otra cosa).
+ *  Se hace con CSS (body::before) y no con un <div>: React hidrata el documento y se lleva por delante cualquier
+ *  nodo suelto que se meta dentro de <body>, así que el cartel desaparecía de la página servida. Un pseudo-elemento
+ *  no está en el DOM y React no lo puede quitar. */
 function cartelDeDemo(html) {
-  const cartel = '<div style="position:sticky;top:0;z-index:9999;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;padding:7px 14px;background:#111418;color:#e8eaed;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;border-bottom:1px solid #2a2f36">' +
-    '<strong style="font-weight:600">Demostración estática</strong>' +
-    '<span style="color:#aab1ba">Datos de la temporada 2026-27 · sin API ni base de datos detrás</span>' +
-    '<span style="color:#6f7780">La aplicación completa (todas las temporadas) está en el servidor propio de Fondo Popular</span>' +
-    '</div>';
-  return html.replace(/(<body[^>]*>)/i, `$1${cartel}`);
+  const aviso = '<style id="aviso-demo">body::before{content:"Demostración estática · datos de la temporada 2026-27 · sin API ni base de datos detrás · la app completa está en el servidor propio de Fondo Popular";display:block;position:sticky;top:0;z-index:99999;padding:7px 14px;background:#111418;color:#e8eaed;font:12px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;border-bottom:1px solid #2a2f36;box-sizing:border-box}</style>';
+  return html.replace('</head>', aviso + '</head>');
 }
 
 /** Reescribe rutas absolutas para que cuelguen del subdirectorio de Pages. */
 function reescribe(html) {
+  // El orden importa: primero se cambian las rutas dinámicas de API por ficheros, y sólo después se prefija el
+  // subdirectorio; si se hace al revés, la regla genérica vuelve a prefijar lo ya prefijado y salen rutas
+  // /fondo-popular-demo/fondo-popular-demo/escudos/… (imágenes rotas). Además la regla genérica NO toca lo que ya
+  // empieza por el subdirectorio.
   return cartelDeDemo(html)
     // Escudos de club y de federación: son rutas de API dinámicas; se sirven como ficheros descargados.
     .replaceAll(/\/api\/escudo\/club\/(\d+)/g, `${base}/escudos/$1.png`)
     .replaceAll(/\/api\/escudo\/federacion\/([\w-]+)/g, `${base}/escudos-fed/$1`)
-    // Todo lo demás que es absoluto desde la raíz del dominio.
-    .replaceAll(/(["'(])\/(?!\/)/g, `$1${base}/`);
+    // Todo lo demás que es absoluto desde la raíz del dominio (sin repetir el subdirectorio).
+    .replaceAll(/(["'(])\/(?!\/)(?!fondo-popular-demo\/)/g, `$1${base}/`);
 }
 
 const escudos = new Set();
