@@ -107,6 +107,7 @@ const rutasMal = [];
 // Las actas enlazadas desde la portada («Ver partido») también entran en la foto: si no, el enlace abre 404.
 const actasDeLaPortada = new Set();
 const jornadasDeLaPortada = new Set();
+const rutasDeJornada = new Set();
 for (const ruta of [...RUTAS]) {
   const url = `${origen}${ruta}`;
   try {
@@ -119,6 +120,18 @@ for (const ruta of [...RUTAS]) {
       for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeLaPortada.add(m[1]);
       for (const m of html.matchAll(/\/explorar\/competicion\/(\d+)(?:\/jornada\/(\d+))?/g)) {
         jornadasDeLaPortada.add(m[2] ? `/explorar/competicion/${m[1]}/jornada/${m[2]}` : `/explorar/competicion/${m[1]}`);
+      }
+      // Alrededor de cada jornada de la portada: su competición, su lista de jornadas y las jornadas contiguas.
+      // Sin esto, la propia jornada de ejemplo enlazaba a páginas que no existían en la foto (404).
+      for (const rutaJ of jornadasDeLaPortada) {
+        const m = rutaJ.match(/^\/explorar\/competicion\/(\d+)(?:\/jornada\/(\d+))?$/);
+        if (!m) continue;
+        rutasDeJornada.add(`/explorar/competicion/${m[1]}`);
+        if (!m[2]) continue;
+        rutasDeJornada.add(`/explorar/competicion/${m[1]}/jornadas`);
+        for (const n of [Number(m[2]) - 1, Number(m[2]) + 1]) {
+          if (n > 0) rutasDeJornada.add(`/explorar/competicion/${m[1]}/jornada/${n}`);
+        }
       }
     }
     for (const m of html.matchAll(/\/api\/escudo\/federacion\/([\w-]+)/g)) escudosFed.add(m[1]);
@@ -177,6 +190,22 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
     writeFileSync(destinoActa, html);
     rutasOk.push(rutaActa);
   } catch (error) { rutasMal.push(`${rutaActa} (${error.message})`); }
+}
+
+// Páginas alrededor de la jornada de ejemplo (competición, lista de jornadas y jornadas contiguas).
+for (const rutaVecina of [...rutasDeJornada].slice(0, 40)) {
+  try {
+    const respuesta = await fetch(`${origen}${rutaVecina}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) { rutasMal.push(`${rutaVecina} (${respuesta.status})`); continue; }
+    let html = leeHtml(rutaVecina, await respuesta.text());
+    html = prepara(html);
+    const destinoVecina = join(salida, ...rutaVecina.split('/').filter(Boolean), 'index.html');
+    mkdirSync(dirname(destinoVecina), { recursive: true });
+    writeFileSync(destinoVecina, html);
+    rutasOk.push(rutaVecina);
+  } catch (error) {
+    rutasMal.push(`${rutaVecina} (${error.message})`);
+  }
 }
 
 // Jornadas y competiciones enlazadas desde la portada: así «Ver partido» abre una página que existe.
