@@ -156,12 +156,12 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   try {
     const [c, z, g, f] = await consultaEnUnaFoto([
       { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
-      { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
         sql: RANKING_GOLEADORES.sql,
         parametros: [grupo.federacion, grupo.temporada, null, null, grupo.grupo_id, 1, 8],
       },
+      { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
     ]);
     clasificacion = c as unknown as FilaClasificacionPantalla[];
     zonas = z as unknown as FilaZonas[];
@@ -205,7 +205,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const oficialDesfasada = clasificacion.some((f) => f.oficial_jornada != null
     && (f.oficial_jugados !== f.jugados || f.oficial_puntos !== f.puntos));
   const fechaActualizado = frescura && frescura.ultimo
-    ? new Date(frescura.ultimo).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
+    ? (() => { const d = new Date(frescura.ultimo); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); })()
     : null;
   const lineaFrescura = fechaActualizado === null
     ? null

@@ -281,7 +281,7 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
       .replace(/<form\b([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)method="get"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
       .replace(/<form\b([^>]*)method="get"([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
       .replace(/<\/form>/g, '</div>');
-    salida = salida.replace('<div data-filtros-sin-servidor="1">', aviso + '<div data-filtros-sin-servidor="1">');
+    salida = salida.replace(/(<div[^>]*data-filtros-sin-servidor="1">)/, aviso + '$1');
     return salida;
   };
 
