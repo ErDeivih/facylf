@@ -7,7 +7,7 @@
  *
  * Uso: node tmp/espeja-para-pages.mjs <base-url-local> <directorio-salida> <ruta-base-en-pages>
  */
-import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, openSync, closeSync, readFileSync } from 'node:fs';
+import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, openSync, closeSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const [origen = 'http://127.0.0.1:3001', salida = 'tmp/site-pages', base = '/fondo-popular-demo'] = process.argv.slice(2);
@@ -253,6 +253,40 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
     if (r.ok) writeFileSync(join(salida, fichero), Buffer.from(await r.arrayBuffer()));
   } catch { /* no es crítico */ }
 }
+// Saneado final: todo enlace interno debe apuntar a una página o recurso que exista en la foto. Lo que no
+// existe (competiciones que no se exportan, jornadas de otras, etc.) se lleva al selector de competiciones.
+{
+  const existeEnFoto = (url) => {
+    const ruta = url.replace(base, '').split('#')[0].split('?')[0];
+    if (ruta === '' || ruta === '/') return existsSync(join(salida, 'index.html'));
+    const rel = ruta.replace(/^\/+/, '');
+    return existsSync(join(salida, rel))
+      || existsSync(join(salida, rel, 'index.html'))
+      || existsSync(join(salida, rel + '.html'));
+  };
+  let reescritos = 0;
+  const recorreHtml = (dir) => {
+    for (const f of readdirSync(dir)) {
+      const ruta = join(dir, f);
+      if (!existsSync(ruta)) continue;
+      const info = statSync(ruta);
+      if (info.isDirectory()) { recorreHtml(ruta); continue; }
+      if (!f.endsWith('.html')) continue;
+      const antes = readFileSync(ruta, 'utf8');
+      const despues = antes.replace(/(href|src)="(\/fondo-popular-demo\/[^"]+)"/g, (todo, atributo, url) => {
+        if (existeEnFoto(url)) return todo;
+        // Los recursos (CSS, JS, escudos, iconos) no son navegación: si faltan, se dejan como están.
+        if (/\/(_next|escudos|escudos-fed|icon\.svg|favicon\.ico|robots\.txt)/.test(url)) return todo;
+        reescritos += 1;
+        return `${atributo}="${base}/explorar/competiciones"`;
+      });
+      if (despues !== antes) writeFileSync(ruta, despues, 'utf8');
+    }
+  };
+  recorreHtml(salida);
+  console.log(`enlaces internos reescritos al selector (no tenían página en la foto): ${reescritos}`);
+}
+
 writeFileSync(join(salida, '.nojekyll'), '');
 writeFileSync(join(salida, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
 
