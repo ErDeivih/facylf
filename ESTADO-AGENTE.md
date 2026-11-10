@@ -10,19 +10,20 @@ fecha: 2026-11-10
 
 ## Bloqueo
 
-**Estado: diagnóstico cerrado; queda confirmar el arranque rápido.** El desarrollo está al día (demo arreglada y
-verificada, publicación y pruebas hechas).
+**Estado: los arreglos del arranque están hechos y medidos; lo que frena ahora la recolección es la contención del
+disco, no el código.** El desarrollo y la publicación están al día.
 
-- **(a) Dónde me quedé.** El worker se pasaba una hora en el arranque sin pedir. La instrumentación nueva lo
-  localizó: no era una sola cosa sino cuatro pasos locales caros en frío. Ya arreglados: `activa-actas`
-  **188,9 s → 0,0 s** forzando el índice `actas_estado` (el planificador hacía SCAN de la tabla entera);
-  `actas-sin-trabajo` (110,5 s) y `aplaza-futuro` (65,9 s) pasan a hacerse **una vez al día** con la guardia
-  `tocaRepaso`; `competiciones-sin-datos` y `ambito-actas` ya estaban guardados (0,0 s).
-- **(b) Qué falta revisar.** Que el segundo arranque tras las guardias baje de ~3 min a ~20 s: el primero paga los
-  110+66 s y deja los metadatos `actas_sin_trabajo_revisadas_en` y `aplaza_futuro_revisado_en`; el siguiente
-  debe saltarlos. El worker actual (17:21) todavía está arrancando y el registro no ha llegado a esa parte.
-- **(c) Qué necesito de David u otro chat.** Nada para esto. Su parte (dominio, textos legales, La Preferente)
-  sigue pendiente y no bloquea.
-- **(d) Siguiente paso concreto.** Leer el arranque del worker en curso, comprobar que escribe los dos metadatos y
-  que empieza a pedir; reiniciar una vez más para verificar que el arranque se queda en segundos. Después, medir
-  cobertura y refrescar la base publicada y la foto de Pages cuando haya lote.
+- **(a) Dónde me quedé.** El arranque del worker se arregló por partes y con medida: `activa-actas` pasó de
+  **188,9 s a 0,4 s** (índice `actas_estado` forzado), y `actas-sin-trabajo` (110-112 s) y `aplaza-futuro`
+  (66-96 s) quedaron con guardia diaria (metadatos `actas_sin_trabajo_revisadas_en` y `aplaza_futuro_revisado_en`
+  escritos). Pero el arranque de las 17:49 lleva ya **14 min solo para llegar a `competiciones-sin-datos`**, un paso
+  que en la traza anterior costaba 0,0 s: la cola de 2,4 GB se lee a pocos MB/min y hay 26 procesos de Chrome y
+  varios recolectores de multideporte compitiendo por el mismo disco.
+- **(b) Qué falta revisar.** Confirmar si el retraso es sólo contención (disco/CPU) o si algo tiene bloqueada la
+  cola: el WAL no cambia desde las 17:15 y no hay peticiones nuevas desde las 16:46, con el worker sin pedir.
+- **(c) Qué necesito de David u otro chat.** Nada urgente: su parte (dominio, textos legales, La Preferente) sigue
+  pendiente. Si la contención sigue, lo razonable es **parar temporalmente los recolectores de multideporte mientras
+  se cierra CyL**, y eso es una decisión de producto (afecta a otras federaciones), no mía.
+- **(d) Siguiente paso concreto.** **No reiniciar el worker** (los reinicios de esta tarde lo interrumpían a mitad
+  del arranque): dejarlo terminar; si en 30 min sigue sin pedir, medir qué proceso satura el disco y proponer a David
+  parar temporalmente los recolectores de multideporte. Después, medir cobertura y refrescar base y foto si hay lote.
