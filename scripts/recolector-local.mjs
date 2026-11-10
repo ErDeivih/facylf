@@ -2574,43 +2574,53 @@ function anotaUltimaPeticion(db, trabajo, resultado, detalle) {
   )`).run(resultado, detalle, trabajo.clave);
 }
 
+/** Cronometra un paso local del arranque y deja rastro si tarda: sin esto, un arranque de una hora no dice
+ *  en qué se fue (medido el 10/11/2026: el worker estuvo 60+ min entre dos mensajes del registro). */
+function pasoDeArranque(etiqueta, fn) {
+  const t0 = Date.now();
+  const resultado = fn();
+  const ms = Date.now() - t0;
+  if (ms > 1000) console.log(`  · arranque: ${etiqueta} ${(ms / 1000).toFixed(1)} s`);
+  return resultado;
+}
+
 async function ejecutar(db) {
   compruebaPermiso();
   console.log('  · Preparando vigilancia y ámbito de actas (trabajo local).');
-  preparaVigilanciaActual(db);
-  const sinDatos = cierraCompeticionesSinDatos(db);
+  pasoDeArranque('vigilancia', () => preparaVigilanciaActual(db));
+  const sinDatos = pasoDeArranque('competiciones-sin-datos', () => cierraCompeticionesSinDatos(db));
   if (sinDatos.actas) {
     console.log(`  · ${sinDatos.actas} actas cerradas sin pedirlas: ${sinDatos.competiciones} competiciones de temporadas ` +
       'cerradas cuya web sólo da fichas vacías.');
   }
-  const ambitosCorregidos = reconciliaAmbitoActas(db);
+  const ambitosCorregidos = pasoDeArranque('ambito-actas', () => reconciliaAmbitoActas(db));
   if (ambitosCorregidos) console.log(`  · ${ambitosCorregidos} actas reclasificadas por categoría.`);
-  activaActasPermitidas(db);
+  pasoDeArranque('activa-actas', () => activaActasPermitidas(db));
   // Y después de reconciliar el ámbito, se cierra el agujero que dejaba: actas EN ámbito cuyo trabajo se canceló
   // en su día (o nunca llegó a crearse) y que por eso no se descargaban nunca. Es local y no pide nada.
-  const sinTrabajo = reparaActasSinTrabajo(db);
+  const sinTrabajo = pasoDeArranque('actas-sin-trabajo', () => reparaActasSinTrabajo(db));
   if (sinTrabajo.creados || sinTrabajo.reactivados) {
     console.log(`  · Actas en ámbito sin trabajo que las pida: ${sinTrabajo.creados} creadas, ` +
       `${sinTrabajo.reactivados} reactivadas (de ${sinTrabajo.candidatas} pendientes revisadas).`);
   }
   console.log('  · Revisando calendario futuro y jornadas recientes (trabajo local).');
-  const aplazadas = aplazaFuturoTemporadaActual(db);
+  const aplazadas = pasoDeArranque('aplaza-futuro', () => aplazaFuturoTemporadaActual(db));
   if (aplazadas.jornadas || aplazadas.clasificaciones) {
     console.log(`  · Temporada actual: ${aplazadas.jornadas} jornadas futuras y ` +
       `${aplazadas.clasificaciones} clasificaciones sin resultados quedan aplazadas.`);
   }
-  const vaciasEnCurso = repasaJornadasVaciasEnCurso(db);
+  const vaciasEnCurso = pasoDeArranque('jornadas-vacias', () => repasaJornadasVaciasEnCurso(db));
   if (vaciasEnCurso) console.log(`  · ${vaciasEnCurso} jornadas ya jugadas de la temporada en curso se leyeron vacías o sin marcadores: se vuelven a pedir.`);
-  const marcadoresCorregidos = corrigeMarcadoresDesdeActas(db);
+  const marcadoresCorregidos = pasoDeArranque('marcadores-desde-actas', () => corrigeMarcadoresDesdeActas(db));
   if (marcadoresCorregidos) console.log(`  · ${marcadoresCorregidos} partidos con «0-0» (o sin resultado) en la jornada toman el resultado que dan los goles de su acta.`);
-  const repaso = preparaRepasoJornadasRecientes(db);
+  const repaso = pasoDeArranque('repaso-reciente', () => preparaRepasoJornadasRecientes(db));
   if (repaso.jornadas || repaso.clasificaciones) {
     console.log(`  · Repaso reciente: ${repaso.jornadas} jornadas y ` +
       `${repaso.clasificaciones} clasificaciones vuelven a cola sin repetir actas completas.`);
   }
   // Aquí estaba `reprioritizaPlan(db)` a secas, y era el grueso del retraso del arranque. Ahora sólo se recorre
   // el plan entero si el catálogo ha cambiado o si hace más de 12 h. Ver `reprioritizaPlanSiHaceFalta`.
-  reprioritizaPlanSiHaceFalta(db);
+  pasoDeArranque('reprioritiza-plan', () => reprioritizaPlanSiHaceFalta(db));
   const pausa = pausaGlobalActiva(db);
   if (pausa) {
     console.log(`Recolección en pausa hasta ${pausa.hasta}: ${pausa.motivo}`);
