@@ -106,3 +106,19 @@ en modo transacción delante.
    tras un día de uso: lo que salga arriba es lo siguiente a mirar.
 3. Tamaño de `analytics.ojeo_jugador` y tiempo de `analytics.puntua_ojeo` de la temporada en curso (la tarea
    horaria «FACyLF ojeo»): si pasa de 60 s, avisar.
+
+## 7. Estado medido el 10/11/2026 (canónico del PC, con el equipo cargado)
+
+Pasada completa de `pnpm planes`: **68 de 70 consultas dentro de presupuesto y con la misma forma de plan** que su
+instantánea guardada (no hay índices que se hayan dejado de usar). Dos quedaron fuera, y las dos con el PC al 49 % de
+CPU y 39 procesos `node` + 26 de navegador compitiendo, así que la medición es poco fiable:
+
+| Consulta | Medido | Presupuesto | Motivo señalado |
+|---|---:|---:|---|
+| `busqueda-por-nombre` | 923,6 ms | 500 ms | 424 ms de más |
+| `admin-chequeos-ahora` | 2.875,3 ms | 1.500 ms | 1.375 ms de más y un recorrido completo (`alerta`) |
+
+Siguiente paso: **repetir `pnpm planes` con el equipo tranquilo** antes de tocar SQL. Si sigue fuera, optimizar
+`busqueda-por-nombre` (es la del buscador de la web, la que más se usa) y revisar el recorrido completo de
+`admin-chequeos-ahora` (es del panel de administración, no de la web pública). No se ha cambiado ninguna consulta
+solo por esta medición.
