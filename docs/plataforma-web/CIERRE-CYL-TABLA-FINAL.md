@@ -68,3 +68,27 @@ Verificación de 2014-15 tras la importación (`tmp/verifica-2014-15.sql`): 61 e
 > Nota: el ciclo diario (`scripts/ciclo-diario-cyl.ps1`) puede enseñar otra cifra si cuenta la visibilidad de la
 > edición (`core.competition_edition.visibility_state`) en vez de todos sus grupos; la cifra de referencia es la de
 > esta tabla.
+
+## Por qué 2026-27 no puede completarse todavía (medido el 10/11/2026)
+
+La temporada en curso es la que el recolector trabaja primero y, sin embargo, no puede cerrar ediciones: el criterio
+de «edición completa» exige **todos** sus grupos en `completa` en `ops.coverage_checkpoint`, y un grupo no lo está
+hasta que tiene calendario, todas sus jornadas con resultado y las actas correctas. En una temporada a medias eso es
+imposible por definición.
+
+Estado de los grupos de Castilla y León en 2026-27 (298 grupos):
+
+| Estado del grupo | Grupos |
+|---|---:|
+| `verificada_hasta_jornada` | 208 |
+| `parcial_privada` | 75 |
+| `oculta` | 12 |
+| `completa` | **3** |
+
+De los 295 que no están completos, a **270 les faltan resultados**, a **258 les faltan partidos por conocer**, y **129
+tienen actas a revisar**. Es decir: el trabajo pendiente no es «recoger más actas sueltas» sino **que la temporada
+avance** (jornadas que todavía no se han jugado) y que las actas pendientes se parseen.
+
+Consecuencia para el cierre: las ganancias de cobertura de estos días tienen que venir de **temporadas antiguas**, que
+el recolector visita después de agotar la actual. Por eso el contador puede quedarse quieto aunque el worker esté
+pidiendo: está completando la temporada en curso, que aún no se puede cerrar.
