@@ -141,6 +141,14 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (mañana, 09:35): **2014-15 cerrada por importación y canónico en 198/925 ediciones completas.** El agujero
+  mayor del proyecto (358 grupos, 26.013 actas, 0 completos en el canónico) queda importado: **357 de 358 grupos**;
+  2014-15 pasa de **3 ediciones a 18** y de 3 a **249 grupos completos**. Total del canónico del PC: **198/925**
+  (138/807 al empezar el día). Al final, para que el worker acabe el **último escaneo largo de actas** (0,81 GB sin
+  índice, y con la importación compitiendo bajaba a 3 MB/min), se **pausa la importación** y un watcher
+  (`tmp/reanuda-tras-escaneo.ps1`) la reanuda solo cuando aparece el metadato `actas_repaso` en la cola; si no
+  aparece en 4 h, avisa sin relanzarla. La que falta por importar: 2020-21, 2016-17, 2018-19, 2012-13 y 2026-27.
+
 - 10/11/2026 (mañana, 09:10): **rotación del worker devuelta y 2014-15 avanzando.** La rotación de las 07:30 no se
   había hecho (el worker seguía con las tres antiguas desde las 23:13), así que la hice a las 09:00: fichero con las
   15 temporadas y 2026-27 primero (`tmp/temporadas-asignadas.antes-rotacion-2026-11-10.txt` guarda el anterior),
