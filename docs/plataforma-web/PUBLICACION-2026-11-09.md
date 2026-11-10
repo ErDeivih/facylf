@@ -64,6 +64,29 @@ Plan aprobado por David: **el canónico del PC es la fuente de verdad**, se vuel
 | 2012-13 | 2/2 |
 | **Total** | **183/807** |
 
+## Refresco exacto de la noche (09/11 23:00 → 10/11 04:00)
+
+El primer intento salió con 14 tablas por detrás del PC: el importador incremental y el **proyector** siguieron
+escribiendo después del recuento de referencia. Se repitió bien:
+
+1. **Congelados TODOS los escritores del canónico** (no sólo el importador): `FACyLF importador incremental`,
+   `proyector`, `mantenimiento`, `mantenimiento sem`, `avisos`, `avisos resumen` y `vigilancia` → Disabled.
+2. **Recuento T1 → volcado → recuento T2**: los dos recuentos **idénticos** (98 tablas, 116.986.467 filas) → la
+   fuente estaba quieta y el volcado es exacto. Fichero `facylf-canonico-2026-11-09-2320.dump`, 1,36 GiB,
+   sha256 `972091d0…`, 1.202 entradas de índice.
+3. **Restauración en `facylf_canonico_3`** (base nueva, vacía, creada para la prueba anterior): `pg_restore` nice 19
+   con 2 hilos → 29 GB.
+4. **Cotejo: 98/98 tablas y 116.986.467 filas en cada lado, sin una sola diferencia.**
+5. **La web pasa a leer `facylf_canonico_3`** (`.env`, clave `DATABASE_URL_LECTOR_SERVIDOR`) y se comprobó en el
+   servidor que las conexiones del lector van a esa base.
+6. **Nada borrado**: `facylf` (16 GB, la de recolección), `facylf_canonico` (28 GB) y `facylf_canonico_2` (29 GB)
+   siguen ahí como red de seguridad, junto con los tres volcados en el PC y en `/srv/data/facylf/backups-volcados/`.
+7. Las tareas se volvieron a habilitar todas a las 04:05.
+
+**URL pública nueva:** `https://working-reseller-rights-omaha.trycloudflare.com` (el quick tunnel anterior caducó a
+las 03:01 y cloudflared tuvo que recrearlo; el quick tunnel cambia de URL al recrearse — por eso conviene activar
+Funnel o un túnel con nombre).
+
 ## Lo que hay que saber
 
 - **La web se reconstruyó el 09/11 a las 21:00** con los tres arreglos que pidió David (marca Fondo Popular —el

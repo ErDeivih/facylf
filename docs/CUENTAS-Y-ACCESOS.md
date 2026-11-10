@@ -12,7 +12,16 @@ estable y el producto publicable.
 | **Túnel publico** (Cloudflare quick tunnel, sin cuenta) | PC, `tmp\cloudflared.exe` | `tmp\cloudflared.exe tunnel --url http://127.0.0.1:3001 --no-autoupdate` | cerrar el proceso `cloudflared` |
 | **Canónico** que sirve la web | **Base nueva `facylf_canonico` del servidor** (28 GB, copia exacta del canónico del PC del 09/11 19:46), leída por un **túnel SSH** `127.0.0.1:5434 → servidor:5433` | túnel: `ssh -N -L 5434:127.0.0.1:5433 servidor`; web: `tmp\sirve-web-servidor.ps1` | cerrar el proceso `ssh -N` y la web |
 
-**URL pública de hoy:** `https://algorithm-infinite-sessions-assumed.trycloudflare.com`
+**URL pública de hoy:** `https://working-reseller-rights-omaha.trycloudflare.com`
+
+> La URL del quick tunnel **cambia cada vez que se recrea** (el anterior caducó a las 03:01 del 10/11 y hubo que
+> relanzarlo). Si no abre, mirar `estado/cloudflared.err.txt` y relanzar `tmp\cloudflared.exe tunnel --url
+> http://127.0.0.1:3001 --no-autoupdate`. Para que no cambie nunca: activar Tailscale Funnel (paso 2) o un túnel
+> con nombre y dominio.
+>
+> La base que sirve es **`facylf_canonico_3`** (copia exacta del canónico del PC de las 23:20 del 09/11: 98 tablas y
+> 116.986.467 filas, cotejadas). Las anteriores (`facylf_canonico`, `facylf_canonico_2`) y la de recolección
+> (`facylf`) se conservan.
 
 > **Aviso honesto:** el quick tunnel es para probar, no para producción. La URL **cambia cada vez que se reinicia
 > `cloudflared`** y Cloudflare no lo da como servicio estable. Para una URL fija hace falta el paso 2.
