@@ -82,8 +82,8 @@
     }
   ],
   "ritmo": {
-    "pc_por_min": 0,
-    "servidor_por_min": 17,
-    "medido": "2026-11-10T19:18"
+    "pc_por_min": 1,
+    "servidor_por_min": 16.2,
+    "medido": "2026-11-10T19:28"
   }
 }
