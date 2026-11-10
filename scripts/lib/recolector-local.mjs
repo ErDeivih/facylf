@@ -202,7 +202,8 @@ export function abreBase(ruta) {
    * recolector se comporta como siempre. Se lee al abrir la cola, que es una vez por sesión.
    */
   cargaTemporadasAsignadas(join(dirname(ruta), 'temporadas-asignadas.txt'));
-  const db = new DatabaseSync(ruta);
+  // La cola la comparte con el importador incremental: si está escribiendo, esperar en vez de fallar.
+  const db = new DatabaseSync(ruta, { timeout: 120000 });
   /*
    * Y se LEVANTA EL APLAZAMIENTO del trabajo de esas temporadas, si lo tenían. Sin esto, asignar una temporada
    * antigua no serviría de nada: el suelo la había fechado en el año 2099 y el recolector diría «ningún trabajo
