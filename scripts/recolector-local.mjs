@@ -14,7 +14,7 @@ import { actaSinContenidoDeportivo } from './lib/acta-vacia.mjs';
 // Sin publicidad ni rastreadores en el navegador: es la palanca de CPU y memoria más directa (medido 20/09/2026).
 import { bloqueaTerceros } from './lib/bloqueo-terceros.mjs';
 import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
-import { decisionDeRepaso, metadatoDeRepaso } from './lib/repaso-actas.mjs';
+import { pendientesAPartirDe } from './lib/repaso-actas.mjs';
 import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
@@ -2089,6 +2089,26 @@ function cuentaActasDesactualizadas(db) {
 }
 
 /**
+ * El metadato `actas_repaso` de la cola, si se puede leer. Guarda cuándo se contó, con qué versión de parser
+ * y si la cola quedó limpia: es lo que permite no repetir el `count(*)` caro en cada arranque (09/11/2026).
+ */
+function leeGuardadoDeRepaso(db) {
+  try { return JSON.parse(leeMetadato(db, 'actas_repaso') ?? 'null'); } catch { return null; }
+}
+
+/** Cuenta las actas con parser viejo sólo si toca, y deja el metadato. Ver `lib/repaso-actas.mjs`. */
+function repasoDeActas(db) {
+  const resultado = pendientesAPartirDe({
+    guardado: leeGuardadoDeRepaso(db),
+    versionActual: VERSION_PARSER_ACTA,
+    ahoraMs: Date.now(),
+    contar: () => cuentaActasDesactualizadas(db),
+  });
+  if (resultado.metadato) guardaMetadato(db, 'actas_repaso', resultado.metadato);
+  return resultado;
+}
+
+/**
  * Vuelve a interpretar las actas guardadas con un parser antiguo. Devuelve cuántas ha tratado.
  *
  * `limite` es importante: sin él repara TODAS de golpe, y quien la llama en el arranque se queda
@@ -2776,16 +2796,7 @@ async function ejecutar(db) {
         // versión de parser y fue hace menos de 24 h, se salta (en el PC, con la cola en HDD, eran 40-60 min de
         // bloqueo por sesión y esa noche hubo varios reinicios). La decisión vive en `lib/repaso-actas.mjs`.
         if (hechos % 25 === 0 && actasDesactualizadasEnSesion === null) {
-          let guardado = null;
-          try { guardado = JSON.parse(leeMetadato(db, 'actas_repaso') ?? 'null'); } catch { guardado = null; }
-          if (decisionDeRepaso({ guardado, versionActual: VERSION_PARSER_ACTA, ahoraMs: Date.now() }) === 'saltar') {
-            actasDesactualizadasEnSesion = 0;
-          } else {
-            actasDesactualizadasEnSesion = cuentaActasDesactualizadas(db);
-            guardaMetadato(db, 'actas_repaso', metadatoDeRepaso({
-              versionActual: VERSION_PARSER_ACTA, pendientes: actasDesactualizadasEnSesion, ahoraMs: Date.now(),
-            }));
-          }
+          actasDesactualizadasEnSesion = repasoDeActas(db).pendientes;
         }
         if (hechos % 25 === 0 && actasDesactualizadasEnSesion > 0) {
           const mantenimiento = reparaActasDesactualizadas(db, 5);
@@ -3317,7 +3328,11 @@ try {
     // La red es prioritaria. La reparación usa únicamente HTML ya archivado y se ejecuta al final,
     // con Chrome cerrado, para que una actualización masiva del parser no hunda el ritmo visible.
     const LOTE_REPARACION = 150;
-    const pendientesReparar = cuentaActasDesactualizadas(db);
+    // OJO: esto es el coste que se paga al ARRANCAR cada sesión. El `count(*)` recorre la tabla `actas`
+    // entera (2,4 GB con el JSON de cada acta): en el PC, con la cola en HDD, son 40-60 min antes de hacer
+    // una sola petición. Por eso pasa por la misma decisión que el paso 25 (lib/repaso-actas.mjs): si el
+    // último recuento dejó la cola limpia con el mismo parser y hace menos de 24 h, no se cuenta.
+    const pendientesReparar = repasoDeActas(db).pendientes;
     await ejecutar(db);
     if (pendientesReparar) {
       const lote = Math.min(pendientesReparar, LOTE_REPARACION);

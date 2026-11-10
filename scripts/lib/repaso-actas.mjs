@@ -50,3 +50,22 @@ export function metadatoDeRepaso({ versionActual, pendientes, ahoraMs }) {
     cuando: new Date(Number(ahoraMs)).toISOString(),
   });
 }
+
+/**
+ * Decisión + recuento en un paso, para que TODOS los sitios que cuentan (el arranque y el paso 25 de la
+ * sesión) apliquen la misma regla. `contar` sólo se llama cuando de verdad toca.
+ *
+ * @param {object} opciones
+ * @param {{version?: number|string, limpio?: boolean, cuando?: string}|null|undefined} opciones.guardado
+ * @param {number} opciones.versionActual
+ * @param {number} opciones.ahoraMs
+ * @param {() => number} opciones.contar el `count(*)` caro de la cola
+ * @param {number} [opciones.horasMaximas]
+ * @returns {{pendientes: number, contado: boolean, metadato?: string}}
+ */
+export function pendientesAPartirDe({ guardado, versionActual, ahoraMs, contar, horasMaximas = HORAS_ENTRE_REPASOS }) {
+  const decision = decisionDeRepaso({ guardado, versionActual, ahoraMs, horasMaximas });
+  if (decision === 'saltar') return { pendientes: 0, contado: false };
+  const pendientes = Number(contar()) || 0;
+  return { pendientes, contado: true, metadato: metadatoDeRepaso({ versionActual, pendientes, ahoraMs }) };
+}

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { decisionDeRepaso, metadatoDeRepaso, HORAS_ENTRE_REPASOS } from './repaso-actas.mjs';
+import { decisionDeRepaso, metadatoDeRepaso, pendientesAPartirDe, HORAS_ENTRE_REPASOS } from './repaso-actas.mjs';
 
 /*
  * PRUEBAS DEL REPASO DE ACTAS
@@ -46,4 +46,27 @@ test('un reloj raro o una fecha ilegible no se usan para saltarse el repaso', ()
   const futuro = JSON.parse(metadatoDeRepaso({ versionActual: 17, pendientes: 0, ahoraMs: AHORA + 5 * HORA }));
   assert.equal(decisionDeRepaso({ guardado: futuro, versionActual: 17, ahoraMs: AHORA }), 'contar');
   assert.equal(decisionDeRepaso({ guardado: { version: 17, limpio: true, cuando: 'no-es-fecha' }, versionActual: 17, ahoraMs: AHORA }), 'contar');
+});
+
+test('el arranque NO cuenta en la cola si el metadato está limpio y reciente', () => {
+  const guardado = JSON.parse(metadatoDeRepaso({ versionActual: 17, pendientes: 0, ahoraMs: AHORA - HORA }));
+  let llamadas = 0;
+  const resultado = pendientesAPartirDe({
+    guardado, versionActual: 17, ahoraMs: AHORA, contar: () => { llamadas += 1; return 7; },
+  });
+  assert.equal(llamadas, 0, 'no puede recorrerse la tabla actas si el último recuento estaba limpio');
+  assert.equal(resultado.pendientes, 0);
+  assert.equal(resultado.contado, false);
+});
+
+test('el arranque cuenta cuando toca y devuelve lo que diga el recuento', () => {
+  let llamadas = 0;
+  const resultado = pendientesAPartirDe({
+    guardado: null, versionActual: 17, ahoraMs: AHORA, contar: () => { llamadas += 1; return 12; },
+  });
+  assert.equal(llamadas, 1);
+  assert.equal(resultado.pendientes, 12);
+  assert.equal(resultado.contado, true);
+  // y deja el metadato listo para no repetir el escaneo en el siguiente arranque
+  assert.equal(JSON.parse(resultado.metadato).limpio, false);
 });
