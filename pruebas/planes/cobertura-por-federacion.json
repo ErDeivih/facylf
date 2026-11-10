@@ -7,18 +7,17 @@
       "Aggregate",
       "Hash",
       "Hash Join",
-      "Index Scan",
-      "Nested Loop",
       "Seq Scan",
       "Sort",
       "Subquery Scan",
       "WindowAgg"
     ],
     "seqScans": [
+      "competition_edition",
       "edicion_capacidad",
       "federation",
       "season"
     ],
-    "filas": 264
+    "filas": 22632
   }
 }

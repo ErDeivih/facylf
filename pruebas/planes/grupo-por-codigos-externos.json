@@ -12,9 +12,8 @@
       "Seq Scan"
     ],
     "seqScans": [
-      "federation",
       "season"
     ],
-    "filas": 21
+    "filas": 19
   }
 }

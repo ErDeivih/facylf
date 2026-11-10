@@ -13,8 +13,9 @@
       "WindowAgg"
     ],
     "seqScans": [
+      "federation",
       "season"
     ],
-    "filas": 172
+    "filas": 3124
   }
 }

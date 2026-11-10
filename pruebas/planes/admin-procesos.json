@@ -6,6 +6,7 @@
     "nodos": [
       "Aggregate",
       "Append",
+      "Gather",
       "Hash",
       "Hash Join",
       "Seq Scan"
@@ -18,6 +19,6 @@
       "estado_generador",
       "proyeccion_grupo"
     ],
-    "filas": 40400
+    "filas": 67011
   }
 }

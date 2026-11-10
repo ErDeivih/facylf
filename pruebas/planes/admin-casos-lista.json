@@ -4,8 +4,7 @@
   "plan": "indexado",
   "forma": {
     "nodos": [
-      "Hash",
-      "Hash Join",
+      "Gather Merge",
       "Index Scan",
       "Limit",
       "Memoize",
@@ -14,10 +13,8 @@
       "Sort"
     ],
     "seqScans": [
-      "caso_dato",
-      "federation",
-      "season"
+      "caso_dato"
     ],
-    "filas": 1267
+    "filas": 28772
   }
 }

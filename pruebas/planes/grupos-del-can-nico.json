@@ -4,12 +4,14 @@
   "plan": "agregado",
   "forma": {
     "nodos": [
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
       "Incremental Sort",
       "Index Scan",
       "Limit",
       "Nested Loop"
     ],
     "seqScans": [],
-    "filas": 4507
+    "filas": 3961
   }
 }

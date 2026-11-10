@@ -16,14 +16,11 @@
       "Merge Join",
       "Nested Loop",
       "Result",
-      "Seq Scan",
       "Sort",
       "Unique",
       "WindowAgg"
     ],
-    "seqScans": [
-      "federation"
-    ],
-    "filas": 49
+    "seqScans": [],
+    "filas": 12239
   }
 }

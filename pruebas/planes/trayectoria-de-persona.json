@@ -8,13 +8,11 @@
       "Incremental Sort",
       "Index Scan",
       "Limit",
-      "Materialize",
-      "Memoize",
       "Nested Loop",
       "Sort",
       "WindowAgg"
     ],
     "seqScans": [],
-    "filas": 0
+    "filas": 1
   }
 }

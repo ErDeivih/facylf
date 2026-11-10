@@ -5,18 +5,14 @@
   "forma": {
     "nodos": [
       "Aggregate",
-      "Hash",
-      "Hash Join",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
+      "Incremental Sort",
+      "Index Scan",
       "Limit",
-      "Seq Scan",
-      "Sort"
+      "Nested Loop"
     ],
-    "seqScans": [
-      "competition_edition",
-      "coverage_checkpoint",
-      "federation",
-      "phase_group"
-    ],
-    "filas": 40400
+    "seqScans": [],
+    "filas": 3961
   }
 }

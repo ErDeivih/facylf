@@ -13,13 +13,10 @@
       "Limit",
       "Nested Loop",
       "Result",
-      "Seq Scan",
       "Sort",
       "WindowAgg"
     ],
-    "seqScans": [
-      "federation"
-    ],
+    "seqScans": [],
     "filas": 0
   }
 }

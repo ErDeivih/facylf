@@ -4,7 +4,6 @@
   "plan": "indexado",
   "forma": {
     "nodos": [
-      "Index Only Scan",
       "Index Scan",
       "Limit",
       "Nested Loop",
@@ -12,6 +11,6 @@
       "WindowAgg"
     ],
     "seqScans": [],
-    "filas": 115
+    "filas": 124
   }
 }

@@ -5,12 +5,13 @@
   "forma": {
     "nodos": [
       "Aggregate",
-      "Bitmap Heap Scan",
-      "Bitmap Index Scan",
       "Limit",
+      "Seq Scan",
       "Sort"
     ],
-    "seqScans": [],
+    "seqScans": [
+      "notificacion"
+    ],
     "filas": 0
   }
 }

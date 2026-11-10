@@ -4,23 +4,23 @@
   "plan": "indexado",
   "forma": {
     "nodos": [
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
       "Hash",
       "Hash Join",
+      "Index Scan",
       "Limit",
+      "Memoize",
+      "Nested Loop",
       "Seq Scan",
       "Sort",
       "WindowAgg"
     ],
     "seqScans": [
       "club",
-      "competition_edition",
-      "coverage_checkpoint",
       "federation",
-      "phase_group",
-      "season",
-      "team_entry",
       "team_season"
     ],
-    "filas": 305117
+    "filas": 159211
   }
 }

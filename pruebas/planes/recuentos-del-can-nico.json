@@ -5,21 +5,21 @@
   "forma": {
     "nodos": [
       "Aggregate",
+      "Bitmap Heap Scan",
+      "Bitmap Index Scan",
       "CTE Scan",
       "Hash",
       "Hash Join",
       "Index Only Scan",
+      "Index Scan",
       "Limit",
       "Nested Loop",
       "Result",
       "Seq Scan"
     ],
     "seqScans": [
-      "competition_edition",
-      "coverage_checkpoint",
-      "matchday",
-      "phase_group"
+      "coverage_checkpoint"
     ],
-    "filas": 579755
+    "filas": 77544
   }
 }

@@ -11,6 +11,7 @@
       "Index Only Scan",
       "Index Scan",
       "Limit",
+      "Memoize",
       "Nested Loop",
       "Seq Scan",
       "Sort",
@@ -19,6 +20,6 @@
     "seqScans": [
       "season"
     ],
-    "filas": 25
+    "filas": 246
   }
 }

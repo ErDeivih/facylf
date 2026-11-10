@@ -5,9 +5,9 @@
   "forma": {
     "nodos": [
       "Aggregate",
-      "Hash",
-      "Hash Join",
+      "Incremental Sort",
       "Index Scan",
+      "Merge Join",
       "Seq Scan",
       "Sort"
     ],

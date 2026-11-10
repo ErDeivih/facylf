@@ -13,6 +13,8 @@
       "Sort"
     ],
     "seqScans": [
+      "favorito",
+      "notificacion",
       "suscripcion_push",
       "usuario"
     ],
