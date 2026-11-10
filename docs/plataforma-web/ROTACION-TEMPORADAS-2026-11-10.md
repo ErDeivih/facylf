@@ -92,3 +92,26 @@ Recomendación (para David): **mantener la rotación más de uno o dos días**, 
 2018-19 sola no da tiempo a nada; y dejar 2014-15 y 2012-13 para el final (o para cuando se descubra su catálogo),
 que ahora no aportan nada. Si se prefiere volver antes a la temporada viva, el coste es que el cierre de las antiguas
 se alarga en la misma proporción.
+
+## Cómo saber si un grupo está listo (y su límite)
+
+`scripts/claude/estado-rotacion.mjs` (solo lectura de la cola) enseña, por temporada, cuántos grupos tienen datos,
+si el calendario está completo y cuántas actas llevan. Se usa así:
+
+```powershell
+node scripts\claude\estado-rotacion.mjs --temporada 2018-19
+```
+
+Medido el 10/11 a las 19:55:
+
+| Temporada | Grupos con datos | Calendario completo | Con todas las actas conocidas hechas |
+|---|---:|---:|---:|
+| 2018-19 | 216 | 216 | **4** |
+| 2016-17 | 200 | 200 | 0 |
+
+**Límite importante:** esto mide la **cola**, no el canónico. Que un grupo tenga «calendario completo» en la cola
+significa que la cola conoce sus jornadas, no que tenga tantos partidos como el canónico (de hecho muchos grupos
+enseñan 5-9 partidos mientras el canónico tiene decenas o cientos, porque el canónico viene del paquete del
+servidor). Por eso el script sirve para ver **avance**, no como luz verde: la luz verde la da la validación del
+importador, que compara origen contra canónico en todos los contadores. Cuando un grupo tenga en la cola al menos lo
+que el canónico ya tiene, se podrá importar.
