@@ -69,3 +69,26 @@ El worker arrancó a las 19:07 con las guardias ya en 0,0 s (`competiciones-sin-
 ```
 
 Trabajos pendientes: 42.535 → 42.528. Peticiones: 200.716 → 200.723. La rotación funciona.
+
+## Cuánto queda y cuánto tarda (medido el 10/11, 19:45)
+
+Estado de la cola en las siete temporadas asignadas (código de temporada entre paréntesis):
+
+| Temporada | Trabajos pendientes | Actas ya hechas | Comentario |
+|---|---:|---:|---|
+| 2018-19 (14) | 5.398 | 32 | la que se está recogiendo ahora |
+| 2016-17 (12) | 4.944 | 0 | siguiente |
+| 2019-20 (15) | 2.221 | 14.405 | ya tenía casi todo |
+| 2015-16 (11) | 1.910 | 21.919 | ya tenía casi todo |
+| 2013-14 (9) | 1.147 | 12.036 | ya tenía casi todo |
+| 2014-15 (10) | 58 | 0 | **sin catálogo en la cola**: primero hay que descubrirlo |
+| 2012-13 (8) | 22 | 0 | igual que 2014-15 |
+
+En total, ~15.700 trabajos pendientes en las temporadas de la rotación. Al ritmo respetuoso actual (un trabajo cada
+~40-60 s con las pausas de 7-13 s), eso son **del orden de 10-12 días de recolección continua**, no un rato. Y como
+2026-27 no puede cerrarse todavía, no hay prisa por volver a ella: lo que aporta cobertura es esto.
+
+Recomendación (para David): **mantener la rotación más de uno o dos días**, porque con 5.398 trabajos por delante en
+2018-19 sola no da tiempo a nada; y dejar 2014-15 y 2012-13 para el final (o para cuando se descubra su catálogo),
+que ahora no aportan nada. Si se prefiere volver antes a la temporada viva, el coste es que el cierre de las antiguas
+se alarga en la misma proporción.
