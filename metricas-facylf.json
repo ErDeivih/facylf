@@ -1,8 +1,8 @@
 {
   "cyl": {
     "competiciones_total": 889,
-    "completas": 183,
-    "porcentaje": 79
+    "completas": 205,
+    "porcentaje": 77
   },
   "temporadas": [
     {
@@ -37,7 +37,7 @@
     },
     {
       "temporada": "2020-21",
-      "hecho": 9,
+      "hecho": 16,
       "total": 32
     },
     {
@@ -67,7 +67,7 @@
     },
     {
       "temporada": "2014-15",
-      "hecho": 3,
+      "hecho": 18,
       "total": 61
     },
     {
@@ -82,8 +82,8 @@
     }
   ],
   "ritmo": {
-    "pc_por_min": 2.4,
-    "servidor_por_min": 16.4,
-    "medido": "2026-11-10T04:05"
+    "pc_por_min": 1,
+    "servidor_por_min": 9.4,
+    "medido": "2026-11-10T10:18"
   }
 }
