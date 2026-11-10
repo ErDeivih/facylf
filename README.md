@@ -1,5 +1,12 @@
 # Observatorio local de fútbol
 
+> **Fondo Popular tiene dos caras, y conviene no confundirlas.** La **demo pública**
+> <https://erdeivih.github.io/fondo-popular-demo/> es una foto estática de la web con **solo la temporada
+> 2026-27**: no tiene API ni base de datos, las páginas son ficheros del propio sitio y sirve para que cualquiera
+> vea el producto sin abrir nada. La **app completa** corre en local (`http://127.0.0.1:3001`) y en el servidor
+> propio: es la que tiene todas las temporadas del canónico, búsqueda, filtros, actas, historial y panel. Detalle
+> en [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md).
+
 Plataforma privada para consultar calendarios, clasificaciones, actas, equipos y jugadores de
 varias federaciones territoriales. El objetivo principal es preparar rivales y estudiar posibles
 incorporaciones, con prioridad para Salamanca y para las competiciones regionales o nacionales
