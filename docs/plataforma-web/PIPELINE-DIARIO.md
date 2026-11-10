@@ -386,6 +386,16 @@ solo las actas recién recogidas de esas competiciones, mientras el canónico co
 importó en su día desde el servidor. Esas unidades se importan **por el camino de paquete** (cuando la temporada se
 cierra y se empaqueta), no por el incremental.
 
-Consecuencia práctica para estos días de rotación: lo que el recolector va guardando en la cola de temporadas
-antiguas **no cambia la cobertura** hasta que se ejecute el ciclo diario o se empaquete la temporada. El contador
-206/867 no es un fallo de la recolección; es que la importación de esas unidades va por otro camino.
+### Matiz importante: el incremental SÍ importa cuando la cola supera al canónico
+
+Lo de arriba es solo la mitad de la historia y conviene no sacar la conclusión contraria. La validación compara
+**origen contra canónico en cada grupo**: cuando el canónico ya tiene más datos (el paquete del servidor venía
+completo y la cola solo trae lo recién recogido), la unidad se aparta y el canónico no se degrada. Pero cuando la
+**cola acaba sabiendo más que el canónico** —justo el caso de los grupos a los que les faltaban resultados—, el
+incremental los importa con normalidad; es la situación habitual de una recolección que rellena huecos (está descrita
+en `docs/plataforma-web/ESTADO-DEEPSEEK.md` con el aviso «origen≠canónico» en las dos direcciones).
+
+Consecuencia práctica para estos días de rotación: cada grupo de temporada antigua que la recolección complete por
+encima de lo que ya había **sí puede importarse** y mover la cobertura; lo que no va a entrar es reimportar grupos
+donde el canónico ya está mejor. Así que el contador 206/867 puede subir con el ciclo diario, y si no sube hay que
+mirar qué grupos han superado al canónico y cuáles se quedaron cortos.
