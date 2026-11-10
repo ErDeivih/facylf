@@ -24,8 +24,21 @@ const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg
 const BOTON_PRIMARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-inverso)] hover:opacity-90';
 const BOTON_SECUNDARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
 
-export function InicioContenido({ competiciones, sesion, accesos, errorAccesos = false }: {
+/** Un partido de la jornada de ejemplo de la portada (datos reales del canónico). */
+export type PartidoDeEjemplo = {
+  partidoId: number;
+  fechaTexto: string;
+  jornada: number | null;
+  edicion: string;
+  local: string;
+  visitante: string;
+  golesLocal: number;
+  golesVisitante: number;
+};
+
+export function InicioContenido({ competiciones, jornada = [], sesion, accesos, errorAccesos = false }: {
   competiciones: readonly CompeticionDePortada[];
+  jornada?: readonly PartidoDeEjemplo[];
   sesion: SesionDeLaPortada;
   accesos: readonly FilaAcceso[];
   errorAccesos?: boolean;
@@ -34,27 +47,34 @@ export function InicioContenido({ competiciones, sesion, accesos, errorAccesos =
   const seguidos = accesos.slice(0, 3);
   return (
     <div className="flex flex-col gap-[22px]">
-      <section aria-labelledby="buscar"
+      <section aria-labelledby="jornada-ejemplo"
         className="rounded-[var(--radius-tarjeta)] bg-[var(--fondo-fuerte)] px-6 py-6 text-[var(--texto-fuerte)]">
-        <h1 id="buscar" className="m-0 text-titulo font-extrabold tracking-[-0.02em]">¿A quién buscas?</h1>
+        <h1 id="jornada-ejemplo" className="m-0 text-titulo font-extrabold tracking-[-0.02em]">
+          Una jornada de ejemplo
+        </h1>
         <p className="m-0 mt-1 text-tabla text-[var(--texto-tenue)]">
-          Equipos, jugadores y clubes del fútbol federado.
+          Partidos reales del canónico, con fecha, equipos y marcador. Toca «Ver partido» para abrir el acta.
         </p>
-        <form action="/buscar" method="get" className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <label htmlFor="inicio-q" className="sr-only">Buscar</label>
-          <input
-            id="inicio-q"
-            name="q"
-            type="search"
-            required
-            minLength={2}
-            placeholder="Equipo, jugador o club"
-            autoComplete="off"
-            className="h-11 min-w-0 flex-1 rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-cuerpo text-[var(--texto)] placeholder:text-[var(--texto-tenue)]"
-          />
-          <button type="submit" className={`${BOTON_PRIMARIO} bg-[var(--accion)]`}>Buscar</button>
-        </form>
-        <p className="m-0 mt-2 text-nota text-[var(--texto-tenue)]">
+        <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
+          {jornada.map((partido) => (
+            <li key={partido.partidoId}
+              className="flex flex-col gap-1 rounded-[var(--radius-lg)] bg-white/5 px-3 py-2.5">
+              <span className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-fuerte-suave)]">
+                {partido.fechaTexto}{partido.jornada !== null ? ` · Jornada ${partido.jornada}` : ''}{partido.edicion ? ` · ${partido.edicion}` : ''}
+              </span>
+              <span className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="text-tabla font-semibold">
+                  {partido.local} <span className="mx-1 rounded bg-[var(--accion)] px-1.5 py-0.5 text-[var(--texto-inverso)]">{partido.golesLocal} - {partido.golesVisitante}</span> {partido.visitante}
+                </span>
+                <Link href={`/explorar/acta/${partido.partidoId}`}
+                  className="text-nota font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">
+                  Ver partido
+                </Link>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="m-0 mt-3 text-nota text-[var(--texto-tenue)]">
           También puedes <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route}
             className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">buscar por competición</Link>.
         </p>

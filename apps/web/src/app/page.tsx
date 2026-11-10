@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { GRUPOS_DEL_SELECTOR, type FilaGrupoSelector } from '@/consultas/catalogo-selector';
+import { PARTIDOS_DEL_CANONICO, type FilaPartidoListado } from '@/consultas/entidades';
 import { SinCanonico } from '@/componentes/SinCanonico';
-import { InicioContenido } from '@/componentes/inicio/InicioContenido';
+import { InicioContenido, type PartidoDeEjemplo } from '@/componentes/inicio/InicioContenido';
 import type { FilaAcceso } from '@/consultas/usuario';
 import { misAccesos } from '@/lib/cuentas-db';
 import { competicionesDePortada, FEDERACION_DE_LA_PORTADA } from '@/lib/inicio';
@@ -46,7 +47,35 @@ export default async function Inicio() {
 
   const competiciones = competicionesDePortada(filas);
 
-  const sesion = await sesionActual();
+// Jornada de ejemplo de la portada: los últimos partidos jugados de la temporada de la portada. Si la consulta
+// falla, la portada sigue sin ese bloque (no se inventa nada).
+let jornada: PartidoDeEjemplo[] = [];
+try {
+  const partidos = await consulta<FilaPartidoListado>(PARTIDOS_DEL_CANONICO.sql, [
+    FEDERACION_DE_LA_PORTADA, '2026-27', null, 400, 0,
+  ], { presupuestoMs: PARTIDOS_DEL_CANONICO.presupuestoMs });
+  const jugados = partidos
+    .filter((f) => f.goles_local !== null && f.goles_visitante !== null)
+    .sort((a, b) => String(b.jugado_en ?? '').localeCompare(String(a.jugado_en ?? '')));
+  // Los que tengan acta publicada primero: «Ver partido» siempre abre una ficha.
+  const conActa = jugados.filter((f) => f.calidad_acta !== null);
+  jornada = (conActa.length > 0 ? conActa : jugados)
+    .slice(0, 4)
+    .map((f) => ({
+      partidoId: f.partido_id,
+      fechaTexto: (f.jugado_en ?? f.fecha_prevista ?? '').slice(0, 10),
+      jornada: f.jornada_numero,
+      edicion: f.edicion ?? '',
+      local: f.local,
+      visitante: f.visitante,
+      golesLocal: f.goles_local as number,
+      golesVisitante: f.goles_visitante as number,
+    }));
+} catch {
+  jornada = [];
+}
+
+const sesion = await sesionActual();
   let accesos: FilaAcceso[] = [];
   let errorAccesos = false;
   if (sesion) {
@@ -60,6 +89,7 @@ export default async function Inicio() {
   return (
     <InicioContenido
       competiciones={competiciones}
+      jornada={jornada}
       sesion={sesion ? { nombre: sesion.nombre } : null}
       accesos={accesos}
       errorAccesos={errorAccesos}

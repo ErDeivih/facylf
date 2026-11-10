@@ -1,5 +1,6 @@
 import type { FilaOpcionSelector } from '@/consultas/catalogo-selector';
 import { etiqueta } from './presentacion-canonico';
+import { opcionesDeDemo } from './facetas-demo';
 import { PROVINCIAS_CYL, provinciaCanonicaDe } from './provincias-cyl';
 import {
   desplazamientoDeFiltro, enteroDeFiltro, federacionDeFiltro, temporadaDeFiltro, textoDeFiltro,
@@ -405,17 +406,18 @@ export function opcionesDeSelector(filas: readonly FilaOpcionSelector[]): Opcion
 
   return {
     federaciones: de('federacion').map(aOpcion),
-    temporadas: temporadas.map(aOpcion),
+    temporadas: opcionesDeDemo('temporada', temporadas.map(aOpcion)),
     // El catálogo guarda los códigos del esquema (`alevin`, `futbol8`…): en un desplegable se leen
     // traducidos, y `desconocida` es un valor real que se ofrece como «sin determinar», no se esconde.
-    categorias: de('categoria').map((f) => ({ valor: f.valor, etiqueta: etiqueta('categoria', f.valor) })),
-    modalidades: de('modalidad').map((f) => ({ valor: f.valor, etiqueta: etiqueta('modalidad', f.valor) })),
-    generos: de('genero').map((f) => ({ valor: f.valor, etiqueta: etiqueta('genero', f.valor) })),
+    // En la DEMO sí se esconde («sin determinar» no enseña nada en una foto) y, en temporada, solo 2026-27.
+    categorias: opcionesDeDemo('categoria', de('categoria').map((f) => ({ valor: f.valor, etiqueta: etiqueta('categoria', f.valor) }))),
+    modalidades: opcionesDeDemo('modalidad', de('modalidad').map((f) => ({ valor: f.valor, etiqueta: etiqueta('modalidad', f.valor) }))),
+    generos: opcionesDeDemo('genero', de('genero').map((f) => ({ valor: f.valor, etiqueta: etiqueta('genero', f.valor) }))),
     // El filtro de provincia es el de la fase C: **las nueve de Castilla y León**, con su etiqueta
     // canónica («Ávila», «León»…) aunque el catálogo traiga el dato sin tildes. No depende de que hoy
     // haya ediciones con `provincia` rellena: el SQL casa también con el nombre del grupo («Primera -
     // Soria»), así que las nueve pueden devolver resultados.
     provincias: PROVINCIAS_CYL.map((nombre) => ({ valor: nombre, etiqueta: nombre })),
-    niveles: niveles.map((f) => ({ valor: f.valor, etiqueta: f.etiqueta || `Nivel ${f.valor}` })),
+    niveles: opcionesDeDemo('nivel', niveles.map((f) => ({ valor: f.valor, etiqueta: f.etiqueta || `Nivel ${f.valor}` }))),
   };
 }

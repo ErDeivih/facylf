@@ -165,7 +165,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
             <div className="flex flex-wrap gap-x-4 gap-y-1 border border-[#D6D6D4] px-2.5 py-2">
               {/* Las nueve de CyL con su etiqueta canónica; el SQL compara sin tildes. */}
               {facetas.provincias.map((x) => (
-                <label key={x.valor} className="flex items-center gap-1.5 text-sm">
+                <label key={x.valor} className="flex min-h-11 items-center gap-1.5 text-sm">
                   <input type="checkbox" name="provincia" value={x.valor}
                     defaultChecked={provincias.includes(x.valor)} />
                   {x.etiqueta}

@@ -11,6 +11,7 @@
  */
 
 import { PROVINCIAS_CYL } from './provincias-cyl';
+import { opcionesDeDemo } from './facetas-demo';
 
 /** Un dato que no existe. Es un guion, no un cero: no es lo mismo «no hay» que «no lo sé». */
 export const SIN_DATO = '—';
@@ -132,11 +133,11 @@ export function agrupaFacetas(filas: readonly FilaFaceta[]): FacetasDelCatalogo 
       ? (b.orden ?? 0) - (a.orden ?? 0)
       : a.etiqueta.localeCompare(b.etiqueta, 'es')));
   return {
-    temporadas: de('temporada'),
-    ambitos: de('ambito', 'ambito'),
-    categorias: de('categoria', 'categoria'),
-    modalidades: de('modalidad', 'modalidad'),
-    generos: de('genero', 'genero'),
+    temporadas: opcionesDeDemo('temporada', de('temporada')),
+    ambitos: opcionesDeDemo('ambito', de('ambito', 'ambito')),
+    categorias: opcionesDeDemo('categoria', de('categoria', 'categoria')),
+    modalidades: opcionesDeDemo('modalidad', de('modalidad', 'modalidad')),
+    generos: opcionesDeDemo('genero', de('genero', 'genero')),
     // La provincia es la única dimensión con lista propia: **las nueve de Castilla y León**, con su
     // etiqueta canónica («Ávila», «León»…). No se construye con los valores del canónico porque el
     // filtro de provincia es de la fase C y el SQL del selector casa también con el nombre del grupo

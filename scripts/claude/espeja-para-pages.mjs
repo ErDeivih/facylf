@@ -26,6 +26,7 @@ const RUTAS = [
   '/explorar/federacion/castilla-leon',
   '/explorar/rankings',
   '/explorar/estadisticas',
+  '/buscar',
 ];
 
 if (existsSync(salida)) rmSync(salida, { recursive: true, force: true });
@@ -51,20 +52,28 @@ function reescribe(html) {
     .replaceAll(/\/api\/escudo\/club\/(\d+)/g, `${base}/escudos/$1.png`)
     .replaceAll(/\/api\/escudo\/federacion\/([\w-]+)/g, `${base}/escudos-fed/$1`)
     // Todo lo demás que es absoluto desde la raíz del dominio (sin repetir el subdirectorio).
-    .replaceAll(/(["'(])\/(?!\/)(?!fondo-popular-demo\/)/g, `$1${base}/`);
+    .replaceAll(/(["'(])\/(?!\/)(?!fondo-popular-demo\/)/g, `$1${base}/`)
+    // Fuera el JavaScript: esto es una foto estática. Sin hidratación no hay router que pida rutas SIN el
+    // prefijo de publicación (eso era el 404/503 que veían los coordinadores) y cada enlace es una carga de
+    // página normal contra el fichero que existe. La interactividad no es parte de la demo.
+    .replace(/<script[\s\S]*?<\/script>/gi, '');
 }
 
 const escudos = new Set();
 const escudosFed = new Set();
 const rutasOk = [];
 const rutasMal = [];
-for (const ruta of RUTAS) {
+// Las actas enlazadas desde la portada («Ver partido») también entran en la foto: si no, el enlace abre 404.
+const actasDeLaPortada = new Set();
+for (const ruta of [...RUTAS]) {
   const url = `${origen}${ruta}`;
   try {
     const respuesta = await fetch(url, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${ruta} (${respuesta.status})`); continue; }
     let html = await respuesta.text();
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
+    // Actas enlazadas (jornada de ejemplo de la portada): se piden después, una vez, para la foto.
+    if (ruta === '/') for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeLaPortada.add(m[1]);
     for (const m of html.matchAll(/\/api\/escudo\/federacion\/([\w-]+)/g)) escudosFed.add(m[1]);
     html = reescribe(html);
     const destino = join(salida, ruta === '/' ? 'index.html' : join(ruta.slice(1), 'index.html'));
@@ -74,6 +83,33 @@ for (const ruta of RUTAS) {
   } catch (error) {
     rutasMal.push(`${ruta} (${error.message})`);
   }
+}
+
+writeFileSync(join(salida, '.nojekyll'), '', 'utf8');
+
+// 404.html: GitHub Pages lo sirve en las rutas que no existen; devuelve al índice de la demo.
+writeFileSync(join(salida, '404.html'), `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta http-equiv="refresh" content="0;url=${base}/">
+<title>Fondo Popular · volver a la demo</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#111418;color:#e8eaed;text-align:center;padding:24px}a{color:#7cc4bc}</style>
+</head><body><div><h1 style="margin:0 0 8px;font-size:20px">Esta página no está en la demo</h1>
+<p style="margin:0 0 12px;color:#aab1ba">La demostración es una foto estática y solo incluye unas cuantas páginas.</p>
+<a href="${base}/">Volver al inicio de la demo</a></div></body></html>`, 'utf8');
+
+// Actas de la jornada de ejemplo de la portada.
+for (const id of [...actasDeLaPortada].slice(0, 8)) {
+  const rutaActa = `/explorar/acta/${id}`;
+  try {
+    const respuesta = await fetch(`${origen}${rutaActa}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) { rutasMal.push(`${rutaActa} (${respuesta.status})`); continue; }
+    let html = await respuesta.text();
+    for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
+    html = reescribe(html);
+    const destinoActa = join(salida, 'explorar', 'acta', String(id), 'index.html');
+    mkdirSync(dirname(destinoActa), { recursive: true });
+    writeFileSync(destinoActa, html);
+    rutasOk.push(rutaActa);
+  } catch (error) { rutasMal.push(`${rutaActa} (${error.message})`); }
 }
 
 // Escudos de club: se descargan como PNG para no depender de la API dinámica.

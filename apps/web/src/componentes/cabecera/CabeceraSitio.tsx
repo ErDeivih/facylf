@@ -178,8 +178,6 @@ export function CabeceraSitio({
           y no entran en el orden de tabulación; la cuenta es un enlace real a `/entrar` y sí entra.
         */}
         <div className="order-2 ml-auto flex items-center gap-1 lg:order-3 lg:ml-0">
-          <BotonPendiente etiqueta="Mi panel" icono={<IconoEstrella />} />
-          <BotonPendiente etiqueta="Avisos" icono={<IconoAviso />} />
         </div>
 
         {/*

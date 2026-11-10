@@ -70,7 +70,7 @@ export function FiltrosSelector({ estado, opciones }: {
         <legend className={ETIQUETA}>Provincias (se pueden marcar varias)</legend>
         <div className="flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-[#D6D6D4] px-2.5 py-2">
           {opciones.provincias.map((o: OpcionSelector) => (
-            <label key={o.valor} className="flex items-center gap-1.5 text-tabla">
+            <label key={o.valor} className="flex min-h-11 items-center gap-1.5 text-tabla">
               <input type="checkbox" name="prov" value={o.valor}
                 defaultChecked={filtros.provincias.includes(o.valor)} />
               {o.etiqueta}
