@@ -93,3 +93,22 @@ La app completa está disponible por **https://ringtones-studies-plastic-assumpt
 Comprobado por HTTP: portada 1,2 s, selector 285 ms, competición 479 ms (clasificación, 19 filas), jornada 450 ms (36 resultados y árbitros), acta 341 ms (cronología, alineaciones, 196 nombres), ficha de equipo 299 ms, historial de jugador 729 ms, rankings 646 ms, y /api/v1 231 ms. En la app real **sí funcionan las fichas de equipo y los rankings**; es la demo estática la que no los lleva (sus enlaces daban 404 y su listado se cargaba por JavaScript).
 
 Para levantarla de nuevo: 	mp\cloudflared.exe tunnel --url http://127.0.0.1:3001 --no-autoupdate, con la app sirviendo en el 3001 (	mp\sirve-web-servidor.ps1, base acylf_canonico_4).
+
+## Consolidación comprobada entre el PC y el servidor (10/11/2026, 19:50)
+
+La base publicada en el servidor (`facylf_canonico_4`) y la base viva del PC (`facylf`) se compararon por partidos
+de **Castilla y León**, temporada a temporada: **la diferencia es 0 en todas las temporadas**. Es decir, lo que sirve
+la app es exactamente lo que hay en el canónico del PC para CyL.
+
+| Comprobación | Servidor (publicada) | PC (viva) |
+|---|---:|---:|
+| `core.match` en total | 2.400.009 | 2.587.156 |
+| `core.match_report` | 1.014.485 | 1.014.485 |
+| `core.appearance` | 26.467.439 | 26.467.439 |
+| `core.person` | 2.479.296 | 2.479.296 |
+| Partidos de CyL, temporada a temporada | iguales | iguales |
+
+La diferencia de partidos totales (**187.147**) **no es de CyL**: aparece en otras federaciones, que están fuera del
+alcance de este despliegue y que se publicarán cuando toque. Para CyL no hay nada pendiente de consolidar hoy; cuando
+la recolección mueva datos de CyL habrá que volver a publicar (dump, copia, restauración en una base nueva y
+reapuntar la web, como en la publicación del 10/11 por la mañana).
