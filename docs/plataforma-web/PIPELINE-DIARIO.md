@@ -386,16 +386,28 @@ solo las actas recién recogidas de esas competiciones, mientras el canónico co
 importó en su día desde el servidor. Esas unidades se importan **por el camino de paquete** (cuando la temporada se
 cierra y se empaqueta), no por el incremental.
 
-### Matiz importante: el incremental SÍ importa cuando la cola supera al canónico
+### Medido al reimportar 2018-19 (10/11, 19:44): la validación exige que el origen no traiga menos
 
-Lo de arriba es solo la mitad de la historia y conviene no sacar la conclusión contraria. La validación compara
-**origen contra canónico en cada grupo**: cuando el canónico ya tiene más datos (el paquete del servidor venía
-completo y la cola solo trae lo recién recogido), la unidad se aparta y el canónico no se degrada. Pero cuando la
-**cola acaba sabiendo más que el canónico** —justo el caso de los grupos a los que les faltaban resultados—, el
-incremental los importa con normalidad; es la situación habitual de una recolección que rellena huecos (está descrita
-en `docs/plataforma-web/ESTADO-DEEPSEEK.md` con el aviso «origen≠canónico» en las dos direcciones).
+Intenté reimportar la temporada 2018-19 recién abierta (`importar-temporada.ps1 -Federacion castilla-leon
+-Temporada 2018-19`, con `FACYLF_APARTAR_ACTAS_DISCORDANTES=1`) para meter en el canónico las actas recogidas hoy.
+**No entró ni un grupo**, y el motivo es el mismo en todos:
 
-Consecuencia práctica para estos días de rotación: cada grupo de temporada antigua que la recolección complete por
-encima de lo que ya había **sí puede importarse** y mover la cobertura; lo que no va a entrar es reimportar grupos
-donde el canónico ya está mejor. Así que el contador 206/867 puede subir con el ciclo diario, y si no sube hay que
-mirar qué grupos han superado al canónico y cuáles se quedaron cortos.
+```
+FALLA 6426/20833 (Primera - Salamanca) — ✗ La validación del lote 114448 ha fallado:
+partidos 7≠182, partidos con resultado 7≠182, actas analizadas 0≠182, participaciones 0≠5504,
+eventos 0≠3694, técnicos 0≠686, árbitros designados 3≠46 [origen≠canónico]
+(el ORIGEN trae menos que el canónico: ¿cola vieja? Importa desde el paquete del servidor; el canónico queda como estaba)
+```
+
+**La regla real, medida:** la validación compara **origen contra canónico en todos los contadores** y rechaza la
+unidad cuando el origen trae menos en cualquiera de ellos. Como la cola de 2018-19 solo tiene las **actas** recién
+recogidas y todavía no ha vuelto a levantar el calendario y las jornadas de esos grupos, el origen siempre va por
+debajo del canónico (que sí tiene el paquete completo del servidor) y el grupo se rechaza. Es la protección que
+impide degradar datos, no un fallo del importador.
+
+**Consecuencia para el cierre:** reimportar antes de que el grupo esté **re-recolectado entero** (calendario,
+jornadas y actas) no sirve de nada. El camino es dejar que la recolección complete los grupos y luego pasarlos; por
+eso el contador 206/867 no se mueve mientras solo haya actas nuevas de temporadas antiguas. La reimportación se paró
+sin dejar cambios: las unidades rechazadas no escriben nada.
+
+
