@@ -15,6 +15,7 @@ import { actaSinContenidoDeportivo } from './lib/acta-vacia.mjs';
 import { bloqueaTerceros } from './lib/bloqueo-terceros.mjs';
 import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
 import { pendientesAPartirDe } from './lib/repaso-actas.mjs';
+import { latidoDeFicha } from './lib/ficha-espera.mjs';
 import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
@@ -276,9 +277,14 @@ async function adquiereSlotChrome(db) {
         rmSync(rutaFicha, { force: true }); // ilegible: no puede representar a nadie
         continue;
       }
+      // Otra sesión pudo borrar la ficha entre `readdirSync` y este momento (es lo que hacen los demás al
+      // retirar las abandonadas): sin esta guarda, `statSync` lanzaba ENOENT y el worker terminaba con
+      // código 1. Medido el 09/11/2026: 876 salidas con código 1 en Castilla y León por esta carrera.
+      const ultimoLatidoMs = latidoDeFicha(rutaFicha);
+      if (ultimoLatidoMs === null) { rmSync(rutaFicha, { force: true }); continue; }
       const estado = plazaAbandonada({
         pid, host, miHost: MI_CONTENEDOR,
-        procesoVivo: procesoVivo(pid), ultimoLatidoMs: statSync(rutaFicha).mtimeMs, ahoraMs: Date.now(),
+        procesoVivo: procesoVivo(pid), ultimoLatidoMs, ahoraMs: Date.now(),
       });
       if (estado.abandonada) rmSync(rutaFicha, { force: true });
     }
