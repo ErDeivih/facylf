@@ -4,7 +4,7 @@ import type { Metadata, Route } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  CLASIFICACION_DE_LA_PANTALLA, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
+  CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
   type FilaClasificacionPantalla, type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
 import { RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
@@ -152,9 +152,11 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   let clasificacion: FilaClasificacionPantalla[] = [];
   let zonas: FilaZonas[] = [];
   let goleadores: FilaRanking[] = [];
+  let frescura: { con_resultado: number; partidos: number; actas: number; ultimo: string | null } | null = null;
   try {
-    const [c, z, g] = await consultaEnUnaFoto([
-      { sql: CLASIFICACION_DE_LA_PANTALLA.sql, parametros: [grupo.grupo_id] },
+    const [c, z, g, f] = await consultaEnUnaFoto([
+      { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
+      { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
         sql: RANKING_GOLEADORES.sql,
@@ -164,6 +166,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
     clasificacion = c as unknown as FilaClasificacionPantalla[];
     zonas = z as unknown as FilaZonas[];
     goleadores = g as unknown as FilaRanking[];
+    frescura = (f as unknown as Array<{ con_resultado: number; partidos: number; actas: number; ultimo: string | null }>)[0] ?? null;
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
       return <SinCanonico titulo="Competición" motivo={error.message} />;
@@ -198,8 +201,23 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const conJornada = (n: number) => `${ruta}?jornada=${n}`;
 
   const equipos = grupo.equipos || clasificacion.length;
+  // ¿La tabla oficial publicada coincide con la calculada? Si está desfasada se dice, y no se publica la oficial.
+  const oficialDesfasada = clasificacion.some((f) => f.oficial_jornada != null
+    && (f.oficial_jugados !== f.jugados || f.oficial_puntos !== f.puntos));
+  const fechaActualizado = frescura && frescura.ultimo
+    ? new Date(frescura.ultimo).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })
+    : null;
+  const lineaFrescura = fechaActualizado === null
+    ? null
+    : `Actualizado ${fechaActualizado} · ${frescura.actas} de ${frescura.con_resultado} actas`;
   return (
     <div className="flex flex-wrap items-start gap-[18px]">
+      {lineaFrescura && (
+        <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
+          {lineaFrescura}
+          {oficialDesfasada ? ' · clasificación calculada con los resultados; la tabla oficial publicada está desfasada' : ''}
+        </p>
+      )}
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px]">
         <Jornada

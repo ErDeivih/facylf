@@ -86,8 +86,8 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                     04/11/2026). El dato no cambia: `ganados`/`empatados`/`perdidos` son los de la
                     consulta.
                   */}
-                  <th scope="col" className="px-1.5 py-2 font-semibold" title="Victorias-Empates-Derrotas">V-E-D</th>
-                  <th scope="col" className="px-1.5 py-2 font-semibold" title="Goles a favor y en contra">Goles</th>
+                  <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Victorias-Empates-Derrotas">V-E-D</th>
+                  <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Goles a favor y en contra">Goles</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold"
                     title="Últimos 5 partidos hasta la jornada de la tabla, del más antiguo al más reciente">Forma</th>
                   <th scope="col" className="py-2 pl-1.5 pr-4 font-semibold">Pts</th>
@@ -119,13 +119,21 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             title={f.equipo}>
                             {f.equipo}
                           </Link>
+                          {/* En móvil, V-E-D y goles no caben: se despliegan al tocar la fila. */}
+                          <details className="md:hidden">
+                            <summary className="cursor-pointer list-none text-nota text-[var(--texto-suave)]"
+                              aria-label={`Ver victorias, empates, derrotas y goles de ${f.equipo}`}>+</summary>
+                            <span className="block whitespace-nowrap text-nota text-[var(--texto-suave)]">
+                              V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)}
+                            </span>
+                          </details>
                         </div>
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">{f.jugados}</td>
-                      <td className="whitespace-nowrap border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">
+                      <td className="hidden whitespace-nowrap border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)] md:table-cell">
                         {f.ganados}-{f.empatados}-{f.perdidos}
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)]">
+                      <td className="hidden border-t border-[var(--fondo-sutil)] px-1.5 text-[var(--texto-suave)] md:table-cell">
                         {golesDeLaFila(f, usaReconstruccion)}
                       </td>
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 text-left">

@@ -246,6 +246,11 @@ export type FilaClasificacionPantalla = {
    * nombre completo no cabe. `null` si todavía no se ha derivado; el componente cae al nombre completo.
    */
   equipo_corto?: string | null;
+  /** Jornada de la última tabla OFICIAL publicada (para avisar si está desfasada). */
+  oficial_jornada?: number | null;
+  /** Puntos y partidos jugados según la oficial, para comparar con la calculada. */
+  oficial_puntos?: number | null;
+  oficial_jugados?: number | null;
 };
 
 /**
@@ -323,12 +328,112 @@ export const CLASIFICACION_DE_LA_PANTALLA: Consulta<FilaClasificacionPantalla> =
      limit 40`,
 };
 
+
+/**
+ * La clasificación CALCULADA con los resultados del grupo, que es la que se publica.
+ *
+ * Por qué: en CyL la federación publica la tabla oficial solo de vez en cuando (en el grupo 2939, de la
+ * jornada 7 había 48 partidos con resultado y la tabla oficial era la de la jornada 1: todos los equipos
+ * con PJ=1 y un Villamayor 10-0 Alba que la tabla no recogía). Enseñar esa foto es enseñar algo que no
+ * cuadra con los resultados de la misma página. Aquí se calcula desde `core.match` (con resultado) y se
+ * trae al lado la oficial para poder avisar de la diferencia sin publicarla.
+ *
+ * Parámetros: (1) phase_group_id.
+ */
+export const CLASIFICACION_CALCULADA: Consulta<FilaClasificacionPantalla> = {
+  nombre: 'clasificación-calculada',
+  descripcion: 'Clasificación calculada con los resultados del grupo, con la jornada alcanzada y, al lado, la oficial para comparar.',
+  plan: 'indexado',
+  presupuestoMs: 500,
+  columnas: ['posicion', 'equipo_id', 'equipo', 'puntos', 'jugados', 'ganados', 'empatados', 'perdidos',
+    'goles_favor', 'goles_contra', 'goles_favor_reconstruida', 'goles_contra_reconstruida', 'origen', 'jornada',
+    'club_id', 'tiene_escudo', 'equipo_corto', 'oficial_jornada', 'oficial_puntos', 'oficial_jugados'],
+  sql: `
+    with resultados as (
+      select m.home_team_entry_id as equipo_id, m.goles_local as gf, m.goles_visitante as gc
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+      union all
+      select m.away_team_entry_id, m.goles_visitante, m.goles_local
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+    ),
+    agg as (
+      select equipo_id,
+             count(*)::int                                        as jugados,
+             count(*) filter (where gf > gc)::int                 as ganados,
+             count(*) filter (where gf = gc)::int                 as empatados,
+             count(*) filter (where gf < gc)::int                 as perdidos,
+             sum(gf)::int                                          as goles_favor,
+             sum(gc)::int                                          as goles_contra,
+             sum(case when gf > gc then 3 when gf = gc then 1 else 0 end)::int as puntos
+        from resultados group by equipo_id
+    ),
+    ultima as (
+      select max(d.numero) as jornada
+        from core.match m join core.matchday d on d.id = m.matchday_id
+       where m.phase_group_id = $1 and m.goles_local is not null
+    ),
+    oficial as (
+      select s.team_entry_id, s.puntos, s.jugados, d.numero as jornada
+        from core.standing_snapshot s join core.matchday d on d.id = s.matchday_id
+       where s.phase_group_id = $1 and s.origen = 'oficial'
+         and s.matchday_id = (select max(matchday_id) from core.standing_snapshot
+                               where phase_group_id = $1 and origen = 'oficial')
+    )
+    select row_number() over (order by a.puntos desc, (a.goles_favor - a.goles_contra) desc,
+                              a.goles_favor desc, te.nombre_en_fuente)::int as posicion,
+           te.id                          as equipo_id,
+           te.nombre_en_fuente            as equipo,
+           a.puntos, a.jugados, a.ganados, a.empatados, a.perdidos,
+           a.goles_favor, a.goles_contra,
+           a.goles_favor                  as goles_favor_reconstruida,
+           a.goles_contra                 as goles_contra_reconstruida,
+           'reconstruida'::text           as origen,
+           u.jornada::int                 as jornada,
+           cl.id                          as club_id,
+           exists (select 1 from core.club_asset ca
+                    where ca.club_id = cl.id and ca.tipo = 'escudo' and ca.vigente) as tiene_escudo,
+           nce.nombre_corto               as equipo_corto,
+           o.jornada                      as oficial_jornada,
+           o.puntos                       as oficial_puntos,
+           o.jugados                      as oficial_jugados
+      from agg a
+      join core.team_entry te on te.id = a.equipo_id
+      join core.team_season ts on ts.id = te.team_season_id
+      join core.club cl on cl.id = ts.club_id
+      join ultima u on true
+      left join analytics.nombre_corto_equipo nce on nce.team_entry_id = te.id
+      left join oficial o on o.team_entry_id = te.id
+     order by posicion
+     limit 40`,
+};
+
+/** Frescura del grupo: partidos con resultado, actas disponibles y fecha del último partido jugado. */
+export const FRESCURA_DEL_GRUPO: Consulta<{ con_resultado: number; partidos: number; actas: number; ultimo: string | null }> = {
+  nombre: 'frescura-del-grupo',
+  descripcion: 'Partidos con resultado, actas enlazadas y fecha del último partido del grupo.',
+  plan: 'indexado',
+  presupuestoMs: 300,
+  columnas: ['con_resultado', 'partidos', 'actas', 'ultimo'],
+  sql: `
+    select count(*) filter (where m.goles_local is not null)::int as con_resultado,
+           count(*)::int                                        as partidos,
+           (select count(*)::int from core.match_report mr where mr.match_id in
+              (select m2.id from core.match m2 where m2.phase_group_id = $1)) as actas,
+           max(m.played_at)::text                               as ultimo
+      from core.match m
+     where m.phase_group_id = $1`,
+};
+
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
-  CLASIFICACION_DE_LA_PANTALLA] as const;
+  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO] as const;
 
 export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'grupo-por-id': [797],
   'grupos-de-la-edición': [797],
   'ediciones-de-la-competición': [797],
   'clasificación-de-la-pantalla': [797],
+  'clasificación-calculada': [797],
+  'frescura-del-grupo': [797],
 };

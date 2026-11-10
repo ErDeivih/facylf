@@ -264,6 +264,27 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
       || existsSync(join(salida, rel, 'index.html'))
       || existsSync(join(salida, rel + '.html'));
   };
+  // En la foto no hay fichas de equipo: el enlace a la ficha se queda en texto (nada de 404 ni de rebotes).
+  let enlacesDeEquipoQuitados = 0;
+  const sinEnlacesDeEquipo = (html) => html.replace(
+    /<a\b[^>]*href="[^"]*\/explorar\/equipo\/\d+"[^>]*>([\s\S]*?)<\/a>/g,
+    (_todo, dentro) => `<span class="font-medium text-[var(--texto)]">${dentro}</span>`,
+  );
+  // Los filtros del selector son un formulario GET: sin servidor no filtran y parece que «se resetean».
+  // Se dejan los controles a la vista (enseñan el producto) pero sin formulario, y se avisa.
+  let formularioNeutralizado = 0;
+  const neutralizaFiltros = (html) => {
+    if (!/action="[^"]*\/explorar\/competiciones"[^>]*method="get"/.test(html)) return html;
+    formularioNeutralizado += 1;
+    const aviso = '<p class="m-0 px-1 text-nota text-[var(--texto-suave)]">En esta foto estática los filtros se ven pero no filtran: la demo no tiene servidor. En la app completa (enlace del cartel) funcionan con las mismas opciones, incluido el estado sin resultados.</p>';
+    let salida = html
+      .replace(/<form\b([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)method="get"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
+      .replace(/<form\b([^>]*)method="get"([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
+      .replace(/<\/form>/g, '</div>');
+    salida = salida.replace('<div data-filtros-sin-servidor="1">', aviso + '<div data-filtros-sin-servidor="1">');
+    return salida;
+  };
+
   let reescritos = 0;
   const recorreHtml = (dir) => {
     for (const f of readdirSync(dir)) {
@@ -272,7 +293,13 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
       const info = statSync(ruta);
       if (info.isDirectory()) { recorreHtml(ruta); continue; }
       if (!f.endsWith('.html')) continue;
-      const antes = readFileSync(ruta, 'utf8');
+      let antes = readFileSync(ruta, 'utf8');
+      if (f.endsWith('.html')) {
+        const conFiltros = neutralizaFiltros(antes);
+        const sinEquipos = sinEnlacesDeEquipo(conFiltros);
+        if (sinEquipos !== antes && /\/explorar\/equipo\/\d+/.test(antes)) enlacesDeEquipoQuitados += 1;
+        antes = sinEquipos;
+      }
       const despues = antes.replace(/(href|src)="(\/fondo-popular-demo\/[^"]+)"/g, (todo, atributo, url) => {
         if (existeEnFoto(url)) return todo;
         // Los recursos (CSS, JS, escudos, iconos) no son navegación: si faltan, se dejan como están.
@@ -285,6 +312,7 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
   };
   recorreHtml(salida);
   console.log(`enlaces internos reescritos al selector (no tenían página en la foto): ${reescritos}`);
+  console.log(`páginas con enlaces de equipo convertidos en texto: ${enlacesDeEquipoQuitados} · formularios de filtro neutralizados: ${formularioNeutralizado}`);
 }
 
 writeFileSync(join(salida, '.nojekyll'), '');
