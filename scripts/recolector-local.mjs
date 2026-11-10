@@ -1778,7 +1778,8 @@ function activaActasPermitidas(db) {
   if (!permiteActasAdultas() && !permiteActasMenores()) return 0;
   let activadas = 0;
   enTransaccion(db, () => {
-    for (const acta of db.prepare(`select * from actas where estado in ('pendiente_permiso','pendiente_ambito')`).all()) {
+    // Sólo las seis columnas que se usan: el `select *` leía el HTML/JSON de cada acta (188 s medidos el 10/11).
+    for (const acta of db.prepare(`select temporada,competicion,grupo,jornada,codigo,menores from actas where estado in ('pendiente_permiso','pendiente_ambito')`).all()) {
       if (acta.menores ? !permiteActasMenores() : !permiteActasAdultas()) continue;
       encola(db, 'acta', {
         temporada: acta.temporada,
