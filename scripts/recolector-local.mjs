@@ -16,6 +16,7 @@ import { bloqueaTerceros } from './lib/bloqueo-terceros.mjs';
 import { banderasDeChrome, topeDeNavegadorMb } from './lib/banderas-chrome.mjs';
 import { pendientesAPartirDe } from './lib/repaso-actas.mjs';
 import { latidoDeFicha } from './lib/ficha-espera.mjs';
+import { tocaRepaso } from './lib/guardia-repasos.mjs';
 import { tiemposNavegador } from './lib/tiempos-navegador.mjs';
 import {
   URL_RESULTADOS, abreBase, encola, esCompeticionDeMenores, extraeCompeticiones,
@@ -1800,6 +1801,11 @@ function activaActasPermitidas(db) {
  * categorías. Corrige también las tablas derivadas y cancela únicamente descargas
  * pendientes que la configuración actual no permite; nunca borra HTML ya guardado. */
 function reconciliaAmbitoActas(db) {
+  // Este repaso recorre TODAS las actas y en el HDD del PC son decenas de minutos: se paga una vez al día y no en
+  // cada reinicio del worker (medido el 10/11/2026: arranque de 30+ min sin pedir nada). Es idempotente y no tiene
+  // prisa: reclasifica etiquetas de menores/adultos, que no cambian de un minuto a otro.
+  if (!tocaRepaso({ ultimaVez: leeMetadato(db, 'ambito_actas_revisado_en') })) return 0;
+  guardaMetadato(db, 'ambito_actas_revisado_en', new Date().toISOString());
   // No cargar datos/HTML/JSON de todas las actas para revisar ocho campos de contexto.
   const actas = db.prepare(`select a.temporada,a.competicion,a.grupo,a.jornada,a.codigo,
     a.menores,a.estado,c.nombre competicion_nombre from actas a
