@@ -31,11 +31,24 @@
   tener dos "completas" es la clase de cifra que nadie sabe leer). El 10/11/2026: 206 de 867 ediciones y 2201 de
   3961 grupos completos.
   
+  -- QUE SE VE POR PANTALLA: UNA LINEA (10/11/2026) ---------------------------------------------------------
+  
+  El camino feliz imprime UN renglon y sale con 0:
+  
+      CYL COMPLETAS: 206 de 867 ediciones (23,8 %)
+  
+  Una sola cifra, la de la definicion unica de la auditoria. Los grupos, los partidos, el espacio, los planes y la
+  salida de los hijos NO salen por pantalla: van al registro (estado/ciclo-diario.log) y al resumen
+  (estado/ciclo-diario-ultimo.json), que es donde se diagnostica. Nada de avisos intermedios en el camino feliz.
+  Si algo falla, ese renglon NO se imprime: sale "CYL FALLO: ... - detalle en <registro>" y el codigo NO es 0.
+  Para ver el detalle tambien por pantalla (diagnostico): -Detallado.
+  
   -- MODOS ---------------------------------------------------------------------------------------------------
   
     -SoloComprobar   mide y ensena el plan; NO importa, NO trae del servidor y NO toca la rotacion de temporadas.
                      Si escribe su registro y su resumen (es su unica forma de dejar rastro; no son datos).
     -SinServidor     solo la parte del PC (util si el servidor esta sin margen o no hay SSH).
+    -Detallado       ademas del renglon final, ensena por pantalla el detalle (espacio, cobertura, planes, pasos).
   
   La tarea programada la registra el Lead, no este guion (ver el documento). Con StartWhenAvailable, si el PC
   estaba apagado a la hora, Windows la ejecuta al arrancar y el ciclo hace lo que toque: es idempotente, asi que
@@ -57,9 +70,11 @@
   
   -- CODIGOS DE SALIDA ---------------------------------------------------------------------------------------
   
-    0  ciclo completo (haya o no trabajo que hacer)
+    0  ciclo completo: se imprime la linea CYL COMPLETAS y nada mas
     1  la comprobacion de codificacion ha fallado (y el resto fue bien): hay texto mal codificado
-    2  fallo de entorno o de un paso (base caida, cola que no existe, importacion que devuelve error)
+    2  fallo de entorno o de un paso: base caida, cola que no existe, importacion con error o servidor SIN MARGEN.
+       El servidor sin margen ya NO se salta en silencio: es un fallo, porque significa que no se le ha podido
+       anadir trabajo. El detalle va al registro; por pantalla sale una linea CYL FALLO y nada mas.
   
   Uso:
     powershell -NoProfile -ExecutionPolicy Bypass -File scripts\ciclo-diario-cyl.ps1 -SoloComprobar
@@ -81,7 +96,10 @@ param(
   # Fichero de registro (por defecto estado/ciclo-diario.log).
   [string]$Registro = '',
   # Para mantenimiento: no ejecutar la comprobacion de codificacion.
-  [switch]$OmitirCodificacion
+  [switch]$OmitirCodificacion,
+  # Diagnostico: ensena por pantalla el detalle que normalmente solo va al registro (cobertura, espacio, pasos).
+  # Por defecto el camino feliz imprime UNA sola linea: "CYL COMPLETAS: N de M ediciones (P %)".
+  [switch]$Detallado
 )
 $ErrorActionPreference = 'Continue'
 # La consola de Windows no esta en UTF-8: sin esto, lo que escriben los programas hijos con acentos se lee mal y
@@ -111,14 +129,51 @@ $inicio = Get-Date
 
 function AhoraUtc { return (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ') }
 
+# -- QUE SE VE POR PANTALLA Y QUE SOLO VA AL REGISTRO (10/11/2026) ------------------------------------------
+#
+# Lo pidieron los coordinadores: el camino feliz tiene que ser UN RENGLON, sin avisos intermedios. Por eso el
+# registro y la pantalla se separan:
+#
+#   - Anota()   -> SOLO al registro. Todo el detalle (medidas, planes, salida de los hijos, recuentos) vive aqui,
+#                  que es donde se diagnostica y donde queda la evidencia de la idempotencia.
+#   - Muestra() -> SOLO por pantalla. Es la linea final (exito o fallo) y, en -SoloComprobar, el plan.
+#   - Plan()    -> al registro y, si es -SoloComprobar o -Detallado, tambien por pantalla (el plan es lo que ese
+#                  modo viene a ensenar).
+#   - Detalle() -> al registro y por pantalla solo con -Detallado.
+#
+# Nada de esto cambia lo que se escribe: el registro sigue igual de completo que antes.
 function Anota([string]$texto) {
   $linea = "$(AhoraUtc)  $texto"
   try { [System.IO.File]::AppendAllText($rutaRegistro, "$linea`r`n", $utf8SinBom) } catch { }
-  Write-Host $linea
+}
+
+function Muestra([string]$texto) { Write-Host $texto }
+
+function Plan([string]$texto) {
+  Anota $texto
+  if ($SoloComprobar -or $Detallado) { Muestra $texto }
+}
+
+function Detalle([string]$texto) {
+  Anota $texto
+  if ($Detallado) { Muestra $texto }
 }
 
 function Aviso([string]$texto) { $script:avisos += $texto; Anota "[aviso] $texto" }
 function Fallo([string]$texto) { $script:fallos += $texto; Anota "[fallo] $texto" }
+
+# Si algo se escapa (una excepcion no controlada), el ciclo NO puede terminar con un error crudo de PowerShell sin
+# decir que ha pasado: se anota, se imprime la linea de fallo y se sale con 2. Los errores atrapados por los pasos
+# ya se cuentan con Fallo(); esto es la red de seguridad.
+trap {
+  $mensaje = "excepcion no controlada: $($_.Exception.Message)"
+  try {
+    $linea = "$(AhoraUtc)  [fallo] $mensaje"
+    [System.IO.File]::AppendAllText($rutaRegistro, "$linea`r`n", $utf8SinBom)
+  } catch { }
+  Muestra "CYL FALLO: $mensaje - detalle en $rutaRegistro"
+  exit 2
+}
 
 # Un programa externo, con su codigo de salida y su salida (stdout y stderr juntos, como se veria en consola).
 #
@@ -400,9 +455,9 @@ function PlanServidor($temporadasServidor, $cobertura, $rotacion) {
 
 $modo = 'real'
 if ($SoloComprobar) { $modo = 'solo-comprobar' }
-Anota "== ciclo diario CyL == modo $modo - sinServidor=$([bool]$SinServidor) - minutosPC $MinutosPC - limitePC $LimitePC - maximoServidor $MaximoServidor"
-Anota "raiz $raiz"
-Anota "canonico $contenedor ($usuarioPsql@$basePsql) - cola $colaCyl"
+Plan "== ciclo diario CyL == modo $modo - sinServidor=$([bool]$SinServidor) - minutosPC $MinutosPC - limitePC $LimitePC - maximoServidor $MaximoServidor"
+Detalle "raiz $raiz"
+Detalle "canonico $contenedor ($usuarioPsql@$basePsql) - cola $colaCyl"
 
 if (-not (Test-Path -LiteralPath $colaCyl)) { Fallo "no existe la cola del PC: $colaCyl" }
 if (-not (CanonicoArriba)) { Fallo "el canonico no responde (contenedor $contenedor o psql)" }
@@ -417,7 +472,7 @@ $espacio = [ordered]@{
   fLibreGb = (LibreGb 'F'); eLibreGb = (LibreGb 'E'); cLibreGb = (LibreGb 'C')
   traspasoGb = (TamanoCarpetaGb (Join-Path $raiz '_traspaso'))
 }
-Anota ("espacio: F: {0} GB libres - E: {1} GB libres - C: {2} GB libres - _traspaso {3} GB" -f $espacio.fLibreGb, $espacio.eLibreGb, $espacio.cLibreGb, $espacio.traspasoGb)
+Detalle ("espacio: F: {0} GB libres - E: {1} GB libres - C: {2} GB libres - _traspaso {3} GB" -f $espacio.fLibreGb, $espacio.eLibreGb, $espacio.cLibreGb, $espacio.traspasoGb)
 if ($null -ne $espacio.fLibreGb -and $espacio.fLibreGb -lt 20) { Aviso "a F: le quedan $($espacio.fLibreGb) GB libres: los paquetes del servidor van a _traspaso" }
 if ($null -ne $espacio.eLibreGb -and $espacio.eLibreGb -lt 20) { Aviso "a E: le quedan $($espacio.eLibreGb) GB libres (cola y datos)" }
 
@@ -439,14 +494,14 @@ if ($script:fallos.Count -eq 0) {
     Anota ("importacion masiva: {0} unidades - {1} hechas - {2} apartadas - {3} pendientes - {4} filas" -f $estadoImportacion.unidades, $estadoImportacion.hechas, $estadoImportacion.apartadas, $estadoImportacion.pendientes, $estadoImportacion.filasImportadas)
   }
   $coberturaAntes = CoberturaCyl
-  if ($null -eq $coberturaAntes) { Aviso 'no se pudo medir la cobertura de CyL en el canonico' }
+  if ($null -eq $coberturaAntes) { Fallo 'no se pudo medir la cobertura de CyL en el canonico' }
   else {
     foreach ($c in $coberturaAntes) {
-      Anota ("  CyL {0}: {1} ediciones ({2} completas, auditoria) - {3} grupos ({4} completos) - {5} partidos" -f $c.temporada, $c.ediciones, $c.completas, $c.grupos, $c.gruposCompletos, $c.partidos)
+      Detalle ("  CyL {0}: {1} ediciones ({2} completas, auditoria) - {3} grupos ({4} completos) - {5} partidos" -f $c.temporada, $c.ediciones, $c.completas, $c.grupos, $c.gruposCompletos, $c.partidos)
     }
     $tg = 0; $tp = 0; $te = 0; $tc = 0; $tgc = 0
     foreach ($c in $coberturaAntes) { $te += $c.ediciones; $tc += $c.completas; $tg += $c.grupos; $tgc += $c.gruposCompletos; $tp += $c.partidos }
-    Anota ("CyL total antes: $te ediciones ($tc completas de $te, auditoria) - $tg grupos ($tgc completos) - $tp partidos")
+    Detalle ("CyL antes: $te ediciones ($tc completas de la auditoria) - $tg grupos ($tgc completos) - $tp partidos")
   }
   $recuentosAntes = CuentaTablas
   if ($null -eq $recuentosAntes) { Aviso 'no se pudieron contar las tablas del canonico' }
@@ -464,14 +519,17 @@ $temporadasSrv = @()
 $medida = $null
 if (-not $SinServidor) {
   $temporadasSrv = TemporadasServidor
-  if ($temporadasSrv.Count -eq 0) { Aviso 'no se pudieron leer del servidor sus temporadas de CyL (SSH); la parte del servidor se saltara' }
+  if ($temporadasSrv.Count -eq 0) { Fallo 'no se pudieron leer del servidor sus temporadas de CyL (SSH): la parte del servidor no se ha podido hacer (usa -SinServidor si no toca)' }
   $temporadaParaMedir = ''
   if ($temporadasSrv.Count -gt 0) { $temporadaParaMedir = [string]$temporadasSrv[0] }
   $medida = MideServidor $temporadaParaMedir
-  if ($null -eq $medida) { Aviso 'no se pudo medir el servidor; la parte del servidor se saltara' }
+  if ($null -eq $medida) { Fallo 'no se pudo medir el servidor: la parte del servidor no se ha podido hacer (usa -SinServidor si no toca)' }
   else {
     $hayMargen = ($medida.Libre -ge 3.0) -and ($medida.Carga -le 14) -and ($medida.Swap -le 1.0)
-    Anota ("servidor: memoria disponible {0:N1} GiB - swap {1:N1} GiB - carga {2:N1} -> {3}" -f $medida.Libre, $medida.Swap, $medida.Carga, $(if ($hayMargen) { 'hay margen' } else { 'SIN margen (no se le anade trabajo)' }))
+    Plan ("servidor: memoria disponible {0:N1} GiB - swap {1:N1} GiB - carga {2:N1} -> {3}" -f $medida.Libre, $medida.Swap, $medida.Carga, $(if ($hayMargen) { 'hay margen' } else { 'SIN margen' }))
+    # El servidor sin margen es un FALLO, no un "hoy no toca": significa que no se le ha podido anadir trabajo. Antes
+    # se saltaba en silencio y el 10/11/2026 eso dejaba el ciclo "en verde" sin haber hecho la parte del servidor.
+    if (-not $hayMargen) { Fallo ("servidor sin margen: memoria disponible {0:N1} GiB (minimo 3), swap {1:N1} GiB (maximo 1), carga {2:N1} (maximo 14)" -f $medida.Libre, $medida.Swap, $medida.Carga) }
   }
 }
 $planSrv = @()
@@ -482,10 +540,10 @@ $traidasSrv = @()
 $planPc = @()
 if ($TemporadasPC) { $planPc = @($TemporadasPC -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ }) }
 
-Anota "plan del PC: importar-masivo.mjs --federaciones federacion --minutos $MinutosPC --limite $LimitePC (temporadas: $(if ($planPc.Count) { $planPc -join ', ' } else { 'las pendientes de la cola' }))"
-if ($SinServidor) { Anota 'plan del servidor: se salta (-SinServidor)' }
-elseif ($planSrv.Count -eq 0) { Anota 'plan del servidor: nada que traer (sin temporadas del servidor, sin margen o ya completas)' }
-else { Anota ("plan del servidor: traer {0} (de {1} temporadas suyas; maximo {2} por pasada)" -f ($planSrv -join ', '), $temporadasSrv.Count, $MaximoServidor) }
+Plan "plan del PC: importar-masivo.mjs --federaciones federacion --minutos $MinutosPC --limite $LimitePC (temporadas: $(if ($planPc.Count) { $planPc -join ', ' } else { 'las pendientes de la cola' }))"
+if ($SinServidor) { Plan 'plan del servidor: se salta (-SinServidor)' }
+elseif ($planSrv.Count -eq 0) { Plan 'plan del servidor: nada que traer (sin temporadas del servidor o ya completas)' }
+else { Plan ("plan del servidor: traer {0} (de {1} temporadas suyas; maximo {2} por pasada)" -f ($planSrv -join ', '), $temporadasSrv.Count, $MaximoServidor) }
 
 # -- SOLO COMPROBAR: se acaba aqui --------------------------------------------------------------------------
 
@@ -499,7 +557,7 @@ $codificacion = $null
 $coberturaDespues = $null
 $recuentosDespues = $null
 if ($SoloComprobar) {
-  Anota '== solo comprobar: no se importa nada, no se trae nada del servidor y no se toca la rotacion =='
+  Plan '== solo comprobar: no se importa nada, no se trae nada del servidor y no se toca la rotacion =='
   if (-not $OmitirCodificacion) {
     $codificacion = CompruebaCodificacion
     if ($codificacion.Codigo -eq 0) { Anota 'codificacion: OK' }
@@ -520,7 +578,7 @@ if ($SoloComprobar) {
     $t0 = Get-Date
     $r = Ejecuta 'node' $argumentos
     AnotaSalida $r.Salida 60
-    Anota ("paso 1 terminado en {0:N0} s con codigo {1}" -f ((Get-Date) - $t0).TotalSeconds, $r.Codigo)
+    Detalle ("paso 1 terminado en {0:N0} s con codigo {1}" -f ((Get-Date) - $t0).TotalSeconds, $r.Codigo)
     if ($r.Codigo -ne 0) { Fallo "la importacion de la cola del PC devolvio codigo $($r.Codigo)" }
   }
 
@@ -568,14 +626,14 @@ if ($SoloComprobar) {
   $recuentosDespues = $null
   if ($script:fallos.Count -eq 0) {
     $coberturaDespues = CoberturaCyl
-    if ($null -eq $coberturaDespues) { Aviso 'no se pudo medir la cobertura despues' }
+    if ($null -eq $coberturaDespues) { Fallo 'no se pudo medir la cobertura de CyL despues de la pasada' }
     else {
       foreach ($c in $coberturaDespues) {
-        Anota ("  CyL {0}: {1} ediciones ({2} completas, auditoria) - {3} grupos ({4} completos) - {5} partidos" -f $c.temporada, $c.ediciones, $c.completas, $c.grupos, $c.gruposCompletos, $c.partidos)
+        Detalle ("  CyL {0}: {1} ediciones ({2} completas, auditoria) - {3} grupos ({4} completos) - {5} partidos" -f $c.temporada, $c.ediciones, $c.completas, $c.grupos, $c.gruposCompletos, $c.partidos)
       }
       $tg = 0; $tp = 0; $te = 0; $tc = 0; $tgc = 0
       foreach ($c in $coberturaDespues) { $te += $c.ediciones; $tc += $c.completas; $tg += $c.grupos; $tgc += $c.gruposCompletos; $tp += $c.partidos }
-      Anota ("CyL total despues: $te ediciones ($tc completas de $te, auditoria) - $tg grupos ($tgc completos) - $tp partidos")
+      Detalle ("CyL despues: $te ediciones ($tc completas de la auditoria) - $tg grupos ($tgc completos) - $tp partidos")
       if ($null -ne $coberturaAntes) {
         $ag = 0; $ap = 0; $ae = 0; $ac = 0; $agc = 0
         foreach ($c in $coberturaAntes) { $ae += $c.ediciones; $ac += $c.completas; $ag += $c.grupos; $agc += $c.gruposCompletos; $ap += $c.partidos }
@@ -616,7 +674,32 @@ if ($SoloComprobar) {
   }
 }
 
-# -- RESUMEN ------------------------------------------------------------------------------------------------
+# -- LINEA UNICA DE RESULTADO Y RESUMEN ---------------------------------------------------------------------
+
+# -- UNA SOLA CIFRA DE EXITO (10/11/2026, encargo de los coordinadores) -------------------------------------
+#
+# El camino feliz termina con UN renglon y exit 0:
+#
+#     CYL COMPLETAS: 206 de 867 ediciones (23,8 %)
+#
+# Una sola cifra, la de la definicion unica (auditoria: la edicion esta completa cuando TODOS sus grupos tienen
+# ops.coverage_checkpoint.visibility_state = 'completa'). Los grupos y los partidos NO salen por pantalla: viven en
+# el registro y en el JSON, que es donde se diagnostica. Si algo falla, ese renglon NO se imprime: se imprime
+# "CYL FALLO: ... - detalle en <registro>" y se sale con codigo distinto de 0.
+$coberturaFinal = $coberturaDespues
+if ($null -eq $coberturaFinal) { $coberturaFinal = $coberturaAntes }
+$totalEdiciones = 0
+$totalCompletas = 0
+foreach ($c in @($coberturaFinal)) {
+  if ($null -eq $c) { continue }
+  $totalEdiciones += $c.ediciones
+  $totalCompletas += $c.completas
+}
+$lineaExito = $null
+if ($totalEdiciones -gt 0) {
+  $porcentaje = 100.0 * $totalCompletas / $totalEdiciones
+  $lineaExito = ("CYL COMPLETAS: {0} de {1} ediciones ({2:N1} %)" -f $totalCompletas, $totalEdiciones, $porcentaje)
+}
 
 $estadoImportacionDespues = $null
 if (-not $SoloComprobar -and $script:fallos.Count -eq 0) { $estadoImportacionDespues = EstadoImportacion }
@@ -662,6 +745,7 @@ $resumen = [ordered]@{
   avisos = $script:avisos
   fallos = $script:fallos
   resultado = $resultado
+  linea = $lineaExito
 }
 try { $resumen | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $rutaResumen -Encoding UTF8 } catch { Aviso "no se pudo escribir el resumen: $($_.Exception.Message)" }
 
@@ -670,9 +754,25 @@ Anota '== fin =='
 
 try { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue } catch { }
 
+# Una linea por pantalla y nada mas: la de exito si todo ha ido bien; la de fallo (con el detalle en el registro)
+# si algo ha fallado. Nada de avisos intermedios en el camino feliz.
+if ($resultado -eq 'ok' -and $null -ne $lineaExito) {
+  Muestra $lineaExito
+} else {
+  $motivos = @()
+  if ($fallosNoCodificacion.Count -gt 0) { foreach ($f in $fallosNoCodificacion) { $motivos += $f } }
+  if ($null -ne $codificacion -and $codificacion.Codigo -eq 1) { $motivos += 'codificacion: hay texto mal codificado' }
+  elseif ($null -ne $codificacion -and $codificacion.Codigo -ne 0) { $motivos += "no se pudo comprobar la codificacion (exit $($codificacion.Codigo))" }
+  if ($motivos.Count -eq 0) { $motivos += 'no se pudo calcular la cifra de cobertura' }
+  $texto = (@($motivos | Select-Object -First 3) -join ' | ')
+  if ($motivos.Count -gt 3) { $texto += " | y $($motivos.Count - 3) mas" }
+  Muestra ("CYL FALLO: $texto - detalle en $rutaRegistro")
+}
+
 # Codigos de salida: un fallo de entorno o de paso MANDA sobre el de codificacion (si la base se ha caido a mitad,
 # decir "codificacion" seria enganar a quien lea el codigo de salida de la tarea programada).
 if ($fallosNoCodificacion.Count -gt 0) { exit 2 }
 if ($null -ne $codificacion -and $codificacion.Codigo -eq 1) { exit 1 }
 if ($null -ne $codificacion -and $codificacion.Codigo -ne 0) { exit 2 }
+if ($resultado -ne 'ok') { exit 2 }
 exit 0

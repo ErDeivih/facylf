@@ -12,6 +12,32 @@ textos mal codificados.
 
 ---
 
+## 0. La salida: un renglón si va bien, uno de fallo si no
+
+El camino feliz imprime **una sola línea** y sale con `0`. No hay avisos intermedios: todo el detalle va al
+registro y al resumen.
+
+```
+CYL COMPLETAS: 206 de 867 ediciones (23,8 %)
+```
+
+**Una sola cifra**, la de la definición única de la auditoría (ver §1). Los grupos, los partidos, el espacio, los
+planes y la salida de los programas hijos **no salen por pantalla**: quedan en `estado/ciclo-diario.log` y en
+`estado/ciclo-diario-ultimo.json`. Para verlos también por pantalla (diagnóstico): `-Detallado`.
+
+Si algo falla —importación con error, codificación con problemas, **servidor sin margen**, base caída o una
+excepción— no se imprime la línea de éxito: se imprime el fallo (con el detalle en el registro) y el código de
+salida NO es 0.
+
+```
+CYL FALLO: el canonico no responde (contenedor facylf-no-existe o psql) | no se pudo comprobar la codificacion (exit 2) - detalle en F:\Proyectos\facylf\estado\ciclo-diario.log
+```
+
+Las dos salidas de arriba están medidas el 10/11/2026: la primera es el ciclo real, la segunda un fallo provocado
+a propósito con `FACYLF_CONTENEDOR_POSTGRES=facylf-no-existe` (no toca nada real: falla en el preflight).
+
+---
+
 ## 1. Qué hace, en orden
 
 El ciclo es una sola pasada secuencial. No hay paralelismo en ningún punto.
@@ -43,6 +69,11 @@ se pueda citar. Estado el 10/11/2026 a las 11:07 UTC:
 | ediciones completas (auditoría) | **206** |
 | grupos | **3.961** (2.201 completos, misma fuente: el checkpoint) |
 | partidos | **328.100** |
+
+Los coordinadores hablan de «807» porque era el universo de la auditoría del 09/11; el canónico tiene hoy **867**
+porque después de esa foto entró la temporada **2014-15**, que hoy tiene **61 ediciones** en el canónico (58 de la
+federación y 3 de La Preferente; el saldo entre las dos cifras del universo es +60). La cifra de «completas» es
+siempre la de la definición única (auditoría) sobre el canónico actual.
 
 Esta definición es la que usa también el plan del servidor: una temporada «no completa» sigue siendo candidata a
 que se le traiga su paquete.
@@ -76,6 +107,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\ciclo-diario-cyl.ps1
 | `-TemporadasPC` | vacío | Restringe la tanda del PC a unas temporadas (`2025-26,2023-24`) |
 | `-Registro` | `estado\ciclo-diario.log` | Otro fichero de registro |
 | `-OmitirCodificacion` | — | Sólo mantenimiento: no ejecutar la comprobación de codificación |
+| `-Detallado` | — | Diagnóstico: enseña por pantalla el detalle (espacio, cobertura por temporada, planes, pasos) además de la línea final |
 
 ### Qué NO hace
 
@@ -168,7 +200,7 @@ durante una pasada es de otro importador (otra federación), no del ciclo.
 | Fichero | Qué es |
 |---|---|
 | `estado/ciclo-diario.log` | Registro en texto: fecha UTC, pasos, planes, líneas de los hijos, recuentos y deltas |
-| `estado/ciclo-diario-ultimo.json` | Resumen del último ciclo (modo, espacio, cobertura antes/después, recuentos antes/después, codificación, avisos, fallos, resultado) |
+| `estado/ciclo-diario-ultimo.json` | Resumen del último ciclo (modo, espacio, cobertura antes/después, recuentos antes/después, codificación, avisos, fallos, resultado y `linea`, que es exactamente la línea que se imprimió) |
 | `estado/ciclo-diario-estado.json` | Rotación: cuándo se trajo por última vez cada temporada del servidor (sólo lo escribe el modo real) |
 | `estado/ciclo-diario-idempotencia.json` | Evidencia de la prueba de idempotencia del 10/11/2026 |
 
@@ -259,7 +291,7 @@ $ps1  = Join-Path $raiz 'scripts\ciclo-diario-cyl.ps1'
 $argumentos = "`"$vbs`" `"$ps1`" -MinutosPC 20 -MaximoServidor 1"
 $accion = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\wscript.exe" `
   -Argument $argumentos -WorkingDirectory $raiz
-$disparador = New-ScheduledTaskTrigger -Daily -At '4:10am'
+$disparador = New-ScheduledTaskTrigger -Daily -At '4:30am'
 $ajustes = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 12)
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
@@ -267,7 +299,7 @@ Register-ScheduledTask -TaskName 'FACyLF ciclo diario CyL' -Action $accion -Trig
   -Settings $ajustes -Principal $principal
 ```
 
-Recomendaciones para esa tarea: `-MaximoServidor 1` (una temporada del servidor por noche; ver §7), de noche y
+Recomendaciones para esa tarea: `-MaximoServidor 1` (una temporada del servidor por noche; ver §7), a las 04:30 y
 `-ExecutionTimeLimit` de 12 h. `-MultipleInstances IgnoreNew` evita dos ciclos a la vez si uno se alarga.
 
 ---
@@ -296,9 +328,14 @@ Recomendaciones para esa tarea: `-MaximoServidor 1` (una temporada del servidor 
 |---|---|
 | `0` | Ciclo completo (haya o no trabajo que hacer) |
 | `1` | La comprobación de codificación ha fallado: hay texto mal codificado |
-| `2` | Fallo de entorno o de un paso (base caída, cola inexistente, importación/traída con error) |
+| `2` | Fallo de entorno o de un paso: base caída, cola inexistente, importación/traída con error, **servidor sin margen** o excepción no controlada |
 
-Qué mirar según lo que diga el registro:
+El **servidor sin margen ya no se salta en silencio**: si no se le puede añadir trabajo (memoria < 3 GiB, swap
+> 1 GiB o carga > 14), el ciclo lo cuenta como fallo y sale con 2. Antes lo apuntaba como «saltado» y el día
+parecía verde sin haber hecho la parte del servidor. Si de verdad no toca servidor, se usa `-SinServidor`.
+
+En el camino feliz **no se imprime nada más que la línea `CYL COMPLETAS`**: si hay algo que mirar, es que el ciclo
+no ha dicho esa línea. Qué mirar según lo que diga el registro:
 
 - `[fallo] el canonico no responde` → Docker Desktop / contenedor `facylf-postgres`; el ciclo no toca nada más.
 - `[fallo] no existe la cola del PC` → la junction `descargas-federacion` apunta a `E:\facylf-datos`; disco E:.
