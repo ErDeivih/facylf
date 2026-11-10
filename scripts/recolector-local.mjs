@@ -1777,9 +1777,19 @@ function registraJornada(db, trabajo, html, ruta, hash) {
 function activaActasPermitidas(db) {
   if (!permiteActasAdultas() && !permiteActasMenores()) return 0;
   let activadas = 0;
+  // El planificador elegía SCAN de toda la tabla de actas (0,81 GB) para dos valores de estado: con el índice
+  // `actas_estado` forzado es SEARCH y no lee nada. Medido el 10/11/2026: 188 s con SCAN frente a 0,00 s con el
+  // índice. La segunda consulta es la salida de emergencia para colas sin ese índice.
+  let candidatas;
+  try {
+    candidatas = db.prepare(`select temporada,competicion,grupo,jornada,codigo,menores from actas indexed by actas_estado
+      where estado in ('pendiente_permiso','pendiente_ambito')`).all();
+  } catch {
+    candidatas = db.prepare(`select temporada,competicion,grupo,jornada,codigo,menores from actas
+      where estado in ('pendiente_permiso','pendiente_ambito')`).all();
+  }
   enTransaccion(db, () => {
-    // Sólo las seis columnas que se usan: el `select *` leía el HTML/JSON de cada acta (188 s medidos el 10/11).
-    for (const acta of db.prepare(`select temporada,competicion,grupo,jornada,codigo,menores from actas where estado in ('pendiente_permiso','pendiente_ambito')`).all()) {
+    for (const acta of candidatas) {
       if (acta.menores ? !permiteActasMenores() : !permiteActasAdultas()) continue;
       encola(db, 'acta', {
         temporada: acta.temporada,
