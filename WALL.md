@@ -141,6 +141,16 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (mañana, 09:10): **rotación del worker devuelta y 2014-15 avanzando.** La rotación de las 07:30 no se
+  había hecho (el worker seguía con las tres antiguas desde las 23:13), así que la hice a las 09:00: fichero con las
+  15 temporadas y 2026-27 primero (`tmp/temporadas-asignadas.antes-rotacion-2026-11-10.txt` guarda el anterior),
+  worker 3856 parado y el supervisor relanzó **PID 40620 a las 09:09:47** con «15 temporadas y 839 competiciones»;
+  ahora paga el único escaneo de actas que queda y después recolectará 2026-27. **Incidente del importador**: un
+  grupo de 2014-15 se quedó colgado 4 h 22 min (el PC se suspendió a las 04:38 y la conexión no volvió), con el
+  bucle parado; el trabajo sí había insertado sus 18.521 filas. Se desbloqueó matando el hijo colgado y el driver
+  siguió. **2014-15 pasa de 3 ediciones (solo La Preferente) a 30, con 10 completas**, y el total del canónico del
+  PC sube a **190/834** ediciones completas (eran 183/807 al empezar el día).
+
 - 10/11/2026 (madrugada, 04:33): **reordenada la importación para atacar primero el agujero mayor: 2014-15.**
   El driver iba por 2026-27 (temporada en curso, poco retorno de cobertura) y 2014-15 era el bloque grande (358
   grupos, 26.013 actas, 0 completos en el canónico). Reordenado a 2014-15 → 2020-21 → 2016-17 → 2018-19 → 2012-13 →
