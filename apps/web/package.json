@@ -9,7 +9,7 @@
     "postbuild": "node ../../scripts/limpia-standalone.mjs",
     "build:turbopack": "next build",
     "start": "next start",
-    "test": "echo 'la web no tiene tests todavía'",
+    "test": "vitest run",
     "e2e": "playwright test",
     "e2e:pantalla-2": "playwright test e2e/pantalla-2.spec.ts"
   },
