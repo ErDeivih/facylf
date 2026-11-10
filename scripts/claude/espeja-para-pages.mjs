@@ -7,7 +7,7 @@
  *
  * Uso: node tmp/espeja-para-pages.mjs <base-url-local> <directorio-salida> <ruta-base-en-pages>
  */
-import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, writeFileSync, existsSync, rmSync, openSync, closeSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const [origen = 'http://127.0.0.1:3001', salida = 'tmp/site-pages', base = '/fondo-popular-demo'] = process.argv.slice(2);
@@ -81,6 +81,25 @@ function quitaDeNavegacion(html) {
     .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/rankings[\s\S]*?<\/li>/g, '');
 }
 
+/** Nombre del fichero donde el paso de render deja el DOM de una ruta. */
+function nombreDom(ruta) {
+  if (ruta === '/') return 'root';
+  return ruta.replace(/^\/+/, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/_+$/, '') || 'root';
+}
+
+/**
+ * HTML de una ruta: si existe el DOM renderizado de tmp/dom-render se usa ese (trae ya el contenido que en el HTML
+ * crudo llega por streaming y, sin JS, se quedaba en esqueleto de carga). Si no existe, se usa el HTML descargado.
+ */
+function leeHtml(ruta, descargado) {
+  const fichero = join('tmp/dom-render', nombreDom(ruta) + '.html');
+  if (existsSync(fichero)) {
+    const dom = readFileSync(fichero, 'utf8');
+    if (dom.length > 200) return dom;
+  }
+  return descargado;
+}
+
 const escudos = new Set();
 const escudosFed = new Set();
 const rutasOk = [];
@@ -93,7 +112,7 @@ for (const ruta of [...RUTAS]) {
   try {
     const respuesta = await fetch(url, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${ruta} (${respuesta.status})`); continue; }
-    let html = await respuesta.text();
+    let html = leeHtml(ruta, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     // Actas enlazadas (jornada de ejemplo de la portada): se piden después, una vez, para la foto.
     if (ruta === '/') {
@@ -134,7 +153,7 @@ for (const [rutaAlias, rutaReal] of ALIAS) {
   try {
     const respuesta = await fetch(`${origen}${rutaReal}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaAlias} (origen ${respuesta.status})`); continue; }
-    let html = await respuesta.text();
+    let html = leeHtml(ruta, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const destinoAlias = join(salida, ...rutaAlias.split('/').filter(Boolean), 'index.html');
@@ -150,7 +169,7 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
   try {
     const respuesta = await fetch(`${origen}${rutaActa}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaActa} (${respuesta.status})`); continue; }
-    let html = await respuesta.text();
+    let html = leeHtml(ruta, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const destinoActa = join(salida, 'explorar', 'acta', String(id), 'index.html');
@@ -165,7 +184,7 @@ for (const rutaJornada of [...jornadasDeLaPortada].slice(0, 16)) {
   try {
     const respuesta = await fetch(`${origen}${rutaJornada}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaJornada} (${respuesta.status})`); continue; }
-    let html = await respuesta.text();
+    let html = leeHtml(ruta, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const trozos = rutaJornada.split('/').filter(Boolean);
