@@ -1,4 +1,4 @@
-﻿# Pipeline diario de consolidación de Castilla y León
+# Pipeline diario de consolidación de Castilla y León
 
 Cómo se consolida todos los días en el **canónico del PC** todo lo extraído de Castilla y León, de forma
 **idempotente**, recuperable si el PC estaba apagado, y con una comprobación de codificación que **falla** si hay
@@ -147,6 +147,8 @@ Y los recuentos **de esa unidad** no cambian entre la primera y la segunda (ni r
 | partidos | actas | participaciones | eventos | cuerpo técnico | inscripciones |
 |---:|---:|---:|---:|---:|---:|
 | 306 | 306 | 11.522 | 7.828 | 3.089 | 18 |
+
+- **Prueba 4 — una pasada real en un hueco sin otro importador.** Los 11 recuentos de tabla salieron idénticos antes y después (en el registro, `deltas:` con los once valores a cero); el registro lo resume con «la pasada no ha añadido ni cambiado filas».
 
 **Conclusión:** repetir el ciclo no añade ni duplica filas en el canónico de CyL. Lo que se mueve en el global
 durante una pasada es de otro importador (otra federación), no del ciclo.
@@ -329,4 +331,5 @@ Qué mirar según lo que diga el registro:
   comprobaciones de memoria, swap y carga.
 - `tmp/medir-canonico-cyl.sql` — la consulta de la auditoría con la definición de «completa».
 - `estado/ciclo-diario-idempotencia.json` — la evidencia numérica de la prueba de idempotencia (local, no versionada).
+
 
