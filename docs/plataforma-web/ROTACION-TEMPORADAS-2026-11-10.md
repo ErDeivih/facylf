@@ -39,12 +39,32 @@ Trabajo ejecutable en la cola al aplicarla: 2018-19 (5.796, de ellos 1.926 actas
 La rotación cambia **qué** temporada se recoge, no **cada cuánto**: las pausas de 7-13 s siguen igual.
 
 ## Verificación (19:30)
+### Cuidado con el código de temporada de la cola (medido el 10/11/2026)
+
+Los códigos de `trabajos.temporada` **no coinciden con el año**: en esta cola, `14` es **2018-19**, no 2014-15.
+La tabla `temporadas` de la cola es la que manda:
+
+| Código | Etiqueta | | Código | Etiqueta |
+|---:|---|---|---:|---|
+| 8 | 2012-13 | | 16 | 2020-21 |
+| 9 | 2013-14 | | 17 | 2021-22 |
+| 10 | 2014-15 | | 18 | 2022-23 |
+| 11 | 2015-16 | | 19 | 2023-24 |
+| 12 | 2016-17 | | 20 | 2024-25 |
+| 13 | 2017-18 | | 21 | 2025-26 |
+| 14 | 2018-19 | | 22 | 2026-27 |
+| 15 | 2019-20 | | | |
+
+Por eso, cuando el registro del worker dice `→ acta|14|...`, está recogiendo **2018-19** (que es la temporada más
+reciente de las asignadas en la rotación y por eso empieza por ella). No se debe leer el código como un año.
+
 
 El worker arrancó a las 19:07 con las guardias ya en 0,0 s (`competiciones-sin-datos`, `ambito-actas`,
-`actas-sin-trabajo`, `aplaza-futuro`), reservó la plaza de la federación y **empezó a recoger actas de 2014-15**:
+`actas-sin-trabajo`, `aplaza-futuro`), reservó la plaza de la federación y **empezó a recoger actas de 2018-19**
+(el código 14 de la cola; ver el aviso de arriba):
 
 ```
-→ acta|14|6471|21060|1|3769667   ✓ acta adulta guardada y analizada; 6-0, 22 titulares...
+→ acta|14|6471|21060|1|3769667  (14 = 2018-19)   ✓ acta adulta guardada y analizada; 6-0, 22 titulares...
 → acta|14|6471|21060|1|3767775   ✓ acta adulta guardada y analizada; 2-0, ...
 ```
 
