@@ -38,7 +38,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
   const fijas = 'sticky z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)]';
   return (
     <section aria-labelledby="clasificacion"
-      className="min-w-0 flex-[999_1_640px] overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+      className="min-w-0 w-full flex-[999_1_auto] overflow-hidden md:flex-[999_1_640px] rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-3.5">
         <h2 id="clasificacion" className="m-0 text-bloque font-bold text-[var(--texto)]">Clasificación</h2>
         <div role="group" aria-label="Vista" className="flex rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] p-[3px]">
