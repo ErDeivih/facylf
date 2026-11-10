@@ -115,3 +115,21 @@ calendario**, que es justo la mayor parte de lo que queda en la cola (en 2018-19
 Conclusión para la rotación: va bien encaminada, pero la métrica a mirar no es «cuántas actas se han guardado» sino
 **cuántas jornadas con resultados** entran. Y el contador 206/867 no se moverá hasta que esas jornadas se importen,
 que va por el ciclo diario o el empaquetado de temporada.
+
+## Calidad de las actas que están entrando (muestreo del 10/11/2026)
+
+Con `scripts/claude/audita-actas-muestra.mjs <temporada> <n>` (solo lectura de la cola) se revisa una muestra de
+las actas recién guardadas: si el JSON parsea, si los goles cuadran con el marcador, si hay árbitro y si las
+alineaciones traen 11 titulares.
+
+| Muestra | JSON roto | Goles descuadrados | Sin árbitro | Menos de 11 titulares |
+|---|---:|---:|---:|---:|
+| 2018-19 (recién recogida, 45 actas) | 0 | 1 | 62 % | 40 % |
+| 2015-16 (dato antiguo, 30 actas) | 0 | 0 | **100 %** | **100 %** |
+
+Lectura: **la recolección de ahora trae mejor calidad que el dato viejo** (el árbitro aparece en el 38 % de las actas
+de 2018-19 frente al 0 % de las de 2015-16), que es lo esperable al leer actas completas en vez de resúmenes. Los
+puntos a vigilar son la falta de árbitro (viene así del origen) y las alineaciones cortas, que en juveniles puede ser
+normal en algunos grupos pero conviene revisar cuando el grupo esté completo. El único descuadre de goles
+(`C.D. Villamayor 2-2 C.D. Hervás Helmántica`: 3 goles anotados para un 2-2) es del origen y queda como caso a mirar,
+no se toca el dato.
