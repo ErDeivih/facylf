@@ -10,19 +10,19 @@ fecha: 2026-11-10
 
 ## Bloqueo
 
-**Estado: parcialmente bloqueado en la recolección; el desarrollo está al día.** Publicación, demo pública, pruebas y
-documentos están hechos y verificados.
+**Estado: diagnóstico cerrado; queda confirmar el arranque rápido.** El desarrollo está al día (demo arreglada y
+verificada, publicación y pruebas hechas).
 
-- **(a) Dónde me quedé.** El worker de CyL del PC estuvo más de una hora en la fase local de arranque («Preparando
-  vigilancia y ámbito de actas») sin hacer una sola petición, con la cola leída a unos 8 MB/min y el WAL quieto: no
-  estaba colgado, estaba pagando trabajo local. Lo reinicié con la fase instrumentada; el supervisor lo relanza solo
-  (máximo 5 min) y a partir de ahí el registro dice qué paso se lleva el tiempo.
-- **(b) Qué falta revisar.** Cuál de los pasos locales consume la hora. Ya está medido que **no** son la consulta de
-  actas sin trabajo (1,5 s, 5.767 filas) ni las jornadas futuras (0,4 s); la sospecha pasa al bucle que encola por
-  acta y a la preparación de vigilancia. La traza nueva lo resuelve en el siguiente arranque.
-- **(c) Qué necesito de David u otro chat.** De David, nada para esto: su parte pendiente (dominio, textos legales,
-  La Preferente) no bloquea. Si el culpable resultase ser el esquema de la cola, necesito una segunda opinión antes
-  de añadir un índice a la SQLite en caliente, que es lo que el operador del PC desaconsejó.
-- **(d) Siguiente paso concreto.** Leer los tiempos por paso en `worker-programado.log`, arreglar el que se lleva el
-  tiempo (consulta reescrita o índice, con prueba en rojo antes), y cuando el arranque baje de un minuto volver a
-  medir cobertura y refrescar la base publicada y la foto de Pages si hay lote.
+- **(a) Dónde me quedé.** El worker se pasaba una hora en el arranque sin pedir. La instrumentación nueva lo
+  localizó: no era una sola cosa sino cuatro pasos locales caros en frío. Ya arreglados: `activa-actas`
+  **188,9 s → 0,0 s** forzando el índice `actas_estado` (el planificador hacía SCAN de la tabla entera);
+  `actas-sin-trabajo` (110,5 s) y `aplaza-futuro` (65,9 s) pasan a hacerse **una vez al día** con la guardia
+  `tocaRepaso`; `competiciones-sin-datos` y `ambito-actas` ya estaban guardados (0,0 s).
+- **(b) Qué falta revisar.** Que el segundo arranque tras las guardias baje de ~3 min a ~20 s: el primero paga los
+  110+66 s y deja los metadatos `actas_sin_trabajo_revisadas_en` y `aplaza_futuro_revisado_en`; el siguiente
+  debe saltarlos. El worker actual (17:21) todavía está arrancando y el registro no ha llegado a esa parte.
+- **(c) Qué necesito de David u otro chat.** Nada para esto. Su parte (dominio, textos legales, La Preferente)
+  sigue pendiente y no bloquea.
+- **(d) Siguiente paso concreto.** Leer el arranque del worker en curso, comprobar que escribe los dos metadatos y
+  que empieza a pedir; reiniciar una vez más para verificar que el arranque se queda en segundos. Después, medir
+  cobertura y refrescar la base publicada y la foto de Pages cuando haya lote.
