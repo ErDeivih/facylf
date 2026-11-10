@@ -115,3 +115,20 @@ enseñan 5-9 partidos mientras el canónico tiene decenas o cientos, porque el c
 servidor). Por eso el script sirve para ver **avance**, no como luz verde: la luz verde la da la validación del
 importador, que compara origen contra canónico en todos los contadores. Cuando un grupo tenga en la cola al menos lo
 que el canónico ya tiene, se podrá importar.
+
+## Por qué el servidor no ayuda a recolectar (medido el 10/11, 20:15)
+
+El objetivo habla de recolección en PC **y** servidor, pero el servidor no puede con el portal de Castilla y León.
+Medido ahora, tres intentos seguidos:
+
+| Origen | Código HTTP | Tiempo |
+|---|---:|---:|
+| Servidor (por SSH, `curl` al portal) | **000** (sin conexión) | ~3 s y corta |
+| PC de David | 302 / 200 | **330-580 ms** |
+
+El servidor no llega al portal (conexión fallida), así que su recolector de CyL sigue parado y **el PC es el único
+que recoge**. Eso explica el ritmo del cierre: no lo limita la federación (responde en medio segundo al PC) sino
+nuestras pausas de 7-13 s, que son deliberadas. Por eso los ~15.700 trabajos pendientes son del orden de 10-12 días.
+
+Si algún día se quiere acelerar, la palanca sería subir el paralelismo con más máquinas **respetando** el portal (o
+resolver el acceso desde el servidor), nunca bajar las pausas: eso está prohibido por la regla del proyecto.
