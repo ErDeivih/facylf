@@ -1,6 +1,6 @@
 import type { FilaOpcionSelector } from '@/consultas/catalogo-selector';
 import { etiqueta } from './presentacion-canonico';
-import { esProvinciaDeCyl } from './provincias-cyl';
+import { PROVINCIAS_CYL, provinciaCanonicaDe } from './provincias-cyl';
 import {
   desplazamientoDeFiltro, enteroDeFiltro, federacionDeFiltro, temporadaDeFiltro, textoDeFiltro,
 } from './calendario';
@@ -16,7 +16,8 @@ import {
  *    busca como lo que es (por comienzo de palabra, sin tildes), no como una suposición;
  *  · un parámetro inválido no rompe la página: se ignora y se enseña la vista sin ese filtro;
  *  · el estado vive en la URL (`fed`, `temp`, `cat`, `mod`, `gen`, `prov`, `nivel`, `q`, `offset`), así
- *    que una búsqueda se puede compartir y recargar;
+ *    que una búsqueda se puede compartir y recargar. `prov` puede repetirse (un valor por provincia)
+ *    porque el filtro de provincia es múltiple; también se acepta la forma separada por comas;
  *  · la paginación es por desplazamiento y siempre múltiplo de la página: `offset` sin normalizar es
  *    una fuente de filas repetidas.
  */
@@ -34,7 +35,12 @@ export type FiltrosSelector = {
   categoria: string | null;
   modalidad: string | null;
   genero: string | null;
-  provincia: string | null;
+  /**
+   * Provincias de Castilla y León elegidas, en el orden canónico de `PROVINCIAS_CYL`. Lista vacía =
+   * sin filtro de provincia. Es múltiple porque hay grupos interprovinciales («Primera - Burgos -
+   * Valladolid»): quien busca por Burgos y por Valladolid a la vez necesita las dos.
+   */
+  provincias: string[];
   nivel: number | null;
   texto: string | null;
   desplazamiento: number;
@@ -182,10 +188,26 @@ function codigoDeFiltro(valor: string | string[] | undefined): string | null {
   return /^[a-z0-9-]{1,40}$/.test(crudo) ? crudo : null;
 }
 
-/** Una provincia: texto libre acotado. No se adivina el valor: o coincide con el catálogo o no filtra. */
-function provinciaDeFiltro(valor: string | string[] | undefined): string | null {
-  const crudo = uno(valor).trim().slice(0, 60);
-  return crudo === '' ? null : crudo;
+/**
+ * Las provincias de CyL de un filtro, aceptando las formas que puede traer la URL.
+ *
+ * `prov` puede venir repetido (`prov=Burgos&prov=Valladolid`) o separado por comas
+ * (`prov=Burgos,Valladolid`); una URL vieja de una sola provincia sigue valiendo. Cada valor se lleva a
+ * su etiqueta canónica («Leon» → «León»), que es la que se enseña y la que viaja en la URL nueva; lo que
+ * no es una de las nueve se ignora en vez de crear un filtro que no puede devolver nada de lo que este
+ * producto publica. El resultado se ordena con la lista canónica y sin repetidos, para que dos URLs
+ * equivalentes sean exactamente la misma URL.
+ */
+export function provinciasDeFiltro(valor: string | string[] | undefined): string[] {
+  const crudos = Array.isArray(valor) ? valor : [valor ?? ''];
+  const elegidas = new Set<string>();
+  for (const crudo of crudos) {
+    for (const trozo of String(crudo ?? '').split(',')) {
+      const canonica = provinciaCanonicaDe(trozo.trim().slice(0, 60));
+      if (canonica !== null) elegidas.add(canonica);
+    }
+  }
+  return PROVINCIAS_CYL.filter((provincia) => elegidas.has(provincia));
 }
 
 /** Lee el estado del selector de los `searchParams` de Next. */
@@ -196,7 +218,7 @@ export function leeFiltrosSelector(parametros: Parametros, temporadas: readonly 
     categoria: codigoDeFiltro(parametros.cat),
     modalidad: codigoDeFiltro(parametros.mod),
     genero: codigoDeFiltro(parametros.gen),
-    provincia: provinciaDeFiltro(parametros.prov),
+    provincias: provinciasDeFiltro(parametros.prov),
     nivel: enteroDeFiltro(parametros.nivel, 20),
     texto: textoDeFiltro(parametros.q),
     desplazamiento: desplazamientoDeFiltro(parametros.offset, TAMANO_PAGINA_SELECTOR),
@@ -214,7 +236,7 @@ export function leeFiltrosSelector(parametros: Parametros, temporadas: readonly 
 export function tieneFiltrosSelector(filtros: FiltrosSelector): boolean {
   return Boolean(
     filtros.federacion || filtros.temporada || filtros.categoria || filtros.modalidad
-    || filtros.genero || filtros.provincia || filtros.nivel !== null || filtros.texto,
+    || filtros.genero || filtros.provincias.length > 0 || filtros.nivel !== null || filtros.texto,
   );
 }
 
@@ -232,7 +254,10 @@ export function urlDeSelector(filtros: FiltrosSelector, cambios: Partial<Filtros
   if (f.categoria) query.set('cat', f.categoria);
   if (f.modalidad) query.set('mod', f.modalidad);
   if (f.genero) query.set('gen', f.genero);
-  if (f.provincia) query.set('prov', f.provincia);
+  // Una provincia por `prov`: repetir el parámetro es la forma estándar de una lista en una URL GET y
+  // la que envía el formulario cuando se marcan varias casillas. Las URLs viejas de una sola provincia
+  // (`?prov=Burgos`) quedan escritas igual que antes.
+  for (const provincia of f.provincias) query.append('prov', provincia);
   if (f.nivel !== null) query.set('nivel', String(f.nivel));
   if (f.texto) query.set('q', f.texto);
   if (f.desplazamiento > 0) query.set('offset', String(f.desplazamiento));
@@ -316,13 +341,20 @@ export function chipsDeFiltros(estado: EstadoSelector, opciones: OpcionesSelecto
       url: urlDeSelector(filtros, { genero: null, desplazamiento: 0 }),
     });
   }
-  if (filtros.provincia) {
-    chips.push({
-      clave: 'provincia',
-      texto: filtros.provincia,
-      aria: 'Quitar el filtro de provincia',
-      url: urlDeSelector(filtros, { provincia: null, desplazamiento: 0 }),
-    });
+  if (filtros.provincias.length > 0) {
+    // Un chip por provincia: quitar «Burgos» no quita «Valladolid», que es lo que necesita quien filtra
+    // por varias a la vez.
+    for (const provincia of filtros.provincias) {
+      chips.push({
+        clave: `provincia:${provincia}`,
+        texto: provincia,
+        aria: `Quitar el filtro de provincia (${provincia})`,
+        url: urlDeSelector(filtros, {
+          provincias: filtros.provincias.filter((elegida) => elegida !== provincia),
+          desplazamiento: 0,
+        }),
+      });
+    }
   }
   if (filtros.nivel !== null) {
     chips.push({
@@ -379,11 +411,11 @@ export function opcionesDeSelector(filas: readonly FilaOpcionSelector[]): Opcion
     categorias: de('categoria').map((f) => ({ valor: f.valor, etiqueta: etiqueta('categoria', f.valor) })),
     modalidades: de('modalidad').map((f) => ({ valor: f.valor, etiqueta: etiqueta('modalidad', f.valor) })),
     generos: de('genero').map((f) => ({ valor: f.valor, etiqueta: etiqueta('genero', f.valor) })),
-    // Fase C: sólo se ofrece provincia de Castilla y León. El catálogo puede traer provincias de las
-    // otras federaciones del PC (48 valores distintos medidos el 10/11/2026); ofrecerlas sería ofrecer
-    // filtros que no devuelven nada de lo que este producto publica. El valor es el del dato, no se
-    // reescribe: el SQL compara `provincia` tal cual.
-    provincias: de('provincia').filter((f) => esProvinciaDeCyl(f.valor)).map(aOpcion),
+    // El filtro de provincia es el de la fase C: **las nueve de Castilla y León**, con su etiqueta
+    // canónica («Ávila», «León»…) aunque el catálogo traiga el dato sin tildes. No depende de que hoy
+    // haya ediciones con `provincia` rellena: el SQL casa también con el nombre del grupo («Primera -
+    // Soria»), así que las nueve pueden devolver resultados.
+    provincias: PROVINCIAS_CYL.map((nombre) => ({ valor: nombre, etiqueta: nombre })),
     niveles: niveles.map((f) => ({ valor: f.valor, etiqueta: f.etiqueta || `Nivel ${f.valor}` })),
   };
 }

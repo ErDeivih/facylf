@@ -60,8 +60,12 @@ export type FilaCatalogoGrupo = {
  * Listado de grupos del canónico con facetas y paginación.
  *
  * Parámetros, en orden: (1) federación, (2) temporada exacta, (3) temporada mínima (`>=`, para
- * «últimas N»), (4) ámbitos, (5) modalidad, (6) género, (7) categoría, (8) provincia, (9) nivel,
- * (10) texto de búsqueda, (11) sólo grupos con partidos conocidos, (12) límite, (13) desplazamiento.
+ * «últimas N»), (4) ámbitos, (5) modalidad, (6) género, (7) categoría, (8) provincias de CyL
+ * (`text[]`, lista vacía o `null` = sin filtro), (9) nivel, (10) texto de búsqueda, (11) sólo grupos con
+ * partidos conocidos, (12) límite, (13) desplazamiento.
+ *
+ * La provincia es múltiple y se compara sin tildes: el dato puede venir como «León» o «Leon» y quien
+ * filtra elige la etiqueta canónica.
  *
  * El orden es estable (federación, temporada, edición, grupo) para que la paginación no repita ni se
  * salte grupos: `offset` sin `order by` completo es una fuente de filas perdidas.
@@ -137,7 +141,14 @@ export const LISTADO_DE_GRUPOS: Consulta<FilaCatalogoGrupo> = {
        and ($5::text is null or e.modalidad = $5)
        and ($6::text is null or e.genero = $6)
        and ($7::text is null or e.categoria = $7)
-       and ($8::text is null or e.provincia = $8)
+       and (coalesce(array_length($8::text[], 1), 0) = 0
+            or e.provincia = any($8::text[])
+            or exists (
+              select 1
+                from unnest($8::text[]) as prov(nombre)
+               -- Comparación sin tildes: «León» y «Leon» son la misma provincia.
+               where core.normaliza_nombre(coalesce(e.provincia, '')) = core.normaliza_nombre(prov.nombre)
+            ))
        and ($9::smallint is null or e.nivel = $9)
        and (coalesce($10::text, '') = ''
             or core.normaliza_nombre(e.nombre_publicado || ' ' || g.nombre || ' ' || s.etiqueta)
@@ -378,8 +389,8 @@ export const RECUENTOS_DEL_CANONICO: Consulta<FilaRecuentos> = {
 
 /** Parámetros por defecto: los usan las páginas, la prueba de contrato y `scripts/planes.mjs`. */
 export const PARAMETROS_CATALOGO: Record<string, readonly unknown[]> = {
-  // Sin ningún filtro: el catálogo entero, primera página.
-  'listado-de-grupos': [null, null, null, null, null, null, null, null, null, '', false, 80, 0],
+  // Sin ningún filtro: el catálogo entero, primera página. La provincia es una lista (vacía = sin filtro).
+  'listado-de-grupos': [null, null, null, null, null, null, null, [], null, '', false, 80, 0],
   'facetas-del-catálogo': [],
   'federaciones-del-canónico': [],
   'recuentos-del-canónico': [],

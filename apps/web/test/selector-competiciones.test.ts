@@ -14,6 +14,7 @@ import {
   temporadasSugeridas, tieneFiltrosSelector, urlDeSelector, RUTA_SELECTOR,
 } from '../src/lib/selector-competiciones';
 import type { EstadoSelector } from '../src/lib/selector-competiciones';
+import { PROVINCIAS_CYL } from '../src/lib/provincias-cyl';
 
 /**
  * Contrato del selector de temporada y competición (WALL objetivo 4).
@@ -46,7 +47,7 @@ function parametros(extra: Record<string, string> = {}): Record<string, string> 
 function estado(extra: Partial<EstadoSelector['filtros']> = {}): EstadoSelector {
   const filtros = {
     federacion: null, temporada: null, categoria: null, modalidad: null, genero: null,
-    provincia: null, nivel: null, texto: null, desplazamiento: 0, ...extra,
+    provincias: [], nivel: null, texto: null, desplazamiento: 0, ...extra,
   };
   return { filtros, explicita: filtros, interpretacion: { tokens: [], temporada: null, anio: null, textoSinTemporada: '' } };
 }
@@ -125,7 +126,7 @@ describe('filtros del selector en la URL', () => {
     const r = leeFiltrosSelector(parametros(), TEMPORADAS);
     expect(r.filtros).toEqual({
       federacion: null, temporada: null, categoria: null, modalidad: null, genero: null,
-      provincia: null, nivel: null, texto: null, desplazamiento: 0,
+      provincias: [], nivel: null, texto: null, desplazamiento: 0,
     });
     expect(tieneFiltrosSelector(r.filtros)).toBe(false);
   });
@@ -137,7 +138,7 @@ describe('filtros del selector en la URL', () => {
     }), TEMPORADAS);
     expect(r.filtros).toMatchObject({
       federacion: 'castilla-leon', temporada: '2016-17', categoria: 'juvenil', modalidad: 'futbol11',
-      genero: 'masculina', provincia: 'Burgos', nivel: 6, texto: 'Segunda Juvenil',
+      genero: 'masculina', provincias: ['Burgos'], nivel: 6, texto: 'Segunda Juvenil',
     });
     // 95 no es múltiplo de la página: se ajusta hacia abajo (paginación por desplazamiento).
     expect(r.filtros.desplazamiento).toBe(Math.floor(95 / TAMANO_PAGINA_SELECTOR) * TAMANO_PAGINA_SELECTOR);
@@ -157,7 +158,7 @@ describe('filtros del selector en la URL', () => {
   it('construye una URL limpia y la vuelve a leer igual', () => {
     const filtros = {
       federacion: 'castilla-leon', temporada: '2016-17', categoria: null, modalidad: null,
-      genero: null, provincia: 'Burgos', nivel: 6, texto: 'Segunda Juvenil', desplazamiento: 30,
+      genero: null, provincias: ['Burgos'], nivel: 6, texto: 'Segunda Juvenil', desplazamiento: 30,
     };
     const url = urlDeSelector(filtros);
     expect(url.startsWith(`${RUTA_SELECTOR}?`)).toBe(true);
@@ -204,7 +205,9 @@ describe('filtros del selector en la URL', () => {
     ]);
     expect(o.temporadas.map((t) => t.valor)).toEqual(['2025-26', '2016-17']);
     expect(o.niveles.map((n) => n.valor)).toEqual(['2', '6']);
-    expect(o.provincias.map((p) => p.valor)).toEqual(['Burgos']);
+    // La provincia no depende de lo que el catálogo tenga hoy: el filtro es la lista canónica de CyL
+    // (el SQL casa también por el nombre del grupo, así que las nueve pueden devolver resultados).
+    expect(o.provincias.map((p) => p.valor)).toEqual([...PROVINCIAS_CYL]);
     expect(o.federaciones).toHaveLength(1);
   });
 });
@@ -302,7 +305,7 @@ describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
 
   it('el filtro de provincia también reconoce la provincia escrita en el nombre del grupo', async () => {
     const filas = await consulta<FilaGrupoSelector>(GRUPOS_DEL_SELECTOR.sql, [
-      'castilla-leon', '2016-17', null, null, null, 'Burgos', null, ['2', 'juvenil'], 30, 0,
+      'castilla-leon', '2016-17', null, null, null, ['Burgos'], null, ['2', 'juvenil'], 30, 0,
     ]);
     expect(filas.map((f) => Number(f.grupo_id))).toEqual([30665]);
   });

@@ -43,7 +43,18 @@ export function normalizaProvincia(valor: string | null | undefined): string {
 }
 
 /** Las nueve, ya normalizadas: se calcula una vez y se compara contra un `Set` en cada llamada. */
-const NORMALIZADAS = new Set(PROVINCIAS_CYL.map((provincia) => normalizaProvincia(provincia)));
+const NORMALIZADAS = new Map(PROVINCIAS_CYL.map((provincia) => [normalizaProvincia(provincia), provincia]));
+
+/**
+ * La etiqueta canónica de una de las nueve provincias, o `null` si el valor no es de CyL.
+ *
+ * Es lo que permite enseñar «León» aunque el dato venga como «Leon»: el valor de la URL y de la
+ * etiqueta es siempre el canónico, y la comparación con el dato la hace el SQL sin tildes.
+ */
+export function provinciaCanonicaDe(valor: string | null | undefined): string | null {
+  const normalizado = normalizaProvincia(valor);
+  return normalizado === '' ? null : (NORMALIZADAS.get(normalizado) ?? null);
+}
 
 /**
  * ¿Es `valor` una de las nueve provincias de Castilla y León?
@@ -52,6 +63,5 @@ const NORMALIZADAS = new Set(PROVINCIAS_CYL.map((provincia) => normalizaProvinci
  * lo llama sólo tiene que decidir si ofrece la opción, no protegerse de una excepción.
  */
 export function esProvinciaDeCyl(valor: string | null | undefined): boolean {
-  const normalizado = normalizaProvincia(valor);
-  return normalizado !== '' && NORMALIZADAS.has(normalizado);
+  return provinciaCanonicaDe(valor) !== null;
 }

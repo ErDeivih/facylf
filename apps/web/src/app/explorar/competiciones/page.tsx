@@ -98,7 +98,7 @@ async function Contenido({ estado, opciones }: { estado: EstadoSelector; opcione
       estado.filtros.categoria,
       estado.filtros.modalidad,
       estado.filtros.genero,
-      estado.filtros.provincia,
+      estado.filtros.provincias,
       estado.filtros.nivel,
       estado.interpretacion.tokens,
       TAMANO_PAGINA_SELECTOR,

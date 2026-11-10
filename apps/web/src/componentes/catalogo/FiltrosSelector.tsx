@@ -9,7 +9,10 @@ import { BOTON, CONTROL, ENLACE, ETIQUETA, TARJETA } from './controles';
  *
  * Es un formulario GET normal: no necesita JavaScript y el estado vive en la URL, así que una búsqueda
  * se puede compartir y recargar. Los desplegables ofrecen **sólo los valores que existen hoy** en el
- * catálogo (los trae `OPCIONES_DEL_SELECTOR`); no hay listas escritas a mano.
+ * catálogo (los trae `OPCIONES_DEL_SELECTOR`); no hay listas escritas a mano. La excepción es la
+ * provincia: es la lista canónica de las nueve de Castilla y León (`lib/provincias-cyl.ts`), porque el
+ * SQL casa también con el nombre del grupo y porque hay grupos interprovinciales; se marca con casillas
+ * y cada provincia elegida se puede quitar por separado con su chip.
  *
  * La caja de texto acepta una competición, un grupo o una temporada escritos de forma natural
  * («Segunda Juvenil 2017, Burgos»). Lo que se deduce de ella —por ejemplo la temporada del año— se
@@ -63,13 +66,18 @@ export function FiltrosSelector({ estado, opciones }: {
           {opciones.generos.map((o: OpcionSelector) => <option key={o.valor} value={o.valor}>{o.etiqueta}</option>)}
         </select>
       </label>
-      <label className="flex min-w-0 flex-col gap-1">
-        <span className={ETIQUETA}>Provincia</span>
-        <select name="prov" defaultValue={filtros.provincia ?? ''} className={CONTROL}>
-          <option value="">Todas las provincias</option>
-          {opciones.provincias.map((o: OpcionSelector) => <option key={o.valor} value={o.valor}>{o.etiqueta}</option>)}
-        </select>
-      </label>
+      <fieldset className="flex min-w-0 flex-col gap-1 sm:col-span-2">
+        <legend className={ETIQUETA}>Provincias (se pueden marcar varias)</legend>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-[#D6D6D4] px-2.5 py-2">
+          {opciones.provincias.map((o: OpcionSelector) => (
+            <label key={o.valor} className="flex items-center gap-1.5 text-tabla">
+              <input type="checkbox" name="prov" value={o.valor}
+                defaultChecked={filtros.provincias.includes(o.valor)} />
+              {o.etiqueta}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <label className="flex min-w-0 flex-col gap-1">
         <span className={ETIQUETA}>Nivel</span>
         <select name="nivel" defaultValue={filtros.nivel === null ? '' : String(filtros.nivel)} className={CONTROL}>

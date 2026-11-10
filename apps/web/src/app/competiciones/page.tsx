@@ -6,6 +6,8 @@ import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/a
 import { FACETAS_DEL_CATALOGO, FEDERACIONES_DEL_CANONICO, LISTADO_DE_GRUPOS, PARAMETROS_CATALOGO } from '@/consultas/catalogo';
 import type { FilaCatalogoGrupo, FilaFederacionCanonica } from '@/consultas/catalogo';
 import { agrupaFacetas, etiqueta, fechaCorta, estadoVisibilidad, numero, type FacetasDelCatalogo } from '@/lib/presentacion-canonico';
+import { provinciaCanonicaDe } from '@/lib/provincias-cyl';
+import { provinciasDeFiltro } from '@/lib/selector-competiciones';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +32,8 @@ export const dynamic = 'force-dynamic';
  *   no se puede sostener.
  * - **Los filtros ofrecen sólo lo que existe**: las opciones salen de las facetas del catálogo canónico.
  *   Un valor `desconocido`/`desconocida` es un dato real de la fuente y se ofrece como «sin determinar».
+ *   La provincia es la excepción: es la lista canónica de las nueve de CyL, es **múltiple** (casillas,
+ *   `provincia` repetido en la URL) y se compara sin tildes; las etiquetas que se ven son las canónicas.
  */
 
 const POR_PAGINA = 80;
@@ -39,7 +43,7 @@ const AMBITOS_IMPORTANTES = ['nacional', 'regional', 'ascenso'];
 
 type Parametros = {
   q?: string; p?: string; temporada?: string; categoria?: string; ambito?: string;
-  provincia?: string; modalidad?: string; genero?: string; conDatos?: string; federacion?: string;
+  provincia?: string | string[]; modalidad?: string; genero?: string; conDatos?: string; federacion?: string;
 };
 
 function Opcion({ valor, texto: rotulo }: { valor: string; texto: string }) {
@@ -51,6 +55,8 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
   const motivo = motivoSinCanonico();
   if (motivo) return <SinCanonico titulo="Competiciones y grupos" motivo={motivo} />;
 
+  /** Las provincias de CyL de la URL, con la etiqueta canónica. `provincia` puede venir repetido. */
+  const provincias = provinciasDeFiltro(p.provincia);
   let filas: FilaCatalogoGrupo[] = [];
   let federaciones: FilaFederacionCanonica[] = [];
   let facetas: FacetasDelCatalogo = { temporadas: [], ambitos: [], categorias: [], modalidades: [], generos: [], provincias: [] };
@@ -79,7 +85,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
       p.modalidad?.trim() || null,
       p.genero?.trim() || null,
       p.categoria?.trim() || null,
-      p.provincia?.trim() || null,
+      provincias,
       null,           // nivel: ordinal comparable sólo dentro de su federación y temporada
       buscar,
       p.conDatos === '1',
@@ -98,7 +104,13 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
   const urlPagina = (n: number) => {
     const query = new URLSearchParams();
     for (const [clave, valor] of Object.entries({ ...p, p: String(n) })) {
-      if (valor) query.set(clave, valor);
+      if (!valor) continue;
+      // `provincia` puede venir repetido (filtro múltiple): se conserva como lista.
+      if (Array.isArray(valor)) {
+        for (const item of valor) if (item) query.append(clave, item);
+      } else {
+        query.set(clave, valor);
+      }
     }
     return `/competiciones?${query.toString()}`;
   };
@@ -148,12 +160,19 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
               {facetas.ambitos.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
-          <label><span className="etiqueta-filtro">Provincia / zona</span>
-            <select name="provincia" defaultValue={p.provincia ?? ''} className="control-filtro">
-              <Opcion valor="" texto="Todas las provincias" />
-              {facetas.provincias.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
-            </select>
-          </label>
+          <fieldset className="sm:col-span-2 lg:col-span-2">
+            <legend className="etiqueta-filtro">Provincias (se pueden marcar varias)</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 border border-[#D6D6D4] px-2.5 py-2">
+              {/* Las nueve de CyL con su etiqueta canónica; el SQL compara sin tildes. */}
+              {facetas.provincias.map((x) => (
+                <label key={x.valor} className="flex items-center gap-1.5 text-sm">
+                  <input type="checkbox" name="provincia" value={x.valor}
+                    defaultChecked={provincias.includes(x.valor)} />
+                  {x.etiqueta}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <label><span className="etiqueta-filtro">Modalidad</span>
             <select name="modalidad" defaultValue={p.modalidad ?? ''} className="control-filtro">
               <Opcion valor="" texto="Todas las modalidades" />
@@ -177,10 +196,6 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
             <button className="boton-primario">Aplicar filtros</button>
           </div>
         </div>
-        {facetas.provincias.length === 0 && <p className="mt-3 text-[11px] text-[#8A8E91]">
-          El canónico todavía no rellena la provincia de ninguna edición importada, así que no hay
-          provincias que ofrecer: el filtro existe y funcionará cuando el importador las rellene.
-        </p>}
       </form>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -204,7 +219,10 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
                     <span className="insignia">{etiqueta('categoria', c.categoria)}</span>
                     <span className="insignia">{etiqueta('ambito', c.ambito)}</span>
                     <span className="insignia insignia-verde">{c.federacion_nombre}</span>
-                    {c.provincia && <span className="insignia insignia-roja">{c.provincia}</span>}
+                    {c.provincia && (
+                      // La etiqueta se enseña canónica («León»), aunque el dato venga como «Leon».
+                      <span className="insignia insignia-roja">{provinciaCanonicaDe(c.provincia) ?? c.provincia}</span>
+                    )}
                     <span className="insignia">{estadoVisibilidad(c.visibility_state)}</span>
                   </div>
                   <p className="font-medium group-hover:text-club">{c.edicion} · {c.grupo}</p>

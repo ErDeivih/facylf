@@ -4,6 +4,7 @@ import type { Route } from 'next';
 import { cookies, headers } from 'next/headers';
 import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/tema';
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
+import { NotaDemo } from '@/componentes/marca/NotaDemo';
 import { TAGLINE, TITULO_POR_DEFECTO } from '@/componentes/marca/marca';
 import '@fontsource-variable/inter';
 import './globals.css';
@@ -41,7 +42,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <body className="antialiased">
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
-        <footer className="mx-auto flex max-w-[1240px] flex-wrap justify-end px-5 pb-6 pt-1 text-nota">
+        <footer className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-5 pb-6 pt-1 text-nota">
+          {/* Distingue la demo pública (foto de la 2026-27) de la app completa. Texto y URL, en lib/nota-demo.ts. */}
+          <NotaDemo />
           <Link href={'/explorar/publicidad' as Route}
             className="font-semibold text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
             Publicidad

@@ -60,15 +60,17 @@ export type FilaGrupoSelector = {
  * Grupos del catálogo para el selector.
  *
  * Parámetros, en orden: (1) federación, (2) temporada exacta, (3) categoría, (4) modalidad, (5) género,
- * (6) provincia, (7) nivel, (8) palabras de búsqueda (`text[]`, ya normalizadas por el llamador),
- * (9) límite, (10) desplazamiento.
+ * (6) provincias de CyL (`text[]`, lista vacía o `null` = sin filtro), (7) nivel, (8) palabras de
+ * búsqueda (`text[]`, ya normalizadas por el llamador), (9) límite, (10) desplazamiento.
  *
  * Dos reglas que se ven en el SQL:
  *
- * - **La provincia se busca también en el nombre del grupo.** Hay ediciones importadas (las de Castilla
- *   y León, por ejemplo) que no traen `provincia` rellena pero cuyos grupos se llaman «Primera -
- *   Burgos»: negar ese grupo al filtrar por Burgos sería mentir sobre lo que hay. El filtro sólo añade
- *   el nombre como segunda vía; no inventa provincias que no estén escritas.
+ * - **La provincia es múltiple y se busca también en el nombre del grupo.** Hay grupos interprovinciales
+ *   («Primera - Burgos - Valladolid») y ediciones importadas (las de Castilla y León, por ejemplo) que
+ *   no traen `provincia` rellena pero cuyos grupos se llaman «Primera - Burgos»: negar ese grupo al
+ *   filtrar por Burgos sería mentir sobre lo que hay. Se exige que la edición o el nombre case con
+ *   **cualquiera** de las provincias elegidas, y la comparación se hace sin tildes para que «Leon» y
+ *   «León» sean lo mismo.
  * - **El texto va por palabras**: cada palabra tiene que empezar alguna palabra de la competición, el
  *   grupo, la categoría, la modalidad, el género, la provincia o la federación. Se compara con
  *   `core.normaliza_nombre`, la misma función que usa el buscador por nombre, así que las tildes y las
@@ -130,8 +132,16 @@ export const GRUPOS_DEL_SELECTOR: Consulta<FilaGrupoSelector> = {
        and ($3::text is null or e.categoria = $3)
        and ($4::text is null or e.modalidad = $4)
        and ($5::text is null or e.genero = $5)
-       and ($6::text is null or e.provincia = $6
-            or core.normaliza_nombre(g.nombre) like '%' || core.normaliza_nombre($6) || '%')
+       and (coalesce(array_length($6::text[], 1), 0) = 0
+            or e.provincia = any($6::text[])
+            or exists (
+              select 1
+                from unnest($6::text[]) as prov(nombre)
+               -- Sin tildes y sin mayúsculas: el dato trae «León» y «Leon» según la federación.
+               where core.normaliza_nombre(coalesce(e.provincia, '')) = core.normaliza_nombre(prov.nombre)
+                  -- Segunda vía: la provincia escrita en el nombre del grupo («Primera - Burgos»).
+                  or core.normaliza_nombre(g.nombre) like '%' || core.normaliza_nombre(prov.nombre) || '%'
+            ))
        and ($7::smallint is null or e.nivel = $7)
        and (coalesce(array_length($8::text[], 1), 0) = 0
             or not exists (
@@ -220,8 +230,8 @@ export const OPCIONES_DEL_SELECTOR: Consulta<FilaOpcionSelector> = {
 
 /** Parámetros de ejemplo: los usan las pruebas de contrato y la medición de planes. */
 export const PARAMETROS_SELECTOR: Record<string, readonly unknown[]> = {
-  // Sin filtros, primera página.
-  'grupos-del-selector': [null, null, null, null, null, null, null, [], 30, 0],
+  // Sin filtros, primera página. La provincia es una lista (vacía = sin filtro).
+  'grupos-del-selector': [null, null, null, null, null, [], null, [], 30, 0],
   'opciones-del-selector': [],
 };
 

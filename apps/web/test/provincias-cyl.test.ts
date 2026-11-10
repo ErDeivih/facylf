@@ -97,9 +97,9 @@ describe('los filtros de provincia sólo ofrecen provincias de Castilla y León'
     const valores = opciones.provincias.map((p) => p.valor);
     expect(valores).toContain('Burgos');
     expect(valores).toContain('León');
-    // «Leon» es el mismo dato con otra escritura: si el canónico lo trae, se ofrece con su valor real
-    // (el filtro del SQL compara el valor tal cual) y no se pierde la opción.
-    expect(valores).toContain('Leon');
+    // La etiqueta es la canónica: «León», no «Leon», aunque el dato venga sin tilde.
+    expect(valores).toContain('León');
+    expect(valores).not.toContain('Leon');
     expect(valores).not.toContain('Madrid');
     expect(valores).not.toContain('Barcelona');
     expect(valores).not.toContain('A Coruña');
@@ -107,7 +107,7 @@ describe('los filtros de provincia sólo ofrecen provincias de Castilla y León'
     expect(opciones.provincias.every((p) => esProvinciaDeCyl(p.valor))).toBe(true);
   });
 
-  it('el catálogo de /competiciones descarta las que no son de CyL', () => {
+  it('el catálogo de /competiciones ofrece las nueve canónicas y descarta las de fuera', () => {
     const facetas = agrupaFacetas(filas);
     const valores = facetas.provincias.map((p) => p.valor);
     expect(valores).toContain('Salamanca');
@@ -117,10 +117,13 @@ describe('los filtros de provincia sólo ofrecen provincias de Castilla y León'
     expect(facetas.provincias.every((p) => esProvinciaDeCyl(p.valor))).toBe(true);
   });
 
-  it('sin ninguna provincia de CyL no se inventa una opción: la lista queda vacía', () => {
+  it('la lista no depende de lo que el catálogo tenga hoy: es la lista canónica de las nueve', () => {
+    // Desde la fase C la provincia es el filtro del producto (múltiple): se ofrecen siempre las nueve,
+    // porque el SQL del selector casa también con el nombre del grupo. No es una opción inventada: es
+    // el universo del filtro, y la pantalla dice «no hay grupos» cuando no hay datos.
     const soloAjenas = [filaProvincia('Madrid'), filaProvincia('Sevilla'), filaProvincia('Alicante')];
-    expect(opcionesDeSelector(soloAjenas).provincias).toEqual([]);
-    expect(agrupaFacetas(soloAjenas).provincias).toEqual([]);
+    expect(opcionesDeSelector(soloAjenas).provincias.map((p) => p.valor)).toEqual([...PROVINCIAS_CYL]);
+    expect(agrupaFacetas(soloAjenas).provincias.map((p) => p.valor)).toEqual([...PROVINCIAS_CYL]);
   });
 });
 

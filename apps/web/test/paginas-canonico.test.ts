@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   agrupaFacetas, estadoVisibilidad, etiqueta, fechaHora, numero, porcentaje, texto,
 } from '../src/lib/presentacion-canonico';
+import { PROVINCIAS_CYL } from '../src/lib/provincias-cyl';
 
 /**
  * Las tres páginas que se pasaron al canónico (portada, `/federaciones` y `/competiciones`) y lo que
@@ -84,7 +85,9 @@ describe('presentación del canónico: un dato ausente no es un cero', () => {
     expect(facetas.temporadas.map((t) => t.valor)).toEqual(['2026-27', '2025-26', '2024-25']);
     expect(facetas.categorias.map((c) => c.etiqueta)).toEqual(['Aficionados', 'Juvenil']);
     expect(facetas.ambitos.map((a) => a.etiqueta)).toEqual(['Ámbito sin determinar']);
-    expect(facetas.provincias.map((p) => p.valor)).toEqual(['Salamanca']);
+    // La provincia es la única dimensión con lista propia: las nueve de CyL, porque el filtro de
+    // provincia es de la fase C (y el SQL del selector casa también con el nombre del grupo).
+    expect(facetas.provincias.map((p) => p.valor)).toEqual([...PROVINCIAS_CYL]);
     // Una dimensión sin valores no se rellena con opciones de relleno: queda vacía.
     expect(facetas.generos).toEqual([]);
     expect(facetas.modalidades).toEqual([]);
