@@ -87,6 +87,24 @@ escribiendo después del recuento de referencia. Se repitió bien:
 las 03:01 y cloudflared tuvo que recrearlo; el quick tunnel cambia de URL al recrearse — por eso conviene activar
 Funnel o un túnel con nombre).
 
+## Refresco automatizado (desde el 10/11)
+
+Los tres refrescos a mano dejaron claras dos puertas que hay que exigir siempre. Ahora están automatizadas en
+`scripts/claude/publica-canonico.ps1` (con `scripts/claude/publica-canonico-servidor.sh` para la parte del servidor):
+
+```powershell
+# 1. sólo medir, sin tocar nada (98 tablas y el total de filas)
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\claude\publica-canonico.ps1 -SoloRecuento
+# 2. refresco completo: congela escritores, volcado, T1=T2, copia, restaura en una base nueva, coteja y apunta la web
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\claude\publica-canonico.ps1 -BaseNueva facylf_canonico_4
+```
+
+- **Puerta 1:** recuento antes (T1) y después (T2) del volcado; si la fuente se movió, aborta y **no restaura**.
+- **Puerta 2:** la base restaurada se coteja tabla por tabla contra T1; si algo no cuadra, **no apunta la web**.
+- Las tareas programadas que escriben en el canónico se congelan y se devuelven a su estado en el `finally`.
+- Nunca restaura encima de una base existente (el script del servidor falla si la base ya está), nunca borra, y no
+  usa `--no-acl` (se perdería el RLS de La Preferente).
+
 ## Lo que hay que saber
 
 - **La web se reconstruyó el 09/11 a las 21:00** con los tres arreglos que pidió David (marca Fondo Popular —el
