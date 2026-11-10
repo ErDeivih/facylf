@@ -1,53 +1,54 @@
 # Cierre de CyL · tabla por temporada y qué se queda fuera
 
-Foto del **09/11/2026, 19:20**, sobre el canónico del PC (el que sirve la web pública). Una edición está completa
-cuando todos sus grupos tienen `ops.coverage_checkpoint.visibility_state='completa'`. La cifra de «ediciones» es la
-unión de los dos canónicos (auditoría de las 17:30): el servidor no tiene ninguna edición que no esté en el PC.
+Foto del **10/11/2026, 09:40**, sobre el canónico del PC (el que sirve la web). Una edición está completa cuando
+todos sus grupos tienen `ops.coverage_checkpoint.visibility_state='completa'`. La cifra de «ediciones» es la unión
+de los dos canónicos: el servidor no tiene ninguna edición que no esté en el PC.
 
-| Temporada | Ediciones | Completas | Incompletas | Qué le falta y por qué |
+| Temporada | Ediciones | Completas | Grupos completos / total | Qué le falta y por qué |
 |---|---:|---:|---:|---|
-| 2012-13 | 2 | 2 | 0 | **cerrada** |
-| 2013-14 | 46 | 5 | 41 | 36 ediciones a importar de la cola del PC (3.687 actas), 5 sin origen conocido |
-| 2014-15 | 3 | 3 | 0 | cerradas las 3 de La Preferente; **la 2014-15 de la federación (58 competiciones, 358 grupos, 26.013 actas) solo existe en la cola del servidor y está en la lista de consolidación** |
-| 2015-16 | 65 | 9 | 56 | **tanda de importación en curso** (157 grupos con hueco, 7.430 actas) |
-| 2016-17 | 58 | 6 | 52 | 142 grupos con hueco en la cola del servidor (13.067 actas): pendientes de paquete |
-| 2017-18 | 60 | 10 | 50 | tanda cerrada: el hueco de grupos bajó de 102 a 2 (293.910 filas); 1 grupo falla por acta que no cuadra con el calendario |
-| 2018-19 | 61 | 8 | 53 | 124 grupos con hueco en el servidor (12.767 actas) |
-| 2019-20 | 56 | 1 | 55 | **tanda de importación pendiente** (la tanda 1 la cubrió en parte) |
-| 2020-21 | 31 | 9 | 22 | 154 grupos con hueco en el servidor (3.610 actas); 13 sin origen |
-| 2021-22 | 66 | 12 | 54 | hueco de recolección: 31 ediciones necesitan más jornadas/actas de la cola del PC |
-| 2022-23 | 70 | 32 | 38 | **el paquete fresco la subió de 12 a 32**; el resto necesita recolección de lo que el portal publique |
-| 2023-24 | 83 | 24 | 45 | el servidor tiene 14 ediciones más completas que el PC, pero su cola ya no las ofrece: queda recolección |
-| 2024-25 | 79 | 41 | 23 | **la consolidación desde el servidor la subió de 20 a 41**; quedan 23 con huecos de recolección |
-| 2025-26 | 71 | 20 | 43 | 43 ediciones con huecos; la cola del servidor tiene 8 más completas que el PC |
-| 2026-27 | 56 | 1 | 55 | **temporada en curso**: no se puede cerrar hasta que termine; el PC ya la recolecta |
-| **Total** | **807** | **183** | **624** | |
+| 2012-13 | 2 | 2 | 2/2 | **cerrada** |
+| 2013-14 | 46 | 5 | 85/231 | importación de actas hecha; faltan calendario/jornada/clasificación (recolección) |
+| 2014-15 | 61 | 18 | 249/361 | **importada esta mañana** (357 de 358 grupos): pasó de 3 ediciones a 18 completas |
+| 2015-16 | 65 | 9 | 148/311 | actas importadas; falta recolección de calendario/jornada |
+| 2016-17 | 58 | 6 | 144/286 | **en cola de importación** (142 grupos con hueco, 13.067 actas) |
+| 2017-18 | 60 | 10 | 143/247 | el hueco de actas bajó de 6.543 a 3 |
+| 2018-19 | 61 | 8 | 143/270 | **en cola de importación** (124 grupos, 12.767 actas) |
+| 2019-20 | 56 | 1 | 5/224 | **necesita recolección**: calendario, jornada y clasificación siguen pendientes en la cola |
+| 2020-21 | 31 | 9 | 235/337 | **en cola de importación** (154 grupos, 3.610 actas) |
+| 2021-22 | 66 | 12 | 138/280 | recolección |
+| 2022-23 | 70 | 32 | 215/286 | importada con paquete fresco; lo que queda es recolección |
+| 2023-24 | 83 | 24 | 169/296 | 21 grupos con actas importados; el resto de huecos no tiene actas: recolección |
+| 2024-25 | 79 | 41 | 232/289 | la más cerca de cerrarse; recolección de lo que falta |
+| 2025-26 | 71 | 20 | 166/301 | 16 grupos con actas importados; el resto, recolección |
+| 2026-27 | 56 | 1 | 1/237 | temporada en curso (el PC la recolecta ahora) |
+| **Total** | **865** | **198** | — | |
 
-## Lo que se queda fuera y por qué (auditoría de las 17:30, actualizable)
+Al empezar el día eran **138 de 807**; el salto grande es 2014-15 (3 → 18 ediciones completas, 3 → 249 grupos
+completos) más lo que ya venía de los paquetes frescos de 2024-25, 2022-23 y 2026-27.
 
-De las 586 ediciones incompletas que había entonces (hoy el total ha bajado a 644 con 163 completas):
+## Lo que se queda fuera y por qué
 
-- **300 solo necesitan importación** (151 ya recogidas en la cola del PC y 149 en la del servidor): es trabajo en
-  marcha, no un límite. Aquí están casi todas las subidas de hoy.
-- **108 necesitan recolección**: jornadas o actas que el portal aún no ha publicado o no se han pedido; el PC las
-  recogerá con las 15 temporadas asignadas.
-- **22 son de identidad o calendario**: el acta no se corresponde con la fila del calendario (p. ej. el grupo `17134`:
-  «Sporting Carbarizos vs Cabrerizos B» frente a «Cabrerizos vs Sporting Garrido de Salamanca»). No se arreglan
-  importando; necesitan resolución de identidad. Están listadas con su motivo en la bitácora de operación.
-- **156 no tienen origen conocido**: 141 de la federación (grupos de relleno, copas sin actas, fases que el portal no
-  carga) y 15 de La Preferente (su origen es otro proyecto de importación). **Estas son irreducibles con las colas
-  actuales.**
-- **2026-27 (55 incompletas)** es el estado normal de una temporada en curso.
+- **Importación en curso**: 2020-21 (154 grupos), 2016-17 (142), 2018-19 (124), 2012-13 (1) y 2026-27 (187). Se
+  reanuda sola cuando el worker del PC termina el último escaneo de actas (`tmp/reanuda-tras-escaneo.ps1`).
+- **Recolección**: lo que no tiene actas en los paquetes ni calendario/jornada/clasificación en el canónico
+  (2019-20 con 5 de 224 grupos es el caso extremo). Lo hace el recolector del PC, que ya tiene las 15 temporadas.
+- **Identidad o calendario (22 ediciones)**: el acta no se corresponde con la fila del calendario; no se arregla
+  importando. Están listadas con su motivo en la bitácora de operación.
+- **Sin origen conocido (156 ediciones)**: 141 de la federación (grupos de relleno, copas sin actas, fases que el
+  portal no carga) y 15 de La Preferente. **Son irreducibles con las colas actuales.**
+- **2026-27** no se puede cerrar hasta que termine la temporada.
 
-**Techo teórico si todo lo recuperable entra: 521 de 807 (64,6 %).** Es una cota, no una promesa: depende de que el
-portal publique lo que falta y de que los 22 casos de identidad se resuelvan uno a uno.
+Techo teórico con todo lo recuperable: **521 de 807 (64,6 %)** según la auditoría del 09/11; hoy ya hay 198
+completas y la importación en curso moverá las temporadas que faltan.
 
 ## Cómo reproducir la tabla
 
 ```powershell
 $sql = Get-Content tmp\medir-canonico-cyl.sql -Raw
 $sql | docker exec -i facylf-postgres psql -U facylf_publicador -d facylf -f -
+# y los grupos completos por temporada:
+Get-Content tmp\grupos-por-temporada.sql -Raw | docker exec -i facylf-postgres psql -U facylf_publicador -d facylf -f -
 ```
 
-El detalle por edición y por grupo (con causa) está en `tmp/auditoria-cierre-cyl/`:
-`analisis.json`, `ediciones-incompletas.csv` y `grupos-a-traer.csv`.
+Verificación de 2014-15 tras importarla: 61 ediciones (0 duplicadas), 361 grupos, 27.901 partidos, 26.625 actas,
+5.670 jornadas (`tmp/verifica-2014-15.sql`).
