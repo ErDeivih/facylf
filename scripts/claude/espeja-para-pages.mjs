@@ -153,7 +153,7 @@ for (const [rutaAlias, rutaReal] of ALIAS) {
   try {
     const respuesta = await fetch(`${origen}${rutaReal}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaAlias} (origen ${respuesta.status})`); continue; }
-    let html = leeHtml(ruta, await respuesta.text());
+    let html = leeHtml(rutaReal, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const destinoAlias = join(salida, ...rutaAlias.split('/').filter(Boolean), 'index.html');
@@ -169,7 +169,7 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
   try {
     const respuesta = await fetch(`${origen}${rutaActa}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaActa} (${respuesta.status})`); continue; }
-    let html = leeHtml(ruta, await respuesta.text());
+    let html = leeHtml(rutaActa, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const destinoActa = join(salida, 'explorar', 'acta', String(id), 'index.html');
@@ -184,7 +184,7 @@ for (const rutaJornada of [...jornadasDeLaPortada].slice(0, 16)) {
   try {
     const respuesta = await fetch(`${origen}${rutaJornada}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaJornada} (${respuesta.status})`); continue; }
-    let html = leeHtml(ruta, await respuesta.text());
+    let html = leeHtml(rutaJornada, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const trozos = rutaJornada.split('/').filter(Boolean);
@@ -231,3 +231,7 @@ console.log(`rutas publicadas: ${rutasOk.length}/${RUTAS.length}`);
 if (rutasMal.length) console.log('rutas que fallaron:', rutasMal.join(' · '));
 console.log(`escudos descargados: ${escudosOk} de ${escudos.size}`);
 console.log(`directorio: ${salida}`);
+
+// Si alguna ruta no se publicó, el proceso termina con error: un 404 silencioso (como el de /explorar el 10/11)
+// es peor que no publicar, porque el enlace queda roto sin que nadie se entere.
+if (rutasMal.length) process.exitCode = 1;
