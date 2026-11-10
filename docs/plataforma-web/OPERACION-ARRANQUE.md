@@ -69,3 +69,25 @@ selector 133 ms, competición 355 ms, acta 158 ms, rankings 489 ms, ojeo 379 ms,
 responde 53-273 ms en los recursos probados. El único endpoint que se pasó del presupuesto de 5 s fue
 `/api/v1/calendario` con la temporada 2026-27 completa (devuelve 503 con el motivo), que es el caso extremo de la
 consulta más pesada.
+
+## 6. No solapar el importador incremental con el recolector
+
+**Regla operativa (medida el 10/11/2026).** La cola SQLite la usan dos procesos: el recolector y la tarea
+`FACyLF importador incremental` (`importar-masivo.mjs`). El importador mantiene la cola ocupada durante su tanda y el
+recolector **fallaba al arrancar** con:
+
+```
+Error: database is locked
+    at reactivaTemporadasAsignadas (scripts/lib/temporadas-asignadas.mjs:175)
+    at abreBase (scripts/lib/recolector-local.mjs:212)
+```
+
+La causa era doble: (a) el recolector escribe en `abreBase` **antes** de fijar `pragma busy_timeout`, y (b) el
+importador tenía la cola en escritura. Arreglado pasando el timeout al abrir la base
+(`new DatabaseSync(ruta, { timeout: 120000 })`). Aun así, mientras el importador está en una tanda larga el
+recolector puede quedarse esperando: **para recolectar, el importador incremental debe estar parado** (la tarea se
+deshabilita y se vuelve a habilitar cuando interese). La importación diaria del ciclo de las 04:30 cubre lo que la
+tarea incremental habría hecho por la noche.
+
+Comprobado: con la tarea deshabilitada y el proceso parado, el worker arrancó y empezó a pedir en menos de un
+minuto (peticiones 200.666 → 200.675 en ese tramo).
