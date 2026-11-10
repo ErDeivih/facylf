@@ -1,4 +1,4 @@
-# publica-canonico.ps1 — refresco COMPLETO y cotejado de la base publicada del servidor desde el canónico del PC.
+﻿# publica-canonico.ps1 — refresco COMPLETO y cotejado de la base publicada del servidor desde el canónico del PC.
 #
 # Por qué existe: el refresco se ha hecho tres veces a mano (09/11 y 10/11) y siempre con los mismos pasos y los
 # mismos riesgos: si un escritor sigue escribiendo entre el recuento y el volcado, la copia sale por detrás. Aquí
