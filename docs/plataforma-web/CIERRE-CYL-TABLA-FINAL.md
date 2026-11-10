@@ -92,3 +92,26 @@ avance** (jornadas que todavía no se han jugado) y que las actas pendientes se 
 Consecuencia para el cierre: las ganancias de cobertura de estos días tienen que venir de **temporadas antiguas**, que
 el recolector visita después de agotar la actual. Por eso el contador puede quedarse quieto aunque el worker esté
 pidiendo: está completando la temporada en curso, que aún no se puede cerrar.
+
+## Qué falta de verdad en las temporadas en rotación (10/11/2026)
+
+Con la rotación puesta en las temporadas antiguas, medido en `ops.coverage_checkpoint` (solo Castilla y León):
+
+| Temporada | Grupos | Completos | Faltan resultados | Solo faltan actas | Faltan partidos del calendario |
+|---|---:|---:|---:|---:|---:|
+| 2012-13 | 3 | 2 | 1 | 0 | 1 |
+| 2013-14 | 231 | 85 | 127 | 0 | 121 |
+| 2014-15 | 518 | 332 | 172 | 0 | 162 |
+| 2015-16 | 446 | 189 | 242 | 0 | 231 |
+| 2016-17 | 498 | 250 | 239 | 0 | 211 |
+| 2018-19 | 540 | 256 | 274 | 0 | 242 |
+| 2019-20 | 353 | 32 | 321 | 0 | 305 |
+
+**La columna que importa es la de resultados: en ninguna de estas temporadas hay un solo grupo al que solo le falten
+actas.** Es decir, recoger actas sueltas no desbloquea grupos; lo que desbloquea son **jornadas con resultados y
+calendario**, que es justo la mayor parte de lo que queda en la cola (en 2018-19, 3.488 jornadas pendientes frente a
+1.926 actas; en 2014-15, 4.007 frente a 998).
+
+Conclusión para la rotación: va bien encaminada, pero la métrica a mirar no es «cuántas actas se han guardado» sino
+**cuántas jornadas con resultados** entran. Y el contador 206/867 no se moverá hasta que esas jornadas se importen,
+que va por el ciclo diario o el empaquetado de temporada.
