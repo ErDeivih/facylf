@@ -285,7 +285,8 @@ describe.skipIf(!hayCanonico)('contrato real: las cifras salen del canónico, no
   it('el árbitro de 3769 también responde (contrato de la temporada en curso)', async () => {
     const [fila] = await consulta<FilaArbitro>(ARBITRO_POR_ID.sql, [123522]);
     expect(fila).toBeDefined();
-    expect(fila!.partidos).toBe(2);
+    // La temporada en curso crece con la importación: cota, no un número clavado.
+    expect(fila!.partidos).toBeGreaterThanOrEqual(2);
     expect(fila!.competiciones[0]!.temporada).toBe('2026-27');
   });
 });

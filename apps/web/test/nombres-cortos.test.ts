@@ -142,7 +142,8 @@ describe.skipIf(!hayCanonico)('cobertura y contrato contra el canónico', () => 
     expect(PARTIDOS_DE_PERSONA.columnas).toContain('rival_corto');
 
     const partidos = await consulta<Record<string, unknown>>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24218935', 400]);
-    expect(partidos).toHaveLength(32);
+    // La temporada en curso crece con la importación: cota, no un número clavado.
+    expect(partidos.length).toBeGreaterThanOrEqual(32);
     for (const partido of partidos) {
       expect(String(partido.local_nombre_corto ?? '').length).toBeGreaterThan(0);
       expect(String(partido.visitante_nombre_corto ?? '').length).toBeGreaterThan(0);
@@ -168,14 +169,13 @@ describe.skipIf(!hayCanonico)('cobertura y contrato contra el canónico', () => 
         where m.phase_group_id = 3769 and m.goles_local is not null and m.goles_visitante is not null`);
     expect(grupo!.fecha_ultima_jugada).toBe(directo!.fecha);
 
-    // Grupos con calendario y sin resultados (75250 y 75252): la fecha del calendario existe, la jugada
-    // NO. Es la diferencia entre «está programado» y «se ha jugado», y no se rellena con la programada.
-    for (const id of [75250, 75252]) {
-      const [sinJugar] = await consulta<{ fecha_fin: string | null; fecha_ultima_jugada: string | null }>(
-        GRUPO_POR_ID.sql, [id]);
-      expect(sinJugar!.fecha_fin, `grupo ${id}`).toBe('2026-10-17');
-      expect(sinJugar!.fecha_ultima_jugada, `grupo ${id}`).toBeNull();
-    }
+    // Un grupo con calendario y sin resultados (75441, CyL 2022-23): la fecha del calendario existe, la
+    // jugada NO. Es la diferencia entre «está programado» y «se ha jugado», y no se rellena con la
+    // programada. Se elige una temporada cerrada sin resultados porque ese estado ya no cambia.
+    const [sinJugar] = await consulta<{ fecha_fin: string | null; fecha_ultima_jugada: string | null }>(
+      GRUPO_POR_ID.sql, [75441]);
+    expect(sinJugar!.fecha_fin).not.toBeNull();
+    expect(sinJugar!.fecha_ultima_jugada).toBeNull();
   });
 
   it('los partidos de un equipo y de una persona reales traen el rival corto', async () => {

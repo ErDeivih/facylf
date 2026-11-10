@@ -24,8 +24,9 @@ export type FilaFederacionCabecera = {
 /**
  * Identidad de una federación por su código.
  *
- * Se excluyen las federaciones de pruebas y las que esta máquina tiene retiradas de la web
- * (`FACYLF_EXCLUIR`, la misma regla que el resto del producto). Parámetros: (1) código.
+ * Se excluyen las federaciones de pruebas y todo lo que esta web no publica: desde la fase C, la única
+ * federación publicada es `castilla-leon` (`FEDERACIONES_PUBLICADAS` en `lib/federaciones-excluidas.ts`);
+ * `FACYLF_EXCLUIR` sigue retirando además las que la flota tiene fuera. Parámetros: (1) código.
  */
 export const FEDERACION_POR_CODIGO: Consulta<FilaFederacionCabecera> = {
   nombre: 'federación-por-código',

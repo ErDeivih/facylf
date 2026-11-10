@@ -10,6 +10,8 @@
  * casi todo lo que entra aquí es `number | null` y `string | null`: el `null` es información, no ruido.
  */
 
+import { esProvinciaDeCyl } from './provincias-cyl';
+
 /** Un dato que no existe. Es un guion, no un cero: no es lo mismo «no hay» que «no lo sé». */
 export const SIN_DATO = '—';
 
@@ -135,7 +137,10 @@ export function agrupaFacetas(filas: readonly FilaFaceta[]): FacetasDelCatalogo 
     categorias: de('categoria', 'categoria'),
     modalidades: de('modalidad', 'modalidad'),
     generos: de('genero', 'genero'),
-    provincias: de('provincia'),
+    // Fase C: el producto es de Castilla y León. Aunque el canónico traiga provincias de las otras
+    // federaciones del PC (hoy 48 valores distintos), aquí sólo se ofrecen las nueve de CyL. Un valor
+    // que no encaja no se ofrece y no rompe nada: el filtro es simplemente más pequeño, no una excepción.
+    provincias: de('provincia').filter((f) => esProvinciaDeCyl(f.valor)),
   };
 }
 

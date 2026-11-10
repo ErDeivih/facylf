@@ -28,9 +28,10 @@ import PaginaPublicidad from '../src/app/explorar/publicidad/page';
  *
  * Liga: la referencia es el grupo **797** (`Liga Nacional Juvenil · Primera - III`, 2025-26), completo:
  * 16 equipos, 240 partidos, actas con goles y tarjetas, y minutos de cantera reales (el Burgos «B»
- * dio 3.351 minutos a seis futbolistas de equipos inferiores). El **3769** es la misma liga en 2026-27
- * y va por la jornada 4. El **75252** tiene calendario y ningún resultado: sirve para los estados
- * «sin datos».
+ * dio 3.351 minutos a seis futbolistas de equipos inferiores). El **3769** es la misma liga en 2026-27 y
+ * va por la jornada en curso (crece con la importación: se compara con los propios datos). El **75441**
+ * (2022-23) tiene calendario y ningún resultado: sirve para los estados «sin datos» sin depender de una
+ * temporada que avanza.
  *
  * Publicidad: no hay ninguna campaña ni espacio contratado; la página lo dice y no se inventa
  * patrocinadores. Los siete huecos son los de la migración 0033.
@@ -298,21 +299,30 @@ describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
     expect(hayDisciplina(filas)).toBe(true);
   });
 
-  it('la liga 3769 (2026-27) va por la jornada 4 y su cantera es pequeña pero existe', async () => {
+  it('la liga 3769 (2026-27) va por la jornada en curso y su cantera es pequeña pero existe', async () => {
     const filas = await consulta<FilaEquipoDeLiga>(DISCIPLINA_Y_CANTERA_DEL_GRUPO.sql, [3769]);
     expect(filas).toHaveLength(16);
     const leonesa = filas.find((fila) => fila.equipo === 'C. y D. Leonesa S.A.D. "B"')!;
-    expect(leonesa.minutos_inferiores).toBe(58);
-    expect(leonesa.jugadores_inferiores).toBe(3);
-    expect(porcentajeDeCantera(leonesa)).toBe(1.5);
+    expect(leonesa).toBeDefined();
+    // La temporada en curso crece con la importación: se defiende que la cantera existe y que el
+    // porcentaje sale de sus propios minutos, no un número clavado.
+    expect(leonesa.minutos_inferiores).toBeGreaterThan(0);
+    expect(leonesa.jugadores_inferiores).toBeGreaterThan(0);
+    expect(porcentajeDeCantera(leonesa)).toBe(
+      Math.round((1000 * leonesa.minutos_inferiores!) / leonesa.minutos!) / 10);
+    expect(equiposConCantera(filas).length).toBeGreaterThan(0);
 
     const partidos = await consulta<FilaPartidoCanonico>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24218935', 1000]);
     expect(partidos.length).toBeGreaterThan(0);
-    expect(resultadosRecientes(partidos).jornada).toBe(4);
+    // La jornada «actual» es la última con resultado, sin fijar cuál es hoy.
+    const ultimaConResultado = Math.max(...partidos
+      .filter((partido) => partido.goles_local !== null && partido.jornada !== null)
+      .map((partido) => Number(partido.jornada)));
+    expect(resultadosRecientes(partidos).jornada).toBe(ultimaConResultado);
   });
 
-  it('la liga 75252 tiene calendario y ningún resultado: no se inventa ni un 0-0', async () => {
-    const partidos = await consulta<FilaPartidoCanonico>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24219270', 1000]);
+  it('la liga 75441 (2022-23) tiene calendario y ningún resultado: no se inventa ni un 0-0', async () => {
+    const partidos = await consulta<FilaPartidoCanonico>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '50293', 1000]);
     expect(partidos.length).toBeGreaterThan(0);
     expect(partidos.every((partido) => partido.goles_local === null && partido.goles_visitante === null)).toBe(true);
     expect(resultadosRecientes(partidos)).toEqual({ jornada: null, partidos: [] });
@@ -373,13 +383,16 @@ describe('la página de liga', () => {
     const html = render(await PaginaLiga({ params: Promise.resolve({ id: '3769' }) }));
     expect(html).toContain('2026-27');
     expect(html).toContain('/explorar/competicion/3769');
-    expect(html).toMatch(/jornada 4/i);
+    // La jornada en curso crece; se exige que se nombre una jornada, no un número concreto.
+    expect(html).toMatch(/jornada \d+/i);
+    expect(html).not.toMatch(/finalizada|ha terminado|temporada cerrada/i);
     expect(html).not.toMatch(TEXTO_PROHIBIDO);
   });
 
   it.skipIf(!hayCanonico)('una liga con calendario y sin resultados enseña sus estados «sin datos»', async () => {
-    const html = render(await PaginaLiga({ params: Promise.resolve({ id: '75252' }) }));
-    expect(html).toContain('1ª División Regional de Juveniles de Fútbol Sala');
+    // 75441: Debutantes FS de la 2022-23, con calendario publicado y ningún resultado.
+    const html = render(await PaginaLiga({ params: Promise.resolve({ id: '75441' }) }));
+    expect(html).toContain('Debutantes FS');
     expect(html).toContain('Sin resultados publicados');
     expect(html).toContain('Sin goles publicados');
     expect(html).not.toMatch(TEXTO_PROHIBIDO);

@@ -187,7 +187,7 @@ describe('las reglas de la ficha de federación', () => {
     expect(avisosDeCobertura(null)[0]!.texto).toMatch(/no se enseñan porcentajes/i);
   });
 
-  it('las federaciones comparables excluyen la actual, las de prueba y las sine datos', () => {
+  it('las federaciones comparables excluyen la actual, las de prueba y las que no se publican', () => {
     const otras = federacionesComparables([
       FICHA_CYL,
       { ...FICHA_CYL, codigo: 'pruebas', nombre_corto: 'Pruebas' },
@@ -195,7 +195,10 @@ describe('las reglas de la ficha de federación', () => {
       { ...FICHA_CYL, codigo: 'sin-datos', nombre_corto: 'Sin datos', partidos: null, pct_resultado: null },
     ], 'castilla-leon');
     const codigos = otras.map((f) => f.codigo);
-    expect(codigos).toContain('galicia');
+    // Fase C: la publicación es sólo Castilla y León (ver `lib/federaciones-excluidas.ts`), así que una
+    // federación con datos como Galicia tampoco se ofrece para comparar.
+    expect(codigos).toEqual([]);
+    expect(codigos).not.toContain('galicia');
     expect(codigos).not.toContain('castilla-leon');
     expect(codigos).not.toContain('pruebas');
     expect(codigos).not.toContain('sin-datos');

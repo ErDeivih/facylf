@@ -8,7 +8,7 @@
  */
 import type { FilaFichaFederacion, FilaAvisoDatos } from '@/consultas/federaciones';
 import type { FilaEdicionDeFederacion } from '@/consultas/federacion-ficha';
-import { estaExcluida } from './federaciones-excluidas';
+import { esFederacionVisible } from './federaciones-excluidas';
 import { etiquetaAmbito, etiquetaCategoria, etiquetaGenero, etiquetaModalidad } from './vocabulario-pantalla';
 
 /** Un código de federación de la URL: minúsculas, dígitos y guiones. Lo demás no es una ficha. */
@@ -215,7 +215,7 @@ export function resumenDeLaFederacion(ficha: FilaFichaFederacion | null): {
   };
 }
 
-/** Otras federaciones con las que comparar: con medición, sin la actual y sin las retiradas de la web. */
+/** Otras federaciones con las que comparar: con medición, sin la actual y sólo las que se publican. */
 export function federacionesComparables(
   fichas: readonly FilaFichaFederacion[],
   actual: string | null,
@@ -225,7 +225,9 @@ export function federacionesComparables(
     .filter((ficha) => ficha.codigo !== actual
       && ficha.partidos !== null
       && !ficha.codigo.startsWith('pruebas')
-      && !estaExcluida(ficha.codigo))
+      // Fase C: sólo se publica Castilla y León, así que no se ofrece comparar con federaciones de
+      // otras comunidades aunque el canónico tenga sus cifras medidas.
+      && esFederacionVisible(ficha.codigo))
     .sort((a, b) => (numeroDePorcentaje(b.pct_resultado) ?? -1) - (numeroDePorcentaje(a.pct_resultado) ?? -1))
     .slice(0, limite);
 }

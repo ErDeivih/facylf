@@ -124,15 +124,20 @@ describe.skipIf(!hayCanonico)('la pantalla 2 contra el canónico real (Castilla 
   });
 
   it('la fecha derecha de la barra es la jugada y no la programada', async () => {
-    const [conResultados, sinResultados] = await Promise.all([
-      consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [3769]),
-      consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [75252]),
-    ]);
-    // 3769 tiene cuatro jornadas jugadas y su calendario acaba ahí de momento.
-    expect(conResultados[0]!.fecha_ultima_jugada).toBe('2026-10-04');
-    // 75252 tiene calendario programado (17 oct) pero ningún resultado: no hay jornada jugada.
-    expect(sinResultados[0]!.fecha_fin).not.toBeNull();
-    expect(sinResultados[0]!.fecha_ultima_jugada).toBeNull();
+    // No se clava una fecha (el canónico crece con la importación): se compara con su definición.
+    for (const grupo of [3769, 75252]) {
+      const [portada] = await consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [grupo]);
+      expect(portada, `grupo ${grupo}`).toBeDefined();
+      expect(portada!.fecha_ultima_jugada, `grupo ${grupo}`).not.toBeNull();
+      const [directo] = await consulta<{ fecha: string | null }>(
+        `select to_char(max(coalesce(m.played_at, m.fecha_prevista::timestamptz)), 'YYYY-MM-DD') as fecha
+           from core.match m
+          where m.phase_group_id = $1
+            and m.goles_local is not null and m.goles_visitante is not null`, [grupo]);
+      expect(portada!.fecha_ultima_jugada, `grupo ${grupo}`).toBe(directo!.fecha);
+      // Y esa fecha nunca es posterior al final del calendario conocido.
+      expect(String(portada!.fecha_ultima_jugada) <= String(portada!.fecha_fin), `grupo ${grupo}`).toBe(true);
+    }
   });
 
   it('los nombres cortos de los partidos llegan guardados para todos los equipos del grupo', async () => {
@@ -379,29 +384,41 @@ describe.skipIf(!hayCanonico)('la cabecera enseña el nombre corto real de la fe
  * La fecha publicada que existe es `fecha_prevista`, y la barra la necesita para orientar la temporada.
  */
 describe.skipIf(!hayCanonico)('los extremos de la barra usan también la fecha prevista', () => {
-  it('un grupo con calendario y sin resultados enseña sus extremos', async () => {
-    const filas = await consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [75252]);
-    expect(filas).toHaveLength(1);
-    expect(filas[0]!.fecha_inicio).toBe('2026-10-17');
-    expect(filas[0]!.fecha_fin).toBe('2026-10-17');
-    // Y no son inventadas: las 6 fechas del calendario son esa.
-    expect(filas[0]!.equipos).toBeGreaterThan(0);
+  it('un grupo con calendario y sin resultados enseña sus extremos con la fecha publicada', async () => {
+    // 75441 (CyL 2022-23): calendario publicado y ningún resultado. Es el caso del hallazgo C9, y al
+    // ser una temporada cerrada sin resultados ya no cambia con la importación.
+    const [portada] = await consulta<Record<string, unknown>>(GRUPO_POR_ID.sql, [75441]);
+    expect(portada).toBeDefined();
+    expect(portada!.fecha_inicio).not.toBeNull();
+    expect(portada!.fecha_fin).not.toBeNull();
+    expect(portada!.fecha_ultima_jugada).toBeNull();
+    expect(String(portada!.fecha_inicio) <= String(portada!.fecha_fin)).toBe(true);
+    // Y no son inventadas: son el mínimo y el máximo de las fechas publicadas en el calendario.
+    const filas = await consulta<{ fecha_prevista: string | null }>(PARTIDOS_DE_GRUPO.sql,
+      ['castilla-leon', '50293', 1000]);
+    const fechas = filas.map((fila) => fila.fecha_prevista).filter((fecha): fecha is string => fecha !== null).sort();
+    expect(String(portada!.fecha_inicio)).toBe(fechas[0]);
+    expect(String(portada!.fecha_fin)).toBe(fechas[fechas.length - 1]);
   });
 });
 
 describe.skipIf(!hayCanonico)('la hora de un partido sólo se enseña si la federación la publica', () => {
   it('un partido programado sin hora confirmada deja la hora en null (nunca 00:00)', async () => {
-    // Grupo 75250 (CyL, 2026-27): todos sus partidos están programados y ninguno trae hora.
-    const filas = await consulta<Record<string, unknown>>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24219264', 400]);
+    // Grupo 75252 (CyL, 2026-27): mezcla partidos jugados con hora publicada y programados sin ella.
+    const filas = await consulta<Record<string, unknown>>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24219270', 400]);
     expect(filas.length).toBeGreaterThan(0);
+    expect(filas.some((f) => f.hora === null), 'debe haber partidos sin hora publicada').toBe(true);
     for (const f of filas) {
-      expect(f.hora, `partido ${String(f.match_id)}`).toBeNull();
+      if (f.hora === null) continue;
+      expect(String(f.hora), `partido ${String(f.match_id)}`).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
     }
+    // La hora no se inventa con un cero: sin dato queda null, nunca «00:00».
+    expect(filas.every((f) => f.hora !== '00:00')).toBe(true);
   });
 
   it('cuando la hora está confirmada, sale del partido con formato HH:MM', async () => {
     const filas = await consulta<Record<string, unknown>>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24218935', 400]);
-    expect(filas).toHaveLength(32);
+    expect(filas.length).toBeGreaterThanOrEqual(32);
     for (const f of filas) {
       expect(String(f.hora), `partido ${String(f.match_id)}`).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/);
     }
@@ -825,7 +842,8 @@ describe.skipIf(!hayCanonico)('la forma que enseña la pantalla no mezcla cobert
       consulta<FilaPartidoCanonico>(PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24218935', 400]),
     ]);
     expect(clasificacion).toHaveLength(16);
-    expect(partidos).toHaveLength(32);
+    // La temporada en curso crece con la importación: cota, no un número clavado.
+    expect(partidos.length).toBeGreaterThanOrEqual(32);
     for (const f of clasificacion) {
       const forma = formaHasta(partidos, f.equipo_id, f.jornada);
       const jugados = f.jugados;

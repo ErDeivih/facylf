@@ -1,5 +1,6 @@
 import type { FilaOpcionSelector } from '@/consultas/catalogo-selector';
 import { etiqueta } from './presentacion-canonico';
+import { esProvinciaDeCyl } from './provincias-cyl';
 import {
   desplazamientoDeFiltro, enteroDeFiltro, federacionDeFiltro, temporadaDeFiltro, textoDeFiltro,
 } from './calendario';
@@ -378,7 +379,11 @@ export function opcionesDeSelector(filas: readonly FilaOpcionSelector[]): Opcion
     categorias: de('categoria').map((f) => ({ valor: f.valor, etiqueta: etiqueta('categoria', f.valor) })),
     modalidades: de('modalidad').map((f) => ({ valor: f.valor, etiqueta: etiqueta('modalidad', f.valor) })),
     generos: de('genero').map((f) => ({ valor: f.valor, etiqueta: etiqueta('genero', f.valor) })),
-    provincias: de('provincia').map(aOpcion),
+    // Fase C: sólo se ofrece provincia de Castilla y León. El catálogo puede traer provincias de las
+    // otras federaciones del PC (48 valores distintos medidos el 10/11/2026); ofrecerlas sería ofrecer
+    // filtros que no devuelven nada de lo que este producto publica. El valor es el del dato, no se
+    // reescribe: el SQL compara `provincia` tal cual.
+    provincias: de('provincia').filter((f) => esProvinciaDeCyl(f.valor)).map(aOpcion),
     niveles: niveles.map((f) => ({ valor: f.valor, etiqueta: f.etiqueta || `Nivel ${f.valor}` })),
   };
 }

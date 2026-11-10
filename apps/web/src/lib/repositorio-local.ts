@@ -8,7 +8,8 @@ import type { Partido } from '@facylf/dominio';
 import { parseaClasificacionHtml, type ClasificacionOficialHtml } from '@facylf/ingesta';
 // Ventana de temporadas: la web enseña lo mismo que se recoge (2023-24 en adelante).
 import { TEMPORADA_MINIMA, filtroVentana } from './temporadas';
-import { estaExcluida } from './federaciones-excluidas';
+import { esFederacionVisible } from './federaciones-excluidas';
+import { PROVINCIAS_CYL, esProvinciaDeCyl, normalizaProvincia } from './provincias-cyl';
 
 export const FEDERACION_POR_DEFECTO = 'castilla-leon';
 
@@ -48,11 +49,12 @@ const TODAS_LAS_FEDERACIONES = [
 /**
  * Las que esta web OFRECE: lista, selectores, encabezado y búsqueda.
  *
- * Aquí sí se quitan las excluidas (`FACYLF_EXCLUIR`, ver `lib/federaciones-excluidas.ts`). Desde el 24/09/2026
- * Valencia, Madrid y Cataluña se recogen en el PC de trabajo: lo que este servidor tiene de ellas es una foto
- * congelada que a partir de ahora se queda atrás, así que no se ofrecen hasta que su trabajo se una al canónico.
+ * Fase C: el producto publica sólo Castilla y León (`FEDERACIONES_PUBLICADAS` en
+ * `lib/federaciones-excluidas.ts`). Aquí, además, se respeta la retirada de la flota (`FACYLF_EXCLUIR`):
+ * lo que se ofrece es la intersección de las dos reglas. Las federaciones que no se ofrecen siguen
+ * existiendo como código (`esFederacionCodigo`): una URL vieja no puede caer a los datos de otra.
  */
-export const FEDERACIONES_LOCALES = TODAS_LAS_FEDERACIONES.filter((f) => !estaExcluida(f.codigo));
+export const FEDERACIONES_LOCALES = TODAS_LAS_FEDERACIONES.filter((f) => esFederacionVisible(f.codigo));
 export type FederacionCodigo = typeof TODAS_LAS_FEDERACIONES[number]['codigo'];
 
 const raizProyecto = resolve(process.cwd(), '..', '..');
@@ -250,11 +252,18 @@ export type GeneroLocal = 'Masculina' | 'Femenina';
 const sinAcentos = (valor: string) => valor.toLocaleLowerCase('es').normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '');
 
+/**
+ * Las zonas con las que la FCyLF nombra sus grupos («Primera - Burgos»).
+ *
+ * Las nueve provincias vienen de `provincias-cyl.ts` (lista única de la fase C), así que no hay dos
+ * listas que puedan discrepar. «El Bierzo» es una delegación territorial de la federación y no una
+ * provincia: se usa para etiquetar sus grupos (y no perder el dato), pero **no se ofrece como filtro de
+ * provincia** — `esProvinciaDeCyl` lo rechaza.
+ */
 const PROVINCIAS = [
-  ['Ávila', 'avila'], ['Burgos', 'burgos'], ['León', 'leon'], ['Palencia', 'palencia'],
-  ['Salamanca', 'salamanca'], ['Segovia', 'segovia'], ['Soria', 'soria'],
-  ['Valladolid', 'valladolid'], ['Zamora', 'zamora'], ['El Bierzo', 'bierzo'],
-] as const;
+  ...PROVINCIAS_CYL.map((nombre) => [nombre, normalizaProvincia(nombre)] as const),
+  ['El Bierzo', 'bierzo'] as const,
+];
 
 const ZONAS_OTRAS: Partial<Record<FederacionCodigo, ReadonlyArray<readonly [string, string]>>> = {
   galicia: [['A Coruña', 'coruna'], ['Ferrol', 'ferrol'], ['Lugo', 'lugo'], ['Ourense', 'ourense'],
@@ -487,7 +496,7 @@ export function explorarGruposLocal(filtros: FiltrosGruposLocal = {}) {
       categorias: unicos(todos.map((g) => g.categoria)),
       ambitos: ['Importantes', 'Nacional', 'Regional', 'Provincial', 'Ascenso', 'Otra']
         .filter((x) => x === 'Importantes' || todos.some((g) => g.ambito === x)),
-      provincias: unicos(todos.flatMap((g) => g.provincias)),
+      provincias: unicos(todos.flatMap((g) => g.provincias)).filter(esProvinciaDeCyl),
       modalidades: ['Fútbol', 'Fútbol sala'].filter((x) => todos.some((g) => g.modalidad === x)),
       generos: ['Masculina', 'Femenina'].filter((x) => todos.some((g) => g.genero === x)),
     } satisfies FacetasGruposLocal,

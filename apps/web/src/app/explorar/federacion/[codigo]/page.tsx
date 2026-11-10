@@ -25,7 +25,8 @@ import {
  * con cifras y sus competiciones de la temporada más reciente, con enlace a cada una.
  *
  * Cuatro consultas en la misma foto: identidad, perfil medido, competiciones y avisos del catálogo. Las
- * federaciones de pruebas y las retiradas de la web responden 404, como en el resto del producto.
+ * federaciones de pruebas y las que la web no publica (fase C: todo lo que no sea `castilla-leon`)
+ * responden 404, como en el resto del producto.
  */
 export const revalidate = 60;
 

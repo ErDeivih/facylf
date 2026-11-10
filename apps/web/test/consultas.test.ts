@@ -423,10 +423,13 @@ describe.skipIf(!hayCanonico)('contrato del catálogo contra el canónico', () =
     expect(new Set(claves).size, 'la página 2 repite filas de la 1').toBe(claves.length);
   });
 
-  it('las federaciones salen todas las declaradas, sin duplicados y con sus invariantes', async () => {
+  it('la publicación sólo enseña Castilla y León y mantiene las invariantes de la federación', async () => {
     const filas = await consulta(FEDERACIONES_DEL_CANONICO.sql, PARAMETROS_CATALOGO[FEDERACIONES_DEL_CANONICO.nombre]);
-    // El canónico declara las territoriales (y hoy, además, las federaciones de pruebas del entorno).
-    expect(filas.length).toBeGreaterThanOrEqual(19);
+    // Fase C: la web publica SÓLO Castilla y León (`FEDERACIONES_PUBLICADAS` en
+    // `lib/federaciones-excluidas.ts`). El canónico del PC declara 26 federaciones de toda España; la
+    // consulta no puede devolver ninguna de las demás, porque ofrecerlas como filtro sería ofrecer datos
+    // que este producto no publica.
+    expect(filas.map((f) => f.codigo)).toEqual(['castilla-leon']);
     expect(new Set(filas.map((f) => f.codigo)).size).toBe(filas.length);
     for (const fila of filas) {
       expect(Object.keys(fila).sort()).toEqual([...FEDERACIONES_DEL_CANONICO.columnas].sort());

@@ -22,21 +22,24 @@ import {
  *    enseñan si son fiables, y si no se dice «sin datos», nunca un cero;
  *  · identidad con contexto: si la identidad es nominal, la página lo avisa (la consulta trae la marca).
  *
- * La referencia real es la persona **1181455** (SÁNCHEZ GUTIÉRREZ, ALEJANDRO): 8 inscripciones en 6
- * temporadas, con un cambio real de club a mitad de la 2015-16 (U.M. Escobedo → Internacional F.C.) y
- * dos equipos del mismo club en 2016-17 y 2017-18. También se prueba 19057 (dos equipos del mismo club
- * con fechas solapadas) y una persona sin apariciones (917112).
+ * La referencia real es la persona **122** (CAMINERO FERNÁNDEZ, RODRIGO): varias temporadas en CyL, con
+ * un cambio real de club a mitad de la 2023-24 (Palencia C.F. → C.D. Carrión) y dos equipos del mismo
+ * club en esa misma temporada. También se prueba 19057 (dos equipos del mismo club con fechas solapadas)
+ * y una persona sin apariciones (917112). La persona 1181455 es el caso contrario a la publicación: sus
+ * apariciones están en Cantabria y no se ven por el rol de lectura.
  */
 
 const motivo = motivoSinCanonico();
 const hayCanonico = motivo === null;
 
 /** Persona real con cambio de club a mitad de temporada y varios equipos del mismo club. */
-const PERSONA = 1181455;
+const PERSONA = 122;
 /** Persona real con dos equipos del mismo club y fechas solapadas (2023-24). */
 const PERSONA_MISMO_CLUB = 19057;
 /** Persona con eventos pero sin ninguna aparición registrada. */
 const PERSONA_SIN_APARICIONES = 917112;
+/** Persona real cuyas apariciones son de otra federación (Cantabria): no se publican en esta web. */
+const PERSONA_DE_OTRA_FEDERACION = 1181455;
 
 afterAll(async () => {
   await cierraCanonico();
@@ -345,39 +348,49 @@ describe('contrato estático de la consulta del historial', () => {
 });
 
 describe.skipIf(!hayCanonico)('historial contra el canónico real', () => {
-  it('la persona 1181455 tiene 144 apariciones en 8 inscripciones y 6 temporadas', async () => {
+  it('la persona 122 tiene su historial completo: varias temporadas, todas sus apariciones publicadas', async () => {
     const fila = await historialReal(PERSONA);
     expect(fila).toBeDefined();
     expect(fila!.persona_id).toBe(PERSONA);
-    expect(fila!.nombre_mostrado).toBe('SANCHEZ GUTIERREZ, ALEJANDRO');
+    expect(fila!.nombre_mostrado).toBe('CAMINERO FERNANDEZ, RODRIGO');
     expect(fila!.identidad_nominal).toBe(false);
-    expect(fila!.apariciones).toHaveLength(144);
+    // El canónico crece con la importación: se comprueba que no viene truncado, no un número exacto.
+    expect(fila!.apariciones.length).toBeGreaterThanOrEqual(100);
 
     const temporadas = agrupaHistorial(fila!.apariciones);
-    expect(temporadas).toHaveLength(5);
-    expect(temporadas.flatMap((t) => t.tramos)).toHaveLength(8);
+    expect(temporadas.length).toBeGreaterThanOrEqual(6);
+    expect(temporadas.flatMap((t) => t.tramos).length).toBeGreaterThanOrEqual(8);
+    for (const tramo of temporadas.flatMap((t) => t.tramos)) {
+      expect(tramo.partidos).toBeGreaterThan(0);
+    }
   });
 
-  it('refleja el cambio real de club a mitad de la 2015-16 (Escobedo → Internacional)', async () => {
+  it('refleja el cambio real de club a mitad de la 2023-24 (Palencia → Carrión)', async () => {
     const fila = await historialReal(PERSONA);
     const temporadas = agrupaHistorial(fila!.apariciones);
-    const temporada = temporadas.find((t) => t.temporada === '2015-16')!;
-    expect(temporada.tramos).toHaveLength(2);
-    expect(temporada.tramos[0]).toMatchObject({ club: 'U.M. ESCOBEDO', equipo: 'U.M. ESCOBEDO' });
-    expect(temporada.tramos[1]).toMatchObject({ club: 'INTERNACIONAL F.C.', equipo: 'INTERNACIONAL F.C.' });
-    expect(temporada.transiciones[0]).toMatchObject({ tipo: 'cambio-club', fecha: '2016-03-13' });
+    const temporada = temporadas.find((t) => t.temporada === '2023-24')!;
+    expect(temporada.tramos.length).toBeGreaterThanOrEqual(3);
+    expect(temporada.tramos.some((tramo) => /palencia/i.test(tramo.club))).toBe(true);
+    expect(temporada.tramos.some((tramo) => /carri/i.test(tramo.club))).toBe(true);
+    // El cambio de club es de los que se avisan, y se fecha con el primer partido del club nuevo.
+    const cambio = temporada.transiciones.find((transicion) => transicion.tipo === 'cambio-club');
+    expect(cambio).toBeDefined();
+    expect(cambio!.fecha).toBe('2024-02-03');
     const cambios = cambiosAMitadDeTemporada(temporadas);
-    expect(cambios.length).toBeGreaterThanOrEqual(1);
-    expect(cambios.some((c) => c.temporada === '2015-16' && c.tipo === 'cambio-club')).toBe(true);
+    expect(cambios.some((c) => c.temporada === '2023-24' && c.tipo === 'cambio-club')).toBe(true);
   });
 
-  it('refleja varios equipos del mismo club en la misma temporada, y un solape no se vende como cambio', async () => {
+  it('refleja varios equipos del mismo club en la misma temporada como cambio de equipo', async () => {
     const fila = await historialReal(PERSONA);
     const temporadas = agrupaHistorial(fila!.apariciones);
-    const t2017 = temporadas.find((t) => t.temporada === '2017-18')!;
-    expect(t2017.tramos.map((t) => t.equipo).sort()).toEqual(['C.F. VIMENOR', 'C.F. VIMENOR "B"']);
-    expect(t2017.transiciones[0]!.tipo).toBe('cambio-equipo');
-    expect(t2017.transiciones[0]!.fecha).toBe('2017-09-10');
+    const t2023 = temporadas.find((t) => t.temporada === '2023-24')!;
+    // Palencia C.F. tiene dos inscripciones (equipos) en la 2023-24: es cambio de equipo, no de club.
+    const palencia = t2023.tramos.filter((tramo) => /palencia/i.test(tramo.club));
+    expect(palencia.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(palencia.map((tramo) => tramo.clubId)).size).toBe(1);
+    const cambioEquipo = t2023.transiciones.find((transicion) => transicion.tipo === 'cambio-equipo');
+    expect(cambioEquipo).toBeDefined();
+    expect(cambioEquipo!.fecha).not.toBeNull();
   });
 
   it('una persona con dos equipos del mismo club solapados (19057) NO se marca como dos clubes', async () => {
@@ -393,11 +406,17 @@ describe.skipIf(!hayCanonico)('historial contra el canónico real', () => {
   it('los minutos de la persona son fiables y no se multiplican por partido', async () => {
     const fila = await historialReal(PERSONA);
     const temporadas = agrupaHistorial(fila!.apariciones);
-    const tramo2015 = temporadas.find((t) => t.temporada === '2015-16')!.tramos[0]!;
-    // Escobedo: 5 partidos demostrados y 450 minutos exactos (no 5 × 450).
-    expect(tramo2015.partidos).toBe(26);
-    expect(tramo2015.minutos).toBe(450);
-    expect(tramo2015.minutosFiables).toBe(true);
+    const t2023 = temporadas.find((t) => t.temporada === '2023-24')!;
+    // Segunda inscripción de Palencia en la 2023-24: 17 partidos y 802 minutos del equipo-temporada,
+    // no 17 × 802.
+    const tramo = t2023.tramos.find((candidato) => candidato.equipoId === 124028)!;
+    expect(tramo).toBeDefined();
+    expect(tramo.partidos).toBeGreaterThan(5);
+    expect(tramo.minutosFiables).toBe(true);
+    expect(tramo.minutos).toBe(802);
+    const minutosPorPartido = (tramo.minutos ?? 0) / tramo.partidos;
+    expect(minutosPorPartido).toBeGreaterThan(10);
+    expect(minutosPorPartido).toBeLessThan(100);
   });
 
   it('una persona sin apariciones devuelve una fila con la lista vacía; un id inexistente no devuelve fila', async () => {
@@ -407,5 +426,15 @@ describe.skipIf(!hayCanonico)('historial contra el canónico real', () => {
     expect(agrupaHistorial(sinApariciones!.apariciones)).toEqual([]);
 
     expect(await historialReal(999999999)).toBeUndefined();
+  });
+
+  it('una persona de otra federación no enseña ninguna aparición por el rol de lectura', async () => {
+    // 1181455 tiene todas sus apariciones en Cantabria: la persona existe en el canónico, pero la
+    // publicación es sólo de CyL y su historial publicado queda vacío.
+    const fila = await historialReal(PERSONA_DE_OTRA_FEDERACION);
+    expect(fila).toBeDefined();
+    expect(fila!.persona_id).toBe(PERSONA_DE_OTRA_FEDERACION);
+    expect(fila!.apariciones).toEqual([]);
+    expect(agrupaHistorial(fila!.apariciones)).toEqual([]);
   });
 });

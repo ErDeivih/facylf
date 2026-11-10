@@ -26,7 +26,7 @@ import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
  * · lo que la fuente no publicó llega `null`, nunca `0`; el puesto se devuelve con su origen
  *   (`posicion_linea`/`origen_posicion` de la línea, o `posicion_oficial` del último parte oficial)
  *   para que la pantalla pueda decir de dónde sale;
- * · ningún valor se interpola: la única interpolación es la lista de federaciones excluidas, que
+ * · ningún valor se interpola: la única interpolación es la lista de federaciones que se publican, que
  *   viene validada de `lib/federaciones-excluidas.ts` (la usan todas las consultas del canónico).
  */
 

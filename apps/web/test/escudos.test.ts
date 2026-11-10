@@ -266,10 +266,10 @@ describe.skipIf(!hayCanonico)('los escudos que prometen las consultas salen del 
   });
 
   it('un grupo con calendario y sin resultados trae la fecha publicada, no una inventada', async () => {
-    // Grupo 75250 (CyL 2026-27): todos sus partidos están programados y ninguno jugado. Es el caso que
-    // la pantalla de Jornada necesita: `fecha` es null y `fecha_prevista` sí existe y es la publicada.
+    // Grupo 50293 (CyL 2022-23): calendario publicado y ningún partido jugado. Es el caso que la
+    // pantalla de Jornada necesita: `fecha` es null y `fecha_prevista` sí existe y es la publicada.
     const filas = await consulta<{ fecha: string | null; fecha_prevista: string | null }>(
-      PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '24219264', 400]);
+      PARTIDOS_DE_GRUPO.sql, ['castilla-leon', '50293', 400]);
     expect(filas.length).toBeGreaterThan(0);
     for (const fila of filas) {
       expect(fila.fecha).toBeNull();

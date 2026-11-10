@@ -25,18 +25,25 @@ import { GET as getDelegado } from '../src/app/api/v1/oficiales/delegado/[id]/ro
 const motivo = motivoSinCanonico();
 const hayCanonico = motivo === null;
 
-/** Persona real con 144 apariciones y cambio de club a mitad de temporada. */
-const JUGADOR = 1181455;
+/**
+ * Persona real de Castilla y León con muchas apariciones (2021-22 a 2026-27), cambio de club a mitad
+ * de la 2023-24 y dos equipos del mismo club en esa misma temporada.
+ */
+const JUGADOR = 122;
+/** Persona real cuyas apariciones son de otra federación (Cantabria): no se publican en esta web. */
+const JUGADOR_DE_OTRA_FEDERACION = 1181455;
 /** Inscripción real (equipo de la jornada 1 del grupo 3769). */
 const EQUIPO = 17609;
 /** Club real (C.D. Internacional Vista Alegre). */
 const CLUB = 1495;
-/** Árbitro principal real con nombre publicado. */
-const ARBITRO = 657011;
-/** Entrenador real. */
-const ENTRENADOR = 1251791;
-/** Delegado de equipo real (rol «Taldeko Delegatua»). */
-const DELEGADO = 1072476;
+/** Árbitro principal real de CyL con nombre publicado. */
+const ARBITRO = 18951;
+/** Árbitro real de otra federación (Castilla-La Mancha): su ficha no se publica aquí. */
+const ARBITRO_DE_OTRA_FEDERACION = 657011;
+/** Entrenador real de CyL. */
+const ENTRENADOR = 19080;
+/** Delegado de equipo real de CyL (rol «DEL. Equipo»). */
+const DELEGADO = 19236;
 /** Grupo real de CyL 2026-27 con partidos, eventos y goleadores. */
 const GRUPO = 3769;
 
@@ -158,7 +165,7 @@ describe.skipIf(!hayCanonico)('API v1: estadísticas de una competición', () =>
 });
 
 describe.skipIf(!hayCanonico)('API v1: historiales', () => {
-  it('jugador: devuelve todas sus apariciones (1181455, 144)', async () => {
+  it('jugador: devuelve sus apariciones publicadas, todas, sin cortar la lista', async () => {
     const respuesta = await llama(getHistorialJugador, `/api/v1/ficha/jugador/${JUGADOR}/historial`, { id: String(JUGADOR) });
     expect(respuesta.status).toBe(200);
     const cuerpo = (await json(respuesta)) as Envoltorio & {
@@ -166,7 +173,9 @@ describe.skipIf(!hayCanonico)('API v1: historiales', () => {
     };
     expect(cuerpo.api?.recurso).toBe('historial-jugador');
     expect(cuerpo.datos!.persona_id).toBe(JUGADOR);
-    expect(cuerpo.datos!.apariciones).toHaveLength(144);
+    // El canónico crece con la importación: no se clava el número de apariciones, se comprueba que la
+    // lista no viene truncada (el `LIMIT 2000` de la consulta es de sobra) y que cada fila es utilizable.
+    expect(cuerpo.datos!.apariciones.length).toBeGreaterThanOrEqual(100);
     expect(cuerpo.datos!.apariciones.every((a) => typeof a.team_entry_id === 'number')).toBe(true);
     expect(cuerpo.enlaces?.web).toBe(`/explorar/jugador/${JUGADOR}/historial`);
 
@@ -174,6 +183,19 @@ describe.skipIf(!hayCanonico)('API v1: historiales', () => {
     expect(invalido.status).toBe(400);
     const inexistente = await llama(getHistorialJugador, '/api/v1/ficha/jugador/999999999/historial', { id: '999999999' });
     expect(inexistente.status).toBe(404);
+  });
+
+  it('jugador de otra federación: la persona existe en el canónico pero no se ve ninguna aparición suya', async () => {
+    // 1181455 tiene sus apariciones en Cantabria. La fase C publica sólo CyL, así que el historial
+    // publicado está vacío: no se cuela ni una aparición de otra comunidad por el rol de lectura.
+    const respuesta = await llama(getHistorialJugador, `/api/v1/ficha/jugador/${JUGADOR_DE_OTRA_FEDERACION}/historial`,
+      { id: String(JUGADOR_DE_OTRA_FEDERACION) });
+    expect(respuesta.status).toBe(200);
+    const cuerpo = (await json(respuesta)) as Envoltorio & {
+      datos?: { persona_id: number; apariciones: Array<{ federacion: string }> };
+    };
+    expect(cuerpo.datos!.persona_id).toBe(JUGADOR_DE_OTRA_FEDERACION);
+    expect(cuerpo.datos!.apariciones).toEqual([]);
   });
 
   it('equipo: devuelve la línea temporada a temporada y 404 si no existe', async () => {
@@ -209,7 +231,7 @@ describe.skipIf(!hayCanonico)('API v1: historiales', () => {
 });
 
 describe.skipIf(!hayCanonico)('API v1: fichas de oficiales', () => {
-  it('árbitro: ficha real; un jugador no es árbitro (404) y un id malo es 400', async () => {
+  it('árbitro: ficha real; un jugador no es árbitro (404), una federación no publicada tampoco y un id malo es 400', async () => {
     const respuesta = await llama(getArbitro, `/api/v1/oficiales/arbitro/${ARBITRO}`, { id: String(ARBITRO) });
     expect(respuesta.status).toBe(200);
     const cuerpo = (await json(respuesta)) as Envoltorio & { datos?: { person_id: number; partidos: number } };
@@ -218,12 +240,15 @@ describe.skipIf(!hayCanonico)('API v1: fichas de oficiales', () => {
     expect(cuerpo.datos!.partidos).toBeGreaterThan(0);
     expect(cuerpo.enlaces?.web).toBe(`/explorar/arbitro/${ARBITRO}`);
 
-    // 1181455 aparece en actas como jugador, no como árbitro principal.
-    expect((await llama(getArbitro, '/api/v1/oficiales/arbitro/1181455', { id: '1181455' })).status).toBe(404);
+    // 122 aparece en actas como jugador, no como árbitro principal.
+    expect((await llama(getArbitro, `/api/v1/oficiales/arbitro/${JUGADOR}`, { id: String(JUGADOR) })).status).toBe(404);
+    // 657011 arbitra en Castilla-La Mancha: la publicación es sólo de CyL, así que no hay ficha.
+    expect((await llama(getArbitro, `/api/v1/oficiales/arbitro/${ARBITRO_DE_OTRA_FEDERACION}`,
+      { id: String(ARBITRO_DE_OTRA_FEDERACION) })).status).toBe(404);
     expect((await llama(getArbitro, '/api/v1/oficiales/arbitro/abc', { id: 'abc' })).status).toBe(400);
   });
 
-  it('entrenador y delegado: fichas reales y 404 con un id inexistente', async () => {
+  it('entrenador y delegado: fichas reales de CyL y 404 con un id inexistente', async () => {
     const entrenador = await llama(getEntrenador, `/api/v1/oficiales/entrenador/${ENTRENADOR}`, { id: String(ENTRENADOR) });
     expect(entrenador.status).toBe(200);
     const cuerpoEntrenador = (await json(entrenador)) as Envoltorio & { datos?: { person_id: number; partidos: number } };
@@ -239,6 +264,9 @@ describe.skipIf(!hayCanonico)('API v1: fichas de oficiales', () => {
     expect(cuerpoDelegado.datos!.person_id).toBe(DELEGADO);
     expect(cuerpoDelegado.datos!.partidos).toBeGreaterThan(0);
     expect(cuerpoDelegado.enlaces?.web).toBe(`/explorar/delegado/${DELEGADO}`);
+
+    // Un entrenador de Cantabria (1251791) no tiene ficha publicada en esta web.
+    expect((await llama(getEntrenador, '/api/v1/oficiales/entrenador/1251791', { id: '1251791' })).status).toBe(404);
 
     for (const handler of [getEntrenador, getDelegado]) {
       expect((await llama(handler, '/api/v1/oficiales/x/999999999', { id: '999999999' })).status).toBe(404);

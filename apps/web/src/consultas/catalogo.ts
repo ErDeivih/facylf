@@ -163,6 +163,11 @@ export type FilaFaceta = {
  * canónico, no se ofrece como filtro. Una lista escrita a mano acabaría enseñando opciones que no
  * devuelven nada, y el vocabulario del esquema (`desconocido`, `desconocida`) es un valor real que se
  * enseña como «sin determinar», no como una opción vacía.
+ *
+ * Desde la fase C la publicación es sólo de Castilla y León y las opciones de provincia se acotan al
+ * pintarlas (`agrupaFacetas` en `lib/presentacion-canonico.ts` filtra con las nueve de
+ * `lib/provincias-cyl.ts`): esta consulta sigue leyendo las ediciones del catálogo sin unir la federación
+ * para no cambiar la forma de su plan guardado (`pruebas/planes/`); el filtro es de presentación.
  */
 export const FACETAS_DEL_CATALOGO: Consulta<FilaFaceta> = {
   nombre: 'facetas-del-catálogo',

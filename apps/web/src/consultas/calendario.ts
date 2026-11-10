@@ -1,4 +1,4 @@
-﻿import type { Consulta } from './contratos';
+import type { Consulta } from './contratos';
 import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 import { TEMPORADA_MINIMA } from '@/lib/temporadas';
 
@@ -193,8 +193,9 @@ export type FilaOpcionesCalendario = {
 };
 
 /**
- * Opciones de los filtros del calendario global en UNA consulta: federaciones no excluidas y temporadas
- * publicadas (la misma ventana que anuncia el pie). Son tablas de catálogo, no de hechos.
+ * Opciones de los filtros del calendario global en UNA consulta: federaciones publicadas (fase C: sólo
+ * Castilla y León) y temporadas publicadas (la misma ventana que anuncia el pie). Son tablas de catálogo,
+ * no de hechos.
  */
 export const OPCIONES_DEL_CALENDARIO: Consulta<FilaOpcionesCalendario> = {
   nombre: 'opciones-del-calendario',

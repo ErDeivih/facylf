@@ -290,10 +290,12 @@ describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
 
     const actual = porTemporada.get('2026-27')!;
     expect(actual.equipo_id).toBe(17614);
-    expect(actual.jugados).toBe(4);
+    // La temporada en curso crece con la importación: cota, no un número clavado.
+    expect(actual.jugados).toBeGreaterThanOrEqual(4);
     expect(actual.jornadas_previstas).toBe(30);
     expect(actual.posicion_linea).toBe(8);
-    expect(signosDeRacha(actual.racha).length).toBe(4);
+    // La racha enseña como mucho los cinco últimos: con más partidos jugados no se alarga.
+    expect(signosDeRacha(actual.racha).length).toBe(Math.min(5, actual.jugados!));
 
     const historial = historialDeEquipo(filas);
     expect(historial.temporadas.map((t) => t.fila.temporada)).toEqual(['2026-27', '2025-26', '2021-22', '2013-14']);
@@ -352,7 +354,8 @@ describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
   });
 
   it('un club sin equipos publicados devuelve una fila con el club y los equipos a null, no 404', async () => {
-    const filas = await consulta<FilaHistorialClub>(HISTORIAL_DEL_CLUB.sql, [39611, 1200]);
+    // Club real de CyL que no tiene ninguna inscripción publicada.
+    const filas = await consulta<FilaHistorialClub>(HISTORIAL_DEL_CLUB.sql, [52183, 1200]);
     expect(filas).toHaveLength(1);
     expect(filas[0]!.club).toBeTruthy();
     expect(filas[0]!.equipo_id).toBeNull();
@@ -360,6 +363,12 @@ describe.skipIf(!hayCanonico)('contrato contra el canónico real', () => {
     expect(filasDeEquiposDelClub(filas)).toEqual([]);
     expect(temporadasDelClub(filas)).toEqual([]);
     expect(resumenDeClubEnHistorial(filas).equipos).toBe(0);
+  });
+
+  it('un club de otra federación no se publica: la consulta no devuelve filas', async () => {
+    // 39611 es la AURRERA GASTEIZ FUTSAL (Euskadi): con la publicación limitada a CyL, para esta web
+    // no existe (404 de verdad), aunque el canónico tenga su ficha.
+    expect(await consulta(HISTORIAL_DEL_CLUB.sql, [39611, 1200])).toHaveLength(0);
   });
 
   it('un club que no existe no devuelve filas', async () => {
@@ -431,8 +440,8 @@ describe('las páginas del historial', () => {
   });
 
   it.skipIf(!hayCanonico)('un club sin equipos enseña el club y lo dice, en vez de una página rota o un cero', async () => {
-    const html = render(await PaginaHistorialClub({ params: Promise.resolve({ id: '39611' }) }));
-    expect(html).toContain('AURRERA GASTEIZ FUTSAL');
+    const html = render(await PaginaHistorialClub({ params: Promise.resolve({ id: '52183' }) }));
+    expect(html).toContain('C.D. COLEGIOS DIOCESANOS B');
     expect(html).toMatch(/sin equipos|no hay equipos/i);
     // Sin equipos publicados no hay un cero que parezca una medición: se dice «sin datos».
     expect(html).toContain('Sin datos');
