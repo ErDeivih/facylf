@@ -141,6 +141,15 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (mediodía): **entregado el encargo «pipeline diario» de David.** Pipeline programado
+  (`scripts/ciclo-diario-cyl.ps1`, idempotente y demostrado con recuentos antes/después), tarea `FACyLF ciclo diario
+  CyL` diaria a las 04:30 **con StartWhenAvailable**, comprobación de codificación que **falla con exit 1** (CyL
+  limpio; 22 nombres de otras federaciones con el byte perdido, localizados y no tocados), publicación limitada a CyL
+  (`FEDERACIONES_PUBLICADAS`), filtros de provincia solo con las 9 de Castilla y León, 12 escudos copiados a sus
+  clubes hermanos (48 clubes con escudo), DNS del servidor documentado y **tabla final: 206 de 867 ediciones
+  completas** (eran 138 de 807 al empezar el día). La web: 39 ficheros y 794 pruebas en verde, `tsc` 0. El refresco
+  de la base publicada (`facylf_canonico_4`) va por la restauración (T1 = T2 superado).
+
 - 10/11/2026 (mañana, 10:20): **la importación sigue y ya se nota en los grupos, no sólo en las actas.** 2020-21
   terminada (154 grupos) y sus grupos completos suben de **235 a 309 de 337** (ediciones 9 → 16 de 31); 2016-17
   terminada (142 grupos) y **144 → 167 de 286**; 2018-19 a medias (105 de 124) con **143 → 150 de 270**. Total:
