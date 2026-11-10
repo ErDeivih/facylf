@@ -1886,6 +1886,12 @@ function reconciliaAmbitoActas(db) {
  */
 function reparaActasSinTrabajo(db, { limite = 50000 } = {}) {
   if (!permiteActasAdultas() && !permiteActasMenores()) return { creados: 0, reactivados: 0 };
+  // Recorre las actas pendientes con dos joins (110 s en frío medidos el 10/11/2026) para reparar trabajos que
+  // falten. Es una reparación idempotente y no urgente: una vez al día basta y el arranque deja de costar minutos.
+  if (!tocaRepaso({ ultimaVez: leeMetadato(db, 'actas_sin_trabajo_revisadas_en') })) {
+    return { creados: 0, reactivados: 0, omitidas: 0, candidatas: 0 };
+  }
+  guardaMetadato(db, 'actas_sin_trabajo_revisadas_en', new Date().toISOString());
   const conAsignacion = hayTemporadasAsignadas();
   const filtro = conAsignacion ? sqlSoloTemporadasAsignadas('a') : '1=1';
   const parametros = conAsignacion ? parametrosSoloTemporadas() : [];
