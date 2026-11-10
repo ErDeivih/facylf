@@ -2577,10 +2577,11 @@ function anotaUltimaPeticion(db, trabajo, resultado, detalle) {
 /** Cronometra un paso local del arranque y deja rastro si tarda: sin esto, un arranque de una hora no dice
  *  en qué se fue (medido el 10/11/2026: el worker estuvo 60+ min entre dos mensajes del registro). */
 function pasoDeArranque(etiqueta, fn) {
+  console.log('  · arranque: ' + etiqueta + ' …');
   const t0 = Date.now();
   const resultado = fn();
   const ms = Date.now() - t0;
-  if (ms > 1000) console.log(`  · arranque: ${etiqueta} ${(ms / 1000).toFixed(1)} s`);
+  console.log('  · arranque: ' + etiqueta + ' ' + (ms / 1000).toFixed(1) + ' s');
   return resultado;
 }
 
