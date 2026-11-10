@@ -148,8 +148,11 @@ describe('la portada', () => {
 
   it('sin sesión enseña búsqueda, competiciones y una invitación honesta, sin equipos inventados', () => {
     const html = render();
-    expect(html).toContain('¿A quién buscas?');
-    expect(html).toContain('action="/buscar"');
+    expect(html).toContain('Una jornada de ejemplo');
+    // Un solo buscador en toda la app: el de la cabecera; la portada no repite formulario.
+    expect(html).not.toContain('¿A quién buscas?');
+    // La búsqueda vive en la cabecera (un solo buscador); la portada no repite el formulario.
+    expect(html).not.toContain('action="/buscar"');
     expect(html).toContain('Explorar una competición');
     expect(html).toContain('href="/explorar/competiciones?fed=castilla-leon');
     expect(html).toContain('href="/explorar/competicion/3769"');

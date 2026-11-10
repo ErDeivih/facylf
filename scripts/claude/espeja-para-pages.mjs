@@ -27,6 +27,11 @@ const RUTAS = [
   '/explorar/rankings',
   '/explorar/estadisticas',
   '/buscar',
+  '/explorar/ojeo',
+  '/explorar/comparar',
+  '/entrar',
+  '/crear-cuenta',
+  '/explorar/publicidad',
 ];
 
 if (existsSync(salida)) rmSync(salida, { recursive: true, force: true });
@@ -65,6 +70,7 @@ const rutasOk = [];
 const rutasMal = [];
 // Las actas enlazadas desde la portada («Ver partido») también entran en la foto: si no, el enlace abre 404.
 const actasDeLaPortada = new Set();
+const jornadasDeLaPortada = new Set();
 for (const ruta of [...RUTAS]) {
   const url = `${origen}${ruta}`;
   try {
@@ -73,7 +79,12 @@ for (const ruta of [...RUTAS]) {
     let html = await respuesta.text();
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     // Actas enlazadas (jornada de ejemplo de la portada): se piden después, una vez, para la foto.
-    if (ruta === '/') for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeLaPortada.add(m[1]);
+    if (ruta === '/') {
+      for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeLaPortada.add(m[1]);
+      for (const m of html.matchAll(/\/explorar\/competicion\/(\d+)(?:\/jornada\/(\d+))?/g)) {
+        jornadasDeLaPortada.add(m[2] ? `/explorar/competicion/${m[1]}/jornada/${m[2]}` : `/explorar/competicion/${m[1]}`);
+      }
+    }
     for (const m of html.matchAll(/\/api\/escudo\/federacion\/([\w-]+)/g)) escudosFed.add(m[1]);
     html = reescribe(html);
     const destino = join(salida, ruta === '/' ? 'index.html' : join(ruta.slice(1), 'index.html'));
@@ -110,6 +121,22 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
     writeFileSync(destinoActa, html);
     rutasOk.push(rutaActa);
   } catch (error) { rutasMal.push(`${rutaActa} (${error.message})`); }
+}
+
+// Jornadas y competiciones enlazadas desde la portada: así «Ver partido» abre una página que existe.
+for (const rutaJornada of [...jornadasDeLaPortada].slice(0, 16)) {
+  try {
+    const respuesta = await fetch(`${origen}${rutaJornada}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) { rutasMal.push(`${rutaJornada} (${respuesta.status})`); continue; }
+    let html = await respuesta.text();
+    for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
+    html = reescribe(html);
+    const trozos = rutaJornada.split('/').filter(Boolean);
+    const destinoJornada = join(salida, ...trozos, 'index.html');
+    mkdirSync(dirname(destinoJornada), { recursive: true });
+    writeFileSync(destinoJornada, html);
+    rutasOk.push(rutaJornada);
+  } catch (error) { rutasMal.push(`${rutaJornada} (${error.message})`); }
 }
 
 // Escudos de club: se descargan como PNG para no depender de la API dinámica.

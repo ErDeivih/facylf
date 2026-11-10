@@ -27,6 +27,8 @@ const BOTON_SECUNDARIO = 'inline-flex min-h-11 items-center justify-center round
 /** Un partido de la jornada de ejemplo de la portada (datos reales del canónico). */
 export type PartidoDeEjemplo = {
   partidoId: number;
+  grupoId: number;
+  jornadaNumero: number | null;
   fechaTexto: string;
   jornada: number | null;
   edicion: string;
@@ -53,7 +55,7 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
           Una jornada de ejemplo
         </h1>
         <p className="m-0 mt-1 text-tabla text-[var(--texto-tenue)]">
-          Partidos reales del canónico, con fecha, equipos y marcador. Toca «Ver partido» para abrir el acta.
+          Partidos reales de la temporada 2026-27, con fecha, equipos y marcador. Toca «Ver partido» para abrir la jornada.
         </p>
         <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
           {jornada.map((partido) => (
@@ -66,7 +68,9 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
                 <span className="text-tabla font-semibold">
                   {partido.local} <span className="mx-1 rounded bg-[var(--accion)] px-1.5 py-0.5 text-[var(--texto-inverso)]">{partido.golesLocal} - {partido.golesVisitante}</span> {partido.visitante}
                 </span>
-                <Link href={`/explorar/acta/${partido.partidoId}`}
+                <Link href={partido.jornadaNumero !== null
+                  ? `/explorar/competicion/${partido.grupoId}/jornada/${partido.jornadaNumero}`
+                  : `/explorar/competicion/${partido.grupoId}`}
                   className="text-nota font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">
                   Ver partido
                 </Link>

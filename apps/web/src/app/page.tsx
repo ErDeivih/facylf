@@ -52,18 +52,22 @@ export default async function Inicio() {
 let jornada: PartidoDeEjemplo[] = [];
 try {
   const partidos = await consulta<FilaPartidoListado>(PARTIDOS_DEL_CANONICO.sql, [
-    FEDERACION_DE_LA_PORTADA, '2026-27', null, 400, 0,
+    FEDERACION_DE_LA_PORTADA, '2026-27', null, 25, 0,
   ], { presupuestoMs: PARTIDOS_DEL_CANONICO.presupuestoMs });
+  const iso = (v: unknown): string => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? '').slice(0, 10));
+  const cuando = (v: unknown): number => (v instanceof Date ? v.getTime() : (Date.parse(String(v ?? '')) || 0));
   const jugados = partidos
     .filter((f) => f.goles_local !== null && f.goles_visitante !== null)
-    .sort((a, b) => String(b.jugado_en ?? '').localeCompare(String(a.jugado_en ?? '')));
+    .sort((a, b) => cuando(b.jugado_en) - cuando(a.jugado_en));
   // Los que tengan acta publicada primero: «Ver partido» siempre abre una ficha.
   const conActa = jugados.filter((f) => f.calidad_acta !== null);
   jornada = (conActa.length > 0 ? conActa : jugados)
     .slice(0, 4)
     .map((f) => ({
       partidoId: f.partido_id,
-      fechaTexto: (f.jugado_en ?? f.fecha_prevista ?? '').slice(0, 10),
+      grupoId: f.grupo_id,
+      jornadaNumero: f.jornada_numero,
+      fechaTexto: iso(f.jugado_en) || iso(f.fecha_prevista),
       jornada: f.jornada_numero,
       edicion: f.edicion ?? '',
       local: f.local,
@@ -71,7 +75,9 @@ try {
       golesLocal: f.goles_local as number,
       golesVisitante: f.goles_visitante as number,
     }));
-} catch {
+} catch (error) {
+  // Si la consulta falla, la portada sigue sin el bloque, pero se deja rastro en el registro del servidor.
+  console.error('[portada] no se pudo cargar la jornada de ejemplo:', error);
   jornada = [];
 }
 

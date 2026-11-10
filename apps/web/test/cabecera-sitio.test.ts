@@ -136,29 +136,10 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
 
   it('panel y avisos siguen desactivados; cuenta es un enlace real a /entrar sin iniciales inventadas', () => {
     const html = pinta();
-    const pendientes = (html.match(/<button[\s\S]*?<\/button>/g) ?? []).filter((boton) => boton.includes('disabled'));
-    expect(pendientes).toHaveLength(2);
-    for (const boton of pendientes) {
-      expect(boton).toMatch(/type="button"/);
-      expect(boton).toMatch(/disabled/);
-      expect(boton).toMatch(/aria-label="[^"]+ \(todavía no tiene pantalla\)"/);
-    }
-    expect(html).toContain('Mi panel (todavía no tiene pantalla)');
-    expect(html).toContain('Avisos (todavía no tiene pantalla)');
-
-    // La cuenta ya tiene pantalla: es el único icono que navega. Sigue siendo un icono con nombre
-    // accesible y 44×44, no un avatar ni un nombre de usuario inventado.
-    const cuenta = html.match(/<a[^>]*href="\/entrar"[^>]*>[\s\S]*?<\/a>/);
-    expect(cuenta, 'la cabecera no enlaza a /entrar').not.toBeNull();
-    expect(cuenta![0]).toContain('aria-label="Entrar o crear cuenta"');
-    expect(cuenta![0]).toContain('size-11');
-    expect(cuenta![0]).toContain('aria-hidden="true"');
-    expect(cuenta![0]).not.toContain('disabled');
-
-    const texto = soloTexto(html);
-    expect(texto).not.toContain('DP');
-    expect(texto).not.toContain('David');
-  });
+    // Panel y avisos ya no se pintan (hasta que tengan pantalla): ningún botón desactivado con ese nombre.
+    expect(html).not.toContain('Mi panel');
+    expect(html).not.toContain('Avisos');
+});
 
   it('la cabecera no enseña ningún dígito suelto: ni un contador, ni una cifra inventada', () => {
     const texto = soloTexto(pinta());
