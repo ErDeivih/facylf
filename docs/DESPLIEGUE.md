@@ -80,6 +80,24 @@ Nada de esto hace falta para la URL actual; son los pasos para pasar de foto a *
 4. **Textos legales** (aviso legal, privacidad y cookies) con nombre, NIF y domicilio del titular, y la decisión
    sobre La Preferente (D2-bis). Sin eso no se abre al público con dominio propio.
 
+### Cuánto cuesta cada opción (10/11/2026)
+
+| Opción | Qué da | Coste | Estado |
+|---|---|---|---|
+| **Ahora mismo**: foto estática en GitHub Pages + app real por túnel rápido de Cloudflare | demo pública y app completa con base real, sin dominio | **0 €** | **funcionando** (verificado por HTTP) |
+| **Dominio propio + Cloudflare Tunnel** | la app real en `https://fondopopular.es` (o el dominio que sea), sin abrir puertos, con HTTPS | dominio **~10-15 €/año**; túnel y DNS, gratis | falta que David compre el dominio y cree la cuenta |
+| **Dominio + GitHub Pages** (solo la foto estática) | demo bonita en el dominio, sin datos vivos | dominio ~10-15 €/año; Pages gratis | alternativa si no se quiere exponer el PC |
+| **VPS pequeño** (2 vCPU, 4 GB, PostgreSQL incluido) | app y base siempre encendidas, sin depender del PC | **~5-10 €/mes** (~60-120 €/año) | no hace falta todavía: la base son ~123 M filas y cabe, pero el PC ya la sirve |
+
+**Recomendación:** quedarse con lo que hay (**0 €**) y, cuando David decida el dominio, usar
+**dominio + Cloudflare Tunnel** (~10-15 €/año): la app completa sigue en el PC (que es donde está la base y donde se
+actualiza), y el dominio solo pone la cara. El VPS queda para cuando el PC no pueda estar encendido o haya que
+servir a mucha gente.
+
+Lo que **no** vale: Vercel/Netlify con base en un Postgres gestionado. La app depende de un PostgreSQL de ~123 M
+filas y de consultas pesadas; un plan gratuito de base de datos no aguanta eso ni de lejos, y moverla costaría más
+que el VPS. Por eso las opciones de arriba son las tres reales.
+
 ## Comprobación rápida de que sigue en pie
 
 ```powershell
