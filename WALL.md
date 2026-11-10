@@ -141,6 +141,17 @@ estadísticas e historiales sin que falte nada.
 
 ## Bitácora
 
+- 10/11/2026 (madrugada): **refresco exacto de la base publicada y arreglo del bloqueo de arranque del worker.** El
+  primer volcado salió 14 tablas por detrás porque el importador y el proyector siguieron escribiendo: se
+  congelaron las siete tareas escritoras, se exigió **recuento T1 = T2** (98 tablas, **116.986.467 filas**) y se
+  restauró en **`facylf_canonico_3`** con **cotejo 98/98 tablas y 116.986.467 filas, sin una sola diferencia**; la
+  web ya lee esa base y `facylf`, `facylf_canonico` y `facylf_canonico_2` siguen intactas (nada borrado). URL nueva
+  `https://working-reseller-rights-omaha.trycloudflare.com` (el quick tunnel anterior caducó). Además:
+  `cuentaActasDesactualizadas` recorre 2,4 GB de actas y se pagaba **en cada arranque** (medido: 42 min bloqueado
+  el 09/11; el balance de la noche fue 25 obras); ahora los dos sitios que cuentan pasan por
+  `lib/repaso-actas.mjs`, que se salta el escaneo si la cola quedó limpia con el mismo parser hace menos de 24 h —
+  prueba en rojo y **144/144** en `pnpm recolector:test`.
+
 - 09/11/2026 (noche, 21:10): **2019-20 cerrada por la vía del PC y worker al 100 % tres horas seguidas.** La 2ª
   pasada de 2019-20 hizo 51 grupos más sin fallos: el hueco real de esa temporada baja de 5.112 actas a **3 actas en
   3 grupos** (216/216 claves «hecho»). Ojo: la cobertura por ediciones de 2019-20 no se mueve todavía (sigue 1/56)
