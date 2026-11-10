@@ -3,31 +3,23 @@
 Registro corto y en un solo sitio de las decisiones que cambian el producto. Cada entrada dice qué se decidió, por
 qué, qué NO se hace y cómo se comprueba.
 
-## 2026-11-10 · Datos personales en la demo pública: iniciales, sin rankings ni fichas de equipo
+## 2026-11-10 · Datos personales: se publican (consentimiento), sin caras
 
-**Decidido por los dos coordinadores (10/11/2026), por RGPD.** La demo pública es lo único que ve cualquiera:
-no puede llevar nombres completos de personas (ni de menores, ni de árbitros), ni páginas que los publiquen.
-
-Qué se hace en la demo (el generador `scripts/claude/espeja-para-pages.mjs` lo aplica al generar la foto):
-
-- **todos los nombres completos se sustituyen por iniciales** («LÓPEZ ROMERA, GONZALO» → «L. R., G.»): jugadores
-  y árbitros, en actas, jornadas y estadísticas. Se conserva el resto (marcadores, clasificaciones, alineaciones,
-  minutos, tarjetas), que es lo que demuestra el producto;
-- **fuera Rankings y Ojeo**: son las dos pantallas que publicaban nombres de jugadores de categorías de menores
-  (alevín, benjamín, infantil, cadete, juvenil);
-- **fuera las fichas de equipo** (`/explorar/equipo/<id>`) y sus enlaces: la plantilla de un equipo incluye menores.
-  Los enlaces se llevan al selector de competiciones, así que no queda ningún 404;
-- **el ejemplo de jugador de la demo es adulto** (persona 89502, solo categoría «aficionados»).
+**Decisión de David (10/11/2026, corrige una decisión anterior del mismo día).** La federación tiene consentimiento
+de tratamiento y **no se muestran caras**, así que la app y la demo **publican los datos personales como están**:
+nombres completos de jugadores (también de menores) y de árbitros, con dorsal y minutos. **No se quitan nombres, ni
+se reducen a iniciales, ni se numeran.**
 
 Qué NO se hace:
 
-- no se publican nombres de menores ni de árbitros en la demo;
-- no se publican plantillas ni listas de goleadores de categorías de menores;
-- no se cambia el criterio de la app privada (ahí manda la decisión de David del 05/11 sobre datos de la federación).
+- no se publican **fotos** de personas;
+- no se ocultan ni se inicializan nombres por ser menores: hay consentimiento y es una decisión explícita de David;
+- no se eliminan rankings ni fichas de equipo por motivos de privacidad.
 
-Cómo se comprueba: `node tmp/audita-demo-privacidad.mjs` recorre las rutas publicadas y cuenta nombres completos
-(debe dar 0), enlaces a equipo (0), rankings (404) y el cartel con «fútbol y fútbol sala». Última pasada: **0 nombres
-completos y 489 nombres reducidos a iniciales**.
+Estado y comprobación: la redacción de iniciales que se había aplicado por la mañana **se retiró**; la demo vuelve a
+publicar nombres completos (578 apariciones en la última foto) y **Ojeo vuelve a estar**. Se mantienen fuera, por
+otros motivos, **Rankings** (se quedaba en «Cargando…»: su listado se pide por JS y la foto se sirve sin JS) y las
+**fichas de equipo** (sus enlaces daban 404; ahora los enlaces se han quitado y llevan al selector).
 
 ## 2026-11-10 · Escudos de club: no se copian ni se recolectan sin permiso
 

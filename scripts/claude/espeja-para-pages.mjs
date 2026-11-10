@@ -22,10 +22,11 @@ const RUTAS = [
   '/explorar/competicion/44/calendario',
   '/explorar/competicion/44/estadisticas',
   '/explorar/acta/2000559',
-  '/explorar/jugador/89502/historial',
+  '/explorar/jugador/19057/historial',
   '/explorar/federacion/castilla-leon',
   '/buscar',
   '/explorar/comparar',
+  '/explorar/ojeo',
   '/entrar',
   '/crear-cuenta',
   '/explorar/publicidad',
@@ -60,33 +61,24 @@ function reescribe(html) {
     // duplicaría: /fondo-popular-demo/fondo-popular-demo/...).
     .replaceAll(/\/explorar\/equipo\/\d+/g, `${base}/explorar/competiciones`)
     .replaceAll(new RegExp(`${base}${base}/explorar/competiciones`, 'g'), `${base}/explorar/competiciones`)
-    // Rankings y Ojeo fuera de la demo: publican nombres de jugadores de categorías de menores.
-    .replaceAll(new RegExp(`${base}\\/explorar\\/(rankings|ojeo)`, 'g'), `${base}/explorar/competiciones`)
-    .replaceAll(/\/explorar\/(rankings|ojeo)/g, `${base}/explorar/competiciones`)
+    // Rankings fuera de la demo: se quedaba en «Cargando…» (su listado se pide por JavaScript y la foto va sin JS).
+    .replaceAll(new RegExp(`${base}\\/explorar\\/rankings`, 'g'), `${base}/explorar/competiciones`)
+    .replaceAll(/\/explorar\/rankings/g, `${base}/explorar/competiciones`)
     // Fuera el JavaScript: esto es una foto estática. Sin hidratación no hay router que pida rutas SIN el
     // prefijo de publicación (eso era el 404/503 que veían los coordinadores) y cada enlace es una carga de
     // página normal contra el fichero que existe. La interactividad no es parte de la demo.
     .replace(/<script[\s\S]*?<\/script>/gi, '');
 }
 
-/** Quita de la navegación las entradas que ya no tienen página en la demo (Rankings, Ojeo). */
-/** Sustituye "APELLIDOS, NOMBRE" por iniciales ("A. B., C.") en el HTML de la demo. */
-function redactaNombres(html) {
-  return html.replace(/([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*(?:\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*)*),\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*(?:\s+[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ'’-]*)*)/g,
-    (_, apellidos, nombre) => {
-      const iniciales = (parte) => parte.split(/\s+/).filter(Boolean).map((w) => w[0] + '.').join(' ');
-      return `${iniciales(apellidos)}, ${iniciales(nombre)}`;
-    });
-}
-
+/** Quita de la navegación la entrada de Rankings (ya no tiene página en la demo). */
 function prepara(html) {
-  return redactaNombres(quitaDeNavegacion(reescribe(html)));
+  return quitaDeNavegacion(reescribe(html));
 }
 
 function quitaDeNavegacion(html) {
   return html
-    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?funcion-(rankings|ojeo)[\s\S]*?<\/li>/g, '')
-    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/(rankings|ojeo)[\s\S]*?<\/li>/g, '');
+    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?funcion-rankings[\s\S]*?<\/li>/g, '')
+    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/rankings[\s\S]*?<\/li>/g, '');
 }
 
 const escudos = new Set();
