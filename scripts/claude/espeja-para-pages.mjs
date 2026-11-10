@@ -107,6 +107,27 @@ writeFileSync(join(salida, '404.html'), `<!DOCTYPE html><html lang="es"><head><m
 <p style="margin:0 0 12px;color:#aab1ba">La demostración es una foto estática y solo incluye unas cuantas páginas.</p>
 <a href="${base}/">Volver al inicio de la demo</a></div></body></html>`, 'utf8');
 
+// Alias de rutas cortas que la gente teclea (y que en la app son rutas canónicas más largas). Sin esto,
+// /explorar y /rankings responden 404 porque no hay fichero en esa carpeta; con esto son páginas reales.
+const ALIAS = [
+  ['/explorar', '/explorar/competiciones'],
+  ['/rankings', '/explorar/rankings'],
+  ['/competiciones', '/explorar/competiciones'],
+];
+for (const [rutaAlias, rutaReal] of ALIAS) {
+  try {
+    const respuesta = await fetch(`${origen}${rutaReal}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) { rutasMal.push(`${rutaAlias} (origen ${respuesta.status})`); continue; }
+    let html = await respuesta.text();
+    for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
+    html = reescribe(html);
+    const destinoAlias = join(salida, ...rutaAlias.split('/').filter(Boolean), 'index.html');
+    mkdirSync(dirname(destinoAlias), { recursive: true });
+    writeFileSync(destinoAlias, html);
+    rutasOk.push(rutaAlias);
+  } catch (error) { rutasMal.push(`${rutaAlias} (${error.message})`); }
+}
+
 // Actas de la jornada de ejemplo de la portada.
 for (const id of [...actasDeLaPortada].slice(0, 8)) {
   const rutaActa = `/explorar/acta/${id}`;
