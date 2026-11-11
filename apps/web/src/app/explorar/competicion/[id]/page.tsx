@@ -227,7 +227,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const trozosFrescura = [
     jornadaActual !== null && jornadasTotales !== null ? `J${jornadaActual}/${jornadasTotales}` : null,
     fechaActualizado === null ? null : `actualizado ${fechaActualizado}`,
-    frescura === null ? null : `actas ${frescura.actas}/${frescura.con_resultado}`,
+    frescura === null ? null : `actas ${frescura.actas}/${frescura.con_resultado} (${frescura.con_resultado === 0 ? 0 : Math.round((100 * frescura.actas) / frescura.con_resultado)} %)`,
   ].filter((x): x is string => x !== null);
   const lineaFrescura = trozosFrescura.length ? trozosFrescura.join(' · ') : null;
 
