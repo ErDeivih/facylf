@@ -301,6 +301,30 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
     if (r.ok) writeFileSync(join(salida, fichero), Buffer.from(await r.arrayBuffer()));
   } catch { /* no es crítico */ }
 }
+// CSV de partidos jugados de cada competición de la foto (y su enlace apuntando al fichero estático).
+{
+  let csvs = 0;
+  const carpetaCompeticiones = join(salida, 'explorar', 'competicion');
+  if (existsSync(carpetaCompeticiones)) {
+    for (const entrada of readdirSync(carpetaCompeticiones)) {
+      const ficha = join(carpetaCompeticiones, entrada, 'index.html');
+      if (!existsSync(ficha)) continue; // es una subruta (jornada, calendario...), no la ficha
+      try {
+        const respuesta = await fetch(`${origen}/explorar/competicion/${entrada}/partidos/descarga`);
+        if (!respuesta.ok) continue;
+        const csv = await respuesta.text();
+        writeFileSync(join(carpetaCompeticiones, entrada, 'partidos.csv'), csv, 'utf8');
+        const html = readFileSync(ficha, 'utf8');
+        const antes = `${base}/explorar/competicion/${entrada}/partidos/descarga`;
+        const despues = `${base}/explorar/competicion/${entrada}/partidos.csv`;
+        if (html.includes(antes)) writeFileSync(ficha, html.replaceAll(antes, despues), 'utf8');
+        csvs += 1;
+      } catch { /* opcional */ }
+    }
+  }
+  if (csvs) console.log(`CSV de partidos exportados: ${csvs}`);
+}
+
 // Fichas de equipo que falten: se buscan en el HTML ya escrito (clasificación, jornadas, actas) y se exportan
 // antes del saneado, para que los nombres de equipo no acaben apuntando al selector.
 {

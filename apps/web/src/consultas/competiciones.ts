@@ -528,8 +528,42 @@ export const SIN_ACTA_DEL_GRUPO: Consulta<{
      limit 200`,
 };
 
+
+/**
+ * Partidos del grupo para el CSV: fecha, jornada, equipos, goles y campo. Solo partidos JUGADOS (con resultado),
+ * que es lo que define la fila del fichero: el criterio es «filas = partidos jugados del grupo».
+ *
+ * Parámetros: (1) phase_group_id.
+ */
+export const PARTIDOS_CSV_DEL_GRUPO: Consulta<{
+  match_id: number; jornada: number; fecha: string | null; local: string; visitante: string;
+  goles_local: number; goles_visitante: number; campo: string | null;
+}> = {
+  nombre: 'partidos-csv-del-grupo',
+  descripcion: 'Partidos jugados del grupo con fecha, jornada, equipos, goles y campo (para el CSV).',
+  plan: 'indexado',
+  presupuestoMs: 500,
+  columnas: ['match_id', 'jornada', 'fecha', 'local', 'visitante', 'goles_local', 'goles_visitante', 'campo'],
+  sql: `
+    select m.id as match_id,
+           d.numero as jornada,
+           coalesce(to_char(m.played_at, 'YYYY-MM-DD'), to_char(m.fecha_prevista, 'YYYY-MM-DD')) as fecha,
+           tl.nombre_en_fuente as local,
+           tv.nombre_en_fuente as visitante,
+           m.goles_local, m.goles_visitante,
+           v.nombre as campo
+      from core.match m
+      join core.matchday d on d.id = m.matchday_id
+      join core.team_entry tl on tl.id = m.home_team_entry_id
+      join core.team_entry tv on tv.id = m.away_team_entry_id
+      left join core.venue v on v.id = m.venue_id
+     where m.phase_group_id = $1
+       and m.goles_local is not null and m.goles_visitante is not null
+     order by d.numero, m.source_order`,
+};
+
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
-  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO, SIN_ACTA_DEL_GRUPO] as const;
+  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO, SIN_ACTA_DEL_GRUPO, PARTIDOS_CSV_DEL_GRUPO] as const;
 
 export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'grupo-por-id': [797],
@@ -540,4 +574,5 @@ export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'frescura-del-grupo': [797],
   'calidad-del-grupo': [797],
   'sin-acta-del-grupo': [797],
+  'partidos-csv-del-grupo': [797],
 };

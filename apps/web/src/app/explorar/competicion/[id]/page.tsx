@@ -271,6 +271,10 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
       )}
       <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
         Calculada hasta J{jornadaResultados ?? '—'} · Fuente federativa: {oficialJornada === null ? 'sin tabla oficial' : `J${oficialJornada}`}
+        {' · '}
+        <a className="underline decoration-dotted" href={`${ruta}/partidos/descarga`} download>
+          CSV de partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`}
+        </a>
       </p>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px]">
