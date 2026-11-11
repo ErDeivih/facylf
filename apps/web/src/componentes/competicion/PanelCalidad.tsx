@@ -5,7 +5,7 @@
  * con el descuadre exacto y deja claro que la tabla NO se publica como definitiva. Si la tabla oficial es de otra
  * jornada, se marca «por conciliar» con el motivo, para no enseñar dos cifras que se contradicen.
  */
-export function PanelCalidad({ actas, conResultado, porcentajeActas, fecha, descuadres, jornadaOficial, jornadaResultados }: {
+export function PanelCalidad({ actas, conResultado, porcentajeActas, fecha, descuadres, jornadaOficial, jornadaResultados, hrefSinActa }: {
   actas: number;
   conResultado: number;
   porcentajeActas: number;
@@ -13,6 +13,8 @@ export function PanelCalidad({ actas, conResultado, porcentajeActas, fecha, desc
   descuadres: { pj: number; puntos: number; goles: number } | null;
   jornadaOficial: number | null;
   jornadaResultados: number | null;
+  /** A dónde lleva el «X/Y» de actas: la lista de partidos sin acta. */
+  hrefSinActa?: string;
 }) {
   const reglas = [
     { nombre: 'PJ = V+E+D', valor: descuadres?.pj ?? 0 },
@@ -29,7 +31,11 @@ export function PanelCalidad({ actas, conResultado, porcentajeActas, fecha, desc
       <dl className="m-0 mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-nota text-[var(--texto)] sm:grid-cols-4">
         <div>
           <dt className="m-0 text-[var(--texto-suave)]">Actas</dt>
-          <dd className="m-0 font-semibold">{actas}/{conResultado} ({porcentajeActas} %)</dd>
+          <dd className="m-0 font-semibold">
+            {hrefSinActa
+              ? <a className="underline decoration-dotted" href={hrefSinActa}>{actas}/{conResultado} ({porcentajeActas} %)</a>
+              : <>{actas}/{conResultado} ({porcentajeActas} %)</>}
+          </dd>
         </div>
         <div>
           <dt className="m-0 text-[var(--texto-suave)]">Última actualización</dt>
@@ -51,7 +57,7 @@ export function PanelCalidad({ actas, conResultado, porcentajeActas, fecha, desc
           )}
           {ko.length > 0 && porConciliar && ' '}
           {porConciliar && (
-            <><strong>Por conciliar:</strong> la federación publicó su tabla de la jornada {jornadaOficial} y los resultados llegan a la {jornadaResultados}; se muestra la calculada.</>
+            <><strong>Cortes distintos:</strong> la federación publicó su tabla de la jornada {jornadaOficial} y los resultados llegan a la {jornadaResultados}; no es un error, se muestran por separado y se publica la calculada.</>
           )}
         </p>
       )}

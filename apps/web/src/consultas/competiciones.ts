@@ -491,8 +491,45 @@ export const CALIDAD_DEL_GRUPO: Consulta<{
            (select coalesce(sum(gf) - sum(gc), 0) from calc) descuadre_goles`,
 };
 
+
+/**
+ * Partidos del grupo con resultado publicado pero SIN acta enlazada: son los «pendientes de acta».
+ *
+ * Regla de elegibilidad (la que se enseña en la lista): solo se consideran elegibles los partidos con resultado;
+ * un partido sin resultado todavía no tiene acta que buscar (no es un pendiente, es un partido sin jugar).
+ *
+ * Parámetros: (1) phase_group_id.
+ */
+export const SIN_ACTA_DEL_GRUPO: Consulta<{
+  match_id: number; jornada: number; fecha: string | null; local: string; visitante: string;
+  goles_local: number; goles_visitante: number; estado: string | null;
+}> = {
+  nombre: 'sin-acta-del-grupo',
+  descripcion: 'Partidos con resultado y sin acta enlazada del grupo.',
+  plan: 'indexado',
+  presupuestoMs: 400,
+  columnas: ['match_id', 'jornada', 'fecha', 'local', 'visitante', 'goles_local', 'goles_visitante', 'estado'],
+  sql: `
+    select m.id as match_id,
+           d.numero as jornada,
+           coalesce(to_char(m.fecha_prevista, 'YYYY-MM-DD'), to_char(m.played_at, 'YYYY-MM-DD')) as fecha,
+           tl.nombre_en_fuente as local,
+           tv.nombre_en_fuente as visitante,
+           m.goles_local, m.goles_visitante,
+           m.official_status as estado
+      from core.match m
+      join core.matchday d on d.id = m.matchday_id
+      join core.team_entry tl on tl.id = m.home_team_entry_id
+      join core.team_entry tv on tv.id = m.away_team_entry_id
+     where m.phase_group_id = $1
+       and m.goles_local is not null and m.goles_visitante is not null
+       and not exists (select 1 from core.match_report r where r.match_id = m.id)
+     order by d.numero, m.source_order
+     limit 200`,
+};
+
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
-  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO] as const;
+  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO, SIN_ACTA_DEL_GRUPO] as const;
 
 export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'grupo-por-id': [797],
@@ -502,4 +539,5 @@ export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'clasificación-calculada': [797],
   'frescura-del-grupo': [797],
   'calidad-del-grupo': [797],
+  'sin-acta-del-grupo': [797],
 };

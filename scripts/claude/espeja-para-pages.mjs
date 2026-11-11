@@ -15,6 +15,7 @@ const [origen = 'http://127.0.0.1:3001', salida = 'tmp/site-pages', base = '/fon
 /** Rutas que se publican como foto. Todas con datos reales del canónico. */
 const RUTAS = [
   '/',
+  '/explorar/equipo/8871',
   '/explorar/competiciones',
   '/explorar/competicion/44',
   '/explorar/competicion/44/jornadas',
@@ -56,10 +57,6 @@ function reescribe(html) {
     .replaceAll(/\/api\/escudo\/federacion\/([\w-]+)/g, `${base}/escudos-fed/$1`)
     // Todo lo demás que es absoluto desde la raíz del dominio (sin repetir el subdirectorio).
     .replaceAll(/(["'(])\/(?!\/)(?!fondo-popular-demo\/)/g, `$1${base}/`)
-    // Sin fichas de equipo: sus plantillas publican nombres de jugadores de categorías de menores (RGPD). Los
-    // enlaces se llevan al selector en vez de dejar un 404. Las reglas toleran el prefijo ya puesto (si no, se
-    // duplicaría: /fondo-popular-demo/fondo-popular-demo/...).
-    .replaceAll(/\/explorar\/equipo\/\d+/g, `${base}/explorar/competiciones`)
     .replaceAll(new RegExp(`${base}${base}/explorar/competiciones`, 'g'), `${base}/explorar/competiciones`)
     // Rankings fuera de la demo: se quedaba en «Cargando…» (su listado se pide por JavaScript y la foto va sin JS).
     .replaceAll(new RegExp(`${base}\\/explorar\\/rankings`, 'g'), `${base}/explorar/competiciones`)
@@ -109,6 +106,7 @@ const actasDeLaPortada = new Set();
 const jornadasDeLaPortada = new Set();
 const rutasDeJornada = new Set();
 const actasDeJornadas = new Set();
+const equiposDeLaFoto = new Set();
 for (const ruta of [...RUTAS]) {
   const url = `${origen}${ruta}`;
   try {
@@ -117,6 +115,9 @@ for (const ruta of [...RUTAS]) {
     let html = leeHtml(ruta, await respuesta.text());
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     // Actas enlazadas (jornada de ejemplo de la portada): se piden después, una vez, para la foto.
+    if (ruta.startsWith('/explorar/competicion/')) {
+      for (const m of html.matchAll(/\/explorar\/equipo\/(\d+)/g)) equiposDeLaFoto.add(m[1]);
+    }
     if (ruta === '/') {
       for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeLaPortada.add(m[1]);
       for (const m of html.matchAll(/\/explorar\/competicion\/(\d+)(?:\/jornada\/(\d+))?/g)) {
@@ -197,7 +198,7 @@ for (const id of [...actasDeLaPortada].slice(0, 8)) {
 for (const rutaVecina of [...rutasDeJornada].slice(0, 40)) {
   try {
     const respuesta = await fetch(`${origen}${rutaVecina}`, { headers: { accept: 'text/html' } });
-    if (!respuesta.ok) { rutasMal.push(`${rutaVecina} (${respuesta.status})`); continue; }
+    if (!respuesta.ok) continue; // jornada contigua sin publicar: no es un fallo de la foto
     let html = leeHtml(rutaVecina, await respuesta.text());
     for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeJornadas.add(m[1]);
     html = prepara(html);
@@ -208,6 +209,35 @@ for (const rutaVecina of [...rutasDeJornada].slice(0, 40)) {
   } catch (error) {
     rutasMal.push(`${rutaVecina} (${error.message})`);
   }
+}
+
+// Lista de partidos sin acta de cada competición de la foto (FP-F3): el «X/Y» de actas lleva aquí.
+for (const rutaCompeticion of [...new Set([...rutasDeJornada, '/explorar/competicion/44', '/explorar/competicion/2939', '/explorar/competicion/3947'])]) {
+  const base = rutaCompeticion.replace(/\/jornada\/\d+$/, '');
+  const rutaSinActa = `${base}/sin-acta`;
+  try {
+    const respuesta = await fetch(`${origen}${rutaSinActa}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) continue;
+    const html = prepara(leeHtml(rutaSinActa, await respuesta.text()));
+    const destino = join(salida, ...rutaSinActa.split('/').filter(Boolean), 'index.html');
+    mkdirSync(dirname(destino), { recursive: true });
+    writeFileSync(destino, html);
+    rutasOk.push(rutaSinActa);
+  } catch { /* si no está, no rompe la foto */ }
+}
+
+// Fichas de equipo (FP-U1): las que aparecen enlazadas en las competiciones de la foto.
+for (const id of [...equiposDeLaFoto].slice(0, 80)) {
+  const rutaEquipo = `/explorar/equipo/${id}`;
+  try {
+    const respuesta = await fetch(`${origen}${rutaEquipo}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) continue; // equipo sin ficha en la app: no es un fallo de la foto
+    const html = prepara(leeHtml(rutaEquipo, await respuesta.text()));
+    const destino = join(salida, 'explorar', 'equipo', String(id), 'index.html');
+    mkdirSync(dirname(destino), { recursive: true });
+    writeFileSync(destino, html);
+    rutasOk.push(rutaEquipo);
+  } catch (error) { rutasMal.push(`${rutaEquipo} (${error.message})`); }
 }
 
 // Actas enlazadas desde las jornadas de la portada: son el «partido» al que se entra desde la jornada.
@@ -270,6 +300,38 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
     if (r.ok) writeFileSync(join(salida, fichero), Buffer.from(await r.arrayBuffer()));
   } catch { /* no es crítico */ }
 }
+// Fichas de equipo que falten: se buscan en el HTML ya escrito (clasificación, jornadas, actas) y se exportan
+// antes del saneado, para que los nombres de equipo no acaben apuntando al selector.
+{
+  const faltanEquipos = new Set();
+  const busca = (dir) => {
+    for (const f of readdirSync(dir)) {
+      const ruta = join(dir, f);
+      if (statSync(ruta).isDirectory()) { busca(ruta); continue; }
+      if (!f.endsWith('.html')) continue;
+      const html = readFileSync(ruta, 'utf8');
+      for (const m of html.matchAll(/\/explorar\/equipo\/(\d+)/g)) {
+        const id = m[1];
+        if (!existsSync(join(salida, 'explorar', 'equipo', id, 'index.html'))) faltanEquipos.add(id);
+      }
+    }
+  };
+  busca(salida);
+  for (const id of [...faltanEquipos].slice(0, 120)) {
+    const rutaEquipo = `/explorar/equipo/${id}`;
+    try {
+      const respuesta = await fetch(`${origen}${rutaEquipo}`, { headers: { accept: 'text/html' } });
+      if (!respuesta.ok) continue;
+      const html = prepara(leeHtml(rutaEquipo, await respuesta.text()));
+      const destino = join(salida, 'explorar', 'equipo', String(id), 'index.html');
+      mkdirSync(dirname(destino), { recursive: true });
+      writeFileSync(destino, html);
+      rutasOk.push(rutaEquipo);
+    } catch { /* opcional */ }
+  }
+  if (faltanEquipos.size) console.log(`fichas de equipo exportadas en la segunda pasada: ${Math.min(faltanEquipos.size, 120)}`);
+}
+
 // Saneado final: todo enlace interno debe apuntar a una página o recurso que exista en la foto. Lo que no
 // existe (competiciones que no se exportan, jornadas de otras, etc.) se lleva al selector de competiciones.
 {
@@ -313,7 +375,7 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
       let antes = readFileSync(ruta, 'utf8');
       if (f.endsWith('.html')) {
         const conFiltros = neutralizaFiltros(antes);
-        const sinEquipos = sinEnlacesDeEquipo(conFiltros);
+        const sinEquipos = conFiltros; // los nombres de equipo siguen siendo enlaces a su ficha (FP-U2)
         if (sinEquipos !== antes && /\/explorar\/equipo\/\d+/.test(antes)) enlacesDeEquipoQuitados += 1;
         antes = sinEquipos;
       }

@@ -15,6 +15,7 @@ import { Clasificacion } from '@/componentes/competicion/Clasificacion';
 import { EsqueletoContenido } from '@/componentes/competicion/EsqueletoContenido';
 import { Goleadores } from '@/componentes/competicion/Goleadores';
 import { PanelCalidad } from '@/componentes/competicion/PanelCalidad';
+import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
@@ -242,6 +243,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
     && (Number(descuadres.pj) !== 0 || Number(descuadres.puntos) !== 0 || Number(descuadres.goles) !== 0);
   return (
     <div className="flex flex-wrap items-start gap-[18px]">
+      <UltimoYProximo partidos={partidos} />
       {lineaFrescura && (
         <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
           {lineaFrescura}
@@ -264,8 +266,12 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
           descuadres={descuadres}
           jornadaOficial={oficialJornada}
           jornadaResultados={jornadaResultados}
+          hrefSinActa={`${ruta}/sin-acta`}
         />
       )}
+      <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
+        Calculada hasta J{jornadaResultados ?? '—'} · Fuente federativa: {oficialJornada === null ? 'sin tabla oficial' : `J${oficialJornada}`}
+      </p>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px]">
         <Jornada

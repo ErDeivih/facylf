@@ -89,7 +89,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Victorias-Empates-Derrotas">V-E-D</th>
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Goles a favor y en contra">Goles</th>
                   <th scope="col" className="w-9 py-2 pl-0.5 pr-1 font-semibold md:w-auto md:pl-1.5 md:pr-4">Pts</th>
-                  <th scope="col" className="w-[3.75rem] px-0.5 py-2 text-left font-semibold md:w-auto md:px-1.5"
+                  <th scope="col" className="hidden w-[3.75rem] px-0.5 py-2 text-left font-semibold md:table-cell md:w-auto md:px-1.5"
                     title="Últimos 5 partidos hasta la jornada de la tabla, del más antiguo al más reciente">Forma</th>
                 </tr>
               </thead>
@@ -124,7 +124,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             <summary className="cursor-pointer list-none text-nota text-[var(--texto-suave)]"
                               aria-label={`Ver victorias, empates, derrotas y goles de ${f.equipo}`}>+</summary>
                             <span className="block whitespace-nowrap text-nota text-[var(--texto-suave)]">
-                              V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)}
+                              V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)} · Forma {forma.map((signo) => insigniaForma(signo).letra).join('')}
                             </span>
                           </details>
                         </div>
@@ -140,7 +140,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                       <td className="border-t border-[var(--fondo-sutil)] py-0 pl-1 pr-2 text-cuerpo font-extrabold text-[var(--texto)] md:pl-1.5 md:pr-4">
                         {f.puntos}
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1 text-left md:px-1.5">
+                      <td className="hidden border-t border-[var(--fondo-sutil)] px-1 text-left md:table-cell md:px-1.5">
                         <span className="whitespace-nowrap text-etiqueta font-bold tracking-[0.08em] text-[var(--texto-suave)] md:hidden">
                           {forma.map((signo) => insigniaForma(signo).letra).join('')}
                         </span>
