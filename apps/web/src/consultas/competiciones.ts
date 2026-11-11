@@ -426,8 +426,73 @@ export const FRESCURA_DEL_GRUPO: Consulta<{ con_resultado: number; partidos: num
      where m.phase_group_id = $1`,
 };
 
+
+/**
+ * Panel de calidad del grupo: reglas de coherencia y KPIs, todo calculado desde los partidos.
+ *
+ * Reglas (cada una debe dar 0; si no, el grupo tiene una incoherencia y la pantalla lo avisa):
+ *  · PJ = V + E + D  → `descuadre_pj`
+ *  · puntos = 3V + E → `descuadre_puntos`
+ *  · Σ goles a favor = Σ goles en contra → `descuadre_goles`
+ *
+ * Parámetros: (1) phase_group_id.
+ */
+export const CALIDAD_DEL_GRUPO: Consulta<{
+  partidos: number; con_resultado: number; con_acta: number; actas: number; goles: number;
+  victorias_local: number; empates: number; victorias_visitante: number; equipos: number;
+  suma_pj: number; descuadre_pj: number; descuadre_puntos: number; descuadre_goles: number;
+}> = {
+  nombre: 'calidad-del-grupo',
+  descripcion: 'Reglas de coherencia (PJ, puntos, goles) y KPIs del grupo calculados desde los partidos.',
+  plan: 'indexado',
+  presupuestoMs: 400,
+  columnas: ['partidos', 'con_resultado', 'con_acta', 'actas', 'goles', 'victorias_local', 'empates',
+    'victorias_visitante', 'equipos', 'suma_pj', 'descuadre_pj', 'descuadre_puntos', 'descuadre_goles'],
+  sql: `
+    with resultados as (
+      select m.home_team_entry_id as equipo_id, m.goles_local as gf, m.goles_visitante as gc
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+      union all
+      select m.away_team_entry_id, m.goles_visitante, m.goles_local
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+    ),
+    calc as (
+      select equipo_id,
+             count(*)::int jugados,
+             count(*) filter (where gf > gc)::int ganados,
+             count(*) filter (where gf = gc)::int empatados,
+             count(*) filter (where gf < gc)::int perdidos,
+             sum(gf)::int gf, sum(gc)::int gc,
+             sum(case when gf > gc then 3 when gf = gc then 1 else 0 end)::int puntos
+        from resultados group by equipo_id
+    )
+    select (select count(*)::int from core.match m where m.phase_group_id = $1) partidos,
+           (select count(*)::int from core.match m
+             where m.phase_group_id = $1 and m.goles_local is not null) con_resultado,
+           (select count(*)::int from core.match m
+             where m.phase_group_id = $1
+               and exists (select 1 from core.match_report r where r.match_id = m.id)) con_acta,
+           (select count(*)::int from core.match_report r
+              join core.match m on m.id = r.match_id where m.phase_group_id = $1) actas,
+           (select coalesce(sum(m.goles_local + m.goles_visitante), 0)::int from core.match m
+             where m.phase_group_id = $1 and m.goles_local is not null) goles,
+           (select count(*)::int from core.match m where m.phase_group_id = $1
+               and m.goles_local > m.goles_visitante) victorias_local,
+           (select count(*)::int from core.match m where m.phase_group_id = $1
+               and m.goles_local = m.goles_visitante) empates,
+           (select count(*)::int from core.match m where m.phase_group_id = $1
+               and m.goles_local < m.goles_visitante) victorias_visitante,
+           (select count(*)::int from calc) equipos,
+           (select coalesce(sum(jugados), 0)::int from calc) suma_pj,
+           (select coalesce(sum(jugados - (ganados + empatados + perdidos)), 0)::int from calc) descuadre_pj,
+           (select coalesce(sum(puntos - (3 * ganados + empatados)), 0)::int from calc) descuadre_puntos,
+           (select coalesce(sum(gf) - sum(gc), 0) from calc) descuadre_goles`,
+};
+
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
-  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO] as const;
+  CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO] as const;
 
 export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'grupo-por-id': [797],
@@ -436,4 +501,5 @@ export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'clasificación-de-la-pantalla': [797],
   'clasificación-calculada': [797],
   'frescura-del-grupo': [797],
+  'calidad-del-grupo': [797],
 };

@@ -4,7 +4,7 @@ import type { Metadata, Route } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
+  CALIDAD_DEL_GRUPO, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
   type FilaClasificacionPantalla, type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
 import { RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
@@ -153,8 +153,13 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   let zonas: FilaZonas[] = [];
   let goleadores: FilaRanking[] = [];
   let frescura: { con_resultado: number; partidos: number; actas: number; ultimo: string | null } | null = null;
+  let calidad: {
+    partidos: number; con_resultado: number; con_acta: number; actas: number; goles: number;
+    victorias_local: number; empates: number; victorias_visitante: number; equipos: number;
+    suma_pj: number; descuadre_pj: number; descuadre_puntos: number; descuadre_goles: number;
+  } | null = null;
   try {
-    const [c, z, g, f] = await consultaEnUnaFoto([
+    const [c, z, g, f, k] = await consultaEnUnaFoto([
       { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
@@ -162,11 +167,13 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
         parametros: [grupo.federacion, grupo.temporada, null, null, grupo.grupo_id, 1, 8],
       },
       { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
+      { sql: CALIDAD_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
     ]);
     clasificacion = c as unknown as FilaClasificacionPantalla[];
     zonas = z as unknown as FilaZonas[];
     goleadores = g as unknown as FilaRanking[];
     frescura = (f as unknown as Array<{ con_resultado: number; partidos: number; actas: number; ultimo: string | null }>)[0] ?? null;
+    calidad = (k as unknown as Array<{ partidos: number; con_resultado: number; con_acta: number; actas: number; goles: number; victorias_local: number; empates: number; victorias_visitante: number; equipos: number; suma_pj: number; descuadre_pj: number; descuadre_puntos: number; descuadre_goles: number }>)[0] ?? null;
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
       return <SinCanonico titulo="Competición" motivo={error.message} />;
@@ -207,15 +214,43 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const fechaActualizado = frescura && frescura.ultimo
     ? (() => { const d = new Date(frescura.ultimo); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); })()
     : null;
-  const lineaFrescura = fechaActualizado === null
-    ? null
-    : `Actualizado ${fechaActualizado} · ${frescura.actas} de ${frescura.con_resultado} actas`;
+  const jornadasTotales = grupo.jornadas_previstas ?? null;
+  const jornadaActual = grupo.jornada_actual ?? null;
+  const trozosFrescura = [
+    jornadaActual !== null && jornadasTotales !== null ? `J${jornadaActual}/${jornadasTotales}` : null,
+    fechaActualizado === null ? null : `actualizado ${fechaActualizado}`,
+    frescura === null ? null : `actas ${frescura.actas}/${frescura.con_resultado}`,
+  ].filter((x): x is string => x !== null);
+  const lineaFrescura = trozosFrescura.length ? trozosFrescura.join(' · ') : null;
+
+  // KPIs de la ficha (siempre desde los partidos).
+  const kpi = calidad === null || calidad.con_resultado === 0 ? null : {
+    golesPorPartido: (calidad.goles / calidad.con_resultado).toFixed(2).replace('.', ','),
+    porcentajeLocal: Math.round((calidad.victorias_local / calidad.con_resultado) * 100),
+    porcentajeActas: Math.round((calidad.con_acta / calidad.con_resultado) * 100),
+    actas: `${calidad.con_acta}/${calidad.con_resultado}`,
+  };
+  const descuadres = calidad === null ? null : { pj: calidad.descuadre_pj, puntos: calidad.descuadre_puntos, goles: calidad.descuadre_goles };
+  const incoherencia = descuadres !== null
+    && (Number(descuadres.pj) !== 0 || Number(descuadres.puntos) !== 0 || Number(descuadres.goles) !== 0);
   return (
     <div className="flex flex-wrap items-start gap-[18px]">
       {lineaFrescura && (
         <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
           {lineaFrescura}
           {oficialDesfasada ? ' · clasificación calculada con los resultados; la tabla oficial publicada está desfasada' : ''}
+        </p>
+      )}
+      {kpi && (
+        <div className="flex basis-full flex-wrap gap-2" aria-label="Indicadores del grupo">
+          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Goles/partido <strong>{kpi.golesPorPartido}</strong></span>
+          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">% local <strong>{kpi.porcentajeLocal} %</strong></span>
+          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Actas <strong>{kpi.actas} ({kpi.porcentajeActas} %)</strong></span>
+        </div>
+      )}
+      {incoherencia && (
+        <p role="alert" className="m-0 basis-full rounded-[var(--radius-sm)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">
+          Aviso de calidad: este grupo tiene incoherencias (PJ {descuadres?.pj}, puntos {descuadres?.puntos}, goles {descuadres?.goles}). No se publica la tabla como oficial.
         </p>
       )}
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
