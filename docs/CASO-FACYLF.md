@@ -124,6 +124,25 @@ Primera-Salamanca, jornada 7 de 26):
 
 Si alguna regla fallara, el panel lo diría con el descuadre exacto y la tabla **no** se publicaría como definitiva.
 
+
+## Herramientas del catálogo consultadas (11/11/2026)
+
+Antes de esta tanda se consultó el catálogo personal de repositorios (`F:\Inforepositorios\consultar.py`) por
+«calidad de datos», «validación de datos con reglas», «visualización/dashboards» y «comprobaciones de calidad y
+frescura». Lo que sirve para FACyLF, con su licencia y su límite:
+
+| Candidato | Licencia | Para qué sirve aquí | Límite |
+|---|---|---|---|
+| **analytics-playbook** | MIT | Guía para construir analítica que **cuadre de verdad**: métricas sacadas del SQL de los analistas, un *golden set* de preguntas reales y bucles de mejora. Inspira nuestras pruebas de conciliación y las reglas «OK/KO» por grupo. | Es una guía, no una herramienta: no valida datos sola. |
+| **surya** | Apache-2.0 | OCR y **reconocimiento de tablas** (90+ idiomas). Candidata para las actas en PDF: extraer alineaciones y tablas cuando la federación solo ofrece PDF. | Modelo pesado (689 M) y ficha automática sin pruebas; hoy el acta se lee de HTML. |
+| **healthchecks/healthchecks** | BSD-3-Clause | Monitorización de tareas programadas y cron con alertas. Idea para vigilar el **ciclo diario de las 04:30** y el worker (hoy: Tareas de Windows + `salud-cyl.mjs`). | Servicio Python/Django que habría que alojar; no resuelve por sí solo el aviso por Telegram/email. |
+| **Lintapple** | MIT | Comprobador de interfaces renderizadas contra **reglas de diseño explícitas**; complementa la revisión visual de la ficha (tabla de 5 columnas, chips en una línea). | Comprueba reglas, no si el diseño es bueno; exige configurar las reglas. |
+
+**Qué se ha incorporado ya:** el enfoque de *golden set* de **analytics-playbook** está en las pruebas nuevas
+(`calidad-grupo.test.ts`, `conciliacion-cortes.test.ts`) y en el panel de calidad: preguntas reales («¿cuadra la
+tabla con los partidos?», «¿son cortes distintos?») convertidas en pruebas y en indicadores OK/KO. El resto queda
+**citado como candidato** para cuando FACyLF necesite PDFs (surya) o monitorización externa (healthchecks).
+
 ## 5 · Lo que demuestra este caso
 
 - Un ETL real desde fuentes federativas heterogéneas (HTML, PDF, paquetes, APIs) hasta un **modelo relacional
