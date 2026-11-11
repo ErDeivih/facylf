@@ -108,6 +108,7 @@ const rutasMal = [];
 const actasDeLaPortada = new Set();
 const jornadasDeLaPortada = new Set();
 const rutasDeJornada = new Set();
+const actasDeJornadas = new Set();
 for (const ruta of [...RUTAS]) {
   const url = `${origen}${ruta}`;
   try {
@@ -198,6 +199,7 @@ for (const rutaVecina of [...rutasDeJornada].slice(0, 40)) {
     const respuesta = await fetch(`${origen}${rutaVecina}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaVecina} (${respuesta.status})`); continue; }
     let html = leeHtml(rutaVecina, await respuesta.text());
+    for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeJornadas.add(m[1]);
     html = prepara(html);
     const destinoVecina = join(salida, ...rutaVecina.split('/').filter(Boolean), 'index.html');
     mkdirSync(dirname(destinoVecina), { recursive: true });
@@ -208,12 +210,27 @@ for (const rutaVecina of [...rutasDeJornada].slice(0, 40)) {
   }
 }
 
+// Actas enlazadas desde las jornadas de la portada: son el «partido» al que se entra desde la jornada.
+for (const id of [...actasDeJornadas].slice(0, 12)) {
+  const rutaActa = `/explorar/acta/${id}`;
+  try {
+    const respuesta = await fetch(`${origen}${rutaActa}`, { headers: { accept: 'text/html' } });
+    if (!respuesta.ok) continue;
+    const html = prepara(leeHtml(rutaActa, await respuesta.text()));
+    const destino = join(salida, 'explorar', 'acta', String(id), 'index.html');
+    mkdirSync(dirname(destino), { recursive: true });
+    writeFileSync(destino, html);
+    rutasOk.push(rutaActa);
+  } catch { /* si no se puede, no rompe la foto */ }
+}
+
 // Jornadas y competiciones enlazadas desde la portada: así «Ver partido» abre una página que existe.
 for (const rutaJornada of [...jornadasDeLaPortada].slice(0, 16)) {
   try {
     const respuesta = await fetch(`${origen}${rutaJornada}`, { headers: { accept: 'text/html' } });
     if (!respuesta.ok) { rutasMal.push(`${rutaJornada} (${respuesta.status})`); continue; }
     let html = leeHtml(rutaJornada, await respuesta.text());
+    for (const m of html.matchAll(/\/explorar\/acta\/(\d+)/g)) actasDeJornadas.add(m[1]);
     for (const m of html.matchAll(/\/api\/escudo\/club\/(\d+)/g)) escudos.add(m[1]);
     html = prepara(html);
     const trozos = rutaJornada.split('/').filter(Boolean);
