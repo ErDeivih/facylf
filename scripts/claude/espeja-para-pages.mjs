@@ -16,6 +16,7 @@ const [origen = 'http://127.0.0.1:3001', salida = 'tmp/site-pages', base = '/fon
 const RUTAS = [
   '/',
   '/explorar/equipo/8871',
+  '/explorar/calidad',
   '/explorar/competiciones',
   '/explorar/competicion/44',
   '/explorar/competicion/44/jornadas',
