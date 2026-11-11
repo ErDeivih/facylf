@@ -20,7 +20,7 @@ const valor = (bandera, porDefecto) => {
 const COLA = valor('--cola', 'E:/facylf-datos/descargas-federacion/recolector-local/cola-v2.sqlite');
 const REGISTRO = valor('--registro', 'E:/facylf-datos/descargas-federacion/recolector-local/worker-programado.log');
 const ETIQUETA = valor('--temporada', '2018-19');
-const APP = valor('--app', 'https://ringtones-studies-plastic-assumptions.trycloudflare.com');
+const APP = valor('--app', 'https://gourmet-genres-environments-processes.trycloudflare.com');
 const DEMO = valor('--demo', 'https://erdeivih.github.io/fondo-popular-demo');
 
 const lineas = [];
