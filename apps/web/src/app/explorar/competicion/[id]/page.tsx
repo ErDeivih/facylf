@@ -14,6 +14,7 @@ import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompetici
 import { Clasificacion } from '@/componentes/competicion/Clasificacion';
 import { EsqueletoContenido } from '@/componentes/competicion/EsqueletoContenido';
 import { Goleadores } from '@/componentes/competicion/Goleadores';
+import { PanelCalidad } from '@/componentes/competicion/PanelCalidad';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
@@ -247,11 +248,6 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
 
         </p>
       )}
-      {oficialDesfasada && (
-        <p role="status" className="m-0 basis-full rounded-[var(--radius-sm)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">
-          <strong>Por conciliar:</strong> {motivoConciliar}. Se publica la tabla calculada con los resultados; la oficial no se muestra hasta que cuadre.
-        </p>
-      )}
       {kpi && (
         <div className="flex basis-full flex-wrap gap-2" aria-label="Indicadores del grupo">
           <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Goles/partido <strong>{kpi.golesPorPartido}</strong></span>
@@ -259,10 +255,16 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
           <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Actas <strong>{kpi.actas} ({kpi.porcentajeActas} %)</strong></span>
         </div>
       )}
-      {incoherencia && (
-        <p role="alert" className="m-0 basis-full rounded-[var(--radius-sm)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">
-          Aviso de calidad: este grupo tiene incoherencias (PJ {descuadres?.pj}, puntos {descuadres?.puntos}, goles {descuadres?.goles}). No se publica la tabla como oficial.
-        </p>
+      {kpi && (
+        <PanelCalidad
+          actas={frescura?.actas ?? 0}
+          conResultado={frescura?.con_resultado ?? 0}
+          porcentajeActas={kpi.porcentajeActas}
+          fecha={fechaActualizado}
+          descuadres={descuadres}
+          jornadaOficial={oficialJornada}
+          jornadaResultados={jornadaResultados}
+        />
       )}
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px]">

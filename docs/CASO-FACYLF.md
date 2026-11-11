@@ -106,6 +106,24 @@ calculada. Y si la tabla oficial de la federación no coincide con los resultado
 con el motivo (por ejemplo: «la federación publicó su tabla de la jornada 1 y los resultados llegan a la 7»), en vez
 de enseñar dos cifras que se contradicen.
 
+
+### Panel de calidad en la ficha (lo que ve el aficionado)
+
+La ficha de competición enseña las reglas **en la propia página**, no solo en un informe: actas, última
+actualización y el resultado de cada regla (OK/KO). Ejemplo real del grupo 2939 (1ª Div. Provincial Juveniles ·
+Primera-Salamanca, jornada 7 de 26):
+
+| Dato | Valor |
+|---|---|
+| Actas | **41/48 (85 %)** |
+| Última actualización | **08/11** |
+| PJ = V+E+D | **OK** (descuadre 0) |
+| Puntos = 3V+E | **OK** (descuadre 0) |
+| ΣGF = ΣGC | **OK** (descuadre 0) |
+| Tabla oficial | **Por conciliar**: la federación publicó la de la jornada 1 y los resultados llegan a la 7; se muestra la calculada |
+
+Si alguna regla fallara, el panel lo diría con el descuadre exacto y la tabla **no** se publicaría como definitiva.
+
 ## 5 · Lo que demuestra este caso
 
 - Un ETL real desde fuentes federativas heterogéneas (HTML, PDF, paquetes, APIs) hasta un **modelo relacional
