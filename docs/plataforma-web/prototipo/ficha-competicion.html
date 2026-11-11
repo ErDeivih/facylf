@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo · Ficha de competición (datos ficticios) — Fondo Popular</title>
+<style>
+  :root {
+    --fondo: #f4f4f2; --fondo-elevado: #ffffff; --fondo-sutil: #ececeb; --borde: #d6d6d4;
+    --texto: #1c1f22; --texto-suave: #5c646c; --radio: 12px; --radio-sm: 6px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .aviso { background: #111418; color: #e8eaed; font: 12px/1.4 system-ui, sans-serif; text-align: center;
+    padding: 7px 12px; letter-spacing: .01em; }
+  .aviso strong { color: #ffd479; }
+  header.sitio { background: #16191d; color: #e8eaed; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .marca { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  .logo { width: 28px; height: 28px; border-radius: 8px; background: #1f6f68; color: #fff;
+    display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+  .marca small { display: block; font-weight: 400; font-size: 11px; color: #aab1ba; }
+  nav.tabs { display: flex; gap: 4px; overflow-x: auto; }
+  nav.tabs a { color: #aab1ba; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 10px;
+    border-radius: 8px; white-space: nowrap; }
+  nav.tabs a.activo { background: #262a2f; color: #fff; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px 14px 40px; display: flex; flex-direction: column; gap: 14px; }
+  .ruta { font-size: 13px; color: var(--texto-suave); }
+  .ruta a { color: inherit; }
+  .ficha { background: var(--fondo-elevado); border: 1px solid var(--borde); border-radius: var(--radio); padding: 16px; }
+  h1 { margin: 0; font-size: 26px; line-height: 1.15; letter-spacing: -.02em; }
+  .subt { margin: 4px 0 0; color: var(--texto-suave); font-size: 13px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; padding-bottom: 2px; }
+  .chip { border: 1px solid var(--borde); background: var(--fondo-elevado); border-radius: var(--radio-sm);
+    padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  .linea { font-size: 13px; color: var(--texto-suave); }
+  .partidos { display: flex; flex-wrap: wrap; gap: 8px; }
+  .partido { flex: 1 1 200px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--fondo-elevado);
+    padding: 8px 12px; }
+  .partido span { display: block; }
+  .partido .titulo { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-suave); font-weight: 700; }
+  .partido .equipos { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .partido .marcador { font-weight: 800; }
+  .kpis { display: flex; flex-wrap: wrap; gap: 8px; }
+  .kpi { background: var(--fondo-sutil); border-radius: var(--radio-sm); padding: 5px 9px; font-size: 13px; }
+  .panel { border: 1px solid var(--borde); border-radius: var(--radio); background: var(--fondo-elevado); padding: 12px 14px; }
+  .panel h2 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-suave); }
+  .panel dl { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; margin: 8px 0 0; font-size: 13px; }
+  .panel dt { color: var(--texto-suave); margin: 0; }
+  .panel dd { margin: 0; font-weight: 600; }
+  .panel .aviso2 { margin: 8px 0 0; background: var(--fondo-sutil); border: 1px solid var(--borde);
+    border-radius: var(--radio-sm); padding: 6px 9px; font-size: 13px; }
+  .corte { font-size: 13px; color: var(--texto-suave); }
+  .corte a { color: inherit; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--fondo-elevado);
+    border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--texto-suave);
+    text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--borde); }
+  th:first-child, th:nth-child(2) { text-align: left; }
+  td { padding: 7px 6px; text-align: right; border-bottom: 1px solid var(--fondo-sutil); }
+  td:first-child, td:nth-child(2) { text-align: left; }
+  tr:last-child td { border-bottom: 0; }
+  details summary { cursor: pointer; list-style: none; color: var(--texto-suave); }
+  details summary::-webkit-details-marker { display: none; }
+  .oculta { display: none; }
+  @media (min-width: 700px) { .oculta { display: table-cell; } details { display: none; } }
+  footer { font-size: 12px; color: var(--texto-suave); text-align: center; padding: 10px; }
+</style>
+</head>
+<body>
+<div class="aviso"><strong>PROTOTIPO</strong> · todos los datos de esta página son ficticios (equipos, marcadores, fechas y actas). No es información de la federación.</div>
+
+<header class="sitio">
+  <div class="marca"><span class="logo">FP</span><span>Fondo Popular<small>fútbol federado, temporada a temporada</small></span></div>
+  <nav class="tabs" aria-label="Funciones">
+    <a class="activo" href="#" aria-current="page">Explorar</a>
+    <a href="#">Rankings</a>
+    <a href="#">Ojeo</a>
+    <a href="#">Comparar</a>
+  </nav>
+</header>
+
+<main>
+  <nav class="ruta" aria-label="Ruta">Inicio › Prototipo › Ficha de competición (ficticia)</nav>
+
+  <section class="ficha" aria-label="Cabecera de la competición">
+    <h1>1ª División Provincial de Juveniles · Primera - Ejemplo</h1>
+    <p class="subt">Juvenil · Provincial · Primera</p>
+    <div class="chips">
+      <span class="chip">Primera - Ejemplo</span>
+      <span class="chip">2026-27</span>
+    </div>
+  </section>
+
+  <div class="partidos" aria-label="Último resultado y próximo partido">
+    <div class="partido">
+      <span class="titulo">Último resultado</span>
+      <span class="equipos"><span>Equipo Azul – Equipo Rojo</span><span class="marcador">2-2</span></span>
+      <span class="linea">08/11 · J7</span>
+    </div>
+    <div class="partido">
+      <span class="titulo">Próximo partido</span>
+      <span class="equipos"><span>Equipo Verde – Equipo Azul</span><span class="marcador">—</span></span>
+      <span class="linea">22/11 · J8</span>
+    </div>
+  </div>
+
+  <p class="linea">J7/26 · actualizado 08/11 · actas 41/48 (85 %)</p>
+
+  <div class="kpis" aria-label="Indicadores del grupo">
+    <span class="kpi">Goles/partido <strong>4,85</strong></span>
+    <span class="kpi">% local <strong>58 %</strong></span>
+    <span class="kpi">Actas <strong>41/48 (85 %)</strong></span>
+  </div>
+
+  <section class="panel" aria-label="Calidad del grupo">
+    <h2>Calidad del grupo</h2>
+    <dl>
+      <div><dt>Actas</dt><dd>41/48 (85 %)</dd></div>
+      <div><dt>Última actualización</dt><dd>08/11</dd></div>
+      <div><dt>PJ = V+E+D</dt><dd>OK</dd></div>
+      <div><dt>Puntos = 3V+E</dt><dd>OK</dd></div>
+      <div><dt>ΣGF = ΣGC</dt><dd>OK</dd></div>
+    </dl>
+    <p class="aviso2"><strong>Cortes distintos:</strong> la federación publicó su tabla de la jornada 1 y los resultados llegan a la 7; no es un error, se muestran por separado y se publica la calculada.</p>
+  </section>
+
+  <p class="corte">Calculada hasta J7 · Fuente federativa: J1 · <a href="#">«41/48» partidos sin acta (ficticio)</a></p>
+
+  <table aria-label="Clasificación ficticia">
+    <caption class="oculta">Clasificación del grupo ficticio: posición, equipo, partidos jugados y puntos.</caption>
+    <thead>
+      <tr><th>#</th><th>Equipo</th><th>PJ</th><th class="oculta">V-E-D</th><th class="oculta">Goles</th><th>Pts</th><th class="oculta">Forma</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Equipo Azul <details><summary>+</summary>V-E-D 7-0-0 · Goles 44:7 · Forma VVVVV</details></td><td>7</td><td class="oculta">7-0-0</td><td class="oculta">44:7</td><td><strong>21</strong></td><td class="oculta">VVVVV</td></tr>
+      <tr><td>2</td><td>Equipo Rojo <details><summary>+</summary>V-E-D 5-1-1 · Goles 30:7 · Forma VVEDV</details></td><td>7</td><td class="oculta">5-1-1</td><td class="oculta">30:7</td><td><strong>16</strong></td><td class="oculta">VVEDV</td></tr>
+      <tr><td>3</td><td>Equipo Verde <details><summary>+</summary>V-E-D 4-1-2 · Goles 19:14 · Forma VVDVE</details></td><td>7</td><td class="oculta">4-1-2</td><td class="oculta">19:14</td><td><strong>13</strong></td><td class="oculta">VVDVE</td></tr>
+      <tr><td>4</td><td>Equipo Gris <details><summary>+</summary>V-E-D 1-0-6 · Goles 8:25 · Forma DDVDD</details></td><td>7</td><td class="oculta">1-0-6</td><td class="oculta">8:25</td><td><strong>3</strong></td><td class="oculta">DDVDD</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Prototipo de la galería del panel · datos ficticios · Fondo Popular</footer>
+</main>
+</body>
+</html>
