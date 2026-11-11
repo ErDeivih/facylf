@@ -85,6 +85,27 @@ no se pueden inventar.
 6. **Lo que no se puede cerrar, se dice.** Las ediciones sin origen o con identidad dudosa están contadas y
    documentadas; no se rellenan para engordar el porcentaje.
 
+
+### Reglas de coherencia aplicadas (panel de calidad)
+
+Además de la validación de la importación, el canónico se audita con tres reglas calculadas **desde los partidos**
+de cada grupo:
+
+| Regla | Qué detecta | Descuadre |
+|---|---|---|
+| PJ = V + E + D | partidos jugados que no cuadran con los resultados | `descuadre_pj` |
+| puntos = 3·V + E | puntuación inventada o mal sumada | `descuadre_puntos` |
+| Σ goles a favor = Σ goles en contra | goles perdidos o duplicados | `descuadre_goles` |
+
+Se ejecuta con `scripts/claude/panel-calidad.ps1 -Temporada <temporada>`, que cuenta los grupos **OK/KO** y deja el
+detalle en JSON. Medido el 11/11/2026: **2026-27 · 260 grupos, 260 OK, 0 KO** y **2018-19 · 507 grupos, 507 OK,
+0 KO**. En las tres competiciones principales los tres descuadres dan **0** (grupos 44, 2939 y 3947).
+
+Si un grupo tuviera descuadre, la ficha **no publica la tabla como oficial**: muestra el aviso de calidad y la tabla
+calculada. Y si la tabla oficial de la federación no coincide con los resultados, la ficha la marca **«por conciliar»**
+con el motivo (por ejemplo: «la federación publicó su tabla de la jornada 1 y los resultados llegan a la 7»), en vez
+de enseñar dos cifras que se contradicen.
+
 ## 5 · Lo que demuestra este caso
 
 - Un ETL real desde fuentes federativas heterogéneas (HTML, PDF, paquetes, APIs) hasta un **modelo relacional

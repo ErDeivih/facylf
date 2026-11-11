@@ -211,6 +211,12 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   // ¿La tabla oficial publicada coincide con la calculada? Si está desfasada se dice, y no se publica la oficial.
   const oficialDesfasada = clasificacion.some((f) => f.oficial_jornada != null
     && (f.oficial_jugados !== f.jugados || f.oficial_puntos !== f.puntos));
+  // Motivo del «por conciliar»: la tabla oficial publicada es de otra jornada que los resultados.
+  const oficialJornada = clasificacion.find((f) => f.oficial_jornada != null)?.oficial_jornada ?? null;
+  const jornadaResultados = clasificacion[0]?.jornada ?? null;
+  const motivoConciliar = oficialJornada !== null && jornadaResultados !== null && oficialJornada !== jornadaResultados
+    ? `la federación publicó su tabla de la jornada ${oficialJornada} y los resultados llegan a la ${jornadaResultados}`
+    : 'la tabla oficial publicada no coincide con los resultados';
   const fechaActualizado = frescura && frescura.ultimo
     ? (() => { const d = new Date(frescura.ultimo); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); })()
     : null;
@@ -238,7 +244,12 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
       {lineaFrescura && (
         <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
           {lineaFrescura}
-          {oficialDesfasada ? ' · clasificación calculada con los resultados; la tabla oficial publicada está desfasada' : ''}
+
+        </p>
+      )}
+      {oficialDesfasada && (
+        <p role="status" className="m-0 basis-full rounded-[var(--radius-sm)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">
+          <strong>Por conciliar:</strong> {motivoConciliar}. Se publica la tabla calculada con los resultados; la oficial no se muestra hasta que cuadre.
         </p>
       )}
       {kpi && (
