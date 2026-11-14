@@ -20,3 +20,30 @@ Medido hoy con el mismo `curl` y el mismo `FacylfBot/1.0` en las dos máquinas:
   repetía. Ya corregido: `FACYLF_PAGELOAD_MS=240000`, 4 GB, y rotación recortada.
 - **Prueba de que ingiere**: `hechos hoy 1.582`, última petición `2026-11-14T11:48:15Z`, y una **clasificación
   guardada** a las 11:00:47Z (ver `INGESTA-CYL-SERVIDOR-DIAGNOSTICO-2026-11-14.md` §6).
+
+## 2 · Tamaño real de la base (el dato que decide dónde publicar)
+
+El usuario **no es `postgres`**: sale del compose del PC, `infra/docker-compose.yml` →
+`POSTGRES_USER: facylf_admin` (y `POSTGRES_DB: facylf`). Comando exacto y salida:
+
+```bash
+docker exec facylf-postgres psql -U facylf_admin -c \
+  "SELECT pg_size_pretty(pg_database_size(current_database()))"
+```
+
+```
+ current_user | current_database | pg_size_pretty
+--------------+------------------+----------------
+ facylf_admin | facylf           | 41 GB
+```
+
+| Máquina | Base | Tamaño real |
+|---|---|---:|
+| **PC** (canónico de trabajo) | `facylf` | **41 GB** |
+| Servidor | `facylf` (viva) | **16 GB** |
+| Servidor | 4 copias `facylf_canonico*` (antiguas) | 28 + 29 + 29 + 30 = **116 GB** |
+
+Desglose del PC por esquema: `core` 20 GB, `ops` 10 GB, `analytics` 7,9 GB, `source` 1,85 GB, `externo` 856 MB.
+Conclusión para publicar: la base buena es la del PC (**41 GB**, con las 60 migraciones y 19 temporadas); la del
+servidor está a 45 migraciones y solo 16 GB. `/srv/data` tiene 163 GB libres: **caber, cabe**; el problema del
+servidor es el volumen de Docker, no `srv/data` (ver paso 3).
