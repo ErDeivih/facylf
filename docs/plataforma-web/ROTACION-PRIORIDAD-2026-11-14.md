@@ -71,3 +71,22 @@ por edición (400-800): **40-90 días**, es decir **6-9 semanas** si las dos má
 - Pausas, reintentos e idempotencia de los recolectores: **igual que estaban** (hueco mediano del PC: 12 s).
 - Una sola pasada por máquina, sin workers nuevos, sin paralelizar federaciones.
 - El servidor sólo cambia su lista de temporadas de CyL; el resto de su flota sigue como estaba.
+
+## 6 · Horas reales de recolección que faltan (ritmo medido hoy)
+
+Con ~750 trabajos por edición y el ritmo combinado medido (PC 4.434 + servidor 2.350 = **6.784
+trabajos/día ≈ 283/h**), las 682 ediciones incompletas de la ventana suponen:
+
+| Temporada | Ediciones que faltan | Trabajos estimados | Horas de recolección | Días en continuo |
+|---|---:|---:|---:|---:|
+| 2020-21 | 42 | 31.500 | 111 h | 4,6 |
+| 2021-22 | 96 | 72.000 | 254 h | 10,6 |
+| 2022-23 | 87 | 65.250 | 231 h | 9,6 |
+| 2023-24 | 105 | 78.750 | 278 h | 11,6 |
+| 2024-25 | 130 | 97.500 | 345 h | 14,4 |
+| 2025-26 | 136 | 102.000 | 360 h | 15,0 |
+| 2026-27 | 86 | 64.500 | 228 h | 9,5 |
+| **Total** | **682** | **≈511.500** | **≈1.808 h** | **≈75** |
+
+Rango: **40-90 días** según el coste real por edición (400-800 trabajos). Si el servidor sigue sin poder
+cargar actas (ver `INGESTA-SERVIDOR-2026-11-14.md`) y solo queda el PC: 511.500 / 4.434 ≈ **115 días**.
