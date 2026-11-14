@@ -1,3 +1,8 @@
+> **14/11/2026:** este plan queda sustituido por la prioridad de David: la rotación se ha reordenado para cerrar
+> **2020-21 … 2026-27** primero, con reparto disjunto PC/servidor. Ver
+> [`ROTACION-PRIORIDAD-2026-11-14.md`](ROTACION-PRIORIDAD-2026-11-14.md) y
+> [`ACTUALIZACION-POR-JORNADA.md`](ACTUALIZACION-POR-JORNADA.md). El texto de abajo se conserva como histórico.
+
 # Rotación de los próximos días: cierre de antiguas frente a frescura de la temporada viva
 
 Escrito el **10/11/2026, 20:30**, con los datos medidos ese día. Es una decisión de producto (David), no de operación:
