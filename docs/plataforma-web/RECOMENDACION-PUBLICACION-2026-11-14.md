@@ -32,3 +32,19 @@
   sistema (92 %).
 - Antes de publicar desde el servidor: borrar las 4 copias antiguas (116 GB, con el sí de David) y/o mover el
   volumen; mientras tanto, la app del PC (`:3100`) es la que responde.
+
+## 4 · Resultado final de CyL desde el servidor
+
+| Comprobación final | Dato |
+|---|---:|
+| HTTP del portal desde el servidor | **302** (PC: 302) |
+| DNS / TLS | resuelve / `TLSv1.3`, `Verify return code: 0` |
+| Causa | `pageLoad`: actas de 75-137 s con límite de 120 s → renderer muerto y reintento cada 10 min |
+| Arreglo | `FACYLF_PAGELOAD_MS=240000`, 4 GB, rotación servidor 2022-23/2021-22/2020-21 |
+| **Trabajos hechos hoy** | **1.623** |
+| **Clasificaciones guardadas hoy** | **1** (`clasificacion|17|10348|37954||`, `2026-11-14T11:00:47Z`) |
+| Última petición | `2026-11-14T12:18:28Z` |
+| Resultado de las peticiones (24 h) | **1.494 ok** · 19 `error_navegador` · 18 `sin_datos` · 4 `error` (≈97,3 % ok) |
+
+El log del supervisor encadena trabajos: `✓ acta de base guardada y analizada … → acta|17|10377|38224|1|3122539`.
+**CyL se recolecta desde el servidor**: la causa nunca fue IP, DNS ni TLS; era el timeout de renderizado.
