@@ -1,0 +1,259 @@
+{
+  "generado": "2026-11-13T21:41:10.458Z",
+  "base": "http://127.0.0.1:3002",
+  "prefijo": null,
+  "etiqueta": "calidad-despues",
+  "criterios": [
+    "primer contenido visible en la primera pantalla",
+    "sin scroll horizontal",
+    "sin texto recortado",
+    "objetivos táctiles ≥44 px en móvil y ≥32 px en escritorio",
+    "imágenes con texto alternativo"
+  ],
+  "filas": [
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 400128,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 234,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1519,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 583,
+      "capturas": [
+        "capturas/ui-calidad-despues-explorar-calidad-390.png",
+        "capturas/ui-calidad-despues-explorar-calidad-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 400390,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 133,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1522,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 504,
+      "capturas": [
+        "capturas/ui-calidad-despues-explorar-calidad-1440.png",
+        "capturas/ui-calidad-despues-explorar-calidad-1440-completa.png"
+      ]
+    }
+  ],
+  "detalle": [
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 400128,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 234,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1519,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 583,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 234,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1519
+      }
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 400390,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 133,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1522,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 504,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 133,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1522
+      }
+    }
+  ]
+}

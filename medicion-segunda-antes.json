@@ -1,0 +1,1993 @@
+{
+  "generado": "2026-11-13T20:56:45.404Z",
+  "base": "http://127.0.0.1:3002",
+  "prefijo": null,
+  "etiqueta": "seg-antes",
+  "criterios": [
+    "primer contenido visible en la primera pantalla",
+    "sin scroll horizontal",
+    "sin texto recortado",
+    "objetivos táctiles ≥44 px en móvil y ≥32 px en escritorio",
+    "imágenes con texto alternativo"
+  ],
+  "filas": [
+    {
+      "ruta": "/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 261761,
+      "primerContenido": {
+        "selector": "main ul",
+        "y": 1522,
+        "alto": 21458,
+        "visible": false,
+        "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 18,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1382,
+      "veredicto": {
+        "primerContenidoVisible": false,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": false
+      },
+      "ms": 808,
+      "capturas": [
+        "capturas/ui-seg-antes-competiciones-390.png",
+        "capturas/ui-seg-antes-competiciones-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/equipos",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 232504,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 716,
+        "alto": 6048,
+        "visible": true,
+        "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 68,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1092,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 766,
+      "capturas": [
+        "capturas/ui-seg-antes-equipos-390.png",
+        "capturas/ui-seg-antes-equipos-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/jugadores",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 18143,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 774,
+        "visible": true,
+        "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 7,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 101,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 461,
+      "capturas": [
+        "capturas/ui-seg-antes-jugadores-390.png",
+        "capturas/ui-seg-antes-jugadores-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/partidos",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 222613,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 640,
+        "alto": 6479,
+        "visible": true,
+        "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 102,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1226,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 638,
+      "capturas": [
+        "capturas/ui-seg-antes-partidos-390.png",
+        "capturas/ui-seg-antes-partidos-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/buscar",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 18188,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 701,
+        "visible": true,
+        "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 10,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 104,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 481,
+      "capturas": [
+        "capturas/ui-seg-antes-buscar-390.png",
+        "capturas/ui-seg-antes-buscar-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/federaciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 27854,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 1365,
+        "visible": true,
+        "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 153,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 606,
+      "capturas": [
+        "capturas/ui-seg-antes-federaciones-390.png",
+        "capturas/ui-seg-antes-federaciones-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/canonico",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 500783,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 680,
+        "alto": 141,
+        "visible": true,
+        "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 8,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 3348,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 709,
+      "capturas": [
+        "capturas/ui-seg-antes-canonico-390.png",
+        "capturas/ui-seg-antes-canonico-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 261761,
+      "primerContenido": {
+        "selector": "main ul",
+        "y": 776,
+        "alto": 8163,
+        "visible": true,
+        "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1382,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 710,
+      "capturas": [
+        "capturas/ui-seg-antes-competiciones-1440.png",
+        "capturas/ui-seg-antes-competiciones-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/equipos",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 232504,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 322,
+        "alto": 4290,
+        "visible": true,
+        "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 75,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1092,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 814,
+      "capturas": [
+        "capturas/ui-seg-antes-equipos-1440.png",
+        "capturas/ui-seg-antes-equipos-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/jugadores",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 18143,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 428,
+        "visible": true,
+        "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 3,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 101,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 443,
+      "capturas": [
+        "capturas/ui-seg-antes-jugadores-1440.png",
+        "capturas/ui-seg-antes-jugadores-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/partidos",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 222613,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 322,
+        "alto": 4313,
+        "visible": true,
+        "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 156,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1226,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 635,
+      "capturas": [
+        "capturas/ui-seg-antes-partidos-1440.png",
+        "capturas/ui-seg-antes-partidos-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/buscar",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 18188,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 411,
+        "visible": true,
+        "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 3,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 104,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 472,
+      "capturas": [
+        "capturas/ui-seg-antes-buscar-1440.png",
+        "capturas/ui-seg-antes-buscar-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/federaciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 27854,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 810,
+        "visible": true,
+        "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 153,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 544,
+      "capturas": [
+        "capturas/ui-seg-antes-federaciones-1440.png",
+        "capturas/ui-seg-antes-federaciones-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/canonico",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 500783,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 375,
+        "alto": 67,
+        "visible": true,
+        "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 19,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 3348,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 652,
+      "capturas": [
+        "capturas/ui-seg-antes-canonico-1440.png",
+        "capturas/ui-seg-antes-canonico-1440-completa.png"
+      ]
+    }
+  ],
+  "detalle": [
+    {
+      "ruta": "/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 261761,
+      "primerContenido": {
+        "selector": "main ul",
+        "y": 1522,
+        "alto": 21458,
+        "visible": false,
+        "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 18,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1382,
+      "veredicto": {
+        "primerContenidoVisible": false,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": false
+      },
+      "ms": 808,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main ul",
+          "y": 1522,
+          "alto": 21458,
+          "visible": false,
+          "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 18,
+          "muestra": [
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas las federaciones con datosReal Fed"
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label.sm:col-span-2.lg:col-span-2 > input.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": ""
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas las temporadasÚltimas 5 temporadas"
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas las categoríasAficionadosAlevínBen"
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todos los ámbitosImportantes (nacional, "
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas las modalidadesFútbol 7Fútbol 8Fút"
+            },
+            {
+              "selector": "form.mb-6.border > div.grid.gap-3 > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todos los génerosFemeninaMasculinaMixta"
+            },
+            {
+              "selector": "form.mb-6.border > div.mt-4.flex > label.flex.items-center > input",
+              "ancho": 260,
+              "alto": 20,
+              "texto": ""
+            },
+            {
+              "selector": "form.mb-6.border > div.mt-4.flex > div.flex.gap-2 > a.boton-secundario",
+              "ancho": 85,
+              "alto": 39,
+              "texto": "Limpiar"
+            },
+            {
+              "selector": "form.mb-6.border > div.mt-4.flex > div.flex.gap-2 > button.boton-primario",
+              "ancho": 147,
+              "alto": 39,
+              "texto": "Aplicar filtros"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1382
+      }
+    },
+    {
+      "ruta": "/equipos",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 232504,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 716,
+        "alto": 6048,
+        "visible": true,
+        "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 68,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1092,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 766,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 716,
+          "alto": 6048,
+          "visible": true,
+          "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 68,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > input.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": ""
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "TodasReal Federación de Castilla y León "
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas2026-27"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "TodasAficionadosAlevínBenjamínCadeteInfa"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > div.flex.items-end > button.boton-primario.w-full",
+              "ancho": 316,
+              "alto": 39,
+              "texto": "Filtrar"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 61,
+              "alto": 36,
+              "texto": "C.D. Parquesol"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 75,
+              "alto": 36,
+              "texto": "C.D. San Pío X"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 75,
+              "alto": 36,
+              "texto": "C.D. San Pío X \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 76,
+              "alto": 36,
+              "texto": "C.D. Zaratán Sport"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 73,
+              "alto": 36,
+              "texto": "A.D. Castilla Dueñas"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1092
+      }
+    },
+    {
+      "ruta": "/jugadores",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 18143,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 774,
+        "visible": true,
+        "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 7,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 101,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 461,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 168,
+          "alto": 774,
+          "visible": true,
+          "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 7,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > input.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": ""
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "TodasReal Federación de Castilla y León "
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas2026-27"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > div.flex.items-end > button.boton-primario.w-full",
+              "ancho": 316,
+              "alto": 39,
+              "texto": "Buscar"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 101
+      }
+    },
+    {
+      "ruta": "/partidos",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 222613,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 640,
+        "alto": 6479,
+        "visible": true,
+        "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 102,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1226,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 638,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 640,
+          "alto": 6479,
+          "visible": true,
+          "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 102,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "TodasReal Federación de Castilla y León "
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "2026-27"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > input.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": ""
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > div.flex.items-end > button.boton-primario.w-full",
+              "ancho": 316,
+              "alto": 39,
+              "texto": "Filtrar"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 66,
+              "alto": 16,
+              "texto": "C.D. Ribert"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 69,
+              "alto": 36,
+              "texto": "C.D.F. Helmántico"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 62,
+              "alto": 36,
+              "texto": "Sporting Carbajosa"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 76,
+              "alto": 36,
+              "texto": "Ciudad Rodrigo C.F."
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 85,
+              "alto": 36,
+              "texto": "C.D. Munibar Pizarrales \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 67,
+              "alto": 36,
+              "texto": "C.D. Latino Kukuli \"B\""
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1226
+      }
+    },
+    {
+      "ruta": "/buscar",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 18188,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 701,
+        "visible": true,
+        "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 10,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 104,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 481,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 168,
+          "alto": 701,
+          "visible": true,
+          "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 10,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > input.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": ""
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas las federacionesReal Federación de"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > label > select.control-filtro",
+              "ancho": 316,
+              "alto": 41,
+              "texto": "Todas2026-27"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > form.mt-5.grid > div.flex.items-end > button.boton-primario.w-full",
+              "ancho": 316,
+              "alto": 39,
+              "texto": "Buscar"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > nav.mt-3.flex > a.boton-primario",
+              "ancho": 69,
+              "alto": 39,
+              "texto": "Todo"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > nav.mt-3.flex > a.boton-secundario",
+              "ancho": 84,
+              "alto": 39,
+              "texto": "Clubes"
+            },
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > nav.mt-3.flex > a.boton-secundario",
+              "ancho": 113,
+              "alto": 39,
+              "texto": "Jugadores"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 104
+      }
+    },
+    {
+      "ruta": "/federaciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 27854,
+      "primerContenido": {
+        "selector": "main",
+        "y": 168,
+        "alto": 1365,
+        "visible": true,
+        "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 153,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 606,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 168,
+          "alto": 1365,
+          "visible": true,
+          "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "div.grid.gap-4 > section.border.border-[#D6D6D4] > footer.flex.flex-wrap > a.text-[11px].text-[#8A8E91]",
+              "ancho": 81,
+              "alto": 17,
+              "texto": "Fuente oficial ↗"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 153
+      }
+    },
+    {
+      "ruta": "/canonico",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 500783,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 680,
+        "alto": 141,
+        "visible": true,
+        "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 8,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 3348,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 709,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 680,
+          "alto": 141,
+          "visible": true,
+          "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 8,
+          "muestra": [
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 72,
+              "alto": 34,
+              "texto": "Primera - A (24218939)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 72,
+              "alto": 34,
+              "texto": "Primera - B (24218940)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 72,
+              "alto": 34,
+              "texto": "Primera - A (24218961)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 72,
+              "alto": 34,
+              "texto": "Primera - B (24218962)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 72,
+              "alto": 34,
+              "texto": "Primera - A (24219338)"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 3348
+      }
+    },
+    {
+      "ruta": "/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 261761,
+      "primerContenido": {
+        "selector": "main ul",
+        "y": 776,
+        "alto": 8163,
+        "visible": true,
+        "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1382,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 710,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main ul",
+          "y": 776,
+          "alto": 8163,
+          "visible": true,
+          "texto": "2026-27BenjamínProvincialReal Federación de Castilla y León de Fútbolhasta jorna"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "form.mb-6.border > div.mt-4.flex > label.flex.items-center > input",
+              "ancho": 260,
+              "alto": 20,
+              "texto": ""
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1382
+      }
+    },
+    {
+      "ruta": "/equipos",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 232504,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 322,
+        "alto": 4290,
+        "visible": true,
+        "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 75,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1092,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 814,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 322,
+          "alto": 4290,
+          "visible": true,
+          "texto": "Equipos inscritos del canónico, con su club, su competición, su grupo y la cober"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 75,
+          "muestra": [
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 91,
+              "alto": 16,
+              "texto": "C.D. Parquesol"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 88,
+              "alto": 16,
+              "texto": "C.D. San Pío X"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 112,
+              "alto": 16,
+              "texto": "C.D. San Pío X \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 113,
+              "alto": 16,
+              "texto": "C.D. Zaratán Sport"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 157,
+              "alto": 16,
+              "texto": "Real Valladolid C.F. S.A.D."
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 123,
+              "alto": 16,
+              "texto": "A.D. Castilla Dueñas"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 148,
+              "alto": 16,
+              "texto": "A.D. San Miguel Olmedo"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 76,
+              "alto": 16,
+              "texto": "Alcázar C.D."
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 107,
+              "alto": 16,
+              "texto": "Arandina C.F. \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 93,
+              "alto": 16,
+              "texto": "Atlético Aguilar"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1092
+      }
+    },
+    {
+      "ruta": "/jugadores",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 18143,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 428,
+        "visible": true,
+        "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 3,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 101,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 443,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 68,
+          "alto": 428,
+          "visible": true,
+          "texto": "Jugadores1 federaciones con datos · se entra por el nombreNombreFederaciónTodasR"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 3,
+          "muestra": [
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 101
+      }
+    },
+    {
+      "ruta": "/partidos",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 222613,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 322,
+        "alto": 4313,
+        "visible": true,
+        "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 156,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1226,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 635,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 322,
+          "alto": 4313,
+          "visible": true,
+          "texto": "Partidos del canónico de la temporada 2026-27, con su jornada, los dos equipos, "
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 156,
+          "muestra": [
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 66,
+              "alto": 16,
+              "texto": "C.D. Ribert"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 110,
+              "alto": 16,
+              "texto": "C.D.F. Helmántico"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 118,
+              "alto": 16,
+              "texto": "Sporting Carbajosa"
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 203,
+              "alto": 16,
+              "texto": "C.D. Carbajosa de la Sagrada \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 168,
+              "alto": 16,
+              "texto": "C.D. Hergar Helmántica \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 197,
+              "alto": 16,
+              "texto": "U.D. Santa Marta de Tormes \"C\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 196,
+              "alto": 16,
+              "texto": "U.D. Santa Marta de Tormes \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 123,
+              "alto": 16,
+              "texto": "Ciudad Rodrigo C.F."
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.text-[var(--accion)].hover:underline",
+              "ancho": 168,
+              "alto": 16,
+              "texto": "C.D. Munibar Pizarrales \"B\""
+            },
+            {
+              "selector": "tbody > tr.border-b.border-[var(--borde)] > td.px-3.py-1.5 > a.hover:text-[var(--accion)].hover:underline",
+              "ancho": 132,
+              "alto": 16,
+              "texto": "C.D. Latino Kukuli \"B\""
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1226
+      }
+    },
+    {
+      "ruta": "/buscar",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 18188,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 411,
+        "visible": true,
+        "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 3,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 104,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 472,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 68,
+          "alto": 411,
+          "visible": true,
+          "texto": "Buscar1 federaciones con datos · clubes y jugadores del canónicoNombreFederación"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 3,
+          "muestra": [
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 104
+      }
+    },
+    {
+      "ruta": "/federaciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 27854,
+      "primerContenido": {
+        "selector": "main",
+        "y": 68,
+        "alto": 810,
+        "visible": true,
+        "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 153,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 544,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main",
+          "y": 68,
+          "alto": 810,
+          "visible": true,
+          "texto": "Federaciones1 federaciones declaradas · 1 con datos importados · medido 10/11/20"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "div.grid.gap-4 > section.border.border-[#D6D6D4] > footer.flex.flex-wrap > a.text-[11px].text-[#8A8E91]",
+              "ancho": 81,
+              "alto": 17,
+              "texto": "Fuente oficial ↗"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 153
+      }
+    },
+    {
+      "ruta": "/canonico",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 500783,
+      "primerContenido": {
+        "selector": "main table",
+        "y": 375,
+        "alto": 67,
+        "visible": true,
+        "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 19,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 3348,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 652,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main table",
+          "y": 375,
+          "alto": 67,
+          "visible": true,
+          "texto": "FederaciónTemporadasEdicionesGruposPartidosCon resultadoActasGrupos completosSin"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 19,
+          "muestra": [
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 141,
+              "alto": 15,
+              "texto": "Primera - A (24218939)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 141,
+              "alto": 15,
+              "texto": "Primera - B (24218940)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Única - Único (24219111)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Única - Único (24218987)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Única - Único (24219079)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Única - Único (24219025)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Unica - Único (24219083)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 141,
+              "alto": 15,
+              "texto": "Primera - A (24218961)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 141,
+              "alto": 15,
+              "texto": "Primera - B (24218962)"
+            },
+            {
+              "selector": "tbody > tr.border-t.border-[#EDF0ED] > td.px-3.py-2 > a.text-club.hover:underline",
+              "ancho": 155,
+              "alto": 15,
+              "texto": "Único - Único (24219274)"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 3348
+      }
+    }
+  ]
+}

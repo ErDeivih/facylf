@@ -1,0 +1,2006 @@
+{
+  "generado": "2026-11-13T14:23:09.003Z",
+  "base": "http://127.0.0.1:3002",
+  "prefijo": null,
+  "etiqueta": "antes-app",
+  "criterios": [
+    "primer contenido visible en la primera pantalla",
+    "sin scroll horizontal",
+    "sin texto recortado",
+    "objetivos táctiles ≥44 px en móvil y ≥32 px en escritorio",
+    "imágenes con texto alternativo"
+  ],
+  "filas": [
+    {
+      "ruta": "/",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 44412,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 224,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 9,
+      "imagenesSinAlt": 0,
+      "nodosDom": 171,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1385,
+      "capturas": [
+        "capturas/ui-antes-app-inicio-390.png",
+        "capturas/ui-antes-app-inicio-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 508147,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 236,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 40,
+      "desbordanMuestra": [
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > thead",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > thead > tr.text-right.text-etiqueta",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "table.w-full.border-separate > thead > tr.text-right.text-etiqueta > th.py-2.pl-1.5",
+          "ancho": 92,
+          "izquierda": 360,
+          "derecha": 452
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > tbody",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        }
+      ],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 2113,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1928,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-calidad-390.png",
+        "capturas/ui-antes-app-explorar-calidad-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 139609,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 236,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 540,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 989,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-competiciones-390.png",
+        "capturas/ui-antes-app-explorar-competiciones-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 259602,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 354,
+        "alto": 86,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 4,
+      "desbordanMuestra": [
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > a.flex.h-[46px]",
+          "ancho": 105,
+          "izquierda": 334,
+          "derecha": 438
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 101,
+          "izquierda": 440,
+          "derecha": 541
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 89,
+          "izquierda": 543,
+          "derecha": 632
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 78,
+          "izquierda": 634,
+          "derecha": 712
+        }
+      ],
+      "textosCortados": 49,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Grupo",
+          "visible": 1,
+          "real": 44
+        }
+      ],
+      "objetivosPequenos": 50,
+      "imagenesSinAlt": 0,
+      "nodosDom": 806,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 3343,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-competicion-2939-390.png",
+        "capturas/ui-antes-app-explorar-competicion-2939-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 44412,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 124,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "imagenesSinAlt": 0,
+      "nodosDom": 171,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 751,
+      "capturas": [
+        "capturas/ui-antes-app-inicio-1440.png",
+        "capturas/ui-antes-app-inicio-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 508147,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 135,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 253,
+      "imagenesSinAlt": 0,
+      "nodosDom": 2113,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 2046,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-calidad-1440.png",
+        "capturas/ui-antes-app-explorar-calidad-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 138867,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 135,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 523,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 848,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-competiciones-1440.png",
+        "capturas/ui-antes-app-explorar-competiciones-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 259602,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 159,
+        "alto": 29,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 17,
+      "textosCortadosMuestra": [
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Grupo",
+          "visible": 1,
+          "real": 44
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Temporada",
+          "visible": 1,
+          "real": 80
+        },
+        {
+          "selector": "section.-mx-4.min-w-0 > div.relative.overflow-x-auto > table.w-full.table-fixed > caption.sr-only",
+          "texto": "Clasificación del grupo: posición, partidos jugados, victori",
+          "visible": 1,
+          "real": 702
+        },
+        {
+          "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+          "texto": ", Resultado 4 a 0",
+          "visible": 1,
+          "real": 106
+        },
+        {
+          "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.flex.max-w-full > span.sr-only",
+          "texto": "Árbitro:",
+          "visible": 1,
+          "real": 39
+        }
+      ],
+      "objetivosPequenos": 20,
+      "imagenesSinAlt": 0,
+      "nodosDom": 806,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1359,
+      "capturas": [
+        "capturas/ui-antes-app-explorar-competicion-2939-1440.png",
+        "capturas/ui-antes-app-explorar-competicion-2939-1440-completa.png"
+      ]
+    }
+  ],
+  "detalle": [
+    {
+      "ruta": "/",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 44412,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 224,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 9,
+      "imagenesSinAlt": 0,
+      "nodosDom": 171,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1385,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 224,
+          "alto": 29,
+          "visible": true,
+          "texto": "Una jornada de ejemplo"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "span#funcion-explorar-desc",
+              "texto": "Competiciones y grupos",
+              "visible": 1,
+              "real": 131
+            },
+            {
+              "selector": "span#funcion-rankings-desc",
+              "texto": "Goleadores y tarjetas",
+              "visible": 1,
+              "real": 115
+            },
+            {
+              "selector": "span#funcion-ojeo-desc",
+              "texto": "Buscar talento",
+              "visible": 1,
+              "real": 77
+            },
+            {
+              "selector": "span#funcion-comparar-desc",
+              "texto": "Cara a cara",
+              "visible": 1,
+              "real": 61
+            }
+          ]
+        },
+        "objetivosPequenos": {
+          "total": 9,
+          "muestra": [
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].bg-[var(--fondo-fuerte)] > p.m-0.mt-3 > a.font-semibold.text-[var(--texto-fuerte)]",
+              "ancho": 138,
+              "alto": 15,
+              "texto": "buscar por competición"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].border > div.flex.flex-wrap > a.text-tabla.font-semibold",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "Ver todas"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 171
+      }
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 508147,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 236,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 40,
+      "desbordanMuestra": [
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > thead",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > thead > tr.text-right.text-etiqueta",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        },
+        {
+          "selector": "table.w-full.border-separate > thead > tr.text-right.text-etiqueta > th.py-2.pl-1.5",
+          "ancho": 92,
+          "izquierda": 360,
+          "derecha": 452
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > tbody",
+          "ancho": 431,
+          "izquierda": 21,
+          "derecha": 452
+        }
+      ],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 2113,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1928,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 236,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [
+          {
+            "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > thead",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > thead > tr.text-right.text-etiqueta",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > thead > tr.text-right.text-etiqueta > th.py-2.pl-1.5",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.relative.overflow-x-auto > table.w-full.border-separate > tbody",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          },
+          {
+            "selector": "table.w-full.border-separate > tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)]",
+            "ancho": 92,
+            "izquierda": 360,
+            "derecha": 452
+          },
+          {
+            "selector": "div.relative.overflow-x-auto > table.w-full.border-separate > tbody > tr.text-right",
+            "ancho": 431,
+            "izquierda": 21,
+            "derecha": 452
+          }
+        ],
+        "textosCortados": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "span#funcion-explorar-desc",
+              "texto": "Competiciones y grupos",
+              "visible": 1,
+              "real": 131
+            },
+            {
+              "selector": "span#funcion-rankings-desc",
+              "texto": "Goleadores y tarjetas",
+              "visible": 1,
+              "real": 115
+            },
+            {
+              "selector": "span#funcion-ojeo-desc",
+              "texto": "Buscar talento",
+              "visible": 1,
+              "real": 77
+            },
+            {
+              "selector": "span#funcion-comparar-desc",
+              "texto": "Cara a cara",
+              "visible": 1,
+              "real": 61
+            }
+          ]
+        },
+        "objetivosPequenos": {
+          "total": 13,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 142,
+              "alto": 34,
+              "texto": "1ª División Regional de Juveniles · Prim"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 142,
+              "alto": 34,
+              "texto": "1ª División Regional de Juveniles · Prim"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 100,
+              "alto": 34,
+              "texto": "Copa RFEF Fase Regional · Único"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 131,
+              "alto": 34,
+              "texto": "Debutantes de Fútbol Sala · ZAMORA"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 137,
+              "alto": 34,
+              "texto": "Liga Doble G · Primera - Único"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 145,
+              "alto": 34,
+              "texto": "Liga GONALPI · Primera - Único"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 137,
+              "alto": 34,
+              "texto": "Liga Nacional Juvenil · Primera - III"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 133,
+              "alto": 34,
+              "texto": "LIGA NACIONAL JUVENIL · GRUPO XV"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 145,
+              "alto": 34,
+              "texto": "TERCERA FEDERACIÓN · GRUPO XVIII"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 2113
+      }
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 139609,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 236,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 4,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        }
+      ],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 540,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 989,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 236,
+          "alto": 29,
+          "visible": true,
+          "texto": "Competiciones"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "span#funcion-explorar-desc",
+              "texto": "Competiciones y grupos",
+              "visible": 1,
+              "real": 131
+            },
+            {
+              "selector": "span#funcion-rankings-desc",
+              "texto": "Goleadores y tarjetas",
+              "visible": 1,
+              "real": 115
+            },
+            {
+              "selector": "span#funcion-ojeo-desc",
+              "texto": "Buscar talento",
+              "visible": 1,
+              "real": 77
+            },
+            {
+              "selector": "span#funcion-comparar-desc",
+              "texto": "Cara a cara",
+              "visible": 1,
+              "real": 61
+            }
+          ]
+        },
+        "objetivosPequenos": {
+          "total": 13,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 540
+      }
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 259602,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 354,
+        "alto": 86,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 4,
+      "desbordanMuestra": [
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > a.flex.h-[46px]",
+          "ancho": 105,
+          "izquierda": 334,
+          "derecha": 438
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 101,
+          "izquierda": 440,
+          "derecha": 541
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 89,
+          "izquierda": 543,
+          "derecha": 632
+        },
+        {
+          "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+          "ancho": 78,
+          "izquierda": 634,
+          "derecha": 712
+        }
+      ],
+      "textosCortados": 49,
+      "textosCortadosMuestra": [
+        {
+          "selector": "span#funcion-explorar-desc",
+          "texto": "Competiciones y grupos",
+          "visible": 1,
+          "real": 131
+        },
+        {
+          "selector": "span#funcion-rankings-desc",
+          "texto": "Goleadores y tarjetas",
+          "visible": 1,
+          "real": 115
+        },
+        {
+          "selector": "span#funcion-ojeo-desc",
+          "texto": "Buscar talento",
+          "visible": 1,
+          "real": 77
+        },
+        {
+          "selector": "span#funcion-comparar-desc",
+          "texto": "Cara a cara",
+          "visible": 1,
+          "real": 61
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Grupo",
+          "visible": 1,
+          "real": 44
+        }
+      ],
+      "objetivosPequenos": 50,
+      "imagenesSinAlt": 0,
+      "nodosDom": 806,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 3343,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 354,
+          "alto": 86,
+          "visible": true,
+          "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+        },
+        "desbordan": [
+          {
+            "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > a.flex.h-[46px]",
+            "ancho": 105,
+            "izquierda": 334,
+            "derecha": 438
+          },
+          {
+            "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+            "ancho": 101,
+            "izquierda": 440,
+            "derecha": 541
+          },
+          {
+            "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+            "ancho": 89,
+            "izquierda": 543,
+            "derecha": 632
+          },
+          {
+            "selector": "div.flex.flex-col > section.overflow-hidden.rounded-[var(--radius-tarjeta)] > nav.relative.flex > span.flex.h-[46px]",
+            "ancho": 78,
+            "izquierda": 634,
+            "derecha": 712
+          }
+        ],
+        "textosCortados": {
+          "total": 49,
+          "muestra": [
+            {
+              "selector": "span#funcion-explorar-desc",
+              "texto": "Competiciones y grupos",
+              "visible": 1,
+              "real": 131
+            },
+            {
+              "selector": "span#funcion-rankings-desc",
+              "texto": "Goleadores y tarjetas",
+              "visible": 1,
+              "real": 115
+            },
+            {
+              "selector": "span#funcion-ojeo-desc",
+              "texto": "Buscar talento",
+              "visible": 1,
+              "real": 77
+            },
+            {
+              "selector": "span#funcion-comparar-desc",
+              "texto": "Cara a cara",
+              "visible": 1,
+              "real": 61
+            },
+            {
+              "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+              "texto": "Grupo",
+              "visible": 1,
+              "real": 44
+            },
+            {
+              "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+              "texto": "Temporada",
+              "visible": 1,
+              "real": 80
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.relative.overflow-x-auto > table.w-full.table-fixed > caption.sr-only",
+              "texto": "Clasificación del grupo: posición, partidos jugados, victori",
+              "visible": 1,
+              "real": 702
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "texto": "Unionistas de Salamanca C.F. \"C\"",
+              "visible": 60,
+              "real": 210
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "texto": "C.D. Villamayor",
+              "visible": 60,
+              "real": 95
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "texto": "C.D. Ribert",
+              "visible": 60,
+              "real": 66
+            }
+          ]
+        },
+        "objetivosPequenos": {
+          "total": 50,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 90,
+              "alto": 18,
+              "texto": "Castilla y León"
+            },
+            {
+              "selector": "dl.m-0.mt-2 > div > dd.m-0.font-semibold > a.underline.decoration-dotted",
+              "ancho": 75,
+              "alto": 15,
+              "texto": "41/48 (85 %)"
+            },
+            {
+              "selector": "div.flex.flex-col > div.flex.flex-wrap > p.m-0.basis-full > a.underline.decoration-dotted",
+              "ancho": 338,
+              "alto": 32,
+              "texto": "CSV de partidos jugados (48)"
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.flex.flex-wrap > div.flex.rounded-[var(--radius-control)] > button.flex.h-9",
+              "ancho": 55,
+              "alto": 36,
+              "texto": "Casa"
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.flex.flex-wrap > div.flex.rounded-[var(--radius-control)] > button.flex.h-9",
+              "ancho": 59,
+              "alto": 36,
+              "texto": "Fuera"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "Unionistas de Salamanca C.F. \"C\""
+            },
+            {
+              "selector": "td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > details.md:hidden > summary.cursor-pointer.list-none",
+              "ancho": 8,
+              "alto": 17,
+              "texto": "+"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "C.D. Villamayor"
+            },
+            {
+              "selector": "td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > details.md:hidden > summary.cursor-pointer.list-none",
+              "ancho": 8,
+              "alto": 17,
+              "texto": "+"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "C.D. Ribert"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 806
+      }
+    },
+    {
+      "ruta": "/",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 44412,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 124,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "imagenesSinAlt": 0,
+      "nodosDom": 171,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 751,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 124,
+          "alto": 29,
+          "visible": true,
+          "texto": "Una jornada de ejemplo"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 9,
+          "muestra": [
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].bg-[var(--fondo-fuerte)] > p.m-0.mt-3 > a.font-semibold.text-[var(--texto-fuerte)]",
+              "ancho": 138,
+              "alto": 15,
+              "texto": "buscar por competición"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].border > div.flex.flex-wrap > a.text-tabla.font-semibold",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "Ver todas"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 171
+      }
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 508147,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 135,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 253,
+      "imagenesSinAlt": 0,
+      "nodosDom": 2113,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 2046,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 135,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 253,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 428,
+              "alto": 16,
+              "texto": "1ª División Provincial Alevín/Benjamín F"
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 328,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 342,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 329,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 351,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 366,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 348,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 330,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            },
+            {
+              "selector": "tbody > tr.text-right > td.border-t.border-[var(--fondo-sutil)] > a.hover:underline",
+              "ancho": 358,
+              "alto": 16,
+              "texto": "1ª División Provincial de Aficionados · "
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 2113
+      }
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 138867,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 135,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 13,
+      "imagenesSinAlt": 0,
+      "nodosDom": 523,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "ok": true
+      },
+      "ms": 848,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 135,
+          "alto": 29,
+          "visible": true,
+          "texto": "Competiciones"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 13,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            },
+            {
+              "selector": "fieldset.flex.min-w-0 > div.flex.flex-wrap > label.flex.min-h-11 > input",
+              "ancho": 13,
+              "alto": 13,
+              "texto": ""
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 523
+      }
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 259602,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 159,
+        "alto": 29,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 17,
+      "textosCortadosMuestra": [
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Grupo",
+          "visible": 1,
+          "real": 44
+        },
+        {
+          "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+          "texto": "Temporada",
+          "visible": 1,
+          "real": 80
+        },
+        {
+          "selector": "section.-mx-4.min-w-0 > div.relative.overflow-x-auto > table.w-full.table-fixed > caption.sr-only",
+          "texto": "Clasificación del grupo: posición, partidos jugados, victori",
+          "visible": 1,
+          "real": 702
+        },
+        {
+          "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+          "texto": ", Resultado 4 a 0",
+          "visible": 1,
+          "real": 106
+        },
+        {
+          "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.flex.max-w-full > span.sr-only",
+          "texto": "Árbitro:",
+          "visible": 1,
+          "real": 39
+        }
+      ],
+      "objetivosPequenos": 20,
+      "imagenesSinAlt": 0,
+      "nodosDom": 806,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": false,
+        "ok": false
+      },
+      "ms": 1359,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 159,
+          "alto": 29,
+          "visible": true,
+          "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 17,
+          "muestra": [
+            {
+              "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+              "texto": "Grupo",
+              "visible": 1,
+              "real": 44
+            },
+            {
+              "selector": "section.overflow-hidden.rounded-[var(--radius-tarjeta)] > div.flex.flex-wrap > div.flex.flex-nowrap > label.sr-only",
+              "texto": "Temporada",
+              "visible": 1,
+              "real": 80
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.relative.overflow-x-auto > table.w-full.table-fixed > caption.sr-only",
+              "texto": "Clasificación del grupo: posición, partidos jugados, victori",
+              "visible": 1,
+              "real": 702
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+              "texto": ", Resultado 4 a 0",
+              "visible": 1,
+              "real": 106
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.flex.max-w-full > span.sr-only",
+              "texto": "Árbitro:",
+              "visible": 1,
+              "real": 39
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+              "texto": ", Resultado 10 a 0",
+              "visible": 1,
+              "real": 114
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.flex.max-w-full > span.sr-only",
+              "texto": "Árbitro:",
+              "visible": 1,
+              "real": 39
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+              "texto": ", Resultado 0 a 3",
+              "visible": 1,
+              "real": 106
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.flex.max-w-full > span.sr-only",
+              "texto": "Árbitro:",
+              "visible": 1,
+              "real": 39
+            },
+            {
+              "selector": "div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > span.whitespace-nowrap.tabular-nums > span.sr-only",
+              "texto": ", Resultado 3 a 3",
+              "visible": 1,
+              "real": 106
+            }
+          ]
+        },
+        "objetivosPequenos": {
+          "total": 20,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 90,
+              "alto": 18,
+              "texto": "Castilla y León"
+            },
+            {
+              "selector": "dl.m-0.mt-2 > div > dd.m-0.font-semibold > a.underline.decoration-dotted",
+              "ancho": 75,
+              "alto": 15,
+              "texto": "41/48 (85 %)"
+            },
+            {
+              "selector": "div.flex.flex-col > div.flex.flex-wrap > p.m-0.basis-full > a.underline.decoration-dotted",
+              "ancho": 168,
+              "alto": 15,
+              "texto": "CSV de partidos jugados (48)"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 210,
+              "alto": 18,
+              "texto": "Unionistas de Salamanca C.F. \"C\""
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 95,
+              "alto": 18,
+              "texto": "C.D. Villamayor"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 66,
+              "alto": 18,
+              "texto": "C.D. Ribert"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 199,
+              "alto": 18,
+              "texto": "U.D. Santa Marta de Tormes \"B\""
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 111,
+              "alto": 18,
+              "texto": "C.D.F. Helmántico"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 194,
+              "alto": 18,
+              "texto": "C.D. Peñaranda de Bracamonte"
+            },
+            {
+              "selector": "tr.text-right > td.sticky.z-[var(--capa-pegajoso)] > div.flex.h-[var(--fila-densa)] > a.block.max-w-[3.75rem]",
+              "ancho": 124,
+              "alto": 18,
+              "texto": "Ciudad Rodrigo C.F."
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "nodosDom": 806
+      }
+    }
+  ]
+}

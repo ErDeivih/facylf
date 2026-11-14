@@ -1,0 +1,1093 @@
+{
+  "generado": "2026-11-13T21:59:57.064Z",
+  "base": "http://127.0.0.1:4173",
+  "prefijo": "/fondo-popular-demo",
+  "etiqueta": "despues",
+  "criterios": [
+    "primer contenido visible en la primera pantalla",
+    "sin scroll horizontal",
+    "sin texto recortado",
+    "objetivos táctiles ≥44 px en móvil y ≥32 px en escritorio",
+    "imágenes con texto alternativo"
+  ],
+  "filas": [
+    {
+      "ruta": "/",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 17634,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 289,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 145,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 448,
+      "capturas": [
+        "capturas/ui-despues-inicio-390.png",
+        "capturas/ui-despues-inicio-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 167171,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 299,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1466,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 414,
+      "capturas": [
+        "capturas/ui-despues-explorar-calidad-390.png",
+        "capturas/ui-despues-explorar-calidad-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 65180,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 299,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 547,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 395,
+      "capturas": [
+        "capturas/ui-despues-explorar-competiciones-390.png",
+        "capturas/ui-despues-explorar-competiciones-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 95216,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 417,
+        "alto": 86,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 22,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 778,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 468,
+      "capturas": [
+        "capturas/ui-despues-explorar-competicion-2939-390.png",
+        "capturas/ui-despues-explorar-competicion-2939-390-completa.png"
+      ]
+    },
+    {
+      "ruta": "/",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 17634,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 155,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 145,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 360,
+      "capturas": [
+        "capturas/ui-despues-inicio-1440.png",
+        "capturas/ui-despues-inicio-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 167171,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 165,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1466,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 398,
+      "capturas": [
+        "capturas/ui-despues-explorar-calidad-1440.png",
+        "capturas/ui-despues-explorar-calidad-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 65180,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 165,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 547,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 406,
+      "capturas": [
+        "capturas/ui-despues-explorar-competiciones-1440.png",
+        "capturas/ui-despues-explorar-competiciones-1440-completa.png"
+      ]
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 95216,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 189,
+        "alto": 29,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 6,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 778,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 427,
+      "capturas": [
+        "capturas/ui-despues-explorar-competicion-2939-1440.png",
+        "capturas/ui-despues-explorar-competicion-2939-1440-completa.png"
+      ]
+    }
+  ],
+  "detalle": [
+    {
+      "ruta": "/",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 17634,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 289,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 145,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 448,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 289,
+          "alto": 29,
+          "visible": true,
+          "texto": "Una jornada de ejemplo"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 9,
+          "muestra": [
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].bg-[var(--fondo-fuerte)] > p.m-0.mt-3 > a.font-semibold.text-[var(--texto-fuerte)]",
+              "ancho": 138,
+              "alto": 15,
+              "texto": "buscar por competición"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].border > div.flex.flex-wrap > a.text-tabla.font-semibold",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "Ver todas"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 145
+      }
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 167171,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 299,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1466,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 414,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 299,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1466
+      }
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 65180,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 299,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 547,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 395,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 299,
+          "alto": 29,
+          "visible": true,
+          "texto": "Competiciones"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 297,
+              "alto": 32,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 547
+      }
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "390x844",
+      "status": 200,
+      "bytesHtml": 95216,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 417,
+        "alto": 86,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 22,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 778,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 468,
+      "muestra": {
+        "ancho": 390,
+        "alto": 844,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 417,
+          "alto": 86,
+          "visible": true,
+          "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 22,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 90,
+              "alto": 18,
+              "texto": "Castilla y León"
+            },
+            {
+              "selector": "dl.m-0.grid > div.flex.flex-col > dd.m-0.font-semibold > a.underline.decoration-dotted",
+              "ancho": 75,
+              "alto": 15,
+              "texto": "41/48 (85 %)"
+            },
+            {
+              "selector": "div.flex.flex-col > div.flex.flex-wrap > p.m-0.basis-full > a.underline.decoration-dotted",
+              "ancho": 250,
+              "alto": 15,
+              "texto": "Descargar los partidos jugados (48) en C"
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.flex.flex-wrap > div.flex.rounded-[var(--radius-control)] > button.flex.h-9",
+              "ancho": 55,
+              "alto": 36,
+              "texto": "Casa"
+            },
+            {
+              "selector": "section.-mx-4.min-w-0 > div.flex.flex-wrap > div.flex.rounded-[var(--radius-control)] > button.flex.h-9",
+              "ancho": 59,
+              "alto": 36,
+              "texto": "Fuera"
+            },
+            {
+              "selector": "li.border-t.border-[var(--fondo-sutil)] > div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > a.flex.min-w-0",
+              "ancho": 171,
+              "alto": 33,
+              "texto": "Peñaranda de Bracamonte"
+            },
+            {
+              "selector": "li.border-t.border-[var(--fondo-sutil)] > div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > a.flex.min-w-0",
+              "ancho": 171,
+              "alto": 24,
+              "texto": "Navega B"
+            },
+            {
+              "selector": "li.border-t.border-[var(--fondo-sutil)] > div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > a.flex.min-w-0",
+              "ancho": 171,
+              "alto": 24,
+              "texto": "Villamayor"
+            },
+            {
+              "selector": "li.border-t.border-[var(--fondo-sutil)] > div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > a.flex.min-w-0",
+              "ancho": 171,
+              "alto": 24,
+              "texto": "Alba de Tormes"
+            },
+            {
+              "selector": "li.border-t.border-[var(--fondo-sutil)] > div.grid.grid-cols-[minmax(0,1fr)_minmax(0,44%)] > div.flex.min-w-0 > a.flex.min-w-0",
+              "ancho": 171,
+              "alto": 24,
+              "texto": "Guijuelo"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 778
+      }
+    },
+    {
+      "ruta": "/",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 17634,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 155,
+        "alto": 29,
+        "visible": true,
+        "texto": "Una jornada de ejemplo"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 9,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 145,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 360,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 155,
+          "alto": 29,
+          "visible": true,
+          "texto": "Una jornada de ejemplo"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 9,
+          "muestra": [
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "ul.m-0.mt-4 > li.flex.flex-col > span.flex.flex-wrap > a.text-nota.font-semibold",
+              "ancho": 65,
+              "alto": 17,
+              "texto": "Ver partido"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].bg-[var(--fondo-fuerte)] > p.m-0.mt-3 > a.font-semibold.text-[var(--texto-fuerte)]",
+              "ancho": 138,
+              "alto": 15,
+              "texto": "buscar por competición"
+            },
+            {
+              "selector": "div.flex.flex-col > section.rounded-[var(--radius-tarjeta)].border > div.flex.flex-wrap > a.text-tabla.font-semibold",
+              "ancho": 60,
+              "alto": 18,
+              "texto": "Ver todas"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 145
+      }
+    },
+    {
+      "ruta": "/explorar/calidad",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 167171,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 165,
+        "alto": 29,
+        "visible": true,
+        "texto": "Calidad de los grupos"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 1466,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 398,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 165,
+          "alto": 29,
+          "visible": true,
+          "texto": "Calidad de los grupos"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 1466
+      }
+    },
+    {
+      "ruta": "/explorar/competiciones",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 65180,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 165,
+        "alto": 29,
+        "visible": true,
+        "texto": "Competiciones"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 4,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 547,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 406,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 165,
+          "alto": 29,
+          "visible": true,
+          "texto": "Competiciones"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 4,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 33,
+              "alto": 18,
+              "texto": "Inicio"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 547
+      }
+    },
+    {
+      "ruta": "/explorar/competicion/2939",
+      "tamano": "1440x900",
+      "status": 200,
+      "bytesHtml": 95216,
+      "primerContenido": {
+        "selector": "main h1",
+        "y": 189,
+        "alto": 29,
+        "visible": true,
+        "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+      },
+      "scrollHorizontal": false,
+      "desbordan": 0,
+      "desbordanMuestra": [],
+      "textosCortados": 0,
+      "textosCortadosMuestra": [],
+      "objetivosPequenos": 6,
+      "controlesTapados": 0,
+      "controlesTapadosMuestra": [],
+      "barrasFijas": [],
+      "imagenesSinAlt": 0,
+      "nodosDom": 778,
+      "veredicto": {
+        "primerContenidoVisible": true,
+        "sinScrollHorizontal": true,
+        "sinTextoRecortado": true,
+        "sinControlesTapados": true,
+        "ok": true
+      },
+      "ms": 427,
+      "muestra": {
+        "ancho": 1440,
+        "alto": 900,
+        "scrollHorizontal": false,
+        "primerContenido": {
+          "selector": "main h1",
+          "y": 189,
+          "alto": 29,
+          "visible": true,
+          "texto": "1ª División Provincial de Juveniles · Primera - Salamanca"
+        },
+        "desbordan": [],
+        "textosCortados": {
+          "total": 0,
+          "muestra": []
+        },
+        "objetivosPequenos": {
+          "total": 6,
+          "muestra": [
+            {
+              "selector": "main.mx-auto.max-w-[1240px] > div.flex.flex-col > nav.flex.flex-wrap > a.hover:underline",
+              "ancho": 90,
+              "alto": 18,
+              "texto": "Castilla y León"
+            },
+            {
+              "selector": "dl.m-0.grid > div.flex.flex-col > dd.m-0.font-semibold > a.underline.decoration-dotted",
+              "ancho": 75,
+              "alto": 15,
+              "texto": "41/48 (85 %)"
+            },
+            {
+              "selector": "div.flex.flex-col > div.flex.flex-wrap > p.m-0.basis-full > a.underline.decoration-dotted",
+              "ancho": 250,
+              "alto": 15,
+              "texto": "Descargar los partidos jugados (48) en C"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 80,
+              "alto": 15,
+              "texto": "Demo pública"
+            },
+            {
+              "selector": "footer.mx-auto.flex > p.m-0.max-w-[720px] > a.font-semibold.hover:text-[var(--accion)]",
+              "ancho": 79,
+              "alto": 15,
+              "texto": "app completa"
+            },
+            {
+              "selector": "footer.mx-auto.flex > a.font-semibold.text-[var(--texto-suave)]",
+              "ancho": 61,
+              "alto": 17,
+              "texto": "Publicidad"
+            }
+          ]
+        },
+        "imagenesSinAlt": [],
+        "controlesTapados": {
+          "total": 0,
+          "muestra": []
+        },
+        "barrasFijas": [],
+        "nodosDom": 778
+      }
+    }
+  ]
+}
