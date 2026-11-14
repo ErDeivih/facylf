@@ -1120,3 +1120,31 @@ más de 60 s.
 Estado de las dos máquinas en la verificación: PC **2.148 trabajos hechos hoy**, worker vivo, 102 de las
 últimas 120 peticiones en `ok`; servidor **947 trabajos** desde que se reinició a las 20:56 y **117 de 120**
 peticiones en `ok` (3 `error_navegador`), con su cola bajando de 31.342 a 31.272 pendientes.
+
+---
+
+## Medición del 14/11/2026 — PC y servidor por separado
+
+**Ventana:** 24 h UTC (13/11 11:12 → 14/11 11:12). **Fuente:** tabla `peticiones` de las colas SQLite de CyL de
+cada máquina (una fila por petición: `iniciada_en`, `duracion_ms`, `resultado`) y `trabajos` (estado/hecho). Las
+horas de los ficheros vienen en ISO con `T…Z`; se convierten a fecha antes de comparar (una comparación de texto
+directa contaba de más).
+
+| Medida | PC (CyL) | Servidor (CyL) | Antes (11/11) |
+|---|---:|---:|---:|
+| Peticiones en 24 h | **3.599** | **1.587** | — |
+| Mediana por petición | **1.084 ms** | **43.806 ms** | PC 0,8 s · servidor 64-92 s |
+| Hueco mediano entre peticiones | **12.000 ms** | no calculable con la orden usada; media 54 s de inicio a inicio | PC 11,1 s · servidor 3,4 s |
+| Ritmo de inicio a inicio | **2,50 peticiones/min** (≈24 s) | **1,11 peticiones/min** (≈54 s) | PC ≈11,9 s · servidor ≈67 s |
+| Trabajos hechos en 24 h | **4.434** | **2.350** | — |
+| Fallos de petición | **5 de 3.599** (0,14 %) | ver nota | — |
+| Cola pendiente (todos los tipos) | **39.056** | **33.020** | — |
+
+**Lectura:** el PC es ~3 veces más rápido por petición y hace el 65 % de los trabajos. El servidor paga el portal
+con 43,8 s de mediana (el `pageLoad` de 120 s es un techo, no el ritmo); su cuello de botella es la respuesta del
+portal, no el worker.
+
+> **Nota de fiabilidad del servidor:** el recuento de `resultado` de su cola es histórico (245.354 `ok`,
+> 6.324 `error_navegador`, 4.470 `error`, 1.446 `acta_ilegible`, 403 `requiere_cookie`, 1.330 `sin_datos`,
+> 771 `sin_publicar`, etc.), no de las 24 h; para el ritmo se usan solo las peticiones de la ventana.
+> La medición anterior era del 11/11 23:50 (PC ≈11,9 s; servidor ≈67 s por página de CyL).
