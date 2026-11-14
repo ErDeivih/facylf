@@ -340,3 +340,49 @@ La demo estática regenerada y medida aparte: **0 de 8 incumplen** (`medicion-de
 | Demo publicada | commit `6fe1d66` en `ErDeivih/fondo-popular-demo` | `/`, `/explorar/calidad/` (y `?q=ribert`), `/explorar/competiciones/` → **200**; contiene el buscador, el contador y las 30 tarjetas móviles |
 
 **Sin tocar la ingesta**: 0 cambios en `packages/ingesta`, `packages/canonico` e `infra/migraciones`.
+
+---
+
+# Cierre de las dos regresiones de §15 (13/11/2026)
+
+Se cierran los dos puntos que §15 dejaba abiertos por ser **regresión real** y no herencia. Sin tocar
+datos ni la lógica de coherencia; las dos pantallas siguen mostrando las mismas filas y las mismas
+cifras.
+
+## 19 · Before | After | Why
+
+| Before | After | Why |
+|---|---|---|
+| `/competiciones` a 390 px: el primer contenido útil (la lista de grupos) empezaba a **1.522 px**; por delante iban el «eyebrow», un titular en versalitas, un párrafo largo, el formulario con 8 controles y los «accesos rápidos» | Titular `h1` a **y=200** y **primer resultado a y=471**; los filtros se pliegan en un `<details>` nativo (sin JS) y los accesos rápidos pasan detrás de la lista | La pantalla empieza por lo que se ha venido a ver; el formulario sigue completo al abrirlo y en escritorio se muestra siempre (CSS), así que no se pierde ninguna función |
+| El medio de la página era un «eyebrow» («Explorador del archivo») + `<h2>` en versalitas | `h1` en caja baja y entradilla de dos líneas; fuera el eyebrow | Regla de `unslop`/GUIA-UI y jerarquía correcta (la página no tenía `h1`) |
+| `/canonico`: **202 enlaces de texto de 15 px** en la tabla de grupos a 1440 px (y 8 a 390 px); eran objetivos táctiles por debajo del mínimo | Los 200 enlaces de grupo miden **44 px** (`inline-flex min-h-11 items-center`); medido: objetivos pequeños 202 → **3** a 1440 y 8 → **3** a 390 | Un enlace que se toca tiene que poder tocarse; los 3 que quedan son el pie y las migas, que son cromo global |
+| Cabecera de columnas fija y paginación: se conservan | Sin cambios en estructura, columnas ni métricas | Punto 6 de la revisión y contrato de comparación entre grupos |
+
+## 20 · Medición (390×844 y 1440×900)
+
+`medicion-regresiones-despues.json` (misma herramienta y misma base que las mediciones anteriores).
+
+| Ruta | Tamaño | Primer contenido | Nodos | Textos cortados | Controles tapados | Scroll horizontal | Objetivos < umbral | Veredicto |
+|---|---|---|---|---|---|---|---|---|
+| `/competiciones` | 390×844 | `main h1` · y=200 · visible | 1.407 | 0 | 0 | no | 8 (cromo global) | **OK** (antes: `main ul` a y=1.522, no visible → FALLA) |
+| `/competiciones` | 1440×900 | `main h1` · y=100 | 1.407 | 0 | 0 | no | 4 | **OK** |
+| `/canonico` | 390×844 | `main table` · y=655 | 3.349 | 0 | 0 | no | 3 | **OK** |
+| `/canonico` | 1440×900 | `main table` · y=370 | 3.349 | 0 | 0 | no | 3 (antes 202) | **OK** |
+
+**0 de 4 mediciones incumplen.** Los nodos no cambian (1.407 y 3.349): es la misma página, mejor
+colocada y con los enlaces más grandes.
+
+## 21 · Puertas tras el cierre (árbol commiteado)
+
+| Puerta | Salida real |
+|---|---|
+| `npx vitest run --shard=1/4 … 4/4` | 482 + 254 (1 saltada) + 355 + 328 = **1.419 pruebas en verde, 0 fallos**, 92 ficheros |
+| `pnpm lint` / `tsc --noEmit` / `pnpm --filter @facylf/web build` | `exit 0` / `exit 0` / `exit 0` |
+| `ai-design-check` en las dos pantallas | **0 errores** (23 avisos heredados) |
+| Commits | `6126ad1` (código de la segunda tanda y revisiones), `5783153` (informe y mediciones), `769bc09` (resto del árbol) |
+
+**Nota de la operación:** durante esta jornada el contenedor de PostgreSQL se cayó varias veces
+(ECONNREFUSED). Las tandas de pruebas que fallaron por eso se repitieron con la base levantada; los
+números de arriba son de ejecuciones con la base en pie. La evidencia gráfica (`capturas/`, 61 MB) y
+los volcados de auditoría (`docs/ui/`) quedan fuera de git por tamaño, con su generador versionado en
+`scripts/ui/`.
