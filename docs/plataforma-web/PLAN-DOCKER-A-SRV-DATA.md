@@ -108,3 +108,29 @@ Después, arrancar de nuevo los servicios y borrar `/srv/data/docker` (copia fal
 
 No se ha parado Docker, no se ha copiado nada, no se ha creado `/etc/docker/daemon.json`, no se ha borrado ninguna
 base ni imagen. Este documento es el plan; la ejecución necesita la ventana y el sí de David.
+
+## 6 · Plan cerrado y revisado (14/11/2026)
+
+**Estado: cerrado como plan, no ejecutado.** Revisión final con las medidas de hoy y las decisiones que faltan.
+
+| Punto revisado | Resultado |
+|---|---|
+| ¿Cabe la copia en `/srv/data`? | Sí: 145 GB que copiar y **163 GB libres**, pero quedan solo **18 GB de margen**. |
+| ¿Es buena idea mover todo al HDD? | **No por defecto:** `/srv/data` da **64 MB/s** y el SSD **225 MB/s**; la base y los contenedores irían más lentos. |
+| ¿Se puede evitar mover? | **Sí:** las 4 bases `facylf_canonico*` ocupan **116 GB** y no tienen conexiones; borrarlas deja `/` en ~35 %. |
+| ¿Cuánto dura la ventana? | ~30-45 min (copia de 145 GB + verificación) con **Docker parado** y los 16 contenedores afectados (facylf ×6, cuedigital ×3, lyfta, uptime, ntfy, homepage, boton, lanzador, vigilante). |
+| ¿Hay rollback? | Sí: el directorio viejo **no se toca**; volver es borrar `daemon.json` y arrancar Docker (3 comandos). |
+| ¿Se pierde algo? | No si se verifica antes de borrar; no se propone borrar ninguna base de datos ni volumen. |
+
+**Decisiones que necesita David antes de ejecutar (en este orden):**
+1. **Aprobar el borrado de las 4 copias `facylf_canonico*`** (116 GB). Es la opción con menos riesgo y deja el
+   disco del sistema en ~35 % sin tocar Docker.
+2. Si aun así se quiere sacar Docker del SSD: aprobar mover **solo el volumen de PostgreSQL** (132 GB) a
+   `/srv/data` (sigue siendo HDD: la base irá más lenta).
+3. Solo si se acepta todo Docker en HDD: ejecutar el plan completo del §3 (145 GB, ventana de 30-45 min).
+
+**Checklist previo a ejecutar (cuando David diga sí):** copia de la base aparte; flota parada con
+`dockerd` detenido; `rsync -aHAX` y comparación de tamaño/nº de ficheros; `daemon.json` con `data-root`;
+`docker info` y los 3 volúmenes/18 imágenes verificados; `facylf-postgres` responde a `pg_size_pretty`; los 16
+contenedores arriba; `/srv/data` con >15 GB libres; y **no borrar `/var/lib/docker` hasta pasadas 24-48 h** y con
+autorización expresa.
