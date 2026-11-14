@@ -22,6 +22,7 @@ Set-Location (Split-Path -Parent $PSScriptRoot)
 $Raiz = (Get-Location).Path
 $Estado = Join-Path $Raiz 'estado'
 $Marca = Join-Path $Estado 'actualizacion-jornada.json'
+$Candado = Join-Path $Estado 'actualizacion.lock'
 $Log = Join-Path $Estado 'actualizacion-jornada.log'
 New-Item -ItemType Directory -Force -Path $Estado | Out-Null
 
@@ -37,7 +38,13 @@ function Psql([string]$sql) {
   return ($salida | Out-String).Trim()
 }
 
-# 0. Preflight: contenedor arriba y consultable. Si no, sale sin tocar nada.
+# 0. Candado compartido con la pasada semanal: si hay otra importacion en curso (menos de 45 min), se sale.
+if (Test-Path $Candado) {
+  $edad = ((Get-Date) - (Get-Item $Candado).LastWriteTime).TotalHours
+  if ($edad -lt 0.75) { Log ("ya hay una actualizacion en curso (candado de {0:N1} h); no se toca nada" -f $edad); exit 0 }
+}
+
+# 0b. Preflight: contenedor arriba y consultable. Si no, sale sin tocar nada.
 & docker inspect -f '{{.State.Running}}' $Contenedor 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) { Log 'FALLO: el contenedor de PostgreSQL no esta disponible'; exit 2 }
 $vivo = (& docker inspect -f '{{.State.Running}}' $Contenedor).Trim()
@@ -81,12 +88,15 @@ $antes = $null
 try { $antes = Psql $cuenta } catch { Log "FALLO: recuentos antes ($_)"; exit 2 }
 Log "antes: partidos|actas|apariciones = $antes"
 
+# candado desde aqui: la importacion y la publicacion no se solapan con la tarea semanal
+Set-Content $Candado (Get-Date -Format 'o') -Encoding ASCII
+
 # 4. Importacion idempotente al canonico (reutiliza el ciclo diario: importar-masivo + codificacion + cobertura).
 $ciclo = Join-Path $Raiz 'scripts\ciclo-diario-cyl.ps1'
 $argumentos = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ciclo, '-SinServidor')
 Log "importando: powershell $($argumentos -join ' ')"
 & powershell.exe @argumentos | ForEach-Object { Log $_ }
-if ($LASTEXITCODE -ne 0) { Log "FALLO: el ciclo diario devolvio $LASTEXITCODE"; exit 3 }
+if ($LASTEXITCODE -ne 0) { Remove-Item $Candado -Force -ErrorAction SilentlyContinue; Log "FALLO: el ciclo diario devolvio $LASTEXITCODE"; exit 3 }
 
 $despues = $null
 try { $despues = Psql $cuenta } catch { Log "FALLO: recuentos despues ($_)"; exit 3 }
@@ -113,6 +123,7 @@ if (-not (Test-Path $publica)) {
 # 6. Marca: solo se avanza si la importacion fue bien.
 @{ temporada = $Temporada; listos = $listos; importado_en = (Get-Date -Format 'yyyy-MM-ddTHH:mm:ss') } |
   ConvertTo-Json | Set-Content -Path $Marca -Encoding ASCII
+Remove-Item $Candado -Force -ErrorAction SilentlyContinue
 Log "hecho: $listos grupos listos de $Temporada importados y demo publicada"
 
 # 7. Idempotencia a mano: vuelve a medir antes/despues con la misma consulta; los numeros tienen que coincidir.

@@ -1,7 +1,7 @@
 {
   "cyl": {
     "competiciones_total": 889,
-    "completas": 206,
+    "completas": 204,
     "porcentaje": 77
   },
   "temporadas": [
@@ -47,7 +47,7 @@
     },
     {
       "temporada": "2018-19",
-      "hecho": 9,
+      "hecho": 7,
       "total": 61
     },
     {
@@ -82,8 +82,8 @@
     }
   ],
   "ritmo": {
-    "pc_por_min": 6,
-    "servidor_por_min": 1.6,
-    "medido": "2026-11-14T11:43"
+    "pc_por_min": 8.4,
+    "servidor_por_min": 1.4,
+    "medido": "2026-11-14T12:43"
   }
 }
