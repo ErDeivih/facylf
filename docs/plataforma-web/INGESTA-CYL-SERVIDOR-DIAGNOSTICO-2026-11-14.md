@@ -81,3 +81,18 @@ ssh servidor "docker inspect facylf-federacion-1 --format 'cpus={{.HostConfig.Na
 ssh servidor "tail -5 /srv/data/facylf/descargas-federacion/recolector-local/worker-programado.log"
 # revertir: copias entorno-servidor.env.antes-20261114, compose.yml.antes-20261114 y temporadas-asignadas.txt.*.antes-*
 ```
+
+## 6 · Demostración final: una clasificación guardada por el servidor
+
+El 14/11 a las **11:00:47 UTC** el worker de CyL del servidor guardó una clasificación real de la temporada
+**2021-22** (una de las asignadas al servidor). Se le dio prioridad a un trabajo pendiente de la cola para que
+saliera en la siguiente vuelta (cambio reversible en la cola, no en el canónico), y el registro del supervisor lo
+muestra:
+
+```
+→ clasificacion|17|10348|37954||
+  ✓ clasificación guardada
+```
+
+Comprobado en la cola: `clasificacion|17|10348|37954||` → `estado='hecho'`, `actualizado_en=2026-11-14T11:00:47Z`;
+`trabajos hechos hoy` pasó de **1.522 a 1.528**.
