@@ -386,8 +386,11 @@ services:
     <<: *recolector
     # 11/11/2026: en el servidor 1,6 GB no bastaban (Chrome + lectura de la cola) y el pageLoad de 60 s
     # se quedaba corto con las clasificaciones de 2026-27 (timeout del renderer a los ~60 s).
-    mem_limit: 3000m
-    memswap_limit: 3000m
+    # 14/11/2026: las ACTAS de PNGF tardan 75-86 s en cargar y algunas pasaban de 120 s -> timeout 118,4 s
+    # y caída de la sesión del navegador (backoff de 10 min por cada una). Se sube pageLoad a 240 s en
+    # entorno-servidor.env y la memoria a 4 GB. Con 240 s las mismas actas terminan en 75-86 s.
+    mem_limit: 4096m
+    memswap_limit: 4096m
     env_file:
       - ../descargas-federacion/recolector-local/entorno-servidor.env
     command: ["bash", "docker/entrada-recolector.sh", "federacion"]

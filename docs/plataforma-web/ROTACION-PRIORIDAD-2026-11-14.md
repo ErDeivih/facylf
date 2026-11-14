@@ -88,5 +88,6 @@ trabajos/día ≈ 283/h**), las 682 ediciones incompletas de la ventana suponen:
 | 2026-27 | 86 | 64.500 | 228 h | 9,5 |
 | **Total** | **682** | **≈511.500** | **≈1.808 h** | **≈75** |
 
-Rango: **40-90 días** según el coste real por edición (400-800 trabajos). Si el servidor sigue sin poder
-cargar actas (ver `INGESTA-SERVIDOR-2026-11-14.md`) y solo queda el PC: 511.500 / 4.434 ≈ **115 días**.
+Rango: **40-90 días** según el coste real por edición (400-800 trabajos). Con el servidor ya ingiriendo tras el
+arreglo del 14/11 (`INGESTA-SERVIDOR-2026-11-14.md`), su ritmo medido es ~45 trabajos/h (1.080/día) y el PC
+4.434/día: **combinado ≈5.500/día ⇒ ≈93 días** (rango 50-115). Si solo quedara el PC: 511.500 / 4.434 ≈ **115 días**.
