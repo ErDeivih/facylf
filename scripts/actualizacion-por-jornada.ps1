@@ -95,12 +95,19 @@ Log "despues: partidos|actas|apariciones = $despues"
 # 5. Publicar la demo estatica (mirror + render + push) y la base de la app.
 #    La app no lee una copia: lee el canonico ya importado; por eso 'la base de la app' queda al dia con el paso 4.
 $publica = Join-Path $Raiz 'tmp\publica-demo.ps1'
-if (Test-Path $publica) {
+$appViva = $false
+try {
+  $r = Invoke-WebRequest -Uri 'http://127.0.0.1:3002/' -UseBasicParsing -TimeoutSec 8
+  $appViva = ($r.StatusCode -eq 200)
+} catch { $appViva = $false }
+if (-not (Test-Path $publica)) {
+  Log 'AVISO: falta tmp\publica-demo.ps1; no se publica la demo'
+} elseif (-not $appViva) {
+  Log 'AVISO: la app no responde en 127.0.0.1:3002; el canonico queda importado y la demo NO se republica (se reintenta en la proxima pasada con la app levantada)'
+} else {
   Log "publicando demo: powershell $publica"
   & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $publica | ForEach-Object { Log $_ }
   if ($LASTEXITCODE -ne 0) { Log "AVISO: la publicacion devolvio $LASTEXITCODE (el canonico ya esta importado)"; }
-} else {
-  Log 'AVISO: falta tmp\publica-demo.ps1; no se publica la demo'
 }
 
 # 6. Marca: solo se avanza si la importacion fue bien.
