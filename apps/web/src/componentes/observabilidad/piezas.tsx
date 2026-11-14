@@ -132,7 +132,7 @@ export function TablaResponsiva<F>({ filas, columnas, caption, clave }: {
       <table className="w-full min-w-[620px] border-separate border-spacing-0 text-tabla">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+          <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
             {columnas.map((columna, indice) => (
               <th key={columna.titulo} scope="col"
                 className={[

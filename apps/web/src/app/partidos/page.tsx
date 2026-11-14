@@ -9,6 +9,7 @@ import type { FilaFederacionCanonica, FilaFaceta } from '@/consultas/catalogo';
 import { PARTIDOS_DEL_CANONICO } from '@/consultas/entidades';
 import type { FilaPartidoListado } from '@/consultas/entidades';
 import { agrupaFacetas, numero } from '@/lib/presentacion-canonico';
+import { BOTON_PRIMARIO, CONTROL_FILTRO, ETIQUETA_FILTRO } from '@/componentes/ui/legado';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,7 +97,7 @@ export default async function Partidos({ searchParams }: {
     },
     {
       clave: 'edicion', titulo: 'Competición y grupo',
-      render: (f) => <span>{f.edicion}<span className="block text-[0.6875rem] text-[var(--texto-suave)]">{f.grupo}</span></span>,
+      render: (f) => <span>{f.edicion}<span className="block text-etiqueta text-[var(--texto-suave)]">{f.grupo}</span></span>,
     },
     {
       clave: 'calidad_acta', titulo: 'Acta',
@@ -113,29 +114,29 @@ export default async function Partidos({ searchParams }: {
 
   return <>
     <h2 className="font-display text-3xl uppercase">Partidos</h2>
-    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[var(--texto-suave)]">
+    <p className="mt-1 text-xs text-[var(--texto-suave)]">
       {conDatos.length} federaciones con datos · temporada {temporada}
     </p>
 
     <form action="/partidos" className="mt-5 grid gap-3 border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-[12rem_10rem_8rem_auto]">
       <label>
-        <span className="etiqueta-filtro">Federación</span>
-        <select name="fed" defaultValue={fed} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Federación</span>
+        <select name="fed" defaultValue={fed} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
         </select>
       </label>
       <label>
-        <span className="etiqueta-filtro">Temporada</span>
-        <select name="temp" defaultValue={temporada} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Temporada</span>
+        <select name="temp" defaultValue={temporada} className={`${CONTROL_FILTRO}`}>
           {temporadas.map((t) => <option key={t.valor} value={t.valor}>{t.etiqueta}</option>)}
         </select>
       </label>
       <label>
-        <span className="etiqueta-filtro">Jornada</span>
-        <input name="j" defaultValue={jornada} className="control-filtro" placeholder="Todas" inputMode="numeric" />
+        <span className={`${ETIQUETA_FILTRO}`}>Jornada</span>
+        <input name="j" defaultValue={jornada} className={`${CONTROL_FILTRO}`} placeholder="Todas" inputMode="numeric" />
       </label>
-      <div className="flex items-end"><button className="boton-primario w-full">Filtrar</button></div>
+      <div className="flex items-end"><button className={`${BOTON_PRIMARIO} w-full`}>Filtrar</button></div>
     </form>
 
     {hayFiltros && (
@@ -178,7 +179,7 @@ export default async function Partidos({ searchParams }: {
       total={total}
     />
 
-    <p className="mt-3 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="mt-3 text-etiqueta leading-5 text-[var(--texto-tenue)]">
       El marcador se enseña desde el punto de vista del local, y «sin resultado publicado» <b>no</b> es
       un 0-0: son cosas distintas y aquí no se confunden. Los equipos de cada fila llevan a su ficha,
       que es una inscripción concreta y no un club.

@@ -9,6 +9,7 @@ import type { FilaFederacionCanonica, FilaFaceta } from '@/consultas/catalogo';
 import { BUSQUEDA_POR_NOMBRE } from '@/consultas/entidades';
 import type { FilaBusqueda } from '@/consultas/entidades';
 import { agrupaFacetas, numero, texto } from '@/lib/presentacion-canonico';
+import { BOTON_PRIMARIO, CONTROL_FILTRO, ETIQUETA_FILTRO } from '@/componentes/ui/legado';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,30 +85,30 @@ export default async function Jugadores({ searchParams }: {
 
   return <>
     <h2 className="font-display text-3xl uppercase">Jugadores</h2>
-    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[var(--texto-suave)]">
+    <p className="mt-1 text-xs text-[var(--texto-suave)]">
       {conDatos.length} federaciones con datos · se entra por el nombre
     </p>
 
     <form action="/jugadores" className="mt-5 grid gap-3 border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-[1fr_12rem_10rem_auto]">
       <label>
-        <span className="etiqueta-filtro">Nombre</span>
-        <input name="q" defaultValue={q} className="control-filtro" placeholder="Apellido o nombre…" />
+        <span className={`${ETIQUETA_FILTRO}`}>Nombre</span>
+        <input name="q" defaultValue={q} className={`${CONTROL_FILTRO}`} placeholder="Apellido o nombre…" />
       </label>
       <label>
-        <span className="etiqueta-filtro">Federación</span>
-        <select name="fed" defaultValue={fed} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Federación</span>
+        <select name="fed" defaultValue={fed} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
         </select>
       </label>
       <label>
-        <span className="etiqueta-filtro">Temporada</span>
-        <select name="temp" defaultValue={temp} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Temporada</span>
+        <select name="temp" defaultValue={temp} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {temporadas.map((t) => <option key={t.valor} value={t.valor}>{t.etiqueta}</option>)}
         </select>
       </label>
-      <div className="flex items-end"><button className="boton-primario w-full">Buscar</button></div>
+      <div className="flex items-end"><button className={`${BOTON_PRIMARIO} w-full`}>Buscar</button></div>
     </form>
 
     {(fed || temp) && (
@@ -150,7 +151,7 @@ export default async function Jugadores({ searchParams }: {
             />}
           />
         </div>
-        <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+        <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
           «nominal» marca una identidad asignada <b>sin código federativo</b>: ese enlace entre
           temporadas no está confirmado, y un nombre igual no une a dos personas. El equipo y la
           federación salen de las actas de esa persona, no de una coincidencia de nombres.

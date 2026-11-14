@@ -21,7 +21,7 @@ import { fechaCorta } from '@/lib/vocabulario-pantalla';
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 const SIGNO_DE_RESULTADO: Record<string, 'G' | 'E' | 'P' | null> = {
   ganado: 'G', empatado: 'E', perdido: 'P', sin_resultado: null,
@@ -45,7 +45,7 @@ function TiraDeResultados({ balance }: { balance: { ganados: number; empatados: 
         const estilo = estiloForma(t.clave);
         return (
           <span key={t.clave} aria-hidden="true"
-            className="flex items-center justify-center rounded-[4px] text-[10px] font-bold"
+            className="flex items-center justify-center rounded-[4px] text-etiqueta font-bold"
             style={{ flex: t.n, ...estilo }}>
             {t.n}
           </span>
@@ -80,7 +80,7 @@ export function ResumenDelEquipo({ equipo, resumen }: { equipo: FilaEquipo; resu
               const { letra, etiqueta } = insigniaForma(signo);
               return (
                 <span key={`${letra}-${i}`} role="img" aria-label={etiqueta} title={etiqueta}
-                  className="flex size-6 items-center justify-center rounded-[6px] text-[11px] font-bold"
+                  className="flex size-6 items-center justify-center rounded-[var(--radius-md)] text-etiqueta font-bold"
                   style={estiloForma(signo)}>
                   {letra}
                 </span>
@@ -186,7 +186,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                 Jugadores que aparecen en las actas del equipo, con partidos, titularidades, minutos, goles y tarjetas.
               </caption>
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Jugador</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">PJ</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Tit.</th>
@@ -207,7 +207,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                         <Link href={`/explorar/jugador/${fila.persona_id}` as Route}
                           className="flex min-h-8 items-center gap-2.5 text-[var(--texto)] hover:text-[var(--accion)] hover:underline">
                           <span aria-hidden="true" title={fila.dorsales ?? undefined}
-                            className="flex size-[26px] flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-[11px] font-bold text-[var(--texto-suave)]">
+                            className="flex size-[26px] flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-etiqueta font-bold text-[var(--texto-suave)]">
                             {/* El acta puede traer varios dorsales en la temporada; el círculo es pequeño
                                 para todos, así que se enseña el primero y el resto queda en el `title`. */}
                             {fila.dorsales ? fila.dorsales.split('·')[0]!.trim() : ''}
@@ -287,7 +287,7 @@ export function UltimosResultados({ partidos, grupoId }: {
                   <span className="flex min-w-0 flex-1 items-center gap-2">
                     {insignia && (
                       <span role="img" aria-label={insignia.etiqueta} title={insignia.etiqueta}
-                        className="flex size-6 flex-none items-center justify-center rounded-[6px] text-[11px] font-bold"
+                        className="flex size-6 flex-none items-center justify-center rounded-[var(--radius-md)] text-etiqueta font-bold"
                         style={estiloForma(signo!)}>
                         {insignia.letra}
                       </span>

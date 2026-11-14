@@ -17,7 +17,7 @@ import {
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 const COLOR_LETRA: Record<string, string> = { A: 'var(--accion)', B: 'var(--accion)', C: 'var(--accion)' };
 
@@ -77,7 +77,7 @@ export function EquiposDeLaTemporada({ filas, temporada }: {
                 <Link key={equipo.equipo_id} href={`/explorar/equipo/${equipo.equipo_id}` as Route}
                   className="flex min-h-[44px] items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3.5 py-3 text-[var(--texto)] hover:border-[var(--borde-fuerte)]">
                   <span aria-hidden="true"
-                    className="flex size-9 flex-none items-center justify-center rounded-[var(--radius-md)] text-[15px] font-extrabold text-[var(--texto-inverso)]"
+                    className="flex size-9 flex-none items-center justify-center rounded-[var(--radius-md)] text-cuerpo font-extrabold text-[var(--texto-inverso)]"
                     style={{ background: COLOR_LETRA[letra] ?? 'var(--accion)' }}>
                     {letra}
                   </span>
@@ -123,7 +123,7 @@ export function EvolucionDelClub({ evolucion }: { evolucion: Evolucion }) {
                 Puesto final de cada equipo del club en las últimas temporadas, con la flecha de si sube o baja respecto a la anterior.
               </caption>
               <thead>
-                <tr className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-2 text-left font-semibold">Equipo</th>
                   {evolucion.temporadas.map((temporada) => (
                     <th key={temporada} scope="col" className="px-2 py-2 text-center font-semibold tabular-nums">{temporada}</th>

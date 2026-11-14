@@ -24,7 +24,7 @@ export function RachaDeSignos({ racha, vacio = 'Sin datos' }: { racha: readonly 
         const { letra, etiqueta } = insigniaForma(signo);
         return (
           <span key={`${signo}-${indice}`} role="img" aria-label={etiqueta} title={etiqueta}
-            className="flex size-6 items-center justify-center rounded-[6px] text-[11px] font-bold"
+            className="flex size-6 items-center justify-center rounded-[var(--radius-md)] text-etiqueta font-bold"
             style={estiloForma(signo)}>
             {letra}
           </span>
@@ -43,7 +43,7 @@ const TONO = {
 /** Etiqueta corta de estado o de contexto. Nunca sólo color: siempre lleva texto. */
 export function Etiqueta({ children, tono = 'neutro' }: { children: React.ReactNode; tono?: keyof typeof TONO }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-etiqueta font-semibold uppercase tracking-[0.04em] ${TONO[tono]}`}>
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-etiqueta font-semibold ${TONO[tono]}`}>
       {children}
     </span>
   );
@@ -85,7 +85,7 @@ export function EnlaceDeTarjeta({ href, children }: { href: string; children: Re
 export function Dato({ etiqueta, children, nota }: { etiqueta: string; children: React.ReactNode; nota?: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <dt className="text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]">{etiqueta}</dt>
+      <dt className="text-etiqueta font-semibold text-[var(--texto-suave)]">{etiqueta}</dt>
       <dd className="m-0 flex min-w-0 flex-col gap-0.5">{children}</dd>
       {nota !== undefined && <dd className="m-0 text-nota leading-5 text-[var(--texto-suave)]">{nota}</dd>}
     </div>

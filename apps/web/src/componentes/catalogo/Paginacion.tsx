@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import type { Route } from 'next';
+import { Button } from '@/componentes/ui';
 import { numero } from '@/lib/presentacion-canonico';
+import { plural } from '@/lib/plural';
 import type { EstadoSelector } from '@/lib/selector-competiciones';
 import { TAMANO_PAGINA_SELECTOR, urlDeSelector } from '@/lib/selector-competiciones';
-import { BOTON_SECUNDARIO } from './controles';
 
 /**
  * Paginación por desplazamiento del selector.
@@ -30,11 +31,11 @@ export function Paginacion({ estado, total }: { estado: EstadoSelector; total: n
   return (
     <nav aria-label="Paginación" className="flex flex-wrap items-center justify-between gap-3 text-nota text-[var(--texto-suave)]">
       <span>
-        {numero(total)} {total === 1 ? 'grupo' : 'grupos'} · {desde}–{hasta}
+        {numero(total)} {plural(total, 'grupo', 'grupos')} · {desde}–{hasta}
       </span>
       <span className="flex flex-wrap items-center gap-2">
-        {anterior && <Link href={anterior as Route} className={BOTON_SECUNDARIO}>← Anterior</Link>}
-        {siguiente && <Link href={siguiente as Route} className={BOTON_SECUNDARIO}>Siguiente →</Link>}
+        {anterior && <Button asChild variant="secondary"><Link href={anterior as Route}>← Anterior</Link></Button>}
+        {siguiente && <Button asChild variant="secondary"><Link href={siguiente as Route}>Siguiente →</Link></Button>}
       </span>
     </nav>
   );

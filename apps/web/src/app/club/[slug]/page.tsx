@@ -8,6 +8,7 @@ import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/a
 import { CLUB_POR_ID, EQUIPOS_DEL_CLUB } from '@/consultas/entidades';
 import type { FilaClub, FilaEquipoDeClub } from '@/consultas/entidades';
 import { etiqueta, fechaCorta, numero, texto } from '@/lib/presentacion-canonico';
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO } from '@/componentes/ui/legado';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,7 +131,7 @@ export default async function Club({
       { texto: 'Club' },
     ]} />
 
-    <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-[var(--texto-suave)]">
+    <p className="text-etiqueta text-[var(--texto-suave)]">
       Club · {club.federacion_nombre}
     </p>
     <h2 className="mt-1 flex items-center gap-3 font-display text-3xl uppercase">
@@ -138,21 +139,21 @@ export default async function Club({
       {club.nombre_canonico}
     </h2>
 
-    <p className="mt-2 max-w-3xl text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+    <p className="mt-2 max-w-3xl text-tabla leading-6 text-[var(--texto-suave)]">
       Un club es una entidad histórica; sus equipos son inscripciones de una temporada en una
       competición y un grupo concretos. <b className="text-[var(--texto)]">No existe una «plantilla de
       club»</b>: un juvenil y un aficionado del mismo club son contextos deportivos distintos y sus
       cifras nunca se suman.
     </p>
 
-    <p className="mt-2 text-[0.75rem] text-[var(--texto-tenue)]">
+    <p className="mt-2 text-nota text-[var(--texto-tenue)]">
       {club.municipio ? `${club.municipio} · ` : ''}{texto(club.provincia)} ·{' '}
       {equipos.length} {equipos.length === 1 ? 'inscripción' : 'inscripciones'} en{' '}
       {temporadas.length} {temporadas.length === 1 ? 'temporada' : 'temporadas'}
     </p>
 
     {club.aliases && (
-      <p className="mt-1 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+      <p className="mt-1 text-etiqueta leading-5 text-[var(--texto-tenue)]">
         Nombres publicados por las fuentes: {club.aliases}
       </p>
     )}
@@ -173,7 +174,7 @@ export default async function Club({
               key={t}
               href={`/club/${idClub}?temp=${t}` as Route}
               aria-current={t === elegida ? 'true' : undefined}
-              className={t === elegida ? 'boton-primario' : 'boton-secundario'}
+              className={t === elegida ? BOTON_PRIMARIO : BOTON_SECUNDARIO}
             >
               {t}
             </Link>
@@ -201,14 +202,14 @@ export default async function Club({
               />
             </div>
 
-            <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+            <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
               La fila entera lleva a la ficha del equipo. <b>*</b> Los goles se reconstruyen desde los
               marcadores de sus partidos: la clasificación oficial guardada no los publica y los trae a
               cero, así que no se muestran como si fueran suyos.
             </p>
 
             {nombresRepetidos.size > 0 && (
-              <div className="mt-3 border-l-4 border-[var(--revision)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+              <div className="mt-3 border-l-4 border-[var(--revision)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
                 <b className="text-[var(--texto)]">Dos equipos con el mismo nombre publicado.</b>{' '}
                 Esta temporada el club tiene más de una inscripción con el mismo nombre en la fuente
                 ({[...nombresRepetidos].join(', ')}). <b>Son equipos distintos</b> —competición y grupo
@@ -217,7 +218,7 @@ export default async function Club({
             )}
 
             {categoriaDiscrepa && (
-              <div className="mt-3 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+              <div className="mt-3 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
                 <b className="text-[var(--texto)]">La categoría de la edición y la del equipo no coinciden.</b>{' '}
                 La columna «Categoría» es la de la <b>competición</b>, que es la fiable. El equipo de
                 temporada guarda otra distinta en algunos casos medidos y se conserva tal cual en vez de

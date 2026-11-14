@@ -87,7 +87,7 @@ function Grupo({ titulo, jugadores, eventos, nota }: {
   if (jugadores.length === 0) return null;
   return (
     <div className="px-1">
-      <h4 className="m-0 px-3 pt-1.5 pb-1 text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--texto-suave)]">
+      <h4 className="m-0 px-3 pt-1.5 pb-1 text-etiqueta font-semibold text-[var(--texto-suave)]">
         {titulo}
       </h4>
       {nota !== undefined && <p className="m-0 px-3 pb-1 text-nota text-[var(--texto-tenue)]">{nota}</p>}

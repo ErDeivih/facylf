@@ -8,7 +8,7 @@ import { formateaNumero, textoDeMinutos, type ResumenDeHistorial } from '@/lib/h
  */
 export function ResumenHistorial({ resumen }: { resumen: ResumenDeHistorial }) {
   const tarjeta = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-  const etiqueta = 'text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--texto-suave)]';
+  const etiqueta = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
   if (resumen.temporadas === 0) {
     return (

@@ -50,7 +50,7 @@ export function MapaCalor({ partidos }: { partidos: Partido[] }) {
                 const p = puntos.get(eq)?.get(j);
                 return (
                   <td key={j} className="p-[1px]">
-                    <span className={`flex h-6 w-6 items-center justify-center rounded-sm text-[10px] text-white ${colorDe(p ?? 0)}`}>
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-sm text-etiqueta text-white ${colorDe(p ?? 0)}`}>
                       {p ?? ''}
                     </span>
                   </td>

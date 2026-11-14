@@ -45,7 +45,7 @@ function HuecoEnEsquema({ etiqueta, formato }: { etiqueta: string; formato: stri
   return (
     <div className="flex min-h-12 flex-col items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed border-[var(--borde-fuerte)] px-2 py-2 text-center">
       <span className="text-nota font-bold text-[var(--texto)]">{etiqueta}</span>
-      <span className="text-etiqueta uppercase tracking-[0.04em] text-[var(--texto-suave)]">{formato}</span>
+      <span className="text-etiqueta text-[var(--texto-suave)]">{formato}</span>
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function DondeVanLosHuecos() {
           <div className="flex flex-col gap-2 sm:flex-[1.3]">
             <div className="flex min-h-28 flex-col items-center justify-center rounded-[var(--radius-md)] border-2 border-dashed border-[var(--borde-fuerte)] px-2 py-2 text-center">
               <span className="text-nota font-bold text-[var(--texto)]">Lateral</span>
-              <span className="text-etiqueta uppercase tracking-[0.04em] text-[var(--texto-suave)]">300 × 600 · sólo escritorio</span>
+              <span className="text-etiqueta text-[var(--texto-suave)]">300 × 600 · sólo escritorio</span>
             </div>
             <div className="rounded-[var(--radius-md)] bg-[var(--fondo-elevado)] px-3 py-2 text-nota text-[var(--texto-suave)]">Goleadores</div>
           </div>
@@ -99,7 +99,7 @@ export function TablaDeEspacios() {
       <table className="w-full border-separate border-spacing-0 text-tabla">
         <caption className="sr-only">Huecos publicitarios, páginas, formato y estado.</caption>
         <thead>
-          <tr className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+          <tr className="text-etiqueta text-[var(--texto-suave)]">
             <th scope="col" className="py-2 pl-4 pr-1.5 text-left font-semibold">Hueco</th>
             <th scope="col" className="hidden px-1.5 py-2 text-left font-semibold sm:table-cell">Páginas</th>
             <th scope="col" className="hidden px-1.5 py-2 text-left font-semibold md:table-cell">Formato</th>
@@ -116,7 +116,7 @@ export function TablaDeEspacios() {
               <td className="hidden border-t border-[var(--fondo-sutil)] px-1.5 py-2 text-[var(--texto-suave)] sm:table-cell">{hueco.paginas}</td>
               <td className="hidden border-t border-[var(--fondo-sutil)] px-1.5 py-2 text-[var(--texto-suave)] md:table-cell">{hueco.formatoTexto}</td>
               <td className="border-t border-[var(--fondo-sutil)] py-2 pl-1.5 pr-4 text-right">
-                <span className="inline-flex items-center rounded-full bg-[var(--fondo-sutil)] px-2 py-0.5 text-etiqueta font-semibold uppercase tracking-[0.04em] text-[var(--texto-suave)]">
+                <span className="inline-flex items-center rounded-full bg-[var(--fondo-sutil)] px-2 py-0.5 text-etiqueta font-semibold text-[var(--texto-suave)]">
                   Apagado
                 </span>
               </td>

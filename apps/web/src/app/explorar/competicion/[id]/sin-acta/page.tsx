@@ -36,7 +36,7 @@ export default async function PantallaSinActa({ params }: { params: Promise<{ id
 
         <section aria-label="Regla de elegibilidad"
           className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-          <h2 className="m-0 text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]">Regla de elegibilidad</h2>
+          <h2 className="m-0 text-etiqueta font-semibold text-[var(--texto-suave)]">Regla de elegibilidad</h2>
           <p className="m-0 mt-1 text-nota text-[var(--texto)]">
             Se cuenta como pendiente un partido <strong>con resultado publicado</strong> cuyo <strong>acta aún no está
             enlazada</strong>. Un partido sin resultado no es un pendiente de acta: es un partido que todavía no se ha
@@ -54,7 +54,7 @@ export default async function PantallaSinActa({ params }: { params: Promise<{ id
             className="relative overflow-x-auto">
             <table className="w-full border-separate border-spacing-0 text-tabla">
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="py-2 pl-4 pr-1.5 text-left font-semibold">J</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Partido</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Marcador</th>

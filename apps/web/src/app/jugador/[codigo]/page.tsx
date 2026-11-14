@@ -67,7 +67,7 @@ async function JugadorCanonico({ idPersona }: { idPersona: number }) {
   return <>
     <Miga tramos={[{ texto: 'Federaciones', href: '/federaciones' }, { texto: 'Jugador' }]} />
 
-    <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-[var(--texto-suave)]">
+    <p className="text-etiqueta text-[var(--texto-suave)]">
       {federacion ?? 'Federación sin determinar'}
     </p>
     <h2 className="mt-1 font-display text-3xl uppercase">{persona.nombre_mostrado}</h2>
@@ -84,14 +84,14 @@ async function JugadorCanonico({ idPersona }: { idPersona: number }) {
     {persona.identidad_nominal && <IdentidadPersona decisiones={persona.decisiones_identidad} />}
 
     {persona.es_menor && (
-      <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+      <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
         Persona menor de edad en el canónico. Esta instancia es privada y estos datos no salen de ella.
       </p>
     )}
 
     <h3 className="mt-6 font-display text-lg uppercase">Trayectoria</h3>
     {!hayResumen && carrera.length > 0 && (
-      <div className="mt-2 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+      <div className="mt-2 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
         <b className="text-[var(--texto)]">Sólo se pueden enseñar las apariciones.</b> Salen de las actas
         importadas y son lo único demostrable hoy. Las cifras derivadas —convocatorias, titularidades,
         minutos, goles y tarjetas— viven en <code>analytics.player_team_season_summary</code>, que está
@@ -113,7 +113,7 @@ async function JugadorCanonico({ idPersona }: { idPersona: number }) {
         />}
       />
     </div>
-    <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
       Una fila por equipo y temporada: si alguien juega con dos equipos el mismo año, salen dos filas y
       <b> no se suman</b>. Una convocatoria sin condición publicada no cuenta como partido jugado.
     </p>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import type { ReactNode } from 'react';
+import { BOTON_SECUNDARIO } from '@/componentes/ui/legado';
 
 /**
  * Componentes compartidos del inventario de SISTEMA-DISENO.md §5.
@@ -66,7 +67,7 @@ export function TablaDatos<F>({ filas, columnas, caption, clave, enlaceFila, col
   const principal = columnaPrincipal ?? 0;
   return (
     <div className="overflow-x-auto border border-[var(--borde)]">
-      <table className="w-full border-collapse text-left text-[0.8125rem] tabular-nums">
+      <table className="w-full border-collapse text-left text-tabla tabular-nums">
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-b border-[var(--borde)]">
@@ -75,7 +76,7 @@ export function TablaDatos<F>({ filas, columnas, caption, clave, enlaceFila, col
                 key={c.clave ?? `c${i}`}
                 scope="col"
                 className={[
-                  'whitespace-nowrap px-3 py-2 text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-[var(--texto-suave)]',
+                  'whitespace-nowrap px-3 py-2 text-etiqueta font-semibold text-[var(--texto-suave)]',
                   i === principal ? 'sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)]' : '',
                   c.tipo === 'numero' ? 'text-right' : 'text-left',
                 ].join(' ')}
@@ -196,11 +197,11 @@ export function Paginador({ anterior, siguiente, desde, hasta, total }: {
       </p>
       <p className="flex gap-2">
         {anterior
-          ? <Link href={anterior as Route} className="boton-secundario">← Anterior</Link>
-          : <span aria-disabled="true" className="boton-secundario opacity-50">← Anterior</span>}
+          ? <Link href={anterior as Route} className={`${BOTON_SECUNDARIO}`}>← Anterior</Link>
+          : <span aria-disabled="true" className={`${BOTON_SECUNDARIO} opacity-50`}>← Anterior</span>}
         {siguiente
-          ? <Link href={siguiente as Route} className="boton-secundario">Siguiente →</Link>
-          : <span aria-disabled="true" className="boton-secundario opacity-50">Siguiente →</span>}
+          ? <Link href={siguiente as Route} className={`${BOTON_SECUNDARIO}`}>Siguiente →</Link>
+          : <span aria-disabled="true" className={`${BOTON_SECUNDARIO} opacity-50`}>Siguiente →</span>}
       </p>
     </nav>
   );
@@ -238,7 +239,7 @@ export function InsigniaCobertura({ estado, hastaJornada, nota }: {
   return (
     <span
       title={nota ?? undefined}
-      className="inline-flex items-center gap-1.5 border border-[var(--borde)] px-1.5 py-0.5 text-[0.6875rem] uppercase tracking-[0.06em] text-[var(--texto-suave)]"
+      className="inline-flex items-center gap-1.5 border border-[var(--borde)] px-1.5 py-0.5 text-etiqueta text-[var(--texto-suave)]"
     >
       <span aria-hidden="true" className="inline-block h-2 w-2" style={{ background: color }} />
       {completo}
@@ -254,7 +255,7 @@ export function Procedencia({ fuente, portalUrl, medidoEn, parserVersion }: {
   fuente: string; portalUrl?: string | null; medidoEn: string | null; parserVersion?: string | null;
 }) {
   return (
-    <p className="text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="text-etiqueta leading-5 text-[var(--texto-tenue)]">
       Fuente: {portalUrl
         ? <a href={portalUrl} target="_blank" rel="noreferrer" className="hover:text-[var(--accion)]">{fuente} ↗</a>
         : fuente}
@@ -276,7 +277,7 @@ export function SinCapacidad({ federacion, capacidad, nota }: {
   federacion: string; capacidad: string; nota?: string | null;
 }) {
   return (
-    <div className="border-l-4 border-[var(--cobertura-nula)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+    <div className="border-l-4 border-[var(--cobertura-nula)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
       <p><b className="text-[var(--texto)]">{federacion} no publica {capacidad}.</b> No es que falten datos: la fuente nunca ofrece este campo, así que aquí no aparecerá por mucho que se espere.</p>
       {nota && <p className="mt-1">{nota}</p>}
     </div>
@@ -296,12 +297,12 @@ export function Vacio({ titulo, motivo, nota, accion }: {
 }) {
   return (
     <div className="border border-dashed border-[var(--borde-fuerte)] p-6 text-center">
-      <p className="text-[0.8125rem] font-semibold text-[var(--texto)]">{titulo}</p>
-      <p className="mt-1 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">{motivo}</p>
+      <p className="text-tabla font-semibold text-[var(--texto)]">{titulo}</p>
+      <p className="mt-1 text-tabla leading-6 text-[var(--texto-suave)]">{motivo}</p>
       {nota && (
-        <p className="mx-auto mt-2 max-w-2xl text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">{nota}</p>
+        <p className="mx-auto mt-2 max-w-2xl text-etiqueta leading-5 text-[var(--texto-tenue)]">{nota}</p>
       )}
-      {accion && <p className="mt-3"><Link href={accion.href as Route} className="boton-secundario">{accion.texto}</Link></p>}
+      {accion && <p className="mt-3"><Link href={accion.href as Route} className={`${BOTON_SECUNDARIO}`}>{accion.texto}</Link></p>}
     </div>
   );
 }
@@ -342,13 +343,13 @@ export function ErrorRecuperable({ mensaje, incidencia, reintentar, alReintentar
 }) {
   return (
     <div role="alert" className="border-l-4 border-[var(--revision)] bg-[var(--fondo-sutil)] p-4">
-      <p className="text-[0.8125rem] font-semibold text-[var(--texto)]">{mensaje}</p>
-      <p className="mt-1 text-[0.6875rem] text-[var(--texto-tenue)]">Incidencia: <code>{incidencia}</code></p>
+      <p className="text-tabla font-semibold text-[var(--texto)]">{mensaje}</p>
+      <p className="mt-1 text-etiqueta text-[var(--texto-tenue)]">Incidencia: <code>{incidencia}</code></p>
       <p className="mt-3">
         {alReintentar
-          ? <button type="button" onClick={alReintentar} className="boton-secundario">Reintentar</button>
+          ? <button type="button" onClick={alReintentar} className={`${BOTON_SECUNDARIO}`}>Reintentar</button>
           : reintentar
-            ? <Link href={reintentar as Route} className="boton-secundario">Reintentar</Link>
+            ? <Link href={reintentar as Route} className={`${BOTON_SECUNDARIO}`}>Reintentar</Link>
             : null}
       </p>
     </div>
@@ -391,7 +392,7 @@ export function Marcador({ local, visitante }: { local: number | null; visitante
  */
 export function IdentidadPersona({ decisiones }: { decisiones: number }) {
   return (
-    <div className="mt-3 border-l-4 border-[var(--revision)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+    <div className="mt-3 border-l-4 border-[var(--revision)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
       <b className="text-[var(--texto)]">Identidad nominal, no confirmada.</b> A esta persona se le
       asignó identidad por el contexto de su equipo y su nombre, <b>sin código federativo</b>. Sus
       temporadas aparecen juntas porque el nombre y el equipo encajan, no porque haya una prueba de que
@@ -432,7 +433,7 @@ export function Escudo({ nombre, tamano = 40 }: { nombre: string; semilla?: numb
     <span
       aria-hidden="true"
       style={{ width: tamano, height: tamano, fontSize: Math.round(tamano * 0.4) }}
-      className="inline-flex shrink-0 items-center justify-center border border-[var(--borde)] bg-[var(--accion-suave)] font-display font-semibold uppercase text-[var(--accion)]"
+      className="inline-flex shrink-0 items-center justify-center border border-[var(--borde)] bg-[var(--accion-suave)] font-display font-semibold text-[var(--accion)]"
     >
       {iniciales || '·'}
     </span>

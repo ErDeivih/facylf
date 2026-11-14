@@ -20,7 +20,7 @@ import { Dato, EnlaceDeTarjeta, Etiqueta, EtiquetaDeTemporada, PuestoTexto, Rach
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 /** Cabecera con el nombre del equipo, su club, su línea y el enlace a su ficha. */
 export function CabeceraHistorialEquipo({ fila }: { fila: FilaHistorialEquipo }) {

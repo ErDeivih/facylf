@@ -11,7 +11,7 @@ import { FiltrosSelector } from '@/componentes/catalogo/FiltrosSelector';
 import { ListaGrupos } from '@/componentes/catalogo/ListaGrupos';
 import { EsqueletoLista, SinGrupos, SinMasGrupos } from '@/componentes/catalogo/EstadosSelector';
 import { Paginacion } from '@/componentes/catalogo/Paginacion';
-import { CHIP } from '@/componentes/catalogo/controles';
+import { Button } from '@/componentes/ui';
 import { NOMBRE_PRODUCTO } from '@/componentes/marca/marca';
 import {
   TAMANO_PAGINA_SELECTOR, chipsDeFiltros, leeFiltrosSelector, opcionesDeSelector,
@@ -60,23 +60,25 @@ export default async function PantallaSelectorCompeticiones({ searchParams }: {
   const chips = chipsDeFiltros(estado, opciones);
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-4">
       <nav aria-label="Ruta" className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
         <Link className="hover:underline" href={'/' as Route}>Inicio</Link>
         <span aria-hidden="true">›</span>
         <span className="text-[var(--texto)]" aria-current="page">Competiciones</span>
       </nav>
 
-      <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">Competiciones</h1>
+      <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">Competiciones</h1>
 
       <FiltrosSelector estado={estado} opciones={opciones} />
 
       {chips.length > 0 && (
         <div className="flex flex-wrap items-center gap-2" aria-label="Filtros activos">
           {chips.map((chip) => (
-            <Link key={chip.clave} href={chip.url as Route} className={CHIP} aria-label={chip.aria}>
-              {chip.texto} <span aria-hidden="true">×</span>
-            </Link>
+            <Button key={chip.clave} asChild variant="secondary" size="sm">
+              <Link href={chip.url as Route} aria-label={chip.aria}>
+                {chip.texto} <span aria-hidden="true">×</span>
+              </Link>
+            </Button>
           ))}
         </div>
       )}
@@ -118,7 +120,7 @@ async function Contenido({ estado, opciones }: { estado: EstadoSelector; opcione
   }
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-4">
       <ListaGrupos filas={filas} />
       <Paginacion estado={estado} total={filas[0]?.total ?? 0} />
     </div>

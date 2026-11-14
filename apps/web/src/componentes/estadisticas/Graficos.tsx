@@ -49,8 +49,8 @@ function segmentos(valores: Array<number | null>, x: (i: number) => number, y: (
   return rutas;
 }
 
-const ETIQUETA_SVG = 'fill-[var(--texto-suave)] text-[17px] sm:text-[10.5px]';
-const ETIQUETA_SVG_FUERTE = 'fill-[var(--texto)] text-[17px] font-semibold sm:text-[10.5px]';
+const ETIQUETA_SVG = 'fill-[var(--texto-suave)] text-dato sm:text-[10.5px]';
+const ETIQUETA_SVG_FUERTE = 'fill-[var(--texto)] text-dato font-semibold sm:text-[10.5px]';
 
 export function GraficoLineas({ id, titulo, subtitulo, resumen, etiquetasX, series, leyenda, tableHeaders, tableRows, nota }: {
   id: string;

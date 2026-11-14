@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { competicionLocal, slugEquipo, slugJugador } from '@/lib/repositorio-local';
 import { Bloque } from '@/componentes/Bloque';
 import { NavegacionCompeticion } from '@/componentes/NavegacionCompeticion';
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, CONTROL_FILTRO, ETIQUETA_FILTRO } from '@/componentes/ui/legado';
 
 export const revalidate = 60;
 
@@ -29,39 +30,39 @@ export default async function JugadoresCompeticion({ params, searchParams }: {
     });
   return (
     <>
-      <div className="mb-5 text-xs text-[#5C646C]">
+      <div className="mb-5 text-xs text-[var(--texto-suave)]">
         <Link href="/competiciones" className="hover:text-club hover:underline">Competiciones</Link><span className="mx-2">/</span>
         <Link href={`/competicion/${slug}`} className="hover:text-club hover:underline">{c.nombre}</Link><span className="mx-2">/</span>
         <span>Jugadores</span>
       </div>
-      <p className="font-display text-xs uppercase tracking-[0.16em] text-club">{c.temporada} · {c.grupo}</p>
+      <p className="font-display text-xs text-club">{c.temporada} · {c.grupo}</p>
       <h2 className="mb-1 mt-1 font-display text-3xl uppercase">Jugadores</h2>
-      <p className="mb-5 text-sm text-[#5C646C]">{c.nombre}</p>
+      <p className="mb-5 text-sm text-[var(--texto-suave)]">{c.nombre}</p>
       <NavegacionCompeticion slug={slug} />
 
       <>
-        <form className="mb-5 grid gap-3 border border-[#D6D6D4] bg-white p-4 sm:grid-cols-3" action={`/competicion/${slug}/jugadores`}>
-          <label><span className="etiqueta-filtro">Jugador</span><input className="control-filtro" name="q" defaultValue={filtros.q ?? ''} placeholder="Buscar por nombre" /></label>
-          <label><span className="etiqueta-filtro">Equipo</span><select className="control-filtro" name="equipo" defaultValue={filtros.equipo ?? ''}>
+        <form className="mb-5 grid gap-3 border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-3" action={`/competicion/${slug}/jugadores`}>
+          <label><span className={`${ETIQUETA_FILTRO}`}>Jugador</span><input className={`${CONTROL_FILTRO}`} name="q" defaultValue={filtros.q ?? ''} placeholder="Buscar por nombre" /></label>
+          <label><span className={`${ETIQUETA_FILTRO}`}>Equipo</span><select className={`${CONTROL_FILTRO}`} name="equipo" defaultValue={filtros.equipo ?? ''}>
             <option value="">Todos los equipos</option>{equipos.map((x) => <option key={x}>{x}</option>)}
           </select></label>
-          <label><span className="etiqueta-filtro">Ordenar por</span><select className="control-filtro" name="orden" defaultValue={orden}>
+          <label><span className={`${ETIQUETA_FILTRO}`}>Ordenar por</span><select className={`${CONTROL_FILTRO}`} name="orden" defaultValue={orden}>
             <option value="goles">Goles</option><option value="partidos">Partidos</option>
             <option value="minutos">Minutos estimados</option><option value="tarjetas">Tarjetas</option>
           </select></label>
           <div className="flex gap-2 sm:col-span-3 sm:justify-end">
-            <Link className="boton-secundario" href={`/competicion/${slug}/jugadores`}>Limpiar</Link>
-            <button className="boton-primario">Aplicar</button>
+            <Link className={`${BOTON_SECUNDARIO}`} href={`/competicion/${slug}/jugadores`}>Limpiar</Link>
+            <button className={`${BOTON_PRIMARIO}`}>Aplicar</button>
           </div>
         </form>
         <Bloque titulo={`${jugadores.length} jugadores`} pie="Estadísticas calculadas sólo dentro de esta competición, grupo y temporada.">
           <div className="overflow-x-auto"><table className="w-full text-sm tabular-nums">
-            <thead><tr className="border-b border-[#D6D6D4] text-xs uppercase text-[#5C646C]">
+            <thead><tr className="border-b border-[var(--borde-fuerte)] text-xs text-[var(--texto-suave)]">
               <th className="p-2 text-left">Jugador</th><th className="p-2 text-left">Equipo</th>
               <th className="p-2 text-right">Conv.</th><th className="p-2 text-right">PJ</th><th className="p-2 text-right">Tit.</th>
               <th className="p-2 text-right">Min.</th><th className="p-2 text-right">Goles</th><th className="p-2 text-right">Tarjetas</th>
             </tr></thead>
-            <tbody>{jugadores.map((j) => <tr key={`${j.codigo ?? j.nombre}-${j.equipoCodigo ?? j.equipo}`} className="border-b border-[#EDF0ED]">
+            <tbody>{jugadores.map((j) => <tr key={`${j.codigo ?? j.nombre}-${j.equipoCodigo ?? j.equipo}`} className="border-b border-[var(--fondo-sutil)]">
               <td className="p-2">{j.codigo ? <Link className="hover:text-club hover:underline" href={`/jugador/${slugJugador(j.codigo, c.federacion)}`}>{j.nombre}</Link> : j.nombre}</td>
               <td className="p-2">{j.equipoCodigo ? <Link className="hover:text-club hover:underline"
                 href={`/equipo/${slugEquipo(c.temporadaCodigo, j.equipoCodigo, c.competicionCodigo, c.grupoCodigo, c.federacion)}`}>{j.equipo}</Link> : j.equipo}</td>

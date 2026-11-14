@@ -30,7 +30,7 @@ export function ListaSugerencias({ res, q, cerrar }: {
         <Link key={`${x.tipo}-${i}`} href={x.url as Route} onClick={cerrar}
           className="flex items-baseline justify-between gap-3 border-b border-[var(--borde)] px-3 py-2 text-tabla hover:bg-[var(--fondo-sutil)]">
           <span className="min-w-0">
-            <span className="mr-2 text-etiqueta uppercase tracking-[0.06em] text-[var(--accion)]">{ETIQUETA[x.tipo] ?? x.tipo}</span>
+            <span className="mr-2 text-etiqueta text-[var(--accion)]">{ETIQUETA[x.tipo] ?? x.tipo}</span>
             <span className="font-medium">{x.titulo}</span>
             <span className="block truncate text-nota text-[var(--texto-suave)]">{x.subtitulo}</span>
           </span>
@@ -108,7 +108,7 @@ export function Buscador({ inicial = '' }: { inicial?: string }) {
           onKeyDown={(e) => { if (e.key === 'Escape') setAbierto(false); }}
           placeholder="Buscar jugador o club…"
           aria-label="Buscar en la plataforma"
-          className="h-11 w-full rounded-[var(--radius-lg)] border border-transparent bg-[var(--fondo-fuerte-suave)] pl-11 pr-3.5 text-sm text-[var(--texto-fuerte-suave)] placeholder:text-[var(--texto-fuerte-suave)]"
+          className="h-11 w-full rounded-[var(--radius-lg)] border border-transparent bg-[var(--fondo-fuerte-suave)] pl-11 pr-3.5 text-sm text-[var(--texto-fuerte-suave)] placeholder:text-[var(--texto-fuerte-suave)] focus-visible:border-[var(--foco)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)]"
         />
       </form>
       {abierto && res && <ListaSugerencias res={res} q={q} cerrar={() => setAbierto(false)} />}

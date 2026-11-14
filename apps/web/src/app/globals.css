@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/* Alias temporales para los componentes existentes. Conservan sus nombres hasta migrarlos al
-   vocabulario semántico, pero ya no convierten el color de un club en identidad del producto. */
+/* Alias heredados. Los componentes nuevos están en `componentes/ui`; estos nombres se conservan
+   para los usos dinámicos que quedan en pantallas antiguas (clases construidas en tiempo de
+   ejecución). Todos apuntan a los mismos tokens, al mismo alto táctil y al mismo foco. */
 @theme {
   --color-club: var(--color-acento-700);
   --color-club-oscuro: var(--color-acento-700);
@@ -15,60 +16,65 @@
 
 a, button, input, select { transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease; }
 
+/* Capa heredada traducida al sistema (segunda tanda, 13/11/2026). */
 .etiqueta-filtro {
   display: block;
   margin-bottom: .35rem;
-  font-family: var(--font-display);
-  font-size: .68rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+  font-size: var(--text-nota);
+  line-height: 1.4;
+  font-weight: 600;
   color: var(--texto-suave);
 }
 
 .control-filtro {
   width: 100%;
-  min-height: 2.55rem;
+  min-height: 2.75rem;
   border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radius-control);
   background: var(--fondo-elevado);
   color: var(--texto);
   padding: .55rem .7rem;
-  font-size: .875rem;
+  font-size: var(--text-tabla);
   outline: none;
 }
 
-.control-filtro:focus { border-color: var(--accion); box-shadow: 0 0 0 2px var(--accion-suave); }
+.control-filtro:focus-visible {
+  border-color: var(--accion);
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
 
 .boton-primario, .boton-secundario {
   display: inline-flex;
-  min-height: 2.45rem;
+  min-height: 2.75rem;
   align-items: center;
   justify-content: center;
-  padding: .55rem .9rem;
-  font-family: var(--font-display);
-  font-size: .75rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  gap: .5rem;
+  padding: .55rem 1rem;
+  border-radius: var(--radius-control);
+  font-size: var(--text-tabla);
+  font-weight: 600;
 }
 
-.boton-primario { border: 1px solid var(--color-pizarra); background: var(--color-pizarra); color: var(--color-tinta-50); }
-.boton-primario:hover { border-color: var(--color-club); background: var(--color-club); }
+.boton-primario { border: 1px solid var(--accion); background: var(--accion); color: var(--texto-inverso); }
+.boton-primario:hover { border-color: var(--accion-fuerte); background: var(--accion-fuerte); }
 .boton-secundario { border: 1px solid var(--borde-fuerte); background: var(--fondo-elevado); color: var(--texto); }
-.boton-secundario:hover { border-color: var(--color-club); color: var(--color-club); }
+.boton-secundario:hover { border-color: var(--accion); color: var(--accion); }
 
 .insignia {
   display: inline-flex;
+  align-items: center;
   border: 1px solid var(--borde);
+  border-radius: var(--radius-sm);
   background: var(--fondo-sutil);
   padding: .15rem .4rem;
-  font-size: .62rem;
+  font-size: var(--text-etiqueta);
   line-height: 1rem;
-  letter-spacing: .06em;
-  text-transform: uppercase;
   color: var(--texto-suave);
 }
 
-.insignia-roja { border-color: var(--derrota); background: var(--color-club-claro); color: var(--color-club-oscuro); }
-.insignia-verde { border-color: var(--victoria); background: var(--fondo-sutil); color: var(--victoria); }
+.insignia-roja { border-color: var(--derrota); background: var(--fondo-elevado); color: var(--derrota); }
+.insignia-verde { border-color: var(--victoria); background: var(--fondo-elevado); color: var(--victoria); }
 
 table th { white-space: nowrap; }
 table td { vertical-align: middle; }
@@ -78,6 +84,7 @@ table td { vertical-align: middle; }
   gap: .25rem;
   overflow-x: auto;
   border: 1px solid var(--borde);
+  border-radius: var(--radius-tarjeta);
   background: var(--fondo-elevado);
   padding: .35rem;
   scrollbar-width: thin;
@@ -85,17 +92,15 @@ table td { vertical-align: middle; }
 
 .subnav a {
   flex: 0 0 auto;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
   padding: .6rem .75rem;
-  font-family: var(--font-display);
-  font-size: .72rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-tabla);
+  font-weight: 600;
   color: var(--texto-suave);
 }
 
-.subnav a:hover { background: var(--color-club-claro); color: var(--color-club-oscuro); }
-
-/* Acento neutro de plataforma, no la equipación de un club concreto. */
-.rayas {
-  background: linear-gradient(90deg, var(--accion), var(--color-acento-500));
-}
+.subnav a:hover { color: var(--texto); border-bottom-color: var(--borde-fuerte); }
+.subnav a[aria-current="page"] { color: var(--accion); border-bottom-color: var(--accion); }

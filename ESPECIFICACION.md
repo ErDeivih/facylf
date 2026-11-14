@@ -171,3 +171,58 @@ El fichero existe en la raíz con datos reales y **se refresca cada 5 minutos** 
 
 Regla de texto que queda escrita: de cada texto de la interfaz, **¿le sirve al cliente para decidir o
 actuar?** Si no, se borra.
+
+## UI — shadcn/Radix, tres pantallas y estados (2026-11-13)
+
+Encargo: `F:\Inforepositorios\TAREAS-POR-PROYECTO.md` §facylf y `ENCARGO-UI-COORDINADOR.md`.
+**No toca la ingesta ni los datos**: las consultas son las mismas; sólo cambia la capa de presentación.
+Evidencia de cierre: [`UI-REPORT.md`](UI-REPORT.md), `medicion-antes.json`, `medicion-despues.json` y
+`capturas/ui-*.png`.
+
+### Sistema antes que pantallas
+
+- **Tokens** en `apps/web/src/app/tokens.css` (fuente única). Se añade la **capa de alias de shadcn**
+  (`--background`, `--foreground`, `--card`, `--primary`, `--muted`, `--border`, `--ring`, `--radius`…)
+  mapeada a los roles del producto: no se duplica la paleta y un tema de shadcn puede editarse sin romper
+  `DESIGN.md`.
+- **Componentes** en `apps/web/src/componentes/ui/`: `Button` (variantes + `asChild` sobre Radix Slot),
+  `Card`, `Badge`, `Table`, `Input`, `Select`, `Label`, `Checkbox`, `Dialog` (Radix), `TabsNav`
+  (pestañas-enlace: el estado vive en la URL), `Alert`, `Progress`, `Skeleton` y los estados
+  `EstadoVacio` / `EstadoError` / `EstadoCargando`. `cn()` (clsx + tailwind-merge) resuelve conflictos.
+- **Forma de usarlos**: `import { Button, Card, Table } from '@/componentes/ui'`. Las pantallas
+  heredadas siguen con sus clases hasta que se migren una a una.
+
+### Las tres pantallas
+
+| Pantalla | Ruta | Qué se hace |
+|---|---|---|
+| **Panel** | `/explorar/calidad` | Resumen en tarjetas (grupos, OK, incidencias, actas medias); filtro por texto y «solo incidencias» con el estado en la URL; tabla con cabecera fija y primera columna fija, insignias de regla y barra de actas; **paginación de 30** (249 grupos). |
+| **Listado** | `/explorar/competiciones` | Filtros con `Input`/`Select`/`Checkbox`; en móvil los secundarios se pliegan con `<details>` nativo (sin JavaScript); chips activos como `Button`; filas con insignias y barra de cobertura. |
+| **Detalle** | `/explorar/competicion/[id]` | Cabecera en tarjeta con barra de temporada y pestañas-enlace; panel de calidad con insignias; partidos sin truncar nombres; fila de procedencia en lenguaje llano; clasificación intacta (contrato de pruebas). |
+
+### Estados (vacío, carga, error)
+
+- **Vacío**: `EstadoVacio` con una frase que dice qué pasa y la salida (quitar filtros, volver al
+  principio, temporadas con datos).
+- **Carga**: `loading.tsx` en panel y listado + `Skeleton`/`SkeletonFilas` con las dimensiones reales
+  (nada de spinner que desplace). En el detalle se mantiene el `EsqueletoContenido` dentro del `Suspense`
+  de la página: **no** hay `loading.tsx` de ruta para no convertir un 404 en 200 (SISTEMA-DISENO §5).
+- **Error**: `error.tsx` en las tres rutas con `EstadoError` y reintento; el panel, además, trata
+  `CanonicoNoDisponible` con un estado honesto en vez de reventar con 500.
+
+### Puertas de esta entrega
+
+1. `pnpm test` en verde (incluye una prueba nueva de la capa `componentes/ui`).
+2. `pnpm lint` y `tsc --noEmit` de la web en 0.
+3. `pnpm --filter @facylf/web build` en verde.
+4. `ai-design-check` (MIT) sobre los ficheros de la entrega: **0 errores**; los avisos que quedan son de
+   componentes heredados y se listan en `UI-REPORT.md` con su motivo.
+5. `unslop` (CC-BY-4.0): se aplica el **método** (auditoría → dirección → pasadas → tabla `Before|After|Why`),
+   no hay binario que ejecutar; la auditoría es la tabla del informe.
+6. Medición a **390×844** y **1440×900** antes y después, y demo estática servida y medida.
+
+### Lo que NO se hace aquí
+
+- No se cambian consultas, datos, permisos ni la ingesta. Lo único que se acota es `LIMIT` en dos
+  consultas de la web (`frescura`, `calidad`) que ya exigía el contrato de pruebas; no altera resultados.
+- No se rediseñan las otras 19 pantallas: heredan los tokens y se migrarán con la misma capa.

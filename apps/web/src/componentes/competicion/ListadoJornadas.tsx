@@ -73,7 +73,7 @@ function JornadaEnTabla({ jornada, hrefJornada, hrefActa }: {
               Jornada {jornada.numero}
             </Link>
           </h3>
-          <span className="mt-0.5 flex-none rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+          <span className="mt-0.5 flex-none rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-etiqueta text-[var(--texto-suave)]">
             {estado.etiqueta}
           </span>
         </div>
@@ -161,14 +161,14 @@ function FilaDePartido({ partido, hrefActa }: {
           {campo !== '' && (
             <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
               title={`Campo: ${campo}`}>
-              <span className="flex-none text-[9px] uppercase tracking-[0.04em]">Campo</span>
+              <span className="flex-none text-etiqueta">Campo</span>
               <span className="min-w-0 truncate text-[var(--texto)]">{campo}</span>
             </span>
           )}
           {arbitro !== '' && (
             <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
               title={`Árbitro: ${arbitro}`}>
-              <span className="flex-none text-[9px] uppercase tracking-[0.04em]" aria-hidden="true">Árbitro</span>
+              <span className="flex-none text-etiqueta" aria-hidden="true">Árbitro</span>
               <span className="sr-only">Árbitro: </span>
               <span className="min-w-0 truncate text-[var(--texto)]">{arbitro}</span>
             </span>

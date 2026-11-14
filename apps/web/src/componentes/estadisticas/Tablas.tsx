@@ -91,14 +91,14 @@ export function TablaCasaFuera({ filas }: { filas: readonly FilaCasaFuera[] }) {
                 <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-nota text-[var(--texto-suave)]">
                   <span className="flex items-center gap-1.5"
                     title={`Casa: ${marcadorCorto(fila.casa.ganados, fila.casa.empatados, fila.casa.perdidos, fila.casa.puntos)}`}>
-                    <span className="text-etiqueta uppercase tracking-[0.05em]">Casa</span>
+                    <span className="text-etiqueta">Casa</span>
                     <span className="tabular-nums font-semibold text-[var(--texto)]">
                       {marcadorCorto(fila.casa.ganados, fila.casa.empatados, fila.casa.perdidos, fila.casa.puntos)}
                     </span>
                   </span>
                   <span className="flex items-center gap-1.5"
                     title={`Fuera: ${marcadorCorto(fila.fuera.ganados, fila.fuera.empatados, fila.fuera.perdidos, fila.fuera.puntos)}`}>
-                    <span className="text-etiqueta uppercase tracking-[0.05em]">Fuera</span>
+                    <span className="text-etiqueta">Fuera</span>
                     <span className="tabular-nums font-semibold text-[var(--texto)]">
                       {marcadorCorto(fila.fuera.ganados, fila.fuera.empatados, fila.fuera.perdidos, fila.fuera.puntos)}
                     </span>
@@ -120,7 +120,7 @@ export function InsigniasForma({ forma }: { forma: readonly ('G' | 'E' | 'P')[] 
     <span className="flex gap-[3px]">
       {forma.map((letra, i) => (
         <span key={`${letra}-${i}`} title={PALABRA_FORMA[letra]}
-          className="flex size-5 items-center justify-center rounded-[5px] text-[10px] font-bold"
+          className="flex size-5 items-center justify-center rounded-[5px] text-etiqueta font-bold"
           style={estiloForma(letra)}>
           <span aria-hidden="true">{letra}</span>
           <span className="sr-only">{PALABRA_FORMA[letra]}</span>
@@ -177,13 +177,13 @@ export function TablaDisciplina({ filas }: { filas: ReadonlyArray<{ equipo_id: n
                 <span className="min-w-0 flex-1 text-tabla font-medium text-[var(--texto)]">{fila.equipo}</span>
                 <span className="flex items-center gap-1.5 text-nota text-[var(--texto-suave)]">
                   <span aria-hidden="true" className="size-3 rounded-[3px] bg-[var(--amarilla)]" />
-                  <span className="text-etiqueta font-semibold uppercase tracking-[0.05em]">A</span>
+                  <span className="text-etiqueta font-semibold">A</span>
                   <span className="tabular-nums font-semibold text-[var(--texto)]">{fila.amarillas}</span>
                   <span className="sr-only">amarillas</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-nota text-[var(--texto-suave)]">
                   <span aria-hidden="true" className="size-3 rounded-[3px] bg-[var(--derrota)]" />
-                  <span className="text-etiqueta font-semibold uppercase tracking-[0.05em]">R</span>
+                  <span className="text-etiqueta font-semibold">R</span>
                   <span className="tabular-nums font-semibold text-[var(--texto)]">{fila.rojas}</span>
                   <span className="sr-only">rojas</span>
                 </span>

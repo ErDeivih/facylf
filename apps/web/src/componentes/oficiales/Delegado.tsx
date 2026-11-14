@@ -43,7 +43,7 @@ export function AsignacionesDeDelegado({ asignaciones }: { asignaciones: readonl
           <ul className="m-0 list-none p-0">
             {temporadas.map((grupo) => (
               <li key={grupo.temporada} className="border-t border-[var(--fondo-sutil)] px-4 py-3">
-                <p className="m-0 text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">{grupo.temporada}</p>
+                <p className="m-0 text-etiqueta text-[var(--texto-suave)]">{grupo.temporada}</p>
                 <ul className="m-0 mt-1.5 flex list-none flex-col gap-2.5 p-0">
                   {grupo.asignaciones.map((a) => (
                     <li key={`${a.equipo_id}-${a.edicion_id}-${a.rol}`} className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">

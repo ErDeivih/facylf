@@ -42,7 +42,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
       <body className="antialiased">
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
-        <footer className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-5 pb-6 pt-1 text-nota">
+        {/* `pb` reserva también la zona segura del teléfono (home indicator): así el último enlace del pie no queda debajo del gesto del sistema, y si algún día se añade una barra fija no tapa el final del scroll. */}
+        <footer className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-1 text-nota">
           {/* Distingue la demo pública (foto de la 2026-27) de la app completa. Texto y URL, en lib/nota-demo.ts. */}
           <NotaDemo />
           <Link href={'/explorar/publicidad' as Route}

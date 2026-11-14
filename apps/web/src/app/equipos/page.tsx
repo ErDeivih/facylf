@@ -9,6 +9,7 @@ import type { FilaFederacionCanonica, FilaFaceta } from '@/consultas/catalogo';
 import { EQUIPOS_POR_FEDERACION, PARAMETROS_ENTIDADES } from '@/consultas/entidades';
 import type { FilaEquipoListado } from '@/consultas/entidades';
 import { agrupaFacetas, etiqueta, fechaCorta, numero } from '@/lib/presentacion-canonico';
+import { BOTON_PRIMARIO, CONTROL_FILTRO, ETIQUETA_FILTRO } from '@/componentes/ui/legado';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,37 +113,37 @@ export default async function Equipos({ searchParams }: {
 
   return <>
     <h2 className="font-display text-3xl uppercase">Equipos</h2>
-    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[var(--texto-suave)]">
+    <p className="mt-1 text-xs text-[var(--texto-suave)]">
       {conDatos.length} federaciones con datos · cada fila es una inscripción, no un club
     </p>
 
     <form action="/equipos" className="mt-5 grid gap-3 border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-[1fr_11rem_10rem_10rem_auto]">
       <label>
-        <span className="etiqueta-filtro">Nombre del equipo</span>
-        <input name="q" defaultValue={q} className="control-filtro" placeholder="Parte del nombre…" />
+        <span className={`${ETIQUETA_FILTRO}`}>Nombre del equipo</span>
+        <input name="q" defaultValue={q} className={`${CONTROL_FILTRO}`} placeholder="Parte del nombre…" />
       </label>
       <label>
-        <span className="etiqueta-filtro">Federación</span>
-        <select name="fed" defaultValue={fed} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Federación</span>
+        <select name="fed" defaultValue={fed} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
         </select>
       </label>
       <label>
-        <span className="etiqueta-filtro">Temporada</span>
-        <select name="temp" defaultValue={temp} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Temporada</span>
+        <select name="temp" defaultValue={temp} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {temporadas.map((t) => <option key={t.valor} value={t.valor}>{t.etiqueta}</option>)}
         </select>
       </label>
       <label>
-        <span className="etiqueta-filtro">Categoría</span>
-        <select name="categoria" defaultValue={categoria} className="control-filtro">
+        <span className={`${ETIQUETA_FILTRO}`}>Categoría</span>
+        <select name="categoria" defaultValue={categoria} className={`${CONTROL_FILTRO}`}>
           <option value="">Todas</option>
           {categorias.map((c) => <option key={c.valor} value={c.valor}>{c.etiqueta}</option>)}
         </select>
       </label>
-      <div className="flex items-end"><button className="boton-primario w-full">Filtrar</button></div>
+      <div className="flex items-end"><button className={`${BOTON_PRIMARIO} w-full`}>Filtrar</button></div>
     </form>
 
     {hayFiltros && (
@@ -189,7 +190,7 @@ export default async function Equipos({ searchParams }: {
       total={total}
     />
 
-    <p className="mt-3 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="mt-3 text-etiqueta leading-5 text-[var(--texto-tenue)]">
       Cada fila lleva su competición y su grupo a propósito: un club puede tener dos equipos con el
       mismo nombre publicado en la misma temporada —el juvenil y el sénior—, y sin ese contexto
       parecerían el mismo. La categoría es la de la <b>competición</b>, que es la fiable.

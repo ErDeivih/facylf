@@ -72,7 +72,7 @@ export function TablaHistorial({ temporadas }: { temporadas: readonly TemporadaD
                       { texto: 'Tarjetas', titulo: 'Amarillas y rojas' },
                     ].map((columna) => (
                       <th key={columna.texto} scope="col"
-                        className="px-3 py-2 text-etiqueta font-semibold uppercase tracking-[0.05em] whitespace-nowrap text-[var(--texto-suave)]">
+                        className="px-3 py-2 text-etiqueta font-semibold whitespace-nowrap text-[var(--texto-suave)]">
                         {columna.titulo === null
                           ? columna.texto
                           : <abbr title={columna.titulo} className="no-underline">{columna.texto}</abbr>}

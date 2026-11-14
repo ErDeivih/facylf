@@ -98,3 +98,9 @@ pruebas/reconstruccion/vigilancia-flota.jsonl
 
 # Volcados del canónico guardados en el PC (no se suben: pesan GB)
 backups/
+
+# Evidencia local de UI (capturas y volcados de auditoría). Se regeneran con:
+#   node scripts/ui/servir-estatico.mjs && node scripts/ui/medir-ui.mjs
+# Los resúmenes de medición (medicion*.json) y UI-REPORT.md sí se versionan.
+capturas/
+docs/ui/

@@ -423,7 +423,8 @@ export const FRESCURA_DEL_GRUPO: Consulta<{ con_resultado: number; partidos: num
               (select m2.id from core.match m2 where m2.phase_group_id = $1)) as actas,
            max(m.played_at)::text                               as ultimo
       from core.match m
-     where m.phase_group_id = $1`,
+     where m.phase_group_id = $1
+     limit 1`,
 };
 
 
@@ -488,7 +489,8 @@ export const CALIDAD_DEL_GRUPO: Consulta<{
            (select coalesce(sum(jugados), 0)::int from calc) suma_pj,
            (select coalesce(sum(jugados - (ganados + empatados + perdidos)), 0)::int from calc) descuadre_pj,
            (select coalesce(sum(puntos - (3 * ganados + empatados)), 0)::int from calc) descuadre_puntos,
-           (select coalesce(sum(gf) - sum(gc), 0) from calc) descuadre_goles`,
+           (select coalesce(sum(gf) - sum(gc), 0) from calc) descuadre_goles
+     limit 1`,
 };
 
 
@@ -559,7 +561,8 @@ export const PARTIDOS_CSV_DEL_GRUPO: Consulta<{
       left join core.venue v on v.id = m.venue_id
      where m.phase_group_id = $1
        and m.goles_local is not null and m.goles_visitante is not null
-     order by d.numero, m.source_order`,
+     order by d.numero, m.source_order
+     limit 2000`,
 };
 
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,

@@ -20,7 +20,7 @@ import {
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 /** Dos colores de serie sin literales: el acento del producto y una mezcla más oscura del mismo tono. */
 export const COLOR_A = 'var(--accion)';
@@ -118,7 +118,7 @@ function TarjetaDeJugador({ lado, datos, otroId }: { lado: 'a' | 'b'; datos: Lad
       style={{ borderTop: `4px solid ${lado === 'a' ? COLOR_A : COLOR_B}` }}>
       <div className="flex items-center gap-3">
         <span aria-hidden="true"
-          className="flex size-[52px] flex-none items-center justify-center rounded-full text-[18px] font-extrabold"
+          className="flex size-[52px] flex-none items-center justify-center rounded-full text-bloque font-extrabold"
           style={{ background: lado === 'a' ? COLOR_A : COLOR_B,
             color: lado === 'a' ? 'var(--texto-inverso)' : 'var(--serie-b-texto)' }}>
           {inicialesDeNombre(nombreDeJugador(persona))}
@@ -221,7 +221,7 @@ function Celdas({ celdas, lado, temporadas }: {
     <>
       {celdas.map((celda, i) => (
         <span key={`${lado}-${temporadas[i]?.temporada ?? i}`}
-          className="flex h-9 min-w-0 flex-col items-center justify-center overflow-hidden rounded-[6px] px-1 text-[10px] font-bold leading-tight"
+          className="flex h-9 min-w-0 flex-col items-center justify-center overflow-hidden rounded-[var(--radius-md)] px-1 text-etiqueta font-bold leading-tight"
           style={celda === null
             ? { background: 'var(--fondo-sutil)', color: 'var(--texto-suave)' }
             : { background: lado === 'a' ? COLOR_A : COLOR_B,
@@ -273,7 +273,7 @@ export function TrayectoriasComparadas({ temporadas, a, b }: {
           <table className="w-full border-collapse text-tabla" style={{ minWidth: 520 }}>
             <caption className="sr-only">Temporadas de los dos jugadores, con equipo, club y federación.</caption>
             <thead>
-              <tr className="text-left text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+              <tr className="text-left text-etiqueta text-[var(--texto-suave)]">
                 <th scope="col" className="py-1.5 pr-3 font-semibold">Jugador</th>
                 <th scope="col" className="py-1.5 pr-3 font-semibold">Temporada</th>
                 <th scope="col" className="py-1.5 pr-3 font-semibold">Equipo</th>

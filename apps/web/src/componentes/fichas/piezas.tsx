@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Route } from 'next';
+import { BOTON_SECUNDARIO } from '@/componentes/ui/legado';
 
 /**
  * Piezas compartidas por las tres fichas.
@@ -37,7 +38,7 @@ export function AvisoSinArchivo({ titulo }: { titulo: string }) {
           mejor que un cero que parece un dato.
         </p>
         <p className="mt-3">
-          <Link href={'/explorar/competicion/3769' as Route} className="boton-secundario">Volver a la competición</Link>
+          <Link href={'/explorar/competicion/3769' as Route} className={`${BOTON_SECUNDARIO}`}>Volver a la competición</Link>
         </p>
       </div>
     </div>

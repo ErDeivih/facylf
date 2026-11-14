@@ -239,3 +239,37 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* --- Capa shadcn/Radix (13/11/2026) ------------------------------------------
+   shadcn lee variables con nombres fijos (`--background`, `--primary`, `--radius`…).
+   Aquí se MAPEAN a los roles del producto: no se duplica la paleta, así que un tema
+   de shadcn (tweakcn) puede editar la capa sin romper el contrato de DESIGN.md.
+   Los componentes de `componentes/ui` usan los ROLES (--texto, --accion…), no estos
+   alias: los alias existen para que shadcn y sus herramientas entiendan el tema. */
+:root {
+  --background: var(--fondo);
+  --foreground: var(--texto);
+  --card: var(--fondo-elevado);
+  --card-foreground: var(--texto);
+  --popover: var(--fondo-elevado);
+  --popover-foreground: var(--texto);
+  --primary: var(--accion);
+  --primary-foreground: var(--texto-inverso);
+  --secondary: var(--fondo-sutil);
+  --secondary-foreground: var(--texto);
+  --muted: var(--fondo-sutil);
+  --muted-foreground: var(--texto-suave);
+  --accent: var(--accion-suave);
+  --accent-foreground: var(--accion);
+  --destructive: var(--derrota);
+  --border: var(--borde);
+  --input: var(--borde-fuerte);
+  --ring: var(--foco);
+  --radius: var(--radius-md);
+  /* Hover de la acción: un peldaño más oscuro en claro (y más claro en oscuro). */
+  --accion-fuerte: color-mix(in oklab, var(--accion) 86%, black);
+}
+
+:root[data-tema="oscuro"] {
+  --accion-fuerte: color-mix(in oklab, var(--accion) 86%, white);
+}

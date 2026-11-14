@@ -221,7 +221,7 @@ export function ClasificacionResumida({ filas, base }: {
           Clasificación resumida: posición, equipo, partidos jugados, goles y puntos.
         </caption>
         <thead>
-          <tr className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+          <tr className="text-etiqueta text-[var(--texto-suave)]">
             <th scope="col" className="py-2 pl-4 pr-1.5 text-left font-semibold">#</th>
             <th scope="col" className="px-1.5 py-2 text-left font-semibold">Equipo</th>
             <th scope="col" className="px-1.5 py-2 text-right font-semibold">PJ</th>
@@ -354,15 +354,15 @@ export function DisciplinaDelGrupo({ filas }: { filas: readonly FilaEquipoDeLiga
               </Link>
               <dl className="m-0 mt-1 grid grid-cols-3 gap-2 text-nota">
                 <div>
-                  <dt className="m-0 text-etiqueta uppercase tracking-[0.04em] text-[var(--texto-suave)]">Amarillas</dt>
+                  <dt className="m-0 text-etiqueta text-[var(--texto-suave)]">Amarillas</dt>
                   <dd className="m-0 font-semibold tabular-nums text-[var(--texto)]">{valorDeDisciplina(sinActa, fila.amarillas)}</dd>
                 </div>
                 <div>
-                  <dt className="m-0 text-etiqueta uppercase tracking-[0.04em] text-[var(--texto-suave)]">Expulsiones</dt>
+                  <dt className="m-0 text-etiqueta text-[var(--texto-suave)]">Expulsiones</dt>
                   <dd className="m-0 font-semibold tabular-nums text-[var(--texto)]">{valorDeDisciplina(sinActa, fila.rojas)}</dd>
                 </div>
                 <div>
-                  <dt className="m-0 text-etiqueta uppercase tracking-[0.04em] text-[var(--texto-suave)]">Sanciones</dt>
+                  <dt className="m-0 text-etiqueta text-[var(--texto-suave)]">Sanciones</dt>
                   <dd className="m-0 font-semibold tabular-nums text-[var(--texto)]">{valorDeDisciplina(sinActa, fila.partidos_sancion)}</dd>
                 </div>
               </dl>
@@ -374,7 +374,7 @@ export function DisciplinaDelGrupo({ filas }: { filas: readonly FilaEquipoDeLiga
         <table className="w-full border-separate border-spacing-0 text-tabla">
           <caption className="sr-only">Amarillas, expulsiones y partidos de sanción de cada equipo.</caption>
           <thead>
-            <tr className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+            <tr className="text-etiqueta text-[var(--texto-suave)]">
               <th scope="col" className="py-2 pl-4 pr-1.5 text-left font-semibold">Equipo</th>
               <th scope="col" className="px-1.5 py-2 text-right font-semibold">Amarillas</th>
               <th scope="col" className="px-1.5 py-2 text-right font-semibold">Expulsiones</th>

@@ -8,6 +8,7 @@ import type { FilaCatalogoGrupo, FilaFederacionCanonica } from '@/consultas/cata
 import { agrupaFacetas, etiqueta, fechaCorta, estadoVisibilidad, numero, type FacetasDelCatalogo } from '@/lib/presentacion-canonico';
 import { provinciaCanonicaDe } from '@/lib/provincias-cyl';
 import { provinciasDeFiltro } from '@/lib/selector-competiciones';
+import { BOTON_PRIMARIO, BOTON_SECUNDARIO, CONTROL_FILTRO, ETIQUETA_FILTRO, INSIGNIA, INSIGNIA_ROJA, INSIGNIA_VERDE } from '@/componentes/ui/legado';
 
 export const dynamic = 'force-dynamic';
 
@@ -117,52 +118,55 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <div className="mb-6">
-        <p className="font-display text-xs uppercase tracking-[0.16em] text-club">Explorador del archivo</p>
-        <h2 className="mt-1 font-display text-3xl uppercase">Competiciones y grupos</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5C646C]">
-          Estás consultando el catálogo del canónico
-          {federacionElegida ? <> de <b>{nombreFederacion(federacionElegida)}</b></> : ' de todas las federaciones'}.
-          Combina filtros para llegar directamente a una categoría concreta. Cada resultado es un grupo de
-          una temporada y sus datos nunca se mezclan con otro grupo ni con otro año.
+      <header className="mb-4">
+        <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">Competiciones y grupos</h1>
+        <p className="m-0 mt-1 max-w-3xl text-nota leading-relaxed text-[var(--texto-suave)]">
+          Catálogo del canónico
+          {federacionElegida ? <> de <b className="text-[var(--texto)]">{nombreFederacion(federacionElegida)}</b></> : ' de todas las federaciones'}.
+          Cada resultado es un grupo de una temporada; sus datos no se mezclan con otro grupo ni con otro año.
         </p>
-      </div>
+      </header>
 
-      <form action="/competiciones" className="mb-6 border border-[#D6D6D4] bg-white p-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label><span className="etiqueta-filtro">Federación</span>
-            <select name="federacion" defaultValue={federacionElegida} className="control-filtro">
+      <form action="/competiciones" method="get" className="mb-4 border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] p-4">
+        <details data-filtros>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-tabla font-semibold text-[var(--texto)] [&::-webkit-details-marker]:hidden lg:hidden">
+            Filtros
+            <span aria-hidden="true" className="size-2 rotate-45 border-b border-r border-[var(--texto-suave)]" />
+          </summary>
+          <div className="datos-filtros mt-3 grid gap-3 sm:grid-cols-2 lg:mt-0 lg:grid-cols-4">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Federación</span>
+            <select name="federacion" defaultValue={federacionElegida} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todas las federaciones con datos" />
               {federaciones.filter((f) => f.ediciones > 0).map((f) => <Opcion key={f.codigo} valor={f.codigo} texto={f.nombre} />)}
             </select>
           </label>
           <label className="sm:col-span-2 lg:col-span-2">
-            <span className="etiqueta-filtro">Nombre</span>
-            <input name="q" defaultValue={p.q ?? ''} placeholder="Regional, Ribert, ascenso…" className="control-filtro" />
+            <span className={`${ETIQUETA_FILTRO}`}>Nombre</span>
+            <input name="q" defaultValue={p.q ?? ''} placeholder="Regional, Ribert, ascenso…" className={`${CONTROL_FILTRO}`} />
           </label>
-          <label><span className="etiqueta-filtro">Temporada</span>
-            <select name="temporada" defaultValue={p.temporada ?? ''} className="control-filtro">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Temporada</span>
+            <select name="temporada" defaultValue={p.temporada ?? ''} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todas las temporadas" />
               <Opcion valor="ultimas-5" texto="Últimas 5 temporadas" />
               {facetas.temporadas.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
-          <label><span className="etiqueta-filtro">Categoría</span>
-            <select name="categoria" defaultValue={p.categoria ?? ''} className="control-filtro">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Categoría</span>
+            <select name="categoria" defaultValue={p.categoria ?? ''} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todas las categorías" />
               {facetas.categorias.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
-          <label><span className="etiqueta-filtro">Ámbito</span>
-            <select name="ambito" defaultValue={p.ambito ?? ''} className="control-filtro">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Ámbito</span>
+            <select name="ambito" defaultValue={p.ambito ?? ''} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todos los ámbitos" />
               <Opcion valor="Importantes" texto="Importantes (nacional, regional, ascenso)" />
               {facetas.ambitos.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
           <fieldset className="sm:col-span-2 lg:col-span-2">
-            <legend className="etiqueta-filtro">Provincias (se pueden marcar varias)</legend>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 border border-[#D6D6D4] px-2.5 py-2">
+            <legend className={`${ETIQUETA_FILTRO}`}>Provincias (se pueden marcar varias)</legend>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 border border-[var(--borde-fuerte)] px-2.5 py-2">
               {/* Las nueve de CyL con su etiqueta canónica; el SQL compara sin tildes. */}
               {facetas.provincias.map((x) => (
                 <label key={x.valor} className="flex min-h-11 items-center gap-1.5 text-sm">
@@ -173,38 +177,31 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
               ))}
             </div>
           </fieldset>
-          <label><span className="etiqueta-filtro">Modalidad</span>
-            <select name="modalidad" defaultValue={p.modalidad ?? ''} className="control-filtro">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Modalidad</span>
+            <select name="modalidad" defaultValue={p.modalidad ?? ''} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todas las modalidades" />
               {facetas.modalidades.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
-          <label><span className="etiqueta-filtro">Género</span>
-            <select name="genero" defaultValue={p.genero ?? ''} className="control-filtro">
+          <label><span className={`${ETIQUETA_FILTRO}`}>Género</span>
+            <select name="genero" defaultValue={p.genero ?? ''} className={`${CONTROL_FILTRO}`}>
               <Opcion valor="" texto="Todos los géneros" />
               {facetas.generos.map((x) => <Opcion key={x.valor} valor={x.valor} texto={x.etiqueta} />)}
             </select>
           </label>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#EDF0ED] pt-4">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] pt-4">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="conDatos" value="1" defaultChecked={p.conDatos === '1'} />
             Sólo grupos con partidos conocidos
           </label>
           <div className="flex gap-2">
-            <Link href="/competiciones" className="boton-secundario">Limpiar</Link>
-            <button className="boton-primario">Aplicar filtros</button>
+            <Link href="/competiciones" className={`${BOTON_SECUNDARIO}`}>Limpiar</Link>
+            <button className={`${BOTON_PRIMARIO}`}>Aplicar filtros</button>
           </div>
         </div>
-      </form>
-
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="mr-1 font-display text-xs uppercase text-[#5C646C]">Accesos rápidos:</span>
-        <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?temporada=ultimas-5&conDatos=1">Últimas 5 temporadas</Link>
-        <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?ambito=Importantes&conDatos=1">Regionales y nacionales</Link>
-        <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?categoria=juvenil&conDatos=1">Juveniles</Link>
-        <Link className="boton-secundario !min-h-0 !py-1.5" href="/competiciones?categoria=cadete&conDatos=1">Cadetes</Link>
-      </div>
+              </details>
+</form>
 
       <Bloque titulo={`${numero(total)} grupos en el canónico`}
         pie={total > POR_PAGINA ? `Página ${pagina} · ${POR_PAGINA} por página` : undefined}>
@@ -212,27 +209,27 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
           {filas.map((c) => (
             <li key={`${c.federacion}-${c.grupo_codigo}`}>
               <Link href={`/canonico/${c.federacion}/${c.grupo_codigo}` as Route}
-                className="group grid gap-2 border-t border-[#EDF0ED] px-4 py-4 first:border-t-0 hover:bg-[#FAFBFA] sm:grid-cols-[1fr_auto]">
+                className="group grid gap-2 border-t border-[var(--fondo-sutil)] px-4 py-4 first:border-t-0 hover:bg-[var(--fondo-sutil)] sm:grid-cols-[1fr_auto]">
                 <div className="min-w-0">
                   <div className="mb-1 flex flex-wrap gap-1.5">
-                    <span className="insignia">{c.temporada}</span>
-                    <span className="insignia">{etiqueta('categoria', c.categoria)}</span>
-                    <span className="insignia">{etiqueta('ambito', c.ambito)}</span>
-                    <span className="insignia insignia-verde">{c.federacion_nombre}</span>
+                    <span className={`${INSIGNIA}`}>{c.temporada}</span>
+                    <span className={`${INSIGNIA}`}>{etiqueta('categoria', c.categoria)}</span>
+                    <span className={`${INSIGNIA}`}>{etiqueta('ambito', c.ambito)}</span>
+                    <span className={`insignia ${INSIGNIA_VERDE}`}>{c.federacion_nombre}</span>
                     {c.provincia && (
                       // La etiqueta se enseña canónica («León»), aunque el dato venga como «Leon».
-                      <span className="insignia insignia-roja">{provinciaCanonicaDe(c.provincia) ?? c.provincia}</span>
+                      <span className={`insignia ${INSIGNIA_ROJA}`}>{provinciaCanonicaDe(c.provincia) ?? c.provincia}</span>
                     )}
-                    <span className="insignia">{estadoVisibilidad(c.visibility_state)}</span>
+                    <span className={`${INSIGNIA}`}>{estadoVisibilidad(c.visibility_state)}</span>
                   </div>
                   <p className="font-medium group-hover:text-club">{c.edicion} · {c.grupo}</p>
-                  <p className="mt-1 text-xs text-[#5C646C]">
+                  <p className="mt-1 text-xs text-[var(--texto-suave)]">
                     {etiqueta('tipo_grupo', c.grupo_tipo)} · {etiqueta('modalidad', c.modalidad)} ·{' '}
                     {etiqueta('genero', c.genero)} · edición {c.edicion_codigo} · grupo {c.grupo_codigo} ·
                     medido el {fechaCorta(c.calculado_en)}
                   </p>
                 </div>
-                <div className="self-center text-left font-display text-xs uppercase text-[#5C646C] sm:text-right">
+                <div className="self-center text-left font-display text-xs text-[var(--texto-suave)] sm:text-right">
                   {/* Un grupo sin punto de control no tiene resultados conocidos: sale un guion, no un 0/0. */}
                   <p>{numero(c.partidos_con_resultado)}/{numero(c.partidos_conocidos)} resultados</p>
                   <p>{numero(c.jornadas_previstas)} jornadas · {numero(c.inscripciones)} inscripciones</p>
@@ -242,7 +239,7 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
               </Link>
             </li>
           ))}
-          {filas.length === 0 && <li className="p-8 text-center text-sm text-[#5C646C]">
+          {filas.length === 0 && <li className="p-8 text-center text-sm text-[var(--texto-suave)]">
             No hay grupos que cumplan todos esos filtros <b>en el canónico</b>. Prueba a quitar uno de
             ellos; si esperabas encontrar aquí una competición concreta, puede que todavía no se haya
             importado: el catálogo se llena grupo a grupo y sólo enseña lo importado.
@@ -250,21 +247,30 @@ export default async function Competiciones({ searchParams }: { searchParams: Pr
         </ul>
       </Bloque>
 
-      <p className="mb-4 text-[11px] text-[#8A8E91]">
-        Procedencia: <code className="bg-[#F4F5F3] px-1">core.competition_edition</code>,{' '}
-        <code className="bg-[#F4F5F3] px-1">core.phase_group</code>,{' '}
-        <code className="bg-[#F4F5F3] px-1">core.team_entry</code> y{' '}
-        <code className="bg-[#F4F5F3] px-1">ops.coverage_checkpoint</code>. Las cifras de partidos y actas
+      {/* Los accesos rápidos ya no empujan los resultados: son atajos, no el contenido. */}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-etiqueta text-[var(--texto-suave)]">Accesos rápidos:</span>
+        <Link className={`${BOTON_SECUNDARIO} !min-h-0 !py-1.5`} href="/competiciones?temporada=ultimas-5&conDatos=1">Últimas 5 temporadas</Link>
+        <Link className={`${BOTON_SECUNDARIO} !min-h-0 !py-1.5`} href="/competiciones?ambito=Importantes&conDatos=1">Regionales y nacionales</Link>
+        <Link className={`${BOTON_SECUNDARIO} !min-h-0 !py-1.5`} href="/competiciones?categoria=juvenil&conDatos=1">Juveniles</Link>
+        <Link className={`${BOTON_SECUNDARIO} !min-h-0 !py-1.5`} href="/competiciones?categoria=cadete&conDatos=1">Cadetes</Link>
+      </div>
+
+      <p className="mb-4 text-etiqueta text-[var(--texto-tenue)]">
+        Procedencia: <code className="bg-[var(--fondo-sutil)] px-1">core.competition_edition</code>,{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">core.phase_group</code>,{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">core.team_entry</code> y{' '}
+        <code className="bg-[var(--fondo-sutil)] px-1">ops.coverage_checkpoint</code>. Las cifras de partidos y actas
         son las que el importador midió al cerrar cada lote; su fecha va en cada renglón. Un guion es un
         dato que no existe.
       </p>
 
       <nav className="flex items-center justify-between text-sm" aria-label="Paginación">
-        {pagina > 1 ? <Link className="boton-secundario" href={urlPagina(pagina - 1) as Route}>← Anterior</Link> : <span />}
-        <span className="text-xs text-[#5C646C]">
+        {pagina > 1 ? <Link className={`${BOTON_SECUNDARIO}`} href={urlPagina(pagina - 1) as Route}>← Anterior</Link> : <span />}
+        <span className="text-xs text-[var(--texto-suave)]">
           {total ? `${desde + 1}–${Math.min(desde + POR_PAGINA, total)} de ${numero(total)}` : '0 resultados'}
         </span>
-        {desde + POR_PAGINA < total ? <Link className="boton-secundario" href={urlPagina(pagina + 1) as Route}>Siguiente →</Link> : <span />}
+        {desde + POR_PAGINA < total ? <Link className={`${BOTON_SECUNDARIO}`} href={urlPagina(pagina + 1) as Route}>Siguiente →</Link> : <span />}
       </nav>
     </>
   );

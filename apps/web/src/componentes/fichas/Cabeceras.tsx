@@ -32,7 +32,7 @@ export function CabeceraJugador({ jugador, contexto }: {
   return (
     <section className="flex flex-wrap items-center gap-4 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-5 py-4">
       <span aria-hidden="true"
-        className="flex size-16 flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-[22px] font-extrabold tracking-[-0.02em] text-[var(--texto-suave)]">
+        className="flex size-16 flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto-suave)]">
         {inicialesDeNombre(jugador.nombre_mostrado)}
       </span>
       <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-1.5">

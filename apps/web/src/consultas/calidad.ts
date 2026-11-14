@@ -103,3 +103,40 @@ export const CALIDAD_GLOBAL: Consulta<FilaCalidadGlobal> = {
      order by c.resultado desc, c.descuadre_pj, c.descuadre_puntos, c.descuadre_goles, c.edicion, c.grupo
      limit 400`,
 };
+
+/** Equipos de cada grupo de CyL; sólo se pide cuando la búsqueda del panel lleva texto. */
+export type FilaEquiposDeGrupo = { grupo_id: number; equipos: string };
+
+/**
+ * Nombres de los equipos de cada grupo de la temporada.
+ *
+ * Existe para que el buscador del panel encuentre por EQUIPO y no sólo por el nombre del grupo (el
+ * canónico llama «Primera - Salamanca» al grupo y el usuario escribe «Ribert»). No cambia ninguna
+ * regla de coherencia: es una lectura de apoyo que se usa sólo cuando hay texto en `q`.
+ *
+ * Parámetros: (1) etiqueta de temporada. Límite: 400 grupos (CyL no pasa de ~260 por temporada).
+ */
+export const EQUIPOS_DE_LA_TEMPORADA: Consulta<FilaEquiposDeGrupo> = {
+  nombre: 'equipos-de-la-temporada',
+  descripcion: 'Nombres de equipo por grupo de CyL, para buscar por equipo en el panel de calidad.',
+  plan: 'agregado',
+  presupuestoMs: 6000,
+  columnas: ['grupo_id', 'equipos'],
+  sql: `
+    with equipos as (
+      select m.phase_group_id as gid, m.home_team_entry_id as te from core.match m
+      union
+      select m.phase_group_id, m.away_team_entry_id from core.match m
+    )
+    select e.gid as grupo_id,
+           string_agg(distinct t.nombre_en_fuente, ' · ' order by t.nombre_en_fuente) as equipos
+      from equipos e
+      join core.team_entry t on t.id = e.te
+      join core.phase_group g on g.id = e.gid
+      join core.competition_edition ce on ce.id = g.competition_edition_id
+      join core.season s on s.id = ce.season_id
+      join core.federation f on f.id = ce.federation_id
+     where f.nombre ilike '%castilla%' and s.etiqueta = $1
+     group by e.gid
+     limit 400`,
+};

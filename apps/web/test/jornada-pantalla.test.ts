@@ -393,7 +393,11 @@ describe('los partidos de una jornada', () => {
     expect(html).toContain('MARTÍN EZQUERRA, PABLO');
     expect(html).toContain('grid-cols-[minmax(0,1fr)_minmax(0,44%)]');
     expect(html).toContain('items-end');
-    expect(html).toContain('truncate');
+    // El nombre ya NO se recorta con `truncate`: el 13/11/2026 se cambió a `break-words` porque la
+    // medición a 390 detectó 28 textos cortados (nombres de equipo, campo y árbitro) y el encargo de UI
+    // exige «sin texto cortado». La columna del marcador sigue fija (44 %) para que el nombre no la mueva.
+    expect(html).toContain('break-words');
+    expect(html).not.toContain('truncate');
   });
 
   it('enseña la hora publicada y el campo cuando existen', () => {

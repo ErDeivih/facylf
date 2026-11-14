@@ -18,6 +18,8 @@ import { PanelCalidad } from '@/componentes/competicion/PanelCalidad';
 import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
+import { decimal2 } from '@/lib/formato';
+import { IndicadoresGrupo } from '@/componentes/competicion/IndicadoresGrupo';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
 import { rutaDeActa, tieneActa } from '@/lib/acta';
 import { etiquetaCategoria, etiquetaDivision } from '@/lib/vocabulario-pantalla';
@@ -111,7 +113,7 @@ export default async function PantallaCompeticion({ params, searchParams }: {
   const fechaUltimaJugada = fechaUltimaJugadaDePortada(grupo) ?? fechaUltimaJugadaDePartidos(partidos);
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-4">
       <nav aria-label="Ruta" className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
         <Link className="hover:underline" href={`/federaciones?federacion=${grupo.federacion}` as Route}>
           {grupo.federacion_corta ?? grupo.federacion_nombre}
@@ -233,7 +235,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
 
   // KPIs de la ficha (siempre desde los partidos).
   const kpi = calidad === null || calidad.con_resultado === 0 ? null : {
-    golesPorPartido: (calidad.goles / calidad.con_resultado).toFixed(2).replace('.', ','),
+    golesPorPartido: decimal2(calidad.goles / calidad.con_resultado),
     porcentajeLocal: Math.round((calidad.victorias_local / calidad.con_resultado) * 100),
     porcentajeActas: Math.round((calidad.con_acta / calidad.con_resultado) * 100),
     actas: `${calidad.con_acta}/${calidad.con_resultado}`,
@@ -242,21 +244,14 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const incoherencia = descuadres !== null
     && (Number(descuadres.pj) !== 0 || Number(descuadres.puntos) !== 0 || Number(descuadres.goles) !== 0);
   return (
-    <div className="flex flex-wrap items-start gap-[18px]">
+    <div className="flex flex-wrap items-start gap-4">
       <UltimoYProximo partidos={partidos} />
       {lineaFrescura && (
         <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
           {lineaFrescura}
-
         </p>
       )}
-      {kpi && (
-        <div className="flex basis-full flex-wrap gap-2" aria-label="Indicadores del grupo">
-          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Goles/partido <strong>{kpi.golesPorPartido}</strong></span>
-          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">% local <strong>{kpi.porcentajeLocal} %</strong></span>
-          <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-2 py-1 text-nota text-[var(--texto)]">Actas <strong>{kpi.actas} ({kpi.porcentajeActas} %)</strong></span>
-        </div>
-      )}
+      {kpi && <IndicadoresGrupo {...kpi} />}
       {kpi && (
         <PanelCalidad
           actas={frescura?.actas ?? 0}
@@ -270,14 +265,14 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
         />
       )}
       <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
-        Calculada hasta J{jornadaResultados ?? '—'} · Fuente federativa: {oficialJornada === null ? 'sin tabla oficial' : `J${oficialJornada}`}
+        Resultados hasta la jornada {jornadaResultados ?? '—'} · tabla oficial de la jornada {oficialJornada === null ? 'sin publicar' : oficialJornada}
         {' · '}
         <a className="underline decoration-dotted" href={`${ruta}/partidos/descarga`} download>
-          CSV de partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`}
+          Descargar los partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`} en CSV
         </a>
       </p>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
-      <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-[18px]">
+      <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
         <Jornada
           numero={jornada}
           partidos={partidosDeLaJornada}

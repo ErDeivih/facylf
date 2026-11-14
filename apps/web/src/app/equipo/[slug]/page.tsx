@@ -139,12 +139,12 @@ async function EquipoCanonico({ idEquipo }: { idEquipo: number }) {
       { texto: 'Equipo' },
     ]} />
 
-    <p className="text-[0.6875rem] uppercase tracking-[0.16em] text-[var(--texto-suave)]">
+    <p className="text-etiqueta text-[var(--texto-suave)]">
       {equipo.federacion_nombre} · {equipo.temporada} · {etiqueta('categoria', equipo.edicion_categoria)}
       {' · '}{etiqueta('ambito', equipo.edicion_ambito)}
     </p>
     <h2 className="mt-1 font-display text-3xl uppercase">{equipo.nombre_en_fuente}</h2>
-    <p className="mt-2 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+    <p className="mt-2 text-tabla leading-6 text-[var(--texto-suave)]">
       {equipo.edicion} · <b className="text-[var(--texto)]">{equipo.grupo}</b>
       {equipo.jornadas_previstas ? ` · ${equipo.jornadas_previstas} jornadas previstas` : ''}
     </p>
@@ -162,12 +162,12 @@ async function EquipoCanonico({ idEquipo }: { idEquipo: number }) {
       ] as const).map(([titulo, valor]) => (
         <div key={titulo} className="bg-[var(--fondo-elevado)] p-3">
           <p className="font-display text-xl tabular-nums">{valor}</p>
-          <p className="mt-0.5 text-[0.625rem] uppercase tracking-wider text-[var(--texto-suave)]">{titulo}</p>
+          <p className="mt-0.5 text-etiqueta tracking-wider text-[var(--texto-suave)]">{titulo}</p>
         </div>
       ))}
     </div>
 
-    <p className="text-[0.75rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="text-nota leading-5 text-[var(--texto-tenue)]">
       Posición y puntos son los de la clasificación oficial guardada. Los goles a favor y en contra
       <b> no se enseñan aquí</b>: la fila oficial los trae a cero y la reconstruida existe aparte, así que
       hasta que el importador los escriba bien cualquier cifra sería falsa.
@@ -175,7 +175,7 @@ async function EquipoCanonico({ idEquipo }: { idEquipo: number }) {
 
     <h3 className="mt-6 font-display text-lg uppercase">Plantilla · {jugadores.length}</h3>
     {!hayResumen && (
-      <div className="mt-2 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+      <div className="mt-2 border-l-4 border-[var(--cobertura-parcial)] bg-[var(--fondo-sutil)] p-3 text-tabla leading-6 text-[var(--texto-suave)]">
         <b className="text-[var(--texto)]">Sin cifras por jugador todavía.</b> El canónico tiene las actas de
         este equipo y de ellas salen las apariciones y los dorsales que se ven abajo, pero los resúmenes
         por jugador (<code>analytics.player_team_season_summary</code>) están sin calcular: hoy no hay
@@ -198,14 +198,14 @@ async function EquipoCanonico({ idEquipo }: { idEquipo: number }) {
         />}
       />
     </div>
-    <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+    <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
       No se enseña <b>quién fue el portero</b>: la fuente marca esa condición de forma irregular. Medido
       en el grupo de Salamanca juvenil 2025-26, sólo 8 de los 26 partidos traen la marca y todos son del
       mismo jugador, así que en 18 partidos no se sabe; además otro jugador usa el dorsal 1 sin estar
       marcado como portero. Afirmarlo sería inventarlo, así que la columna no existe.
     </p>
     {hayResumen && (
-      <p className="mt-2 text-[0.6875rem] leading-5 text-[var(--texto-tenue)]">
+      <p className="mt-2 text-etiqueta leading-5 text-[var(--texto-tenue)]">
         «Apar.» son los partidos en los que la persona figura en el acta y sale de las actas mismas. Una
         convocatoria sin condición publicada <b>no</b> cuenta como partido jugado.
       </p>

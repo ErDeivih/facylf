@@ -20,7 +20,7 @@ import { fechaCorta } from '@/lib/vocabulario-pantalla';
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 /** Cifra con su nota. Si no se sabe, «Sin datos»; nunca un cero de relleno. */
 function Cifra({ valor, sufijo, nota }: { valor: number | null; sufijo?: string; nota?: string }) {
@@ -135,7 +135,7 @@ export function TablaTrayectoria({ filas }: { filas: readonly FilaTemporadaDePer
                 Temporadas y equipos del jugador, con partidos, titularidades, minutos, goles y tarjetas de cada uno.
               </caption>
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Temporada</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Equipo</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Competición</th>
@@ -228,7 +228,7 @@ export function UltimosPartidosJugador({ filas }: { filas: readonly FilaPartidoD
                 Últimos partidos del jugador con jornada, equipo, rival, marcador, si fue titular, sus goles y sus tarjetas.
               </caption>
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Fecha</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Equipo y rival</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Marcador</th>

@@ -74,8 +74,8 @@ export function CabeceraActa({ acta }: { acta: FilaActaCanonica }) {
         <div className="flex flex-col items-center gap-1.5 text-center">
           <span
             className={marcador.jugado
-              ? 'tabular-nums text-[2.75rem] font-extrabold leading-none tracking-[-0.02em] text-[var(--texto-fuerte)]'
-              : 'tabular-nums text-[2.75rem] font-extrabold leading-none tracking-[-0.02em] text-[var(--texto-fuerte-suave)]'}
+              ? 'tabular-nums text-[2.5rem] font-extrabold leading-none tracking-[-0.02em] text-[var(--texto-fuerte)]'
+              : 'tabular-nums text-[2.5rem] font-extrabold leading-none tracking-[-0.02em] text-[var(--texto-fuerte-suave)]'}
             title={marcador.accesible}>
             {marcador.texto}
             <span className="sr-only">, {marcador.accesible}</span>

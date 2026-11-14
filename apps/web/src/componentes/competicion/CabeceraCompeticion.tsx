@@ -1,27 +1,21 @@
 import { EscudoFederacion } from '@/componentes/EscudoFederacion';
+import { Card, CardContent, Progress, TabsNav, type Pestana } from '@/componentes/ui';
 import { subtituloCompeticion } from '@/lib/pantalla-competicion';
 import { fechaCorta } from '@/lib/vocabulario-pantalla';
 import type { FilaEdicionDeLaCompeticion, FilaGrupoDeLaEdicion, FilaPortadaGrupo } from '@/consultas/competiciones';
 import { SelectorEnlace } from './SelectorEnlace';
 
-/** Las pestañas del prototipo. Clasificación y Jornadas tienen pantalla; las demás se apagan. */
-const PESTANAS = [
-  { texto: 'Clasificación', activa: true },
-  { texto: 'Jornadas', activa: false },
-  { texto: 'Calendario', activa: false },
-  { texto: 'Estadísticas', activa: false },
-  { texto: 'Goleadores', activa: false },
-  { texto: 'Disciplina', activa: false },
-  { texto: 'Equipos', activa: false },
-] as const;
-
 /**
- * Cabecera de la pantalla de competición (pantalla 2 del prototipo).
+ * Cabecera de la pantalla de competición (pantalla 2 del prototipo) con la capa `componentes/ui`.
  *
  * Todo lo que enseña sale de `grupo-por-id`: nombre publicado, grupo, categoría, modalidad, ámbito,
  * jornadas previstas y hasta qué jornada hay datos. Lo que la base no sabe no se rellena: la barra de
  * temporada no se pinta sin jornadas previstas, las fechas de los extremos sólo aparecen si existen y
  * los desplegables sólo si hay más de una opción real que elegir.
+ *
+ * Las pestañas con pantalla son enlaces (el estado vive en la URL); las que aún no la tienen se
+ * apagan con `aria-disabled`, no se finge un enlace muerto. La barra se desplaza dentro de sí misma y
+ * no arrastra al documento.
  */
 export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fechaInicio, fechaFin, fechaUltimaJugada, activa = 'clasificacion' }: {
   grupo: FilaPortadaGrupo;
@@ -47,13 +41,22 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
     ? Math.min(100, Math.round((jornadaActual / totalJornadas) * 100))
     : null;
   const subtitulo = subtituloCompeticion(grupo);
+  const pestanas: Pestana[] = [
+    { etiqueta: 'Clasificación', href: rutaBase, activa: activa === 'clasificacion' },
+    { etiqueta: 'Jornadas', href: `${rutaBase}/jornadas`, activa: activa === 'jornadas' },
+    { etiqueta: 'Calendario', href: `${rutaBase}/calendario`, activa: activa === 'calendario' },
+    { etiqueta: 'Estadísticas', href: `${rutaBase}/estadisticas`, activa: activa === 'estadisticas' },
+    { etiqueta: 'Goleadores', activa: false },
+    { etiqueta: 'Disciplina', activa: false },
+    { etiqueta: 'Equipos', activa: false },
+  ];
   return (
-    <section className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
-      <div className="flex flex-wrap items-center gap-4 px-5 pt-5 pb-3.5">
+    <Card className="overflow-hidden">
+      <CardContent className="flex flex-wrap items-center gap-4 px-5 pb-1 pt-5">
         {/* Escudo de la federación dueña de la competición; si no hay, sus siglas. */}
         <EscudoFederacion codigo={grupo.federacion} nombre={grupo.federacion_nombre} tieneEscudo={grupo.federacion_tiene_escudo} />
         <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-1">
-          <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
+          <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">
             {grupo.edicion} · {grupo.grupo}
           </h1>
           {subtitulo !== '' && <span className="text-tabla text-[var(--texto-suave)]">{subtitulo}</span>}
@@ -84,15 +87,17 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
             />
           )}
         </div>
-      </div>
+      </CardContent>
 
       <div className="flex flex-col gap-1.5 px-5 pb-3.5">
         {porcentaje !== null && (
-          <div className="h-1.5 overflow-hidden rounded-[3px] bg-[var(--fondo-sutil)]"
-            role="progressbar" aria-valuemin={0} aria-valuemax={totalJornadas ?? 0} aria-valuenow={jornadaActual ?? 0}
-            aria-label={`Jornada ${jornadaActual ?? 0} de ${totalJornadas ?? 0}`}>
-            <div className="h-full bg-[var(--accion)]" style={{ width: `${porcentaje}%` }} />
-          </div>
+          <Progress
+            valor={porcentaje}
+            valorActual={jornadaActual ?? 0}
+            valorMax={totalJornadas ?? 0}
+            etiqueta={`Jornada ${jornadaActual ?? 0} de ${totalJornadas ?? 0}`}
+            className="h-1.5"
+          />
         )}
         <div className="flex flex-wrap justify-between gap-2 text-nota text-[var(--texto-suave)]">
           <span>{fechaCorta(fechaInicio) ?? ''}</span>
@@ -109,42 +114,11 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
         </div>
       </div>
 
-      {/* `py-1` da aire al anillo de foco de la pestaña: la nav recorta en horizontal
-          (`overflow-x-auto`) y el enlace mide justo el alto (46 px), así que sin este relleno el
-          `outline` de 2 px con offset 2 se recortaba arriba y abajo (hallazgo C5 del QA). */}
-      <nav aria-label="Secciones" className="relative flex gap-0.5 overflow-x-auto border-t border-[var(--fondo-sutil)] px-3 py-1">
-        {PESTANAS.map((p) => {
-          const esActiva = (p.texto === 'Clasificación' && activa === 'clasificacion')
-            || (p.texto === 'Jornadas' && activa === 'jornadas')
-            || (p.texto === 'Calendario' && activa === 'calendario')
-            || (p.texto === 'Estadísticas' && activa === 'estadisticas');
-          const href = p.texto === 'Clasificación'
-            ? rutaBase
-            : p.texto === 'Jornadas'
-              ? `${rutaBase}/jornadas`
-              : p.texto === 'Calendario'
-                ? `${rutaBase}/calendario`
-                : p.texto === 'Estadísticas'
-                  ? `${rutaBase}/estadisticas`
-                  : null;
-          if (href === null) {
-            return (
-              <span key={p.texto} aria-disabled="true"
-                className="flex h-[46px] cursor-not-allowed items-center px-3 text-sm font-medium whitespace-nowrap text-[var(--texto-suave)]">
-                {p.texto}
-              </span>
-            );
-          }
-          return (
-            <a key={p.texto} href={href} aria-current={esActiva ? 'page' : undefined}
-              className={esActiva
-                ? 'flex h-[46px] items-center px-3 text-sm font-semibold whitespace-nowrap text-[var(--accion)] shadow-[inset_0_-3px_0_var(--accion)]'
-                : 'flex h-[46px] items-center px-3 text-sm font-medium whitespace-nowrap text-[var(--texto-suave)] hover:text-[var(--texto)]'}>
-              {p.texto}
-            </a>
-          );
-        })}
-      </nav>
-    </section>
+      {/* `py-1` da aire al anillo de foco: la barra recorta en horizontal (`overflow-x-auto`) y el
+          enlace mide el alto justo, así que sin relleno el `outline` se recortaba (hallazgo C5 del QA). */}
+      <div className="border-t border-[var(--fondo-sutil)] px-3 py-1">
+        <TabsNav pestanas={pestanas} etiqueta="Secciones" />
+      </div>
+    </Card>
   );
 }

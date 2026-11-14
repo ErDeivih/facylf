@@ -21,7 +21,7 @@ import { EnlaceDeTarjeta, Etiqueta, PuestoTexto } from './piezas';
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 function plural(cantidad: number, singular: string, plural_: string): string {
   return `${formatoNumero(cantidad)} ${cantidad === 1 ? singular : plural_}`;
@@ -106,7 +106,7 @@ function EquipoDelClub({ fila }: { fila: FilaHistorialClub }) {
     <article className="flex h-full flex-col gap-2.5 rounded-[var(--radius-lg)] border border-[var(--borde)] p-3">
       <div className="flex items-start gap-2.5">
         <span aria-hidden="true"
-          className="flex size-9 flex-none items-center justify-center rounded-[var(--radius-md)] bg-[var(--accion)] text-[15px] font-extrabold text-[var(--texto-inverso)]">
+          className="flex size-9 flex-none items-center justify-center rounded-[var(--radius-md)] bg-[var(--accion)] text-cuerpo font-extrabold text-[var(--texto-inverso)]">
           {letra}
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">

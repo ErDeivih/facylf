@@ -21,7 +21,7 @@ const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg
 function Dato({ etiqueta, valor, detalle }: { etiqueta: string; valor: string; detalle?: string }) {
   return (
     <div className={`${TARJETA} flex flex-col gap-1 p-4`}>
-      <span className="text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--texto-suave)]">{etiqueta}</span>
+      <span className="text-etiqueta font-semibold text-[var(--texto-suave)]">{etiqueta}</span>
       <strong className="text-titulo font-extrabold leading-none tabular-nums text-[var(--texto)]">{valor}</strong>
       {detalle && <span className="text-nota text-[var(--texto-suave)]">{detalle}</span>}
     </div>

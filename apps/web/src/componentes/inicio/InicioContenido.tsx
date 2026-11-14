@@ -60,8 +60,8 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
         <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
           {jornada.map((partido) => (
             <li key={partido.partidoId}
-              className="flex flex-col gap-1 rounded-[var(--radius-lg)] bg-white/5 px-3 py-2.5">
-              <span className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-fuerte-suave)]">
+              className="flex flex-col gap-1 rounded-[var(--radius-lg)] bg-[var(--fondo-elevado)]/5 px-3 py-2.5">
+              <span className="text-etiqueta text-[var(--texto-fuerte-suave)]">
                 {partido.fechaTexto}{partido.jornada !== null ? ` · Jornada ${partido.jornada}` : ''}{partido.edicion ? ` · ${partido.edicion}` : ''}
               </span>
               <span className="flex flex-wrap items-baseline justify-between gap-2">
@@ -109,7 +109,7 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
                 <li key={competicion.grupoId}>
                   <Link href={rutaDeCompeticion(competicion.grupoId) as Route}
                     className="flex h-full min-h-11 flex-col gap-0.5 rounded-[var(--radius-lg)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2.5 hover:border-[var(--borde-fuerte)] focus-visible:[outline-offset:2px]">
-                    <span className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                    <span className="text-etiqueta text-[var(--texto-suave)]">
                       {competicion.temporada} · {competicion.federacionNombre}
                     </span>
                     <span className="text-tabla font-semibold text-[var(--texto)]">{competicion.edicion}</span>
@@ -197,7 +197,7 @@ function TusEquipos({ sesion, accesos, errorAccesos, hayMas }: {
                   const proximo = textoSiguiente(acceso, 'proximo');
                   return (
                     <li key={`${acceso.tipo}-${acceso.id}`} className={`${TARJETA} flex flex-col px-4 py-3`}>
-                      <span className="text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--accion)]">
+                      <span className="text-etiqueta font-semibold text-[var(--accion)]">
                         {etiquetaDeAcceso(acceso)}
                       </span>
                       <p className="m-0 mt-0.5 text-bloque font-semibold text-[var(--texto)]">

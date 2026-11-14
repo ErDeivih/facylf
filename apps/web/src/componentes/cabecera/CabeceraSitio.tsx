@@ -69,10 +69,10 @@ const FUNCIONES: readonly Funcion[] = [
 ];
 
 const CLASE_SECCION =
-  'inline-flex min-h-11 flex-col items-start justify-center gap-0.5 whitespace-nowrap rounded-[var(--radius-lg)] px-3 text-sm font-semibold';
+  'inline-flex min-h-11 flex-col items-start justify-center gap-0.5 whitespace-nowrap rounded-[var(--radius-lg)] px-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]';
 
 /** La segunda línea: visible a partir de 1280 px; por debajo, accesible pero sin ocupar ancho. */
-const CLASE_DESCRIPTOR = 'text-etiqueta font-medium tracking-[0.01em] sr-only xl:not-sr-only';
+const CLASE_DESCRIPTOR = 'text-etiqueta font-medium sr-only xl:not-sr-only';
 
 function claseSeccion(activa: boolean): string {
   return `${CLASE_SECCION} ${
@@ -130,7 +130,7 @@ function BotonPendiente({ etiqueta, icono }: { etiqueta: string; icono: React.Re
       type="button"
       disabled
       aria-label={`${etiqueta} (todavía no tiene pantalla)`}
-      className="inline-flex size-11 items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] disabled:cursor-not-allowed"
+      className="inline-flex size-11 items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
     >
       {icono}
     </button>
@@ -154,7 +154,7 @@ export function CabeceraSitio({
         <Link
           href="/"
           aria-label={NOMBRE_PRODUCTO}
-          className="order-1 flex min-h-11 items-center gap-[9px] text-[var(--texto-fuerte)]"
+          className="order-1 flex min-h-11 items-center gap-[9px] rounded-[var(--radius-lg)] text-[var(--texto-fuerte)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
         >
           <Logotipo />
           <span className="flex flex-col justify-center leading-none">
@@ -165,7 +165,7 @@ export function CabeceraSitio({
               ancho para que no le robe ancho al buscador.
             */}
             <span aria-hidden="true"
-              className="mt-0.5 hidden text-etiqueta font-medium leading-tight tracking-[0.01em] text-[var(--texto-fuerte-suave)] xl:block">
+              className="mt-0.5 hidden text-etiqueta font-medium leading-tight text-[var(--texto-fuerte-suave)] xl:block">
               <span className="block">{TAGLINE_LINEAS[0]}</span>
               <span className="block">{TAGLINE_LINEAS[1]}</span>
             </span>
@@ -245,7 +245,7 @@ export function CabeceraSitio({
           <Link
             href="/entrar"
             aria-label="Entrar o crear cuenta"
-            className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] lg:order-3"
+            className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] lg:order-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
           >
             <IconoCuenta />
           </Link>

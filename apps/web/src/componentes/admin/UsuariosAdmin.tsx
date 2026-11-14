@@ -155,7 +155,7 @@ export function UsuariosAdmin({
                   <tr className="border-b border-[var(--borde)]">
                     {['Cuenta', 'Rol · paquete', 'Permisos', 'Estado', 'Último acceso', 'Favoritos'].map((c) => (
                       <th key={c} scope="col"
-                        className="whitespace-nowrap px-3 py-2 text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--texto-suave)]">
+                        className="whitespace-nowrap px-3 py-2 text-etiqueta font-semibold text-[var(--texto-suave)]">
                         {c}
                       </th>
                     ))}

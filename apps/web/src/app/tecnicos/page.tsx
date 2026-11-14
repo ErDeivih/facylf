@@ -11,7 +11,7 @@ export default async function Tecnicos({ searchParams }: { searchParams: Promise
   return (
     <>
       <h2 className="font-display text-2xl uppercase">Cuerpos técnicos</h2>
-      <p className="mb-4 mt-2 text-sm text-[#5C646C]">Entrenadores, delegados y otros cargos de {datosFederacion(federacion).nombre} identificados en actas adultas.</p>
+      <p className="mb-4 mt-2 text-sm text-[var(--texto-suave)]">Entrenadores, delegados y otros cargos de {datosFederacion(federacion).nombre} identificados en actas adultas.</p>
       <SelectorFederacion federacion={federacion} action="/tecnicos" />
       <Bloque titulo={`${tecnicos.length} técnicos y cargos`}>
         <FiltroLista etiqueta="Buscar técnico o cargo" entradas={tecnicos.map((t, i) => ({

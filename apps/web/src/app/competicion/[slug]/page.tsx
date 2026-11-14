@@ -8,6 +8,7 @@ import { Tabla } from '@/componentes/Tabla';
 import { MapaCalor } from '@/componentes/MapaCalor';
 import { DistribucionGoles, RendimientoEquipos } from '@/componentes/GraficasCompeticion';
 import { NavegacionCompeticion } from '@/componentes/NavegacionCompeticion';
+import { BOTON_SECUNDARIO, INSIGNIA, INSIGNIA_ROJA, INSIGNIA_VERDE } from '@/componentes/ui/legado';
 
 export const revalidate = 60;
 
@@ -55,23 +56,23 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
   }
   return (
     <>
-      <div className="mb-5 text-xs text-[#5C646C]">
+      <div className="mb-5 text-xs text-[var(--texto-suave)]">
         <Link className="hover:text-club hover:underline" href={`/competiciones?federacion=${c.federacion}`}>Competiciones</Link>
         <span className="mx-2">/</span><span>{c.categoria}</span><span className="mx-2">/</span><span>{c.temporada}</span>
       </div>
       <div className="mb-5">
         <div className="mb-2 flex flex-wrap gap-1.5">
-          <span className="insignia">{c.temporada}</span><span className="insignia">{c.categoria}</span>
-          <span className="insignia">{c.ambito}</span>
-          <span className="insignia insignia-verde">{datosFederacion(c.federacion).nombre}</span>
-          {c.provincias.map((x) => <span key={x} className="insignia insignia-roja">{x}</span>)}
+          <span className={`${INSIGNIA}`}>{c.temporada}</span><span className={`${INSIGNIA}`}>{c.categoria}</span>
+          <span className={`${INSIGNIA}`}>{c.ambito}</span>
+          <span className={`insignia ${INSIGNIA_VERDE}`}>{datosFederacion(c.federacion).nombre}</span>
+          {c.provincias.map((x) => <span key={x} className={`insignia ${INSIGNIA_ROJA}`}>{x}</span>)}
         </div>
-        <h2 className="font-display text-3xl uppercase tracking-wide">{c.nombre}</h2>
-        <p className="mt-1 text-sm text-[#5C646C]">{c.grupo} · {c.modalidad} · {c.genero}</p>
+        <h2 className="font-display text-3xl tracking-wide">{c.nombre}</h2>
+        <p className="mt-1 text-sm text-[var(--texto-suave)]">{c.grupo} · {c.modalidad} · {c.genero}</p>
       </div>
       <NavegacionCompeticion slug={slug} />
 
-      {canonico && <div className="mb-6 border-l-4 border-club bg-white p-3 text-[12px] leading-5">
+      {canonico && <div className="mb-6 border-l-4 border-club bg-[var(--fondo-elevado)] p-3 text-nota leading-5">
         <b>Este grupo está importado en el canónico</b>
         {canonico.visibility_state === 'completa'
           ? <>: sus {canonico.partidos_conocidos ?? 0} partidos están completos y verificados</>
@@ -84,14 +85,14 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
       </div>}
 
       {variantes.length > 0 && <div className="mb-6 flex flex-wrap items-center gap-2">
-        <span className="mr-1 font-display text-xs uppercase text-[#5C646C]">Otras temporadas:</span>
+        <span className="mr-1 font-display text-xs text-[var(--texto-suave)]">Otras temporadas:</span>
         {variantes.map((v) => <Link key={v.slug} href={`/competicion/${v.slug}`}
-          className="boton-secundario !min-h-0 !px-2.5 !py-1.5">{v.temporada}</Link>)}
+          className={`${BOTON_SECUNDARIO} !min-h-0 !px-2.5 !py-1.5`}>{v.temporada}</Link>)}
       </div>}
 
-      <div className="mb-6 grid grid-cols-2 gap-px border border-[#D6D6D4] bg-[#D6D6D4] sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-px border border-[var(--borde-fuerte)] bg-[var(--borde-fuerte)] sm:grid-cols-4">
         {([['Jornadas', c.jornadas], ['Partidos', c.partidos], ['Resultados', c.resultados], ['Goles', goles]] as const).map(([k, v]) => (
-          <div key={k} className="bg-white p-3"><p className="font-display text-2xl">{v}</p><p className="text-[11px] uppercase tracking-wider text-[#5C646C]">{k}</p></div>
+          <div key={k} className="bg-[var(--fondo-elevado)] p-3"><p className="font-display text-2xl">{v}</p><p className="text-etiqueta tracking-wider text-[var(--texto-suave)]">{k}</p></div>
         ))}
       </div>
 
@@ -101,16 +102,16 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
             : 'Calendario, resultados y clasificación completos; esta fuente no se consulta a nivel de acta individual.')
           : `${c.cobertura.trabajosPendientes} trabajos pendientes`}>
         <div className="p-4">
-          <div className="mb-4 h-3 overflow-hidden rounded bg-[#EDF0ED]">
-            <div className={`h-full ${c.cobertura.completa ? 'bg-[#1F7A46]' : 'bg-club'}`}
+          <div className="mb-4 h-3 overflow-hidden rounded bg-[var(--fondo-sutil)]">
+            <div className={`h-full ${c.cobertura.completa ? 'bg-[var(--victoria)]' : 'bg-club'}`}
               style={{ width: `${c.cobertura.porcentaje}%` }} />
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <p><span className="block text-xs text-[#5C646C]">Jornadas</span>{c.cobertura.jornadasGuardadas}/{c.cobertura.jornadasEsperadas}</p>
-            <p><span className="block text-xs text-[#5C646C]">Actas</span>{c.cobertura.actasDisponibles
+            <p><span className="block text-xs text-[var(--texto-suave)]">Jornadas</span>{c.cobertura.jornadasGuardadas}/{c.cobertura.jornadasEsperadas}</p>
+            <p><span className="block text-xs text-[var(--texto-suave)]">Actas</span>{c.cobertura.actasDisponibles
               ? `${c.cobertura.actasProcesadas}/${c.cobertura.actasLocalizadas}` : 'No incluidas por la fuente'}</p>
-            <p><span className="block text-xs text-[#5C646C]">Calendario</span>{c.cobertura.calendarioListo ? 'Disponible' : 'Pendiente'}</p>
-            <p><span className="block text-xs text-[#5C646C]">Clasificación</span>{c.cobertura.clasificacionLista ? 'Disponible' : 'Pendiente'}</p>
+            <p><span className="block text-xs text-[var(--texto-suave)]">Calendario</span>{c.cobertura.calendarioListo ? 'Disponible' : 'Pendiente'}</p>
+            <p><span className="block text-xs text-[var(--texto-suave)]">Clasificación</span>{c.cobertura.clasificacionLista ? 'Disponible' : 'Pendiente'}</p>
           </div>
         </div>
       </Bloque>
@@ -125,20 +126,20 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
 
       <section id="jornadas" className="scroll-mt-4">
         <Bloque titulo="Recorrido por jornadas" pie="Cada jornada incluye sus partidos, la clasificación de ese momento y acceso a las actas disponibles.">
-          <div className="grid grid-cols-4 gap-px bg-[#EDF0ED] sm:grid-cols-7 lg:grid-cols-10">
+          <div className="grid grid-cols-4 gap-px bg-[var(--fondo-sutil)] sm:grid-cols-7 lg:grid-cols-10">
             {jornadas.map((j) => {
               const partidos = c.partidosLista.filter((p) => p.jornada === j);
               const jugados = partidos.filter((p) => p.golesLocal != null).length;
               return <Link key={j} href={`/competicion/${c.slug}/jornada/${j}`}
-                className="bg-white p-3 text-center hover:bg-club-claro hover:text-club-oscuro">
+                className="bg-[var(--fondo-elevado)] p-3 text-center hover:bg-club-claro hover:text-club-oscuro">
                 <span className="block font-display text-lg">{j}</span>
-                <span className="block text-[10px] text-[#5C646C]">{jugados}/{partidos.length || '—'}</span>
+                <span className="block text-etiqueta text-[var(--texto-suave)]">{jugados}/{partidos.length || '—'}</span>
               </Link>;
             })}
           </div>
-          {jornadas.length === 0 && <p className="p-5 text-sm text-[#5C646C]">Las jornadas aún no están estructuradas.</p>}
-          <div className="border-t border-[#EDF0ED] p-3 text-right">
-            <Link href={`/competicion/${c.slug}/calendario`} className="boton-secundario">Ver calendario completo →</Link>
+          {jornadas.length === 0 && <p className="p-5 text-sm text-[var(--texto-suave)]">Las jornadas aún no están estructuradas.</p>}
+          <div className="border-t border-[var(--fondo-sutil)] p-3 text-right">
+            <Link href={`/competicion/${c.slug}/calendario`} className={`${BOTON_SECUNDARIO}`}>Ver calendario completo →</Link>
           </div>
         </Bloque>
       </section>
@@ -152,14 +153,14 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
       <section id="jugadores" className="scroll-mt-4">
         {c.jugadores.length > 0 && <Bloque titulo="Rendimiento de jugadores" pie="Cada jugador queda vinculado al equipo concreto de este grupo; los minutos son estimados.">
           <div className="overflow-x-auto"><table className="w-full text-sm tabular-nums">
-            <thead><tr className="border-b border-[#D6D6D4] text-xs uppercase text-[#5C646C]">
+            <thead><tr className="border-b border-[var(--borde-fuerte)] text-xs text-[var(--texto-suave)]">
               <th className="p-2 text-left">Jugador</th><th className="p-2 text-left">Equipo</th>
               <th className="p-2 text-right">Conv.</th><th className="p-2 text-right">PJ</th><th className="p-2 text-right">Tit.</th>
               <th className="p-2 text-right">Min.</th><th className="p-2 text-right">Goles</th><th className="p-2 text-right">Tarjetas</th>
             </tr></thead>
-            <tbody>{c.jugadores.slice(0, 20).map((j) => <tr key={`${j.codigo ?? j.nombre}-${j.equipoCodigo ?? j.equipo}`} className="border-b border-[#EDF0ED]">
+            <tbody>{c.jugadores.slice(0, 20).map((j) => <tr key={`${j.codigo ?? j.nombre}-${j.equipoCodigo ?? j.equipo}`} className="border-b border-[var(--fondo-sutil)]">
               <td className="p-2">{j.codigo ? <Link className="hover:underline" href={`/jugador/${slugJugador(j.codigo, c.federacion)}`}>{j.nombre}</Link> : j.nombre}</td>
-              <td className="p-2 text-[#5C646C]">{j.equipoCodigo
+              <td className="p-2 text-[var(--texto-suave)]">{j.equipoCodigo
                 ? <Link className="hover:text-club hover:underline" href={`/equipo/${slugEquipo(c.temporadaCodigo, j.equipoCodigo, c.competicionCodigo, c.grupoCodigo, c.federacion)}`}>{j.equipo}</Link>
                 : j.equipo}</td>
               <td className="p-2 text-right">{j.convocatorias}</td><td className="p-2 text-right">{j.partidos}</td><td className="p-2 text-right">{j.titularidades}</td>
@@ -167,10 +168,10 @@ export default async function Competicion({ params }: { params: Promise<{ slug: 
               <td className="p-2 text-right">{j.tarjetas}</td>
             </tr>)}</tbody>
           </table></div>
-          <div className="border-t border-[#EDF0ED] p-3 text-right"><Link className="boton-secundario" href={`/competicion/${c.slug}/jugadores`}>Ver todos y ordenar →</Link></div>
+          <div className="border-t border-[var(--fondo-sutil)] p-3 text-right"><Link className={`${BOTON_SECUNDARIO}`} href={`/competicion/${c.slug}/jugadores`}>Ver todos y ordenar →</Link></div>
         </Bloque>}
         {c.jugadores.length === 0 && <Bloque titulo="Jugadores pendientes">
-          <p className="p-5 text-sm leading-6 text-[#5C646C]">La competición está localizada, pero todavía no hay actas analizadas suficientes para formar sus plantillas.</p>
+          <p className="p-5 text-sm leading-6 text-[var(--texto-suave)]">La competición está localizada, pero todavía no hay actas analizadas suficientes para formar sus plantillas.</p>
         </Bloque>}
       </section>
     </>

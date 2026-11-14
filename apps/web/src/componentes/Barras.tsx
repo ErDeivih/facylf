@@ -16,7 +16,7 @@ export function Barras({ datos, unidad = '' }: { datos: DatoBarra[]; unidad?: st
         <span className="shrink-0 font-display">{dato.valor.toLocaleString('es-ES')}{unidad}</span>
       </div>
       <div className="h-2 overflow-hidden bg-[var(--fondo-sutil)]"><div className="h-full bg-club" style={{ width: `${Math.max(3, dato.valor / maximo * 100)}%` }} /></div>
-      {dato.detalle && <p className="mt-1 text-[11px] text-[var(--texto-suave)]">{dato.detalle}</p>}
+      {dato.detalle && <p className="mt-1 text-etiqueta text-[var(--texto-suave)]">{dato.detalle}</p>}
     </li>
   ))}</ol>;
 }

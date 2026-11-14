@@ -34,7 +34,7 @@ export default function ErrorDeLaAplicacion({ error, reset }: {
   return (
     <>
       <h2 className="font-display text-3xl uppercase">Algo ha fallado</h2>
-      <p className="mt-1 mb-5 max-w-3xl text-[0.8125rem] leading-6 text-[var(--texto-suave)]">
+      <p className="mt-1 mb-5 max-w-3xl text-tabla leading-6 text-[var(--texto-suave)]">
         Esta página no se ha podido componer. No es que no haya datos: es que ha fallado algo al
         pedirlos. El resto de la web sigue disponible.
       </p>

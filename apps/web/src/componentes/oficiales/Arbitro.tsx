@@ -61,7 +61,7 @@ export function CompeticionesDeArbitro({ competiciones }: { competiciones: reado
                 </p>
                 <dl className="m-0 mt-2 grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-3">
                   <div>
-                    <dt className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">Amarillas</dt>
+                    <dt className="text-etiqueta text-[var(--texto-suave)]">Amarillas</dt>
                     <dd className="m-0 text-dato font-extrabold tabular-nums text-[var(--texto)]">
                       {mediaTexto(mediaPorPartido(c.amarillas, c.con_acta))}
                     </dd>
@@ -70,7 +70,7 @@ export function CompeticionesDeArbitro({ competiciones }: { competiciones: reado
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">Rojas</dt>
+                    <dt className="text-etiqueta text-[var(--texto-suave)]">Rojas</dt>
                     <dd className="m-0 text-dato font-extrabold tabular-nums text-[var(--texto)]">
                       {mediaTexto(mediaPorPartido(c.rojas, c.con_acta))}
                     </dd>
@@ -79,7 +79,7 @@ export function CompeticionesDeArbitro({ competiciones }: { competiciones: reado
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">Goles de penalti</dt>
+                    <dt className="text-etiqueta text-[var(--texto-suave)]">Goles de penalti</dt>
                     <dd className="m-0 text-dato font-extrabold tabular-nums text-[var(--texto)]">
                       {mediaTexto(mediaPorPartido(c.penaltis, c.con_acta))}
                     </dd>

@@ -1,0 +1,32 @@
+{
+    "include": [
+        "."
+    ],
+    "ignore": [],
+    "i18n": {
+        "files": [],
+        "keysAreSource": true
+    },
+    "properNouns": [],
+    "componentDirs": [
+        "**/componentes/ui/**"
+    ],
+    "rules": {},
+    "allow": {
+        "radius-scale": [
+            "src/**/*.tsx:rounded-[var(--radius-control)]",
+            "src/**/*.tsx:rounded-[var(--radius-sm)]",
+            "src/**/*.tsx:rounded-[var(--radius-md)]",
+            "src/**/*.tsx:rounded-[var(--radius-tarjeta)]",
+            "src/**/*.tsx:rounded-t-[var(--radius-tarjeta)]",
+            "src/**/*.tsx:rounded-[5px]",
+            "src/**/*.tsx:rounded-[3px]",
+            "src/**/*.tsx:rounded-[var(--radius-lg)]"
+        ],
+        "type-scale": [],
+        "glow-in-charts-only": [],
+        "pulse-for-live-only": [
+            "src/componentes/ui/skeleton.tsx:animate-pulse"
+        ]
+    }
+}

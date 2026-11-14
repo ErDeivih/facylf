@@ -18,7 +18,7 @@ import {
  */
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
-const ETIQUETA = 'text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta font-semibold text-[var(--texto-suave)]';
 
 const TONO: Record<string, string> = {
   completo: 'var(--cobertura-completa)',
@@ -109,7 +109,7 @@ export function AvisosDeLaFederacion({ avisos }: { avisos: readonly AvisoDeCober
         {avisos.map((aviso, i) => (
           <li key={`${aviso.titulo}-${i}`}
             className={`flex flex-wrap items-baseline gap-2 border-l-4 bg-[var(--fondo-elevado)] px-3.5 py-2.5 text-tabla ${aviso.nivel === 'limite' ? 'border-[var(--amarilla)]' : 'border-[var(--borde-fuerte)]'}`}>
-            <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-etiqueta font-bold uppercase tracking-[0.05em] text-[var(--texto)]">
+            <span className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1.5 py-0.5 text-etiqueta font-bold text-[var(--texto)]">
               {aviso.nivel === 'limite' ? 'Límite' : 'Nota'}
             </span>
             <span className="font-semibold text-[var(--texto)]">{aviso.titulo}.</span>
@@ -222,7 +222,7 @@ export function ComparativaDeFederaciones({ fichas, actual }: {
             <table className="w-full border-collapse text-tabla" style={{ minWidth: 480 }}>
               <caption className="sr-only">Cobertura medida de otras federaciones: resultados, alineaciones, cambios y tarjetas.</caption>
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className="py-2 pl-4 pr-2 text-left font-semibold">Federación</th>
                   <th scope="col" className="px-2 py-2 font-semibold">Resultados</th>
                   <th scope="col" className="px-2 py-2 font-semibold">Alineaciones</th>

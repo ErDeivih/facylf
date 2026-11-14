@@ -20,7 +20,7 @@ import {
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-4';
 const ENLACE_MENU = 'flex min-h-11 items-center rounded-[var(--radius-control)] px-3 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
 const BOTON = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
-const ETIQUETA = 'text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]';
+const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 
 export function MiCuenta({ perfil, correo = null, aviso = null }: {
   perfil: PerfilCuenta;

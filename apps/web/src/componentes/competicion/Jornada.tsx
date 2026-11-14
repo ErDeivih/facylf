@@ -76,7 +76,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                         className="flex min-w-0 items-center gap-2">
                         <Escudo equipoId={p.local_id} nombre={p.local}
                           clubId={p.local_club_id} tieneEscudo={p.local_tiene_escudo} />
-                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
+                        <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
                           {nombres.local}
                         </span>
                       </Link>
@@ -84,7 +84,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                         className="flex min-w-0 items-center gap-2">
                         <Escudo equipoId={p.visitante_id} nombre={p.visitante}
                           clubId={p.visitante_club_id} tieneEscudo={p.visitante_tiene_escudo} />
-                        <span className={`min-w-0 truncate text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
+                        <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
                           {nombres.visitante}
                         </span>
                       </Link>
@@ -101,16 +101,16 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                       {campo !== '' && (
                         <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
                           title={`Campo: ${campo}`}>
-                          <span className="flex-none text-[9px] uppercase tracking-[0.04em]">Campo</span>
-                          <span className="min-w-0 truncate text-[var(--texto)]">{campo}</span>
+                          <span className="flex-none text-etiqueta text-[var(--texto-suave)]">Campo</span>
+                          <span className="min-w-0 break-words text-[var(--texto)]">{campo}</span>
                         </span>
                       )}
                       {arbitro !== '' && (
                         <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
                           title={`Árbitro: ${arbitro}`}>
-                          <span className="flex-none text-[9px] uppercase tracking-[0.04em]" aria-hidden="true">Árbitro</span>
+                          <span className="flex-none text-etiqueta text-[var(--texto-suave)]" aria-hidden="true">Árbitro</span>
                           <span className="sr-only">Árbitro: </span>
-                          <span className="min-w-0 truncate text-[var(--texto)]">{arbitro}</span>
+                          <span className="min-w-0 break-words text-[var(--texto)]">{arbitro}</span>
                         </span>
                       )}
                       {acta !== null && (

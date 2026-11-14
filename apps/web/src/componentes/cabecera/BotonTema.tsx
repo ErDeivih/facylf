@@ -52,7 +52,7 @@ export function BotonTema({ tema: temaInicial, className = '' }: { tema: Tema; c
       type="button"
       onClick={cambiarTema}
       aria-label={etiquetaDeTema(siguiente)}
-      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] ${className}`}
+      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)] ${className}`}
     >
       {siguiente === 'oscuro' ? <IconoLuna /> : <IconoSol />}
     </button>

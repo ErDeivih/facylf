@@ -4,7 +4,7 @@ import type { EstadoSelector, OpcionesSelector } from '@/lib/selector-competicio
 import {
   RUTA_SELECTOR, temporadasSugeridas, tieneFiltrosSelector, urlDeSelector,
 } from '@/lib/selector-competiciones';
-import { CHIP, TARJETA } from './controles';
+import { Button, EstadoCargando, EstadoVacio, SkeletonFilas } from '@/componentes/ui';
 
 /**
  * Estado vacío del selector.
@@ -27,45 +27,33 @@ export function SinGrupos({ estado, opciones }: {
     : estado.filtros.texto;
 
   if (!hayFiltros) {
-    return (
-      <div className={`${TARJETA} px-4 py-5`}>
-        <p className="m-0 text-cuerpo text-[var(--texto-suave)]">
-          Todavía no hay competiciones con grupos importados.
-        </p>
-      </div>
-    );
+    return <EstadoVacio titulo="Todavía no hay competiciones con grupos importados" />;
   }
 
   return (
-    <div className={`${TARJETA} px-4 py-5`}>
-      <p className="m-0 text-cuerpo text-[var(--texto)]">No hay grupos con esos filtros.</p>
-      <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">
-        <Link href={RUTA_SELECTOR as Route} className="font-semibold text-[var(--accion)] hover:underline">
-          Quitar los filtros
-        </Link>
-      </p>
-      {sugeridas.length > 0 && (
-        <div className="mt-4">
-          <p className="m-0 text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
-            Temporadas con datos
-          </p>
-          <ul className="m-0 mt-2 flex list-none flex-wrap gap-1.5 p-0">
+    <EstadoVacio
+      titulo="No hay grupos con esos filtros"
+      descripcion={<Link href={RUTA_SELECTOR as Route} className="font-semibold text-[var(--accion)] hover:underline">Quitar los filtros</Link>}
+      accion={sugeridas.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span className="text-nota font-semibold text-[var(--texto-suave)]">Temporadas con datos</span>
+          <span className="flex flex-wrap gap-1.5">
             {sugeridas.map((temporada) => (
-              <li key={temporada}>
+              <Button key={temporada} asChild variant="secondary" size="sm">
                 <Link href={urlDeSelector({
                   ...estado.filtros,
                   temporada,
                   texto: textoBase,
                   desplazamiento: 0,
-                }) as Route} className={CHIP}>
+                }) as Route}>
                   {temporada}
                 </Link>
-              </li>
+              </Button>
             ))}
-          </ul>
+          </span>
         </div>
-      )}
-    </div>
+      ) : undefined}
+    />
   );
 }
 
@@ -75,15 +63,10 @@ export function SinGrupos({ estado, opciones }: {
  */
 export function SinMasGrupos({ estado }: { estado: EstadoSelector }) {
   return (
-    <div className={`${TARJETA} px-4 py-5`}>
-      <p className="m-0 text-cuerpo text-[var(--texto)]">No hay más grupos en esta búsqueda.</p>
-      <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">
-        <Link href={urlDeSelector(estado.filtros, { desplazamiento: 0 }) as Route}
-          className="font-semibold text-[var(--accion)] hover:underline">
-          Volver al principio
-        </Link>
-      </p>
-    </div>
+    <EstadoVacio
+      titulo="No hay más grupos en esta búsqueda"
+      accion={<Button asChild variant="secondary"><Link href={urlDeSelector(estado.filtros, { desplazamiento: 0 }) as Route}>Volver al principio</Link></Button>}
+    />
   );
 }
 
@@ -92,18 +75,11 @@ export function SinMasGrupos({ estado }: { estado: EstadoSelector }) {
  * spinner que desplace la página al llegar los resultados.
  */
 export function EsqueletoLista({ filas = 6 }: { filas?: number }) {
-  const bloque = 'rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)]';
   return (
-    <div role="status" aria-live="polite" className={TARJETA}>
-      <span className="sr-only">Cargando competiciones…</span>
-      {Array.from({ length: Math.max(1, filas) }, (_, i) => (
-        <div key={i} data-esqueleto="grupo"
-          className="flex min-h-[76px] flex-col justify-center gap-2 border-t border-[var(--fondo-sutil)] px-4 py-3 first:border-t-0">
-          <div className={`h-4 w-40 ${bloque}`} />
-          <div className={`h-4 w-2/3 ${bloque}`} />
-          <div className={`h-3 w-1/2 ${bloque}`} />
-        </div>
-      ))}
-    </div>
+    <EstadoCargando etiqueta="Cargando competiciones…">
+      <div data-esqueleto="lista" className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+        <SkeletonFilas filas={filas} columnas={2} />
+      </div>
+    </EstadoCargando>
   );
 }

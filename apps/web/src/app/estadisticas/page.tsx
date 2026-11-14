@@ -9,9 +9,9 @@ export default async function Estadisticas({ searchParams }: { searchParams: Pro
   const federacion = federacionDesde((await searchParams).federacion);
   const datos = estadisticasLocales(federacion);
   return <>
-    <p className="font-display text-xs uppercase tracking-[0.16em] text-club">Análisis del archivo local</p>
+    <p className="font-display text-xs text-club">Análisis del archivo local</p>
     <h2 className="mt-1 font-display text-3xl uppercase">Estadísticas</h2>
-    <p className="mb-6 mt-2 max-w-3xl text-sm leading-6 text-[#5C646C]">
+    <p className="mb-6 mt-2 max-w-3xl text-sm leading-6 text-[var(--texto-suave)]">
       Las tablas y gráficas de {datosFederacion(federacion).nombre} se recalculan con los partidos y actas disponibles. Los apartados se completan automáticamente conforme avanza la colección.
     </p>
     <SelectorFederacion federacion={federacion} action="/estadisticas" />

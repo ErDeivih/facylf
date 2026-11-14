@@ -76,7 +76,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                 Clasificación del grupo: posición, partidos jugados, victorias-empatadas-derrotas, goles y puntos de cada equipo.
               </caption>
               <thead>
-                <tr className="text-right text-etiqueta uppercase tracking-[0.05em] text-[var(--texto-suave)]">
+                <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
                   <th scope="col" className={`${fijas} left-0 w-7 py-2 pl-2 pr-1 text-left font-semibold md:w-9 md:pl-4 md:pr-1.5`}>#</th>
                   <th scope="col" className={`${fijas} left-9 px-1.5 py-2 text-left font-semibold`}>Equipo</th>
                   <th scope="col" className="w-8 px-0.5 py-2 font-semibold md:w-auto md:px-1.5" title="Partidos jugados">PJ</th>
@@ -115,13 +115,13 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             recorta: la tabla cabe.
                           */}
                           <Link href={`/explorar/equipo/${f.equipo_id}`}
-                            className="block max-w-[3.75rem] md:max-w-[11rem] truncate font-medium text-[var(--texto)] hover:underline md:max-w-[11rem] lg:max-w-none"
+                            className="inline-flex min-h-11 items-center break-words font-medium text-[var(--texto)] hover:underline"
                             title={f.equipo}>
                             {f.equipo}
                           </Link>
                           {/* En móvil, V-E-D y goles no caben: se despliegan al tocar la fila. */}
                           <details className="md:hidden">
-                            <summary className="cursor-pointer list-none text-nota text-[var(--texto-suave)]"
+                            <summary className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center text-nota text-[var(--texto-suave)]"
                               aria-label={`Ver victorias, empates, derrotas y goles de ${f.equipo}`}>+</summary>
                             <span className="block whitespace-nowrap text-nota text-[var(--texto-suave)]">
                               V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)} · Forma {forma.map((signo) => insigniaForma(signo).letra).join('')}
@@ -141,7 +141,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                         {f.puntos}
                       </td>
                       <td className="hidden border-t border-[var(--fondo-sutil)] px-1 text-left md:table-cell md:px-1.5">
-                        <span className="whitespace-nowrap text-etiqueta font-bold tracking-[0.08em] text-[var(--texto-suave)] md:hidden">
+                        <span className="whitespace-nowrap text-etiqueta font-bold text-[var(--texto-suave)] md:hidden">
                           {forma.map((signo) => insigniaForma(signo).letra).join('')}
                         </span>
                         <div className="hidden gap-[3px] md:flex">
@@ -153,7 +153,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                             // visible), así que la palabra va en el nombre accesible, no en un span.
                             return (
                               <span key={`${letra}-${i}`} role="img" aria-label={etiqueta} title={etiqueta}
-                                className="flex size-4 items-center justify-center rounded-[5px] text-[9px] font-bold md:size-5 md:text-[10px]"
+                                className="flex size-5 items-center justify-center rounded-[5px] text-etiqueta font-bold md:size-5"
                                 style={estiloForma(signo)}>
                                 {letra}
                               </span>

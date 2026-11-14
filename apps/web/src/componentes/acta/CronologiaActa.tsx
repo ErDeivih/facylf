@@ -107,12 +107,12 @@ function Textos({ linea, conLado = false }: { linea: LineaCronologia; conLado?: 
 type TipoIcono = LineaCronologia['tipo'];
 
 const ICONOS: Record<TipoIcono, { texto: string; clase: string; estilo?: CSSProperties }> = {
-  gol: { texto: 'G', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-[10px] font-extrabold text-[var(--texto-fuerte)]' },
-  penalti: { texto: 'P', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-[10px] font-extrabold text-[var(--texto-fuerte)]' },
+  gol: { texto: 'G', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-etiqueta font-extrabold text-[var(--texto-fuerte)]' },
+  penalti: { texto: 'P', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-etiqueta font-extrabold text-[var(--texto-fuerte)]' },
   // En propia puerta se distingue por su texto («PP» y «En propia puerta»), no por el color: el rojo
   // brillante del prototipo con texto claro no llega a AA en tema oscuro, y un icono que sólo se
   // entiende por el color no sirve para una persona daltónica ni para una impresión en blanco y negro.
-  propia: { texto: 'PP', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-[9px] font-extrabold text-[var(--texto-fuerte)]' },
+  propia: { texto: 'PP', clase: 'size-6 rounded-full bg-[var(--fondo-fuerte)] text-etiqueta font-extrabold text-[var(--texto-fuerte)]' },
   amarilla: { texto: '', clase: 'h-5 w-[15px] rounded-[3px] bg-[var(--amarilla)]' },
   'doble-amarilla': {
     texto: '',
@@ -120,7 +120,7 @@ const ICONOS: Record<TipoIcono, { texto: string; clase: string; estilo?: CSSProp
     estilo: { background: 'linear-gradient(135deg, var(--amarilla) 50%, var(--roja) 50%)' },
   },
   roja: { texto: '', clase: 'h-5 w-[15px] rounded-[3px] bg-[var(--roja)]' },
-  cambio: { texto: '⇅', clase: 'size-6 rounded-full bg-[var(--accion-suave)] text-[13px] font-bold text-[var(--victoria)]' },
+  cambio: { texto: '⇅', clase: 'size-6 rounded-full bg-[var(--accion-suave)] text-tabla font-bold text-[var(--victoria)]' },
 };
 
 function Icono({ tipo }: { tipo: TipoIcono }) {

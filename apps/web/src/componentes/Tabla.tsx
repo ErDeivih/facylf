@@ -25,7 +25,7 @@ export function Tabla({ filas, ascienden = 2, enlacesEquipo = {} }: {
           goles en contra, diferencia de goles y puntos.
         </caption>
         <thead>
-          <tr className="border-b border-[var(--borde)] text-xs uppercase tracking-[0.1em] text-[var(--texto-suave)]">
+          <tr className="border-b border-[var(--borde)] text-xs text-[var(--texto-suave)]">
             <th scope="col" className="p-2 text-left">#</th>
             <th scope="col" className="p-2 text-left">Equipo</th>
             {['PJ', 'G', 'E', 'P', 'GF', 'GC', 'DG', 'Pts'].map((h) => (

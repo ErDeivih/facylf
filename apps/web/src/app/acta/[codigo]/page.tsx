@@ -46,23 +46,23 @@ export default async function Acta({ params }: { params: Promise<{ codigo: strin
     : null;
   return (
     <>
-      <div className="mb-5 text-xs text-[#5C646C]">
+      <div className="mb-5 text-xs text-[var(--texto-suave)]">
         <Link href="/competiciones" className="hover:text-club hover:underline">Competiciones</Link><span className="mx-2">/</span>
         <Link href={`/competicion/${a.grupoSlug}`} className="hover:text-club hover:underline">{a.competicion}</Link><span className="mx-2">/</span>
         <Link href={`/competicion/${a.grupoSlug}/jornada/${a.jornada}`} className="hover:text-club hover:underline">Jornada {a.jornada}</Link><span className="mx-2">/</span>
         <span>Acta</span>
       </div>
-      <div className="mb-6 border border-[#D6D6D4] bg-white">
-        <div className="border-b border-[#EDF0ED] px-4 py-3">
-          <p className="font-display text-xs uppercase tracking-[0.15em] text-club">Acta {a.codigo} · {a.temporada}</p>
-          <p className="mt-1 text-xs text-[#5C646C]">{a.competicion} · {a.grupo} · Jornada {a.jornada}</p>
+      <div className="mb-6 border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)]">
+        <div className="border-b border-[var(--fondo-sutil)] px-4 py-3">
+          <p className="font-display text-xs text-club">Acta {a.codigo} · {a.temporada}</p>
+          <p className="mt-1 text-xs text-[var(--texto-suave)]">{a.competicion} · {a.grupo} · Jornada {a.jornada}</p>
         </div>
         {p ? <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-8">
           {hrefEquipo(p.codLocal) ? <Link href={hrefEquipo(p.codLocal)! as Route} className="text-right text-lg font-semibold hover:text-club hover:underline">{p.local}</Link> : <span className="text-right text-lg font-semibold">{p.local}</span>}
           <strong className="font-display text-4xl">{p.golesLocal == null ? '–' : `${p.golesLocal} – ${p.golesVisitante}`}</strong>
           {hrefEquipo(p.codVisitante) ? <Link href={hrefEquipo(p.codVisitante)! as Route} className="text-lg font-semibold hover:text-club hover:underline">{p.visitante}</Link> : <span className="text-lg font-semibold">{p.visitante}</span>}
-        </div> : <p className="p-6 text-center text-sm text-[#5C646C]">Partido no enlazado todavía.</p>}
-        {p && <p className="border-t border-[#EDF0ED] px-4 py-3 text-center text-xs text-[#5C646C]">
+        </div> : <p className="p-6 text-center text-sm text-[var(--texto-suave)]">Partido no enlazado todavía.</p>}
+        {p && <p className="border-t border-[var(--fondo-sutil)] px-4 py-3 text-center text-xs text-[var(--texto-suave)]">
           {[p.fecha, p.hora, p.campo, p.arbitro].filter(Boolean).join(' · ')}
         </p>}
       </div>
@@ -74,20 +74,20 @@ export default async function Acta({ params }: { params: Promise<{ codigo: strin
           const suplentes = a.participantes.filter((x) => x.lado === lado && x.condicion === 'suplentes');
           const convocados = a.participantes.filter((x) => x.lado === lado && x.condicion === 'convocados');
           return <Bloque key={lado} titulo={titulo}>
-            <div className="px-4 pt-4"><h3 className="font-display text-xs uppercase text-[#5C646C]">Titulares</h3></div>
-            <ul>{titulares.map((x) => <li key={`${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[#EDF0ED] px-4 py-2.5 text-sm first:border-t-0">
-              <span className="w-7 shrink-0 text-right font-display text-[#5C646C]">{x.dorsal ?? '—'}</span>
+            <div className="px-4 pt-4"><h3 className="font-display text-xs text-[var(--texto-suave)]">Titulares</h3></div>
+            <ul>{titulares.map((x) => <li key={`${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-sm first:border-t-0">
+              <span className="w-7 shrink-0 text-right font-display text-[var(--texto-suave)]">{x.dorsal ?? '—'}</span>
               <span>{x.codigo ? <Link className="hover:text-club hover:underline" href={`/jugador/${slugJugador(x.codigo, a.federacion)}`}>{nombreParticipante(x)}</Link> : nombreParticipante(x)}{x.portero ? ' · POR' : ''}</span>
             </li>)}</ul>
-            <div className="border-t border-[#D6D6D4] px-4 pt-4"><h3 className="font-display text-xs uppercase text-[#5C646C]">Suplentes</h3></div>
-            <ul>{suplentes.map((x) => <li key={`${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[#EDF0ED] px-4 py-2.5 text-sm first:border-t-0">
-              <span className="w-7 shrink-0 text-right font-display text-[#5C646C]">{x.dorsal ?? '—'}</span>
+            <div className="border-t border-[var(--borde-fuerte)] px-4 pt-4"><h3 className="font-display text-xs text-[var(--texto-suave)]">Suplentes</h3></div>
+            <ul>{suplentes.map((x) => <li key={`${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-sm first:border-t-0">
+              <span className="w-7 shrink-0 text-right font-display text-[var(--texto-suave)]">{x.dorsal ?? '—'}</span>
               <span>{x.codigo ? <Link className="hover:text-club hover:underline" href={`/jugador/${slugJugador(x.codigo, a.federacion)}`}>{nombreParticipante(x)}</Link> : nombreParticipante(x)}</span>
             </li>)}</ul>
             {convocados.length > 0 && <>
-              <div className="border-t border-[#D6D6D4] px-4 pt-4"><h3 className="font-display text-xs uppercase text-[#5C646C]">Convocados · condición no publicada</h3></div>
-              <ul>{convocados.map((x) => <li key={`c-${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[#EDF0ED] px-4 py-2.5 text-sm first:border-t-0">
-                <span className="w-7 shrink-0 text-right font-display text-[#5C646C]">{x.dorsal ?? '—'}</span>
+              <div className="border-t border-[var(--borde-fuerte)] px-4 pt-4"><h3 className="font-display text-xs text-[var(--texto-suave)]">Convocados · condición no publicada</h3></div>
+              <ul>{convocados.map((x) => <li key={`c-${x.orden}-${x.dorsal}`} className="flex gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-sm first:border-t-0">
+                <span className="w-7 shrink-0 text-right font-display text-[var(--texto-suave)]">{x.dorsal ?? '—'}</span>
                 <span>{x.codigo ? <Link className="hover:text-club hover:underline" href={`/jugador/${slugJugador(x.codigo, a.federacion)}`}>{nombreParticipante(x)}</Link> : nombreParticipante(x)}{x.portero ? ' · POR' : ''}</span>
               </li>)}</ul>
             </>}
@@ -97,9 +97,9 @@ export default async function Acta({ params }: { params: Promise<{ codigo: strin
 
       <Bloque titulo="Desarrollo del partido" pie="Ordenado por minuto según los datos interpretados del acta.">
         <ul>{a.eventos.map((e) => <li key={`${e.orden}-${e.tipo}-${e.minuto}`}
-          className="grid grid-cols-[3.5rem_8rem_1fr] gap-3 border-t border-[#EDF0ED] px-4 py-3 text-sm first:border-t-0">
+          className="grid grid-cols-[3.5rem_8rem_1fr] gap-3 border-t border-[var(--fondo-sutil)] px-4 py-3 text-sm first:border-t-0">
           <span className="font-display">{e.minutoBase == null ? '—' : `${e.minutoBase}${e.minutoAnadido ? `+${e.minutoAnadido}` : ''}′`}</span>
-          <span className="text-xs uppercase text-[#5C646C]">{etiquetaDesarrollo(e.tipo, e.subtipo)}</span>
+          <span className="text-xs text-[var(--texto-suave)]">{etiquetaDesarrollo(e.tipo, e.subtipo)}</span>
           <span>{e.codigo && e.sujetoTipo === 'jugador'
             ? <Link href={`/jugador/${slugJugador(e.codigo, a.federacion)}`} className="font-medium hover:text-club hover:underline">{e.nombre ?? 'Jugador'}</Link>
             : (e.nombre ?? 'Sin nombre')}
@@ -108,20 +108,20 @@ export default async function Acta({ params }: { params: Promise<{ codigo: strin
             {e.tipo === 'gol' && e.ladoBeneficiado && e.ladoBeneficiado !== e.lado
               ? ` · beneficia a ${e.ladoBeneficiado === 'local' ? p?.local ?? 'Local' : p?.visitante ?? 'Visitante'}` : ''}</span>
         </li>)}</ul>
-        {a.eventos.length === 0 && <p className="p-5 text-sm text-[#5C646C]">No hay eventos individualizados en esta acta.</p>}
+        {a.eventos.length === 0 && <p className="p-5 text-sm text-[var(--texto-suave)]">No hay eventos individualizados en esta acta.</p>}
       </Bloque>
 
       {a.tecnicos.length > 0 && <Bloque titulo="Cuerpos técnicos">
-        <div className="grid gap-px bg-[#EDF0ED] sm:grid-cols-2">
-          {(['local', 'visitante'] as const).map((lado) => <div key={lado} className="bg-white p-4">
-            <h3 className="mb-3 font-display text-xs uppercase text-[#5C646C]">{lado === 'local' ? p?.local : p?.visitante}</h3>
+        <div className="grid gap-px bg-[var(--fondo-sutil)] sm:grid-cols-2">
+          {(['local', 'visitante'] as const).map((lado) => <div key={lado} className="bg-[var(--fondo-elevado)] p-4">
+            <h3 className="mb-3 font-display text-xs text-[var(--texto-suave)]">{lado === 'local' ? p?.local : p?.visitante}</h3>
             <ul className="space-y-2">{a.tecnicos.filter((x) => x.lado === lado).map((x, i) =>
-              <li key={`${x.rol}-${i}`} className="text-sm"><span className="text-xs text-[#5C646C]">{x.rol}</span><br />{x.nombre}</li>)}</ul>
+              <li key={`${x.rol}-${i}`} className="text-sm"><span className="text-xs text-[var(--texto-suave)]">{x.rol}</span><br />{x.nombre}</li>)}</ul>
           </div>)}
         </div>
       </Bloque>}
 
-      {(a.incidencias.length > 0 || a.calidad) && <p className="mb-6 text-xs leading-5 text-[#5C646C]">
+      {(a.incidencias.length > 0 || a.calidad) && <p className="mb-6 text-xs leading-5 text-[var(--texto-suave)]">
         Calidad del análisis: {a.calidad ?? 'sin evaluar'}{a.incidencias.length ? ` · ${a.incidencias.map(explicaIncidencia).join(' · ')}` : ''}.
       </p>}
     </>

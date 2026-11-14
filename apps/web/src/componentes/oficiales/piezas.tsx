@@ -53,7 +53,7 @@ export function InsigniaResultado({ resultado }: { resultado: string | null | un
   const { letra, etiqueta } = insigniaForma(signo);
   return (
     <span role="img" aria-label={etiqueta} title={etiqueta}
-      className="flex size-5 flex-none items-center justify-center rounded-[5px] text-[10px] font-bold"
+      className="flex size-5 flex-none items-center justify-center rounded-[5px] text-etiqueta font-bold"
       style={estiloForma(signo)}>
       {letra}
     </span>
@@ -71,7 +71,7 @@ export function InsigniasRacha({ signos }: { signos: ReadonlyArray<'G' | 'E' | '
         const { letra, etiqueta } = insigniaForma(signo);
         return (
           <span key={`${letra}-${i}`} role="img" aria-label={etiqueta} title={etiqueta}
-            className="flex size-5 items-center justify-center rounded-[5px] text-[10px] font-bold"
+            className="flex size-5 items-center justify-center rounded-[5px] text-etiqueta font-bold"
             style={estiloForma(signo)}>
             {letra}
           </span>
@@ -100,7 +100,7 @@ export function ChipTarjeta({ letra, cuantos, nombre }: { letra: 'A' | 'R' | 'P'
   return (
     <span className="inline-flex items-center gap-1 text-nota text-[var(--texto-suave)]">
       <span aria-hidden="true" className="inline-block size-3 flex-none rounded-[3px]" style={{ backgroundColor: color }} />
-      <span className="text-etiqueta font-semibold uppercase tracking-[0.05em] text-[var(--texto)]">{letra}</span>
+      <span className="text-etiqueta font-semibold text-[var(--texto)]">{letra}</span>
       <span className="tabular-nums font-semibold text-[var(--texto)]">{cuantos}</span>
       <span className="sr-only">{nombre}</span>
     </span>

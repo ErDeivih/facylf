@@ -22,7 +22,7 @@ export function Racha({ racha }: { racha: Signo[] }) {
   }
   return (
     <div className="flex items-center gap-1">
-      <span className="mr-2 text-[11px] uppercase tracking-[0.1em] text-[var(--texto-suave)]">Racha</span>
+      <span className="mr-2 text-etiqueta text-[var(--texto-suave)]">Racha</span>
       {racha.slice(-8).map((signo, i) => {
         const { letra, etiqueta } = insigniaForma(signo);
         return (

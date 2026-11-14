@@ -87,7 +87,7 @@ export function PanelAccesos({ nombre, accesos, error = false }: {
                   <li key={`${acceso.tipo}-${acceso.id}`}
                     className="flex flex-wrap items-start gap-3 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4">
                     <div className="min-w-0 flex-[1_1_260px]">
-                      <span className="text-etiqueta font-semibold uppercase tracking-[0.06em] text-[var(--accion)]">
+                      <span className="text-etiqueta font-semibold text-[var(--accion)]">
                         {tipo}
                       </span>
                       <p className="m-0 text-bloque font-semibold text-[var(--texto)]">
