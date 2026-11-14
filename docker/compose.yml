@@ -384,6 +384,12 @@ services:
 
   federacion:
     <<: *recolector
+    # 11/11/2026: en el servidor 1,6 GB no bastaban (Chrome + lectura de la cola) y el pageLoad de 60 s
+    # se quedaba corto con las clasificaciones de 2026-27 (timeout del renderer a los ~60 s).
+    mem_limit: 3000m
+    memswap_limit: 3000m
+    env_file:
+      - ../descargas-federacion/recolector-local/entorno-servidor.env
     command: ["bash", "docker/entrada-recolector.sh", "federacion"]
     # ── PRIORIDAD DE CPU PARA CyL (18/10/2026) ───────────────────────────────────────────────────────────────
     # Con la guardia de energía el slice tiene menos CPU, y cuando está lleno se reparte por PESO entre contenedores

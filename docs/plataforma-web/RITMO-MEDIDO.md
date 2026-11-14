@@ -1093,3 +1093,30 @@ colas avanzan—, que es justo lo que el sistema de turnos (`FACYLF_TURNO_PLAZA_
 pausas estaban anulando. La mejora hay que medirla **por federación** (actas/hora de Madrid y de Valencia), no
 en el total de la flota.
 
+## Verificación 11/11/2026 · PC y servidor con la pausa de CyL (10-13 s)
+
+Se vuelve a medir el ritmo efectivo de Castilla y León en las dos máquinas, con la misma configuración montada
+(`recolector.config.json`: **intervalo 10-13 s**).
+
+| Máquina | Configurado | Petición (mediana) | Hueco hasta la siguiente (mediana) | Ritmo inicio-a-inicio | Veredicto |
+|---|---|---|---|---|---|
+| **PC** | 10-13 s | 0,8 s | 11,1 s (p10 9,6 · p90 14,0) | **≈11,9 s** | dentro de lo configurado |
+| **Servidor** | 10-13 s | 63,9 s (p90 91,8) | 3,4 s (p10 1,1 · p90 11,2) | **≈67 s** | muy por encima del mínimo |
+
+La cortesía se cuenta **de inicio a inicio**: `ritmo.antes()` espera hasta `iniciada_en + mínimo + azar`, así
+que cuando la página tarda más que la pausa (servidor, 64-92 s por página) el hueco posterior es pequeño y el
+ritmo real queda muy por encima del mínimo. En el PC la página es barata (0,8 s) y manda la pausa: 11,9 s.
+
+**De dónde salen los 4-6 s que se recuerdan**: los recolectores **iSquad** (Madrid y Valencia) van a **4-6 s**;
+los **PNFG** (las 17 restantes, CyL entre ellas) van a **6-8 s** de base. Castilla y León tiene una pausa **más
+conservadora: 10-13 s** en las dos máquinas. Fuentes: [RECOLECCION-10GB.md](RECOLECCION-10GB.md) («cada
+recolector PNFG pide una página cada 6-8 s; los iSquad, cada 4-6 s») y [TRASPASO-AGENTE.md](TRASPASO-AGENTE.md)
+(«6–8 s en las 17 PNFG; 4–6 s en Madrid y Valencia»).
+
+El `pageLoad` subido a 120 s en el servidor es un **tiempo de espera, no un ritmo**: no adelanta ninguna
+petición (la pausa y el tope diario no se tocan); solo evita perder el trabajo ya pedido cuando la página tarda
+más de 60 s.
+
+Estado de las dos máquinas en la verificación: PC **2.148 trabajos hechos hoy**, worker vivo, 102 de las
+últimas 120 peticiones en `ok`; servidor **947 trabajos** desde que se reinició a las 20:56 y **117 de 120**
+peticiones en `ok` (3 `error_navegador`), con su cola bajando de 31.342 a 31.272 pendientes.
