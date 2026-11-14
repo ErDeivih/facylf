@@ -36,3 +36,24 @@ Mismo `curl` y mismo `FacylfBot/1.0` en las dos máquinas, dos peticiones cada u
   a ~1 s en el PC, y el `pageLoad` estaba en 120 s → el renderer moría y repetía. Con 240 s el worker guarda
   actas y clasificaciones.
 - **Ahora mismo ingiere**: `hechos hoy 1.611`, última petición `2026-11-14T12:07:54Z`.
+
+## Paso 3 · Plan del data-root de Docker a `/srv/data` (sin ejecutar)
+
+Comprobado hoy otra vez:
+
+| Dato | Valor |
+|---|---:|
+| `Docker Root Dir` | `/var/lib/docker` |
+| Tamaño de `/var/lib/docker` | **145 GB** |
+| Volúmenes locales | **141,7 GB** (volumen de PostgreSQL 132 GB: base viva 16 GB + 4 copias antiguas 116 GB) |
+| Contenedores (capas) | 11,54 GB (5,64 GB reclamables) |
+| Imágenes | 7,6 GB (18 imágenes) |
+| `/` (SSD `sda3`) | 211 GB · 190 usados · **19 libres (92 %)** |
+| `/srv/data` (HDD `sdb1`) | 458 GB · 291 usados · **163 libres** |
+
+El plan está escrito y **no ejecutado** en
+[`PLAN-DOCKER-A-SRV-DATA.md`](PLAN-DOCKER-A-SRV-DATA.md) (commit `d7c8510`): parada ordenada de la flota y de
+Docker, `rsync -aHAX --numeric-ids` a `/srv/data/docker`, `daemon.json` con `data-root`, verificación de
+imágenes/volúmenes/base/servicios y rollback en tres comandos. Aviso medido: `/srv/data` es **HDD** (64 MB/s;
+el SSD da 225 MB/s), así que lo recomendado es primero borrar las 4 copias antiguas (116 GB, con el sí de David)
+y, si aun así se mueve, mover solo el volumen de PostgreSQL.
