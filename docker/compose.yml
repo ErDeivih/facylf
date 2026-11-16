@@ -661,6 +661,28 @@ services:
       # El catálogo (competiciones y grupos) se comparte en SÓLO LECTURA desde la carpeta de la federación.
       - ../descargas-federacion:/app/descargas-federacion:ro
 
+  federacion3:
+    <<: *recolector
+    container_name: facylf-federacion3-1
+    mem_limit: 4096m
+    memswap_limit: 4096m
+    env_file:
+      - ../descargas-federacion/recolector-local/entorno-servidor.env
+    command: ["bash", "docker/entrada-recolector.sh", "cyl-3"]
+    cpus: 1.0
+    environment:
+      <<: *ambiente-recolector
+      FACYLF_PRIORITARIA: "0"
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-federacion-3:/app/descargas-federacion-3
+      - ../recolector.config.json:/app/recolector.config.json
+      # El catálogo (competiciones y grupos) se comparte en SÓLO LECTURA desde la carpeta de la federación.
+      - ../descargas-federacion:/app/descargas-federacion:ro
+
   fin-de-semana:
     <<: *recolector
     mem_limit: 512m
