@@ -384,17 +384,12 @@ services:
 
   federacion:
     <<: *recolector
-    # ── EL CONTENEDOR LLEVA EL NOMBRE DE LA FEDERACIÓN, NO EL DEL SERVICIO (16/11/2026) ────────────────────────
+    # ── EL CONTENEDOR SE LLAMA `facylf-federacion-1`, Y ASÍ SE QUEDA (16/11/2026) ─────────────────────────────
     #
-    # El servicio se llama `federacion` desde el primer día (es el recolector original, sin perfil) y así lo
-    # referencian los turnos y los guiones; pero quien busca a Castilla y León busca `castilla-y-leon` y no lo
-    # encontraba. Se separa una cosa de la otra: el servicio conserva su nombre y el contenedor se llama
-    # `facylf-castilla-y-leon-1`.
-    #
-    # NO se crea un segundo servicio: dos contenedores sobre la misma cola serían dos workers pidiendo las
-    # mismas actas al mismo portal (RFCSL). `docker/entrada-recolector.sh` traduce `castilla-y-leon` a
-    # `descargas-federacion` y a «sin perfil» (ver `docker/lib-federacion.sh` y su prueba).
-    container_name: facylf-castilla-y-leon-1
+    # Se probó a renombrarlo `facylf-castilla-y-leon-1` para que se encontrara buscando por el nombre de la
+    # federación, y se revirtió el mismo día: el recolector de CyL es `facylf-federacion-1` y no se crea ni se
+    # renombra nada. El nombre nuevo solo se resuelve en el código (`docker/lib-federacion.sh`,
+    # `packages/canonico/src/resolucion/contexto.ts`), que traduce `castilla-y-leon` a esta misma cola.
     # 11/11/2026: en el servidor 1,6 GB no bastaban (Chrome + lectura de la cola) y el pageLoad de 60 s
     # se quedaba corto con las clasificaciones de 2026-27 (timeout del renderer a los ~60 s).
     # 14/11/2026: las ACTAS de PNGF tardan 75-86 s en cargar y algunas pasaban de 120 s -> timeout 118,4 s
