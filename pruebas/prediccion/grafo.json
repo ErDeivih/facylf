@@ -1,0 +1,38 @@
+{
+  "train": "2024-25",
+  "validacion": "2025-26",
+  "resultados": {
+    "base-elo": {
+      "log_loss": 0.90284,
+      "brier": 0.54414
+    },
+    "con-grafo": {
+      "log_loss": 0.9042,
+      "brier": 0.54425
+    }
+  },
+  "importancia_permutacion": [
+    {
+      "variable": "elo_diff",
+      "importancia": 0.10388
+    },
+    {
+      "variable": "minutos_visitante",
+      "importancia": 0.00143
+    },
+    {
+      "variable": "pares_visitante",
+      "importancia": 0.00089
+    },
+    {
+      "variable": "minutos_local",
+      "importancia": 0.00064
+    },
+    {
+      "variable": "pares_local",
+      "importancia": 9e-05
+    }
+  ],
+  "n_train": 36522,
+  "n_valid": 28511
+}
