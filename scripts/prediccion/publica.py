@@ -8,7 +8,7 @@ import psycopg2
 from psycopg2.extras import Json, execute_values
 from threadpoolctl import threadpool_limits
 
-from clasificacion import prepara_ligas, pronosticos
+from clasificacion import PESO_LIGHTGBM, prepara_ligas, pronosticos
 from datos import RAIZ, carga_calendario_archivado, conexion, consultas, extrae, guarda_json, url
 from mejora import version
 from marcadores import rejilla
@@ -165,15 +165,12 @@ def pronostico_ligas(p, x, fixtures, xf, plan, modelo_actual):
         modelo = modelo_actual if anio == TEMPORADA else entrenamiento(p, x, plan, int(anio))[0]
         with threadpool_limits(limits=4):
             proba = predice(modelo, xf.loc[f.index])
-        goles = xf.loc[f.index, ['lambda_local', 'lambda_visitante']].to_numpy()
-        for r, z, (lh, lv) in zip(f.itertuples(index=False), proba, goles, strict=True):
-            if not np.isfinite([lh, lv]).all():
-                raise ValueError(f'Falta histórico de goles para el grupo {r.grupo}')
+        for r, z in zip(f.itertuples(index=False), proba, strict=True):
             cruces = salida.setdefault(r.grupo, {})
             if r.par == (r.local, r.visitante):
-                cruces[r.par] = np.r_[z, lh, lv]
+                cruces[r.par] = z
             else:
-                cruces[r.par] = (cruces[r.par] + np.r_[z[::-1], lv, lh]) / 2
+                cruces[r.par] = (cruces[r.par] + z[::-1]) / 2
     return salida
 
 
@@ -251,6 +248,7 @@ def main():
     modelos = entrenamiento(p, x, plan, TEMPORADA)
     proyeccion = pronostico_ligas(p, x, requeridos.iloc[len(futuros):], xf, plan, modelos[0])
     clasificacion = pronosticos(muestra, p, ahora, ligas, proyeccion, args.simulaciones)
+    clasificacion['peso_lightgbm'] = PESO_LIGHTGBM
     filas = emite(futuros, xf.iloc[:len(futuros)], modelos, modelo, corte.date(), pd.Timestamp.now(tz='Europe/Madrid'))
     informe = {'modelo': modelo, 'corte': corte.date().isoformat(), 'cruces_calculados': len(filas),
                'grupos_proyectados': clasificacion['grupos_actuales']}

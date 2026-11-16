@@ -1,0 +1,71 @@
+{
+  "simulaciones": 3000,
+  "peso_lightgbm": 0.1,
+  "grupos_actuales": 131,
+  "descartes": {
+    "clasificacion_oficial": 176,
+    "jornada10": 28,
+    "formato": 262,
+    "clasificacion_incompleta": 16,
+    "plantel_no_confirmado": 31,
+    "cruces_inconsistentes_o_sin_pendientes": 1
+  },
+  "metodos": {
+    "2024": {
+      "grupos": 25,
+      "equipos": 361,
+      "poisson_fijo": {
+        "mae_puesto": 1.2949769159741458,
+        "mae_puntos": 5.416466297322253,
+        "log_loss_puesto": 1.698932030829092,
+        "brier_campeon": 0.4355777660818713
+      },
+      "gamma_poisson": {
+        "mae_puesto": 1.2928273314866112,
+        "mae_puntos": 5.464171745152354,
+        "log_loss_puesto": 1.6559724711580763,
+        "brier_campeon": 0.43033916466605104
+      },
+      "lightgbm_directo": {
+        "mae_puesto": 1.562465373961219,
+        "mae_puntos": 6.836753462603879,
+        "log_loss_puesto": 1.9448382780380828,
+        "brier_campeon": 0.6302552674669128
+      },
+      "combinacion": {
+        "mae_puesto": 1.2888494921514313,
+        "mae_puntos": 5.468939058171746,
+        "log_loss_puesto": 1.6490357411742522,
+        "brier_campeon": 0.426820512157587
+      }
+    },
+    "2025": {
+      "grupos": 101,
+      "equipos": 1419,
+      "poisson_fijo": {
+        "mae_puesto": 1.1235071646699553,
+        "mae_puntos": 4.9632905802208125,
+        "log_loss_puesto": 1.617025696239569,
+        "brier_campeon": 0.49414630741523763
+      },
+      "gamma_poisson": {
+        "mae_puesto": 1.137933286351891,
+        "mae_puntos": 5.036999060371153,
+        "log_loss_puesto": 1.5860933597458058,
+        "brier_campeon": 0.4919199520789288
+      },
+      "lightgbm_directo": {
+        "mae_puesto": 1.3747380784590086,
+        "mae_puntos": 6.6524723984026295,
+        "log_loss_puesto": 1.8507791947948242,
+        "brier_campeon": 0.6251069667214784
+      },
+      "combinacion": {
+        "mae_puesto": 1.1321207423067892,
+        "mae_puntos": 5.088148461357764,
+        "log_loss_puesto": 1.5823907728956252,
+        "brier_campeon": 0.49207814799154337
+      }
+    }
+  }
+}

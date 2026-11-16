@@ -8,6 +8,7 @@ import pandas as pd
 from marcadores import sortea
 
 TAMANOS = (500, 1500, 3000, 6000)
+PESO_LIGHTGBM = .10
 
 
 def cruces_formato(equipos, jornadas):
@@ -82,17 +83,21 @@ def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS,
     contra = np.broadcast_to(ga, (muestras, n)).copy()
     if pronostico is not None:
         fuerza = np.log(ataque / (forma_ataque / tasa)) - np.log(defensa / (forma_defensa / tasa))
+        rng_modelo = np.random.default_rng([semilla, 1])
     for local, visitante, neutral in partidos:
         h, a = indice[local], indice[visitante]
-        if pronostico is None:
-            gl = rng.poisson(np.clip((media if neutral else ml) * ataque[:, h] * defensa[:, a], .01, 30))
-            gv = rng.poisson(np.clip((media if neutral else mv) * ataque[:, a] * defensa[:, h], .01, 30))
-        else:
-            pl, px, pv, lh, lv = pronostico[local, visitante]
-            desvio = np.clip((fuerza[:, h] - fuerza[:, a]) / 2, -2, 2)
+        lambda_local = np.clip((media if neutral else ml) * ataque[:, h] * defensa[:, a], .01, 30)
+        lambda_visitante = np.clip((media if neutral else mv) * ataque[:, a] * defensa[:, h], .01, 30)
+        gl, gv = rng.poisson(lambda_local), rng.poisson(lambda_visitante)
+        if pronostico is not None:
+            # La señal semanal pierde peso cuando se propaga a cruces de toda la temporada.
+            # El resto de trayectorias conserva la fuerza de la liga y su varianza posterior.
+            pl, px, pv = pronostico[local, visitante]
+            usa_modelo = rng_modelo.random(muestras) < PESO_LIGHTGBM
+            desvio = np.clip((fuerza[usa_modelo, h] - fuerza[usa_modelo, a]) / 2, -2, 2)
             pesos = np.exp(np.column_stack((desvio, -.5 * np.abs(desvio), -desvio))) * [pl, px, pv]
             p = pesos / pesos.sum(axis=1, keepdims=True)
-            gl, gv = sortea(rng, lh, lv, p)
+            gl[usa_modelo], gv[usa_modelo] = sortea(rng_modelo, lambda_local.mean(), lambda_visitante.mean(), p)
         puntos[:, h] += np.where(gl > gv, 3, gl == gv)
         puntos[:, a] += np.where(gv > gl, 3, gl == gv)
         favor[:, h] += gl
@@ -219,6 +224,9 @@ def pronosticos(muestra, p, ahora=None, seleccion=None, modelos=None, simulacion
         p_f, pts_f, dist_f = simula(equipos, anterior, cruces, int(grupo), posterior=False, tamanos=(simulaciones,))
         fila['posterior'] = error(pos, pts, dist[simulaciones], real, puntos, simulaciones)
         fila['poisson_fijo'] = error(p_f, pts_f, dist_f[simulaciones], real, puntos, simulaciones)
+        if m is not None:
+            pos_g, pts_g, dist_g = simula(equipos, anterior, cruces, int(grupo), tamanos=(simulaciones,))
+            fila['gamma_poisson'] = error(pos_g, pts_g, dist_g[simulaciones], real, puntos, simulaciones)
         historico.append(fila)
     resumen = {}
     for anio in (2024, 2025):
@@ -226,6 +234,7 @@ def pronosticos(muestra, p, ahora=None, seleccion=None, modelos=None, simulacion
         if grupos:
             resumen[anio] = {'grupos': len(grupos), 'equipos': sum(f['equipos'] for f in grupos),
                              **{m: {k: float(np.average([f[m][k] for f in grupos], weights=[f['equipos'] for f in grupos]))
-                                    for k in grupos[0][m]} for m in ('posterior', 'poisson_fijo')}}
+                                    for k in grupos[0][m]} for m in ('posterior', 'poisson_fijo', 'gamma_poisson')
+                                if m in grupos[0]}}
     return {'simulaciones': list(tamanos), 'resumen': resumen, 'historico': historico,
             'grupos_actuales': len(actuales), 'actuales': actuales, 'descartes': dict(descartes)}
