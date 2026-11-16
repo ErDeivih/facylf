@@ -102,6 +102,14 @@ try {
     log('  modelo: bien');
   }
 
+  const registro = spawnSync(process.execPath, [join(RAIZ, 'scripts', 'prediccion', '05-registro.mjs')], {
+    cwd: RAIZ, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024, timeout: 300000,
+  });
+  const textoRegistro = `${registro.stdout ?? ''}${registro.stderr ?? ''}`.trim();
+  if (textoRegistro) appendFileSync(LOG, `${textoRegistro}\n`, 'utf8');
+  if (registro.status !== 0) { log('  registro: FALLO'); process.exitCode = 5; }
+  else { resumen.push({ paso: 'registro', ultima: textoRegistro.split('\n').filter(Boolean).at(-1) ?? '' }); log('  registro: bien'); }
+
   writeFileSync(MARCA, JSON.stringify({
     temporada: TEMPORADA, simulaciones: Number(SIMULACIONES), resumen,
     hecho_en: new Date().toISOString(), codigo: process.exitCode ?? 0,
