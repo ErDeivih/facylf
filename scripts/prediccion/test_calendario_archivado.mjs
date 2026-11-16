@@ -24,7 +24,7 @@ test('lee los equipos sin enlace de una jornada y omite el descanso', () => {
     const [archivo] = JSON.parse(execFileSync(process.execPath, [script, raiz, '2026-27'], { encoding: 'utf8' }));
     assert.equal(archivo.competicion, '100');
     assert.equal(archivo.grupo, '200');
-    assert.deepEqual(archivo.cruces, [{ jornada: 11, fecha: '2026-11-22',
+    assert.deepEqual(archivo.cruces, [{ jornada: 11, orden: 1, fecha: '2026-11-22',
       local: { codigo: null, nombre: 'UD Norte & Este' }, visitante: { codigo: null, nombre: 'CD Sur' } }]);
   } finally {
     assert.equal(dirname(resolve(raiz)), resolve(tmpdir()));

@@ -99,7 +99,7 @@ def extrae(c, federacion):
     return muestra
 
 
-def carga_calendario_archivado(muestra, ahora):
+def carga_calendario_archivado(muestra, ahora, actualizar=False):
     """Sólo para el presente. La fecha de archivo local no acredita publicación histórica."""
     carpeta = RAIZ / 'descargas-federacion' / 'recolector-local'
     if not carpeta.is_dir():
@@ -107,7 +107,7 @@ def carga_calendario_archivado(muestra, ahora):
     anio = ahora.year if ahora.month >= 7 else ahora.year - 1
     temporada = f'{anio}-{(anio + 1) % 100:02d}'
     cal = muestra['calendario']
-    canonicos = set(cal.grupo) if cal is not None else set()
+    canonicos = set(cal.loc[cal.origen.ne('archivo_local'), 'grupo'] if actualizar else cal.grupo) if cal is not None else set()
     grupos = {(r.competicion, r.codigo): r.grupo for r in muestra['grupos'].itertuples(index=False)
               if r.anio == anio and r.grupo not in canonicos}
     if not grupos:
@@ -137,18 +137,22 @@ def carga_calendario_archivado(muestra, ahora):
                 return por_codigo.get((grupo, lado['codigo']))
             return por_nombre.get((grupo, normaliza(lado['nombre'])))
 
-        cruzados = [(p['jornada'], inscripcion(p['local']), inscripcion(p['visitante']), p['fecha']) for p in a['cruces']]
-        if any(h is None or v is None or h == v for _, h, v, _ in cruzados):
+        cruzados = [(p['jornada'], inscripcion(p['local']), inscripcion(p['visitante']), p['fecha'], p['orden'])
+                    for p in a['cruces']]
+        if any(h is None or v is None or h == v for _, h, v, _, _ in cruzados):
             continue
-        llaves = {(j, h, v) for j, h, v, _ in cruzados}
+        llaves = {(j, h, v) for j, h, v, _, _ in cruzados}
         # Con nombres de equipo en el HTML, validar la identificación en el grupo contra cruces reales.
         anteriores = previos.get(grupo, set())
-        if len(anteriores & llaves) < 3 or not anteriores <= llaves:
+        if len(llaves) != len(cruzados) or len(anteriores & llaves) < 3 or not anteriores <= llaves:
             continue
         filas.extend({'grupo': grupo, 'jornada': j, 'local': h, 'visitante': v, 'fecha': fecha,
-                      'observado_en': ahora, 'origen': 'archivo_local'} for j, h, v, fecha in cruzados)
+                      'observado_en': ahora, 'origen': 'archivo_local', 'orden': orden, 'sha256': a['sha256']}
+                     for j, h, v, fecha, orden in cruzados)
     if filas:
         archivo = pd.DataFrame(filas)
         archivo['fecha'] = pd.to_datetime(archivo.fecha, errors='coerce').dt.date
-        muestra['calendario'] = pd.concat([cal, archivo], ignore_index=True) if cal is not None else archivo
+        muestra['calendario_archivado'] = archivo
+        muestra['calendario'] = (pd.concat([cal[~cal.grupo.isin(archivo.grupo)], archivo], ignore_index=True)
+                                 if cal is not None else archivo)
     return len(filas)

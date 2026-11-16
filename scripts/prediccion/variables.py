@@ -250,6 +250,7 @@ def construye(muestra, futuros=None, corte=None):
     codigos = {k: {v: i for i, v in enumerate(sorted(p[k].unique()))} for k in ('categoria', 'modalidad', 'genero')}
     columnas = BASE + [f'{v}_{lado}' for lado in LADOS for valores in BLOQUES.values() for v in valores]
     datos = np.full((len(p), len(columnas)), np.nan, dtype=np.float32)
+    previstas = np.full((0 if futuros is None else len(futuros), len(columnas)), np.nan, dtype=np.float32)
 
     def lee(r, dia):
         contexto = r.categoria, r.modalidad, r.genero
@@ -265,8 +266,23 @@ def construye(muestra, futuros=None, corte=None):
             fila.extend(variables_equipo(e, dia, r.anio, ultimos_anios[ident]))
         return fila, contexto, identidades, estados
 
+    if futuros is not None and not futuros.empty:
+        dias = futuros['dia_corte'] if 'dia_corte' in futuros else [corte.toordinal()] * len(futuros)
+        cola = sorted(zip(dias, range(len(futuros)), futuros.itertuples(index=False)), key=lambda t: t[0])
+    else:
+        cola = []
+    pendiente = 0
+
+    def lee_hasta(dia):
+        nonlocal pendiente
+        while pendiente < len(cola) and cola[pendiente][0] <= dia:
+            d, k, r = cola[pendiente]
+            previstas[k] = lee(r, d)[0]
+            pendiente += 1
+
     i = 0
     for dia, lote in groupby(p.itertuples(index=False), key=lambda r: r.dia):
+        lee_hasta(dia)
         cambios = []
         for r in lote:
             fila, contexto, identidades, estados = lee(r, dia)
@@ -308,5 +324,5 @@ def construye(muestra, futuros=None, corte=None):
     historicas = pd.DataFrame(datos, columns=columnas)
     if futuros is None:
         return p, historicas
-    previstas = [lee(r, corte.toordinal())[0] for r in futuros.itertuples(index=False)]
+    lee_hasta(float('inf'))
     return p, historicas, pd.DataFrame(previstas, columns=columnas, dtype=np.float32)

@@ -72,6 +72,6 @@ select g.id grupo,
  where g.id = any(%(grupos)s);
 
 -- consulta: calendario
-select phase_group_id grupo, jornada, home_team_entry_id local, away_team_entry_id visitante,
-       fecha_prevista fecha, observado_en
-  from core.calendario_previsto where phase_group_id = any(%(grupos)s) order by 1,2,orden;
+select c.phase_group_id grupo, c.jornada, c.home_team_entry_id local, c.away_team_entry_id visitante,
+       c.fecha_prevista fecha, c.observado_en, c.orden, c.sha256, to_jsonb(c)->>'origen' origen
+  from core.calendario_previsto c where c.phase_group_id = any(%(grupos)s) order by 1,2,c.orden;

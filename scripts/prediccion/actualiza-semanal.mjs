@@ -1,19 +1,5 @@
 #!/usr/bin/env node
-/*
- * actualiza-semanal.mjs — un solo comando para recalcular todo lo que depende de la jornada nueva.
- *
- * Hace, en orden y en un proceso:
- *   1. `01-parametros.mjs`   fuerza de ataque/defensa, media de la liga y ventaja de casa;
- *   2. `02-predicciones.mjs` matriz 0-0…5-5 y 1-X-2 de cada partido de la temporada;
- *   3. `03-simulacion.mjs`   clasificación final estimada por Monte Carlo.
- *
- * Lo llama la tarea nocturna los domingos, después de la ingesta (`scripts/ingesta-nocturna.ps1`), y se
- * puede lanzar a mano. Es idempotente: cada paso borra y recalcula lo suyo; repetirlo no duplica nada.
- *
- * Uso:
- *   node scripts/prediccion/actualiza-semanal.mjs
- *   node scripts/prediccion/actualiza-semanal.mjs --temporada 2026-27 --simulaciones 5000
- */
+/** Actualiza los datos de predicción después de la ingesta, con el modelo causal de Castilla y León. */
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -27,6 +13,7 @@ const valor = (bandera, porDefecto) => {
 };
 const TEMPORADA = valor('--temporada', '2026-27');
 const SIMULACIONES = valor('--simulaciones', '3000');
+const adicionales = ['--backtest', '--seco'].filter((a) => args.includes(a));
 const ESTADO = join(RAIZ, 'estado');
 const CARPETA = join(ESTADO, 'prediccion-semanal');
 const CANDADO = join(ESTADO, 'prediccion-semanal.lock');
@@ -65,10 +52,9 @@ try {
   const pasos = [
     ['parametros', '01-parametros.mjs', ['--temporada', TEMPORADA]],
     ['predicciones', '02-predicciones.mjs', ['--temporada', TEMPORADA]],
-    ['simulacion', '03-simulacion.mjs', ['--temporada', TEMPORADA, '--simulaciones', SIMULACIONES]],
   ];
   const resumen = [];
-  for (const [nombre, fichero, extra] of pasos) {
+  for (const [nombre, fichero, extra] of (args.includes('--solo-ml') || args.includes('--seco') ? [] : pasos)) {
     const ruta = join(RAIZ, 'scripts', 'prediccion', fichero);
     log(`  ${nombre}: node scripts/prediccion/${fichero} ${extra.join(' ')}`);
     const salida = spawnSync(process.execPath, [ruta, ...extra], {
@@ -86,29 +72,25 @@ try {
     resumen.push({ paso: nombre, ultima: lineas.at(-1) ?? '' });
     log(`  ${nombre}: bien`);
   }
-  // El modelo de ML se entrena con las temporadas anteriores y publica en analytics.prediccion_ml.
-  const scriptModelo = join(RAIZ, 'scripts', 'prediccion', '04-modelo.py');
-  log(`  modelo: python scripts/prediccion/04-modelo.py`);
-  const modelo = spawnSync('python', [scriptModelo], {
-    cwd: RAIZ, encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, timeout: 1800000,
-  });
-  const textoModelo = `${modelo.stdout ?? ''}${modelo.stderr ?? ''}`.trim();
-  if (textoModelo) appendFileSync(LOG, `${textoModelo}\n`, 'utf8');
-  if (modelo.status !== 0) {
-    log(`  modelo: FALLO (codigo ${modelo.status ?? 'sin codigo'})`);
-    process.exitCode = 4;
-  } else {
-    resumen.push({ paso: 'modelo', ultima: textoModelo.split('\n').filter(Boolean).at(-1) ?? '' });
-    log('  modelo: bien');
-  }
+  if (process.exitCode) process.exitCode = 3;
+  else {
+    // El modelo de ML se entrena con las temporadas anteriores y publica en analytics.prediccion_ml.
+    const scriptModelo = join(RAIZ, 'scripts', 'prediccion', '04-modelo.py');
+    log(`  modelo: python scripts/prediccion/04-modelo.py`);
+    const modelo = spawnSync('python', ['-B', scriptModelo, '--temporada', TEMPORADA, '--simulaciones', SIMULACIONES, ...adicionales], {
+      cwd: RAIZ, encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, timeout: 1800000,
+    });
+    const textoModelo = `${modelo.stdout ?? ''}${modelo.stderr ?? ''}`.trim();
+    if (textoModelo) appendFileSync(LOG, `${textoModelo}\n`, 'utf8');
+    if (modelo.status !== 0) {
+      log(`  modelo: FALLO (codigo ${modelo.status ?? 'sin codigo'})`);
+      process.exitCode = 4;
+    } else {
+      resumen.push({ paso: 'modelo', ultima: textoModelo.split('\n').filter(Boolean).at(-1) ?? '' });
+      log('  modelo: bien');
+    }
 
-  const registro = spawnSync(process.execPath, [join(RAIZ, 'scripts', 'prediccion', '05-registro.mjs')], {
-    cwd: RAIZ, encoding: 'utf8', maxBuffer: 20 * 1024 * 1024, timeout: 300000,
-  });
-  const textoRegistro = `${registro.stdout ?? ''}${registro.stderr ?? ''}`.trim();
-  if (textoRegistro) appendFileSync(LOG, `${textoRegistro}\n`, 'utf8');
-  if (registro.status !== 0) { log('  registro: FALLO'); process.exitCode = 5; }
-  else { resumen.push({ paso: 'registro', ultima: textoRegistro.split('\n').filter(Boolean).at(-1) ?? '' }); log('  registro: bien'); }
+  }
 
   writeFileSync(MARCA, JSON.stringify({
     temporada: TEMPORADA, simulaciones: Number(SIMULACIONES), resumen,

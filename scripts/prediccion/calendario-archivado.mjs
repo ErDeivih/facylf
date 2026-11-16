@@ -1,5 +1,6 @@
 /** Lee jornadas, fechas y equipos de calendarios PNFG archivados. */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { parse } from 'node-html-parser';
@@ -20,6 +21,7 @@ function interpreta(html) {
     const fecha = /\(\s*(\d\d)-(\d\d)-(\d{4})\s*\)/.exec(cabeza.text);
     const iso = fecha ? `${fecha[3]}-${fecha[2]}-${fecha[1]}` : null;
     const equipos = new Set();
+    let orden = 0;
     for (const marcador of tabla.querySelectorAll('td.anchogoles')) {
       const celdas = marcador.parentNode.childNodes.filter((n) => n.tagName === 'TD');
       if (celdas.length !== 3 || celdas[1] !== marcador) return null;
@@ -33,7 +35,7 @@ function interpreta(html) {
       const claves = lados.map((e) => e.codigo ?? e.nombre.toUpperCase());
       if (claves.some((k) => !k || equipos.has(k)) || claves[0] === claves[1]) return null;
       for (const clave of claves) equipos.add(clave);
-      cruces.push({ jornada, fecha: iso, local, visitante });
+      cruces.push({ jornada, orden: ++orden, fecha: iso, local, visitante });
     }
   }
   return cruces.length ? cruces : null;
@@ -58,7 +60,8 @@ if (existsSync(raiz)) {
           continue;
         }
         const cruces = interpreta(html);
-        if (cruces) salida.push({ competicion: c.slice(5), grupo: g.slice(6), cruces, observado });
+        if (cruces) salida.push({ competicion: c.slice(5), grupo: g.slice(6), cruces, observado,
+          sha256: createHash('sha256').update(html).digest('hex') });
       }
     }
   }

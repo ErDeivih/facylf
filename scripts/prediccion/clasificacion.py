@@ -5,6 +5,8 @@ from itertools import combinations, permutations
 import numpy as np
 import pandas as pd
 
+from marcadores import sortea
+
 TAMANOS = (500, 1500, 3000, 6000)
 
 
@@ -46,7 +48,7 @@ def calendario_restante(equipos, jornadas, jugados, pendientes):
     return list(futuros.values()) + deducidos, len(deducidos)
 
 
-def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS):
+def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS, pronostico=None):
     """Posterior Gamma-Poisson con un ataque y una defensa por equipo y trayectoria."""
     n = len(equipos)
     rng = np.random.default_rng(semilla)
@@ -78,10 +80,19 @@ def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS)
     puntos = np.broadcast_to(pts, (muestras, n)).copy()
     favor = np.broadcast_to(gf, (muestras, n)).copy()
     contra = np.broadcast_to(ga, (muestras, n)).copy()
+    if pronostico is not None:
+        fuerza = np.log(ataque / (forma_ataque / tasa)) - np.log(defensa / (forma_defensa / tasa))
     for local, visitante, neutral in partidos:
         h, a = indice[local], indice[visitante]
-        gl = rng.poisson(np.clip((media if neutral else ml) * ataque[:, h] * defensa[:, a], .01, 30))
-        gv = rng.poisson(np.clip((media if neutral else mv) * ataque[:, a] * defensa[:, h], .01, 30))
+        if pronostico is None:
+            gl = rng.poisson(np.clip((media if neutral else ml) * ataque[:, h] * defensa[:, a], .01, 30))
+            gv = rng.poisson(np.clip((media if neutral else mv) * ataque[:, a] * defensa[:, h], .01, 30))
+        else:
+            pl, px, pv, lh, lv = pronostico[local, visitante]
+            desvio = np.clip((fuerza[:, h] - fuerza[:, a]) / 2, -2, 2)
+            pesos = np.exp(np.column_stack((desvio, -.5 * np.abs(desvio), -desvio))) * [pl, px, pv]
+            p = pesos / pesos.sum(axis=1, keepdims=True)
+            gl, gv = sortea(rng, lh, lv, p)
         puntos[:, h] += np.where(gl > gv, 3, gl == gv)
         puntos[:, a] += np.where(gv > gl, 3, gl == gv)
         favor[:, h] += gl
@@ -96,29 +107,29 @@ def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS)
     return posiciones.mean(axis=0), puntos.mean(axis=0), distribuciones
 
 
-def error(pos, pts, probs, real, puntos):
+def error(pos, pts, probs, real, puntos, n=TAMANOS[-1]):
     p_real = probs[np.arange(len(real)), real - 1]
     # Jeffreys multinomial para las celdas con cero iteraciones al estimar log-loss.
-    n = TAMANOS[-1]
     p_real = (n * p_real + .5) / (n + len(real) * .5)
     return {'mae_puesto': float(np.abs(pos - real).mean()), 'mae_puntos': float(np.abs(pts - puntos).mean()),
             'log_loss_puesto': float(-np.log(p_real).mean()),
             'brier_campeon': float(np.square(probs[:, 0] - (real == 1)).sum())}
 
 
-def pronosticos(muestra, p, ahora=None):
+def prepara_ligas(muestra, p, ahora=None, historico=True):
     tablas = {k: g for k, g in muestra['clasificacion'].groupby('grupo')}
     planteles = {k: g for k, g in muestra['equipos'].groupby('grupo')}
     calendarios = ({} if muestra['calendario'] is None else
                    {k: g for k, g in muestra['calendario'].groupby('grupo')})
-    historico, actuales = [], []
+    ligas = []
     descartes = Counter()
     ahora = pd.Timestamp.now(tz='Europe/Madrid') if ahora is None else ahora
     todos = muestra['partidos']
     actuales_pendientes = {k: g for k, g in todos[(todos.anio == 2026) & todos.estado.eq('scheduled')
                                                    & todos.gl.isna() & todos.gv.isna()
                                                    & todos.fecha.notna()].groupby('grupo')}
-    for grupo, g in p[p.anio.isin((2024, 2025, 2026)) & p.tipo.eq('liga')].groupby('grupo'):
+    anios = (2024, 2025, 2026) if historico else (2026,)
+    for grupo, g in p[p.anio.isin(anios) & p.tipo.eq('liga')].groupby('grupo'):
         meta = g.iloc[0]
         plantel = planteles[grupo]
         if plantel.retirado.any():
@@ -150,6 +161,7 @@ def pronosticos(muestra, p, ahora=None):
                 continue
             corte = pd.Timestamp.fromordinal(int(jornada10.max() + 1)).tz_localize('Europe/Madrid')
         else:
+            oficial = None
             corte = ahora.normalize()
         anterior = g[g.dia.lt(corte.toordinal())]
         vistos = set(anterior.local) | set(anterior.visitante)
@@ -167,22 +179,36 @@ def pronosticos(muestra, p, ahora=None):
             observado = pd.to_datetime(calendario.observado_en, utc=True)
             anteriores = calendario[observado.le(ahora) if meta.anio == 2026 else observado.lt(corte)]
             conocidos += list(anteriores[['local', 'visitante']].itertuples(index=False, name=None))
+            jornadas = {(r.local, r.visitante): r.jornada for r in anteriores.itertuples(index=False)}
+        else:
+            jornadas = {}
         jugados = list(anterior[['local', 'visitante']].itertuples(index=False, name=None))
         futuro = calendario_restante(equipos, meta.jornadas, jugados, conocidos)
         if futuro is None or not futuro[0]:
             descartes['cruces_inconsistentes_o_sin_pendientes'] += 1
             continue
         cruces, deducidos = futuro
-        pos, pts, dist = simula(equipos, anterior, cruces, int(grupo))
+        ligas.append((meta, plantel, equipos, corte, anterior, cruces, deducidos, oficial, jornadas))
+    return ligas, descartes
+
+
+def pronosticos(muestra, p, ahora=None, seleccion=None, modelos=None, simulaciones=TAMANOS[-1]):
+    ligas, descartes = seleccion if seleccion is not None else prepara_ligas(muestra, p, ahora)
+    tamanos = tuple(n for n in TAMANOS if n < simulaciones) + (simulaciones,)
+    historico, actuales = [], []
+    for meta, plantel, equipos, corte, anterior, cruces, deducidos, oficial, _ in ligas:
+        grupo = meta.grupo
+        m = modelos[grupo] if modelos is not None else None
+        pos, pts, dist = simula(equipos, anterior, cruces, int(grupo), tamanos=tamanos, pronostico=m)
         fila = {'anio': int(meta.anio), 'grupo': int(grupo), 'competicion': meta.competicion, 'corte': str(corte),
                 'equipos': len(equipos), 'cruces': len(cruces), 'deducidos': deducidos,
-                'estabilidad_media': {s: float(np.abs(dist[s] - dist[TAMANOS[-1]]).mean()) for s in TAMANOS[:-1]},
-                'estabilidad_maxima': {s: float(np.abs(dist[s] - dist[TAMANOS[-1]]).max()) for s in TAMANOS[:-1]}}
+                'estabilidad_media': {s: float(np.abs(dist[s] - dist[simulaciones]).mean()) for s in tamanos[:-1]},
+                'estabilidad_maxima': {s: float(np.abs(dist[s] - dist[simulaciones]).max()) for s in tamanos[:-1]}}
         if meta.anio == 2026:
             nombres = plantel.set_index('equipo').get('nombre_fuente', pd.Series(dtype=str)).to_dict()
             fila['pronosticos'] = [{'equipo': int(eq), 'nombre': nombres.get(eq),
                                     'puesto_esperado': float(pos[i]), 'puntos_esperados': float(pts[i]),
-                                    'probabilidad_por_puesto': dist[TAMANOS[-1]][i].tolist()} for i, eq in enumerate(equipos)]
+                                    'probabilidad_por_puesto': dist[simulaciones][i].tolist()} for i, eq in enumerate(equipos)]
             actuales.append(fila)
             continue
         real = oficial.posicion.to_numpy(dtype=int)
@@ -190,9 +216,9 @@ def pronosticos(muestra, p, ahora=None):
         if not np.isfinite(puntos).all():
             descartes['clasificacion_incompleta'] += 1
             continue
-        p_f, pts_f, dist_f = simula(equipos, anterior, cruces, int(grupo), posterior=False, tamanos=(TAMANOS[-1],))
-        fila['posterior'] = error(pos, pts, dist[TAMANOS[-1]], real, puntos)
-        fila['poisson_fijo'] = error(p_f, pts_f, dist_f[TAMANOS[-1]], real, puntos)
+        p_f, pts_f, dist_f = simula(equipos, anterior, cruces, int(grupo), posterior=False, tamanos=(simulaciones,))
+        fila['posterior'] = error(pos, pts, dist[simulaciones], real, puntos, simulaciones)
+        fila['poisson_fijo'] = error(p_f, pts_f, dist_f[simulaciones], real, puntos, simulaciones)
         historico.append(fila)
     resumen = {}
     for anio in (2024, 2025):
@@ -201,5 +227,5 @@ def pronosticos(muestra, p, ahora=None):
             resumen[anio] = {'grupos': len(grupos), 'equipos': sum(f['equipos'] for f in grupos),
                              **{m: {k: float(np.average([f[m][k] for f in grupos], weights=[f['equipos'] for f in grupos]))
                                     for k in grupos[0][m]} for m in ('posterior', 'poisson_fijo')}}
-    return {'simulaciones': list(TAMANOS), 'resumen': resumen, 'historico': historico,
+    return {'simulaciones': list(tamanos), 'resumen': resumen, 'historico': historico,
             'grupos_actuales': len(actuales), 'actuales': actuales, 'descartes': dict(descartes)}
