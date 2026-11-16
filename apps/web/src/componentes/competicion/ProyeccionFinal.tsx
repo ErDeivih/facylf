@@ -3,9 +3,12 @@ import type { Route } from 'next';
 import type { FilaPortadaGrupo, FilaSimulacionFinal } from '@/consultas/competiciones';
 import type { ZonasDelGrupo } from '@/lib/pantalla-competicion';
 import {
-  porcentajeDeProbabilidad, simulacionCubreLoQueQueda, textoDeTramo, tramoMasProbable, tramosDelReglamento,
+  porcentajeDeProbabilidad as porcentajeGeneral, simulacionCubreLoQueQueda, textoDeTramo, tramoMasProbable, tramosDelReglamento,
   unDecimal,
 } from '@/lib/proyeccion';
+
+// La muestra de Monte Carlo puede ser unánime sin certificar el puesto final.
+const porcentajeDeProbabilidad = (p: number) => porcentajeGeneral(Math.min(p, 99.99));
 
 /**
  * Contenido de la pestaña «Proyección».
@@ -26,7 +29,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
   const rutaClasificacion = `/explorar/competicion/${grupo.grupo_id}` as Route;
   if (filas.length === 0) {
     return (
-      <Aviso titulo="Sin proyección">
+      <Aviso titulo="Sin clasificación final estimada">
         Este grupo no tiene clasificación final estimada: o ya ha terminado, o su formato (fases,
         eliminatorias) no permite saber qué partidos quedan.{' '}
         <Link href={rutaClasificacion} className="font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
@@ -44,7 +47,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
   });
   if (!cubre) {
     return (
-      <Aviso titulo="Proyección pendiente de recalcular">
+      <Aviso titulo="Clasificación final pendiente de recalcular">
         La última estimación ({primera.calculado_en}) se hizo sin las jornadas que quedan por publicar y
         no se muestra.{' '}
         <Link href={rutaClasificacion} className="font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
@@ -83,13 +86,19 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
         )}
       </header>
 
+      <p aria-hidden="true" className="m-0 flex gap-3 px-3 text-nota text-[var(--texto-suave)]">
+        <span className="w-8 flex-none text-right">Puesto</span>
+        <span className="min-w-0 flex-1">Equipo</span>
+        <span className="flex-none">Puntos</span>
+      </p>
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
         {equipos.map((e) => (
           <li key={e.id}
             className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 py-3">
             <div className="flex items-baseline gap-3">
-              <span className="w-8 flex-none text-right text-bloque font-bold tabular-nums text-[var(--texto)]">
-                {unDecimal(e.posicion)}
+              <span className="w-8 flex-none text-right text-bloque font-bold tabular-nums text-[var(--texto)]"
+                title={`Puesto medio al final de la liga: ${unDecimal(e.posicion)}`}>
+                <span className="sr-only">Puesto medio </span>{unDecimal(e.posicion)}
               </span>
               <span className="min-w-0 flex-1 break-words text-tabla font-semibold text-[var(--texto)]">{e.nombre}</span>
               <span className="flex-none text-tabla tabular-nums text-[var(--texto-suave)]">

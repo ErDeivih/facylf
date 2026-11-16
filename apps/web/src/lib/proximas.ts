@@ -43,20 +43,20 @@ export function urlDeProximas(filtros: FiltrosProximas): string {
 
 /**
  * Junta los partidos con fila y los cruces del calendario previsto en una sola lista, en el orden de
- * lectura de la pantalla (competición › grupo › fecha › jornada › orden). Un cruce previsto no tiene
- * predicción guardada: se le da la expectativa del Poisson con sus goles esperados.
+ * lectura de la pantalla (competición › grupo › fecha › jornada › orden). Los cruces muestran su emisión previa cuando existe.
  */
 export function conCrucesPrevistos(
   partidos: readonly FilaProximoPartido[], previstos: readonly FilaCrucePrevisto[],
 ): FilaProximoPartido[] {
   const deCalendario = previstos.map((c): FilaProximoPartido => {
-    const e = expectativa1X2(c.goles_esperados_local, c.goles_esperados_visitante);
+    const e = c.pred_local == null ? expectativa1X2(c.goles_esperados_local, c.goles_esperados_visitante) : null;
     return {
       match_id: null, grupo_id: c.grupo_id, grupo: c.grupo, edicion: c.edicion, edicion_id: c.edicion_id,
       categoria: c.categoria, jornada: c.jornada, orden: c.orden, fecha: c.fecha,
       local: c.local, visitante: c.visitante,
-      pred_local: e?.local ?? null, pred_empate: e?.empate ?? null, pred_visitante: e?.visitante ?? null,
-      pred_marcador: e?.marcador ?? null,
+      pred_local: c.pred_local ?? e?.local ?? null, pred_empate: c.pred_empate ?? e?.empate ?? null,
+      pred_visitante: c.pred_visitante ?? e?.visitante ?? null,
+      pred_marcador: c.pred_marcador ?? e?.marcador ?? null,
     };
   });
   // Cada lista llega ya ordenada por competición y grupo: se conserva el orden de aparición de cada
@@ -81,6 +81,12 @@ export type GrupoConProximos = {
   partidos: FilaProximoPartido[];
 };
 
+/** Los partidos de una competición que se juegan un mismo día. */
+export type FechaConProximos = {
+  fecha: string;
+  partidos: FilaProximoPartido[];
+};
+
 export type CompeticionConProximos = {
   edicionId: number;
   edicion: string;
@@ -88,6 +94,8 @@ export type CompeticionConProximos = {
   atrasados: number;
   partidos: number;
   grupos: GrupoConProximos[];
+  /** Los mismos partidos repartidos por día, del más cercano al más lejano. Es lo que pinta la pantalla. */
+  fechas: FechaConProximos[];
 };
 
 /**
@@ -106,7 +114,7 @@ export function agrupaProximos(
       competicion = {
         edicionId: p.edicion_id, edicion: p.edicion,
         ultimoResultado: r?.ultimo_resultado ?? null, atrasados: r?.atrasados ?? 0,
-        partidos: 0, grupos: [],
+        partidos: 0, grupos: [], fechas: [],
       };
       porEdicion.set(p.edicion_id, competicion);
     }
@@ -117,6 +125,19 @@ export function agrupaProximos(
     }
     grupo.partidos.push(p);
     competicion.partidos += 1;
+  }
+  // Por día: dentro de cada día se conserva el orden de los grupos y, en cada grupo, jornada y orden.
+  for (const competicion of porEdicion.values()) {
+    const porFecha = new Map<string, FilaProximoPartido[]>();
+    for (const grupo of competicion.grupos) {
+      for (const p of grupo.partidos) {
+        if (!porFecha.has(p.fecha)) porFecha.set(p.fecha, []);
+        porFecha.get(p.fecha)!.push(p);
+      }
+    }
+    competicion.fechas = [...porFecha.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([fecha, lista]) => ({ fecha, partidos: lista }));
   }
   return {
     con: [...porEdicion.values()],

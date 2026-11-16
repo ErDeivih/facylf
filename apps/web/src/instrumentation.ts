@@ -10,17 +10,18 @@
  * por qué estar levantada para compilar la web.
  */
 export async function register(): Promise<void> {
-  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
-  if (process.env.NEXT_PHASE === 'phase-production-build') return;
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    if (process.env.NEXT_PHASE === 'phase-production-build') return;
 
-  const { consumeInvalidaciones } = await import('@/lib/cache');
-  const tic = () => {
-    void consumeInvalidaciones().catch(() => {
-      // Sin canónico o sin secreto no se cae el servidor: se reintenta en el siguiente minuto.
-    });
-  };
-  tic();
-  const intervalo = setInterval(tic, 60_000);
-  // No mantener el proceso vivo por este temporizador (scripts, tests y cierres ordenados).
-  intervalo.unref?.();
+    const { consumeInvalidaciones } = await import('@/lib/cache');
+    const tic = () => {
+      void consumeInvalidaciones().catch(() => {
+        // Sin canónico o sin secreto no se cae el servidor: se reintenta en el siguiente minuto.
+      });
+    };
+    tic();
+    const intervalo = setInterval(tic, 60_000);
+    // No mantener el proceso vivo por este temporizador (scripts, tests y cierres ordenados).
+    intervalo.unref?.();
+  }
 }

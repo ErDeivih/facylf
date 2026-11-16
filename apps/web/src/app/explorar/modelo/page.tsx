@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
+import { consulta } from '@/consultas/adaptadores/postgres/conexion';
 import historico from '@/datos/modelo.json';
 import evaluacion from '../../../../../../pruebas/prediccion/evaluacion-castilla-leon-2026-11-16.json';
+import federaciones from '../../../../../../pruebas/prediccion/referencia-federaciones-2026-11-17.json';
 
 export const metadata: Metadata = { title: 'Modelo de predicción — Fondo Popular' };
+export const dynamic = 'force-dynamic';
 
 type Medida = { n: number; log_loss: number; brier: number; acierto: number; ece?: number };
 const panel = 'overflow-x-auto rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4';
@@ -20,6 +23,33 @@ function Tabla({ titulo, filas }: { titulo: string; filas: [string, Medida][] })
         <td>{decimal(m.log_loss)}</td><td>{decimal(m.brier)}</td><td>{porcentaje(m.acierto)}</td><td>{m.ece === undefined ? '—' : porcentaje(m.ece)}</td>
       </tr>)}</tbody>
     </table>
+  </section>;
+}
+
+type Registro = Medida & { modelo: string; jornada: number | null; acierto_marcador: number | null; con_marcador: number };
+
+async function RegistroDeAciertos() {
+  const estado = await Promise.all([
+    consulta<Registro>('select * from analytics.prediccion_registro_resumen order by modelo, jornada nulls first limit 300', [], { presupuestoMs: 900 }),
+    consulta<{ n: number; version: string | null }>(`select count(*)::int n,
+      (array_agg(modelo order by emitida_en desc))[1] version
+      from analytics.prediccion_emitida_cruce where corte_datos is not null`, [], { presupuestoMs: 900 }),
+  ]).catch(() => null);
+  return <section className={panel}>
+    <h2 className="m-0 text-bloque font-bold">Registro de aciertos · Castilla y León</h2>
+    {estado === null ? <p className="text-tabla">Registro temporalmente no disponible.</p> : <>
+      <p className="text-tabla">{(estado[1][0]?.n ?? 0).toLocaleString('es-ES')} predicciones emitidas antes del partido.</p>
+      {estado[1][0]?.version && <p className="text-tabla">Última versión emitida: {estado[1][0].version}.</p>}
+      {estado[0].length === 0 ? <p className="text-tabla">Pendiente de los primeros resultados.</p> :
+        <table className="w-full text-tabla tabular-nums">
+          <thead><tr><th scope="col">Versión y jornada</th><th scope="col">Partidos</th><th scope="col">Signo</th><th scope="col">Log-loss</th><th scope="col">Brier</th><th scope="col">Marcador exacto</th></tr></thead>
+          <tbody>{estado[0].map((r) => <tr key={`${r.modelo}-${r.jornada}`} className="border-t border-[var(--fondo-sutil)] text-right">
+            <th scope="row" className="py-1 text-left font-normal">{r.modelo} · {r.jornada === null ? 'Acumulado' : `Jornada ${r.jornada}`}</th>
+            <td>{r.n}</td><td>{porcentaje(r.acierto)}</td><td>{decimal(r.log_loss)}</td><td>{decimal(r.brier)}</td>
+            <td>{r.acierto_marcador === null ? '—' : `${porcentaje(r.acierto_marcador)} de ${r.con_marcador}`}</td>
+          </tr>)}</tbody>
+        </table>}
+    </>}
   </section>;
 }
 
@@ -51,8 +81,10 @@ export default function PantallaModelo() {
         </tr>)}</tbody>
       </table>
     </section>
+    <RegistroDeAciertos />
     <details><summary className="cursor-pointer text-tabla">Referencia histórica multifederación</summary>
       <Tabla titulo="Canónico multifederación · evaluación histórica" filas={historico.resultados.map((r) => [r.modelo, r])} />
+      <Tabla titulo="HGB histórico por federación · desde 500 partidos" filas={federaciones.grupos.map((f) => [f.federacion, f])} />
     </details>
   </div>;
 }

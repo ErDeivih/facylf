@@ -12,7 +12,6 @@ import { SinCanonico } from '@/componentes/SinCanonico';
 import { PosicionPorJornada } from '@/componentes/fichas/PosicionPorJornada';
 import { InsigniasRacha } from '@/componentes/oficiales/piezas';
 import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
-import { Barra1X2 } from '@/componentes/partidos/Barra1X2';
 import type { PrediccionDePartido } from '@/lib/prediccion';
 
 export const revalidate = 60;
@@ -34,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 function GraficaPuntos({ datos, nombre }: { datos: PuntoJornada[]; nombre: string }) {
   if (datos.length === 0) {
-    return <p className="m-0 text-etiqueta text-[var(--texto-suave)]">Sin partidos jugados: la gráfica aparecerá cuando haya resultados.</p>;
+    return <p className="m-0 text-tabla text-[var(--texto-suave)]">{nombre}: sin partidos jugados.</p>;
   }
   let acumulado = 0;
   const serie = datos.map((d) => { acumulado += d.puntos; return { j: d.jornada, p: acumulado }; });
@@ -48,7 +47,7 @@ function GraficaPuntos({ datos, nombre }: { datos: PuntoJornada[]; nombre: strin
         <line x1="0" y1="40" x2="100" y2="40" stroke="currentColor" strokeOpacity="0.15" />
         <polyline fill="none" stroke="currentColor" strokeWidth="1.6" points={puntos} vectorEffect="non-scaling-stroke" />
       </svg>
-      <p className="m-0 text-[10px] text-[var(--texto-suave)]">Jornada {serie[0].j} a {serie[serie.length - 1].j} · máximo {max} puntos.</p>
+      <p className="m-0 text-nota text-[var(--texto-suave)]">Jornada {serie[0].j} a {serie[serie.length - 1].j}.</p>
     </div>
   );
 }
@@ -106,32 +105,73 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         : null,
     } : null;
 
+  const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
+  const fechaLarga = (iso: string | null): string | null => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? '');
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : null;
+  };
+  // Datos del partido: cada uno dice lo que hay o que no está publicado; ninguno se rellena.
+  const datos: { etiqueta: string; valor: React.ReactNode; falta: boolean }[] = [
+    { etiqueta: 'Fecha', valor: fechaLarga(f.fecha) ?? 'Sin fecha publicada', falta: fechaLarga(f.fecha) === null },
+    { etiqueta: 'Hora', valor: f.hora ?? 'Sin hora publicada', falta: !f.hora },
+    {
+      etiqueta: 'Campo',
+      valor: f.campo
+        ? (contexto?.campo_id
+          ? <Link href={`/explorar/campo/${contexto.campo_id}` as Route} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">{f.campo}</Link>
+          : f.campo)
+        : 'Sin campo publicado',
+      falta: !f.campo,
+    },
+    { etiqueta: 'Árbitro', valor: f.arbitro ?? 'Sin designar', falta: !f.arbitro },
+  ];
+  const plantillas = [
+    { nombre: f.local, jugadores: jugadoresLocal },
+    { nombre: f.visitante, jugadores: jugadoresVisitante },
+  ];
+  const enfrentamientos = h2h.slice(0, 5);
+
   return (
-    <div className="flex flex-col gap-4">
-      <nav className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
+    <div className="flex min-w-0 flex-col gap-4">
+      <nav aria-label="Ruta" className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
         <Link href={(contexto ? `/explorar/competicion/${contexto.grupo_id}` : '/explorar/competiciones') as Route} className="hover:underline">{f.edicion}</Link>
-        <span aria-hidden="true">›</span><span>{f.grupo}</span><span aria-hidden="true">›</span><span className="text-[var(--texto)]">Previa</span>
+        <span aria-hidden="true">›</span><span className="min-w-0 break-words">{f.grupo}</span>
+        <span aria-hidden="true">›</span><span className="text-[var(--texto)]" aria-current="page">Previa</span>
       </nav>
-      <header>
-        <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">{f.local} – {f.visitante}</h1>
-        <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
-          Jornada {f.jornada}{f.fecha ? ` · ${f.fecha.split('-').reverse().join('/')}` : ''}{f.hora ? ` · ${f.hora}` : ''}
-          {f.campo && !contexto?.campo_id ? ` · ${f.campo}` : ''}
-          {f.campo && contexto?.campo_id ? <>{' · '}<Link href={`/explorar/campo/${contexto.campo_id}` as Route} className="font-semibold text-[var(--accion)] hover:underline">{f.campo}</Link></> : null}
-          {f.arbitro ? ` · Árbitro: ${f.arbitro}` : ' · Árbitro sin designar'}
+
+      <header className="flex flex-col gap-1">
+        <p className="m-0 text-nota text-[var(--texto-suave)]">
+          Jornada {f.jornada}{fechaLarga(f.fecha) ? ` · ${fechaLarga(f.fecha)}` : ''}{f.hora ? ` · ${f.hora}` : ''}
         </p>
+        <h1 className="m-0 flex flex-col text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">
+          <span className="break-words">{f.local}</span>
+          <span className="break-words">{f.visitante}</span>
+        </h1>
       </header>
 
+      {/* Lo primero: la predicción y el marcador más probable. */}
       <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} matriz={f.matriz} sinExplicacion />
 
+      <section aria-labelledby="datos-partido" className={`${TARJETA} px-4 py-3`}>
+        <h2 id="datos-partido" className="m-0 text-bloque font-bold text-[var(--texto)]">Datos del partido</h2>
+        <dl className="m-0 mt-1">
+          {datos.map((d) => (
+            <div key={d.etiqueta} className="flex min-h-11 items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] first:border-t-0">
+              <dt className="flex-none text-tabla text-[var(--texto-suave)]">{d.etiqueta}</dt>
+              <dd className={`m-0 min-w-0 break-words text-right text-tabla ${d.falta ? 'text-[var(--texto-suave)]' : 'font-semibold text-[var(--texto)]'}`}>{d.valor}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       {contexto && (
-        <section aria-labelledby="forma-previa" className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
+        <section aria-labelledby="forma-previa" className={`${TARJETA} px-4 py-3`}>
           <h2 id="forma-previa" className="m-0 text-bloque font-bold text-[var(--texto)]">Forma y posición</h2>
           <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
             {lados.map((lado) => (
               <li key={lado.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[var(--fondo-sutil)] pt-2 first:border-t-0 first:pt-0">
                 <span className="flex min-w-0 flex-col">
-                  <Link href={`/explorar/equipo/${lado.id}` as Route} className="break-words text-tabla font-semibold text-[var(--texto)] hover:text-[var(--accion)] hover:underline">{lado.nombre}</Link>
+                  <Link href={`/explorar/equipo/${lado.id}` as Route} className="inline-flex min-h-11 items-center break-words text-tabla font-semibold text-[var(--texto)] hover:text-[var(--accion)] hover:underline">{lado.nombre}</Link>
                   <span className="text-nota tabular-nums text-[var(--texto-suave)]">
                     {lado.fila ? `${lado.fila.posicion}.º · ${lado.fila.puntos} puntos en ${lado.fila.jugados} partidos` : 'Sin partidos jugados en el grupo'}
                   </span>
@@ -146,46 +186,51 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         </section>
       )}
 
-      <section aria-labelledby="otros-calculos" className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-        <details>
-          <summary id="otros-calculos" className="cursor-pointer text-bloque font-bold text-[var(--texto)]">Otros cálculos</summary>
-          <p className="m-0 mt-1 text-etiqueta text-[var(--texto-suave)]">La banda de la previsión muestra el desacuerdo entre ML, Elo y Poisson. El modelo principal es ML.</p>
-          {prediccion && <div className="mt-2"><Barra1X2 local={prediccion.prob_local} empate={prediccion.prob_empate} visitante={prediccion.prob_visitante} /></div>}
-        </details>
-      </section>
-
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Jugadores conocidos · {f.local}</h2>
-          <ul className="m-0 mt-2 grid list-none grid-cols-1 gap-1 p-0 sm:grid-cols-2">
-            {jugadoresLocal.map((j) => (
-              <li key={j.nombre} className="flex justify-between gap-2 text-etiqueta"><span className="min-w-0 break-words text-[var(--texto)]">{j.nombre}</span><span className="flex-none tabular-nums text-[var(--texto-suave)]">{j.minutos ?? '—'} min</span></li>
-            ))}
-            {jugadoresLocal.length === 0 && <li className="text-etiqueta text-[var(--texto-suave)]">Plantilla sin datos publicados.</li>}
-          </ul>
-        </section>
-        <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Jugadores conocidos · {f.visitante}</h2>
-          <ul className="m-0 mt-2 grid list-none grid-cols-1 gap-1 p-0 sm:grid-cols-2">
-            {jugadoresVisitante.map((j) => (
-              <li key={j.nombre} className="flex justify-between gap-2 text-etiqueta"><span className="min-w-0 break-words text-[var(--texto)]">{j.nombre}</span><span className="flex-none tabular-nums text-[var(--texto-suave)]">{j.minutos ?? '—'} min</span></li>
-            ))}
-            {jugadoresVisitante.length === 0 && <li className="text-etiqueta text-[var(--texto-suave)]">Plantilla sin datos publicados.</li>}
-          </ul>
-        </section>
+        {plantillas.map((plantilla) => (
+          <section key={plantilla.nombre} className={`${TARJETA} min-w-0 overflow-hidden`}>
+            <header className="px-4 py-3">
+              <h2 className="m-0 break-words text-bloque font-bold text-[var(--texto)]">Jugadores · {plantilla.nombre}</h2>
+              <p className="m-0 mt-0.5 text-nota text-[var(--texto-suave)]">
+                {plantilla.jugadores.length === 0
+                  ? 'Sin datos publicados.'
+                  : 'Plantilla conocida por las actas, de más a menos minutos. No es la alineación.'}
+              </p>
+            </header>
+            {plantilla.jugadores.length > 0 && (
+              <ul className="m-0 list-none p-0">
+                {plantilla.jugadores.map((j) => (
+                  <li key={j.nombre} className="flex items-baseline justify-between gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2">
+                    <span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span>
+                    <span className="flex-none text-nota tabular-nums text-[var(--texto-suave)]">
+                      {j.minutos == null ? 'minutos sin publicar' : `${j.minutos} min`}
+                      {j.goles > 0 ? ` · ${j.goles} ${j.goles === 1 ? 'gol' : 'goles'}` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))}
       </div>
 
-      <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-        <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Últimos enfrentamientos</h2>
-        <ul className="m-0 mt-2 list-none p-0">
-          {h2h.map((h, i) => (
-            <li key={i} className="flex flex-wrap justify-between gap-2 border-t border-[var(--fondo-sutil)] py-1 text-etiqueta first:border-t-0">
-              <span className="text-[var(--texto)]">{h.local} – {h.visitante}</span>
-              <span className="tabular-nums text-[var(--texto-suave)]">{h.gl}-{h.gv}{h.fecha ? ` · ${h.fecha}` : ''}</span>
-            </li>
-          ))}
-          {h2h.length === 0 && <li className="text-etiqueta text-[var(--texto-suave)]">Sin enfrentamientos anteriores en la base.</li>}
-        </ul>
+      <section aria-labelledby="enfrentamientos" className={`${TARJETA} overflow-hidden`}>
+        <h2 id="enfrentamientos" className="m-0 px-4 py-3 text-bloque font-bold text-[var(--texto)]">Últimos enfrentamientos</h2>
+        {enfrentamientos.length === 0
+          ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3 text-tabla text-[var(--texto-suave)]">Sin enfrentamientos anteriores publicados.</p>
+          : (
+            <ul className="m-0 list-none p-0">
+              {enfrentamientos.map((h, i) => (
+                <li key={i} className="flex flex-col gap-0.5 border-t border-[var(--fondo-sutil)] px-4 py-2">
+                  <span className="text-nota tabular-nums text-[var(--texto-suave)]">{fechaLarga(h.fecha) ?? 'Sin fecha publicada'}</span>
+                  <span className="flex items-baseline justify-between gap-3 text-tabla font-semibold text-[var(--texto)]">
+                    <span className="min-w-0 break-words">{h.local} <span className="font-normal text-[var(--texto-suave)]">–</span> {h.visitante}</span>
+                    <span className="flex-none tabular-nums">{h.gl}-{h.gv}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
       </section>
 
       {evolucionLocal.length > 1 || evolucionVisitante.length > 1
@@ -196,8 +241,8 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
           ]} />
         )
         : (
-          <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-            <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Puesto y puntos por jornada</h2>
+          <section aria-labelledby="puntos-jornada" className={`${TARJETA} px-4 py-3`}>
+            <h2 id="puntos-jornada" className="m-0 text-bloque font-bold text-[var(--texto)]">Puntos por jornada</h2>
             <div className="mt-2 grid gap-4 sm:grid-cols-2">
               <GraficaPuntos datos={puntosLocal} nombre={f.local} />
               <GraficaPuntos datos={puntosVisitante} nombre={f.visitante} />

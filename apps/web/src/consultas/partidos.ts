@@ -139,7 +139,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       left join core.match_official o on o.match_id = m.id and o.rol = 'principal'
       left join core.person po on po.id = o.person_id
       left join analytics.poisson_partido pp on pp.match_id = m.id
-      left join analytics.prediccion_ml ml on ml.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id and ml.corte_datos is not null
      where f.codigo = $1 and g.codigo_externo = $2
      order by d.numero, m.source_order
      limit $3`,
@@ -208,7 +208,7 @@ export const PROXIMOS_PARTIDOS: Consulta<FilaProximoPartido> = {
       join core.team_entry el on el.id = m.home_team_entry_id
       join core.team_entry ev on ev.id = m.away_team_entry_id
       left join analytics.poisson_partido pp on pp.match_id = m.id
-      left join analytics.prediccion_ml ml on ml.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id and ml.corte_datos is not null
      where s.etiqueta = $1
        and m.goles_local is null
        and m.official_status not in ('cancelled')
@@ -221,6 +221,10 @@ export const PROXIMOS_PARTIDOS: Consulta<FilaProximoPartido> = {
 
 export type FilaCrucePrevisto = Omit<FilaProximoPartido, 'match_id' | 'pred_local' | 'pred_empate' | 'pred_visitante' | 'pred_marcador'> & {
   /** Goles esperados de cada lado con las fuerzas de equipo y la media de la liga; `null` sin liga medida. */
+  pred_local?: number | null;
+  pred_empate?: number | null;
+  pred_visitante?: number | null;
+  pred_marcador?: string | null;
   goles_esperados_local: number | null;
   goles_esperados_visitante: number | null;
 };
@@ -241,7 +245,8 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
   plan: 'indexado',
   presupuestoMs: 1200,
   columnas: ['grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
-    'local', 'visitante', 'goles_esperados_local', 'goles_esperados_visitante'],
+    'local', 'visitante', 'goles_esperados_local', 'goles_esperados_visitante',
+    'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador'],
   sql: `
     select g.id                as grupo_id,
            g.nombre            as grupo,
@@ -254,7 +259,9 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
            el.nombre_en_fuente as local,
            ev.nombre_en_fuente as visitante,
            (l.media_local     * coalesce(fl.ataque, 1) * coalesce(fv.defensa, 1))::float8 as goles_esperados_local,
-           (l.media_visitante * coalesce(fv.ataque, 1) * coalesce(fl.defensa, 1))::float8 as goles_esperados_visitante
+           (l.media_visitante * coalesce(fv.ataque, 1) * coalesce(fl.defensa, 1))::float8 as goles_esperados_visitante,
+           x.prob_local::float8 as pred_local, x.prob_empate::float8 as pred_empate,
+           x.prob_visitante::float8 as pred_visitante, x.marcador_probable as pred_marcador
       from core.calendario_pendiente c
       join core.phase_group g on g.id = c.phase_group_id
       join core.competition_edition e on e.id = g.competition_edition_id
@@ -262,6 +269,10 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
       join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
       join core.team_entry el on el.id = c.home_team_entry_id
       join core.team_entry ev on ev.id = c.away_team_entry_id
+      left join analytics.prediccion_emitida_cruce x
+        on x.phase_group_id=c.phase_group_id and x.jornada=c.jornada
+       and x.home_team_entry_id=c.home_team_entry_id and x.away_team_entry_id=c.away_team_entry_id
+       and x.corte_datos is not null
       left join analytics.poisson_liga l on l.competition_edition_id = e.id
       left join analytics.poisson_equipo fl on fl.competition_edition_id = e.id and fl.team_season_id = el.team_season_id
       left join analytics.poisson_equipo fv on fv.competition_edition_id = e.id and fv.team_season_id = ev.team_season_id
@@ -271,6 +282,30 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
        and ($3::text is null or e.categoria = $3)
      order by e.nivel nulls last, e.nombre_publicado, g.nombre, c.fecha_prevista, c.jornada, c.orden
      limit 1500`,
+};
+
+/**
+ * ¿Hay algún cruce futuro cargado en el calendario previsto de la temporada? Sirve para distinguir «no
+ * hay partidos en estos días» de «el calendario futuro aún no está cargado». Va fuera de
+ * `CONSULTAS_PARTIDOS` por la misma razón que `proximos-del-calendario`.
+ * Parámetros: (1) temporada.
+ */
+export const HAY_CALENDARIO_FUTURO: Consulta<{ hay: boolean }> = {
+  nombre: 'hay-calendario-futuro',
+  descripcion: 'Si el calendario previsto de la temporada tiene algún cruce con fecha de hoy en adelante.',
+  plan: 'indexado',
+  presupuestoMs: 300,
+  columnas: ['hay'],
+  sql: `
+    select exists (
+             select 1
+               from core.calendario_previsto c
+               join core.phase_group g on g.id = c.phase_group_id
+               join core.competition_edition e on e.id = g.competition_edition_id
+               join core.season s on s.id = e.season_id
+              where s.etiqueta = $1
+                and c.fecha_prevista >= (now() at time zone 'Europe/Madrid')::date) as hay
+     limit 1`,
 };
 
 export type FilaProximosPorCompeticion = {
@@ -762,7 +797,7 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
       left join analytics.nombre_corto_equipo ncv on ncv.team_entry_id = ev.id
       left join core.venue v on v.id = m.venue_id
       left join analytics.poisson_partido pp on pp.match_id = m.id
-      left join analytics.prediccion_ml ml on ml.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id and ml.corte_datos is not null
       left join analytics.poisson_liga pl on pl.competition_edition_id = e.id
       join core.match_report r on r.match_id = m.id
      where m.id = $1

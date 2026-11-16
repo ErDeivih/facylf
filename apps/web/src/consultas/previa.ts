@@ -125,7 +125,7 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
       left join core.venue v on v.id = m.venue_id
       left join core.match_official mo on mo.match_id = m.id and mo.rol = 'principal'
       left join core.person po on po.id = mo.person_id
-      left join analytics.prediccion_ml ml on ml.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id and ml.corte_datos is not null
       left join analytics.poisson_partido pp on pp.match_id = m.id
      where m.id = $1
      limit 1`,
