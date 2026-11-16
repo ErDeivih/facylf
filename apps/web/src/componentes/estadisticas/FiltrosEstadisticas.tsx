@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaOpcionesEstadisticas } from '@/consultas/estadisticas';
 import {
-  RUTA_ESTADISTICAS, tieneFiltrosEstadisticas, urlDeEstadisticas, type FiltrosEstadisticas,
+  CATEGORIA_POR_DEFECTO, RUTA_ESTADISTICAS, tieneFiltrosEstadisticas, urlDeEstadisticas, type FiltrosEstadisticas,
 } from '@/lib/estadisticas';
 import { BOTON, CONTROL, ENLACE, ETIQUETA, TARJETA } from './controles';
 
@@ -13,11 +13,13 @@ import { BOTON, CONTROL, ENLACE, ETIQUETA, TARJETA } from './controles';
  * competición no filtra las cifras de la federación: sirve para saltar a las estadísticas de un grupo
  * concreto; por eso se rotula «Buscar competición».
  */
-export function FiltrosEstadisticas({ filtros, opciones, federacion, temporada }: {
+export function FiltrosEstadisticas({ filtros, opciones, federacion, temporada, categoria }: {
   filtros: FiltrosEstadisticas;
   opciones: FilaOpcionesEstadisticas;
   federacion: string | null;
   temporada: string | null;
+  /** Categoría elegida en la página general; viaja con el formulario para no perderla al cambiar de temporada. */
+  categoria?: string;
 }) {
   const federaciones = opciones.federaciones ?? [];
   const temporadas = opciones.temporadas ?? [];
@@ -26,6 +28,7 @@ export function FiltrosEstadisticas({ filtros, opciones, federacion, temporada }
   return (
     <form action={RUTA_ESTADISTICAS} method="get" aria-label="Filtros de estadísticas"
       className={`${TARJETA} grid gap-3 px-4 py-3.5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.4fr)_auto]`}>
+      {categoria !== undefined && categoria !== CATEGORIA_POR_DEFECTO && <input type="hidden" name="cat" value={categoria} />}
       <label className="flex min-w-0 flex-col gap-1">
         <span className={ETIQUETA}>Federación</span>
         <select name="fed" defaultValue={federacion ?? ''} className={CONTROL}>

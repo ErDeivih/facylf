@@ -65,6 +65,29 @@ export function leeFiltrosEstadisticas(parametros: Parametros): FiltrosEstadisti
   };
 }
 
+/** Categorías entre las que se elige en la página general. El orden es el de la pantalla. */
+export const CATEGORIAS_DE_ESTADISTICAS = [
+  'aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin', 'veteranos',
+] as const;
+export type CategoriaDeEstadisticas = (typeof CATEGORIAS_DE_ESTADISTICAS)[number];
+
+/** La categoría que se enseña si la URL no pide ninguna. Siempre hay una: no existe «todas». */
+export const CATEGORIA_POR_DEFECTO: CategoriaDeEstadisticas = 'aficionados';
+
+/** Categoría de la URL (`cat`). Un valor que no es una categoría vuelve a la de por defecto. */
+export function categoriaDeEstadisticas(valor: string | string[] | undefined): CategoriaDeEstadisticas {
+  const crudo = uno(valor).trim().toLowerCase();
+  return (CATEGORIAS_DE_ESTADISTICAS as readonly string[]).includes(crudo)
+    ? (crudo as CategoriaDeEstadisticas) : CATEGORIA_POR_DEFECTO;
+}
+
+/** URL de estadísticas con una categoría, conservando el resto de filtros. */
+export function urlDeEstadisticasConCategoria(filtros: FiltrosEstadisticas, categoria: CategoriaDeEstadisticas): string {
+  const base = urlDeEstadisticas(filtros);
+  if (categoria === CATEGORIA_POR_DEFECTO) return base;
+  return `${base}${base.includes('?') ? '&' : '?'}cat=${categoria}`;
+}
+
 /** La URL de estadísticas con los filtros puestos; los valores por defecto no se escriben. */
 export function urlDeEstadisticas(
   filtros: FiltrosEstadisticas,

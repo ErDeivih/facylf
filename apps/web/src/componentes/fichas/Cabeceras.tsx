@@ -7,8 +7,8 @@ import { inicialesDeNombre } from '@/lib/fichas';
 
 /**
  * Cabeceras de las tres fichas. Enseñan quién es quién y en qué contexto juega, y nada más: los
- * números van en sus propias secciones. Ninguna pinta una foto de persona (§9): el jugador lleva sus
- * iniciales sobre un círculo, y el equipo y el club, su escudo real cuando lo hay.
+ * números van en sus propias secciones. El jugador lleva su foto de ficha cuando la hay y la instancia
+ * las publica (`lib/fotos.ts`); si no, sus iniciales sobre un círculo, y el equipo y el club, su escudo real cuando lo hay.
  *
  * La estrella de favorito va aquí y no en cada página: las tres pantallas comparten esta cabecera y
  * así el control es el mismo en las tres. Es un componente de cliente que pregunta su estado a la API
@@ -24,17 +24,25 @@ export type ContextoDeJugador = {
   temporadas: number;
 };
 
-export function CabeceraJugador({ jugador, contexto }: {
+export function CabeceraJugador({ jugador, contexto, conFoto = false }: {
   jugador: FilaPersona;
   contexto: ContextoDeJugador;
+  /** Hay foto guardada y se puede enseñar (adulto, o instancia que las pide todas; `lib/fotos.ts`). */
+  conFoto?: boolean;
 }) {
   const { equipoActual } = contexto;
   return (
     <section className="flex flex-wrap items-center gap-4 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-5 py-4">
-      <span aria-hidden="true"
-        className="flex size-16 flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto-suave)]">
-        {inicialesDeNombre(jugador.nombre_mostrado)}
-      </span>
+      {conFoto ? (
+        // eslint-disable-next-line @next/next/no-img-element -- imagen de una ruta interna con caché propia.
+        <img src={`/api/foto/persona/${jugador.persona_id}`} width={64} height={64} alt="" aria-hidden="true"
+          decoding="async" className="size-16 flex-none rounded-full bg-[var(--fondo-sutil)] object-cover" />
+      ) : (
+        <span aria-hidden="true"
+          className="flex size-16 flex-none items-center justify-center rounded-full bg-[var(--fondo-sutil)] text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto-suave)]">
+          {inicialesDeNombre(jugador.nombre_mostrado)}
+        </span>
+      )}
       <div className="flex min-w-0 flex-[1_1_260px] flex-col gap-1.5">
         <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
           {jugador.nombre_mostrado}

@@ -43,27 +43,27 @@ type Funcion = {
 const FUNCIONES: readonly Funcion[] = [
   {
     clave: 'explorar',
-    etiqueta: 'Explorar',
-    descriptor: 'Competiciones y grupos',
+    etiqueta: 'Competiciones',
+    descriptor: 'Ligas y grupos',
     href: '/explorar/competiciones',
     icono: <IconoExplorar />,
   },
   {
     clave: 'rankings',
-    etiqueta: 'Rankings',
-    descriptor: 'Goleadores y tarjetas',
+    etiqueta: 'Goleadores',
+    descriptor: 'Goles y tarjetas',
     href: '/explorar/rankings',
   },
   {
     clave: 'ojeo',
-    etiqueta: 'Ojeo',
-    descriptor: 'Buscar talento',
+    etiqueta: 'Jugadores',
+    descriptor: 'Buscar por perfil',
     href: '/explorar/ojeo',
   },
   {
     clave: 'comparar',
     etiqueta: 'Comparar',
-    descriptor: 'Cara a cara',
+    descriptor: 'Jugador frente a jugador',
     href: '/explorar/comparar',
   },
 ];

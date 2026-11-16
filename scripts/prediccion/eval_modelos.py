@@ -341,6 +341,24 @@ def main():
             continue
         por_temporada[temp] = {n: metricas(y_valid[m], p[m], n) for n, p in modelos}
 
+    # Por federación. La consulta de arriba no filtra federación: entrena y valida con TODAS las del
+    # canónico, así que el número global no es el de ninguna en concreto. Esto dice cuál es el de cada una.
+    por_federacion = {}
+    fed_valid = valid['federacion'].to_numpy()
+    for fed in sorted(set(fed_valid)):
+        m = fed_valid == fed
+        if int(m.sum()) < 500:
+            continue
+        try:
+            por_federacion[fed] = {'n': int(m.sum()), **{n: metricas(y_valid[m], p[m], n) for n, p in modelos}}
+        except ValueError:
+            # Una federación sin alguna de las tres clases en validación no se puede medir con log-loss.
+            continue
+    partidos_por_federacion = {
+        'train': {k: int(v) for k, v in train['federacion'].value_counts().items()},
+        'valid': {k: int(v) for k, v in valid['federacion'].value_counts().items()},
+    }
+
     # Calibración del mejor modelo (menor log-loss).
     mejor = min(resultados, key=lambda r: r['log_loss'])
     p_mejor = dict(modelos)[mejor['modelo']]
@@ -355,6 +373,8 @@ def main():
         'rho_dc': mejor_rho,
         'resultados': resultados,
         'por_temporada': por_temporada,
+        'por_federacion': por_federacion,
+        'partidos_por_federacion': partidos_por_federacion,
         'calibracion_mejor': {'modelo': mejor['modelo'], 'bins': calib},
         'features_ml': features,
     }

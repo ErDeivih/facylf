@@ -1,0 +1,20 @@
+{
+  "consulta": "proximos-por-competicion",
+  "presupuestoMs": 1500,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "federation",
+      "season"
+    ],
+    "filas": 9023
+  }
+}

@@ -575,6 +575,10 @@ export type FilaSimulacionFinal = {
   equipos: number;
   simulaciones: number;
   calculado_en: string;
+  /** Partidos sin resultado con fila en el calendario que entraron en la simulación. `null` antes de 0065. */
+  partidos_pendientes: number | null;
+  /** Partidos que la simulación dedujo del formato de liga porque aún no tienen fila. `null` antes de 0065. */
+  partidos_deducidos: number | null;
 };
 
 /**
@@ -586,14 +590,19 @@ export const SIMULACION_DEL_GRUPO: Consulta<FilaSimulacionFinal> = {
   descripcion: 'Clasificación final esperada por Monte Carlo: posición media, puntos y probabilidad de cada puesto.',
   plan: 'indexado',
   presupuestoMs: 300,
-  columnas: ['team_entry_id', 'nombre', 'nombre_corto', 'posicion_esperada', 'puntos_medios', 'prob_posiciones', 'equipos', 'simulaciones', 'calculado_en'],
+  columnas: ['team_entry_id', 'nombre', 'nombre_corto', 'posicion_esperada', 'puntos_medios', 'prob_posiciones', 'equipos', 'simulaciones', 'calculado_en',
+    'partidos_pendientes', 'partidos_deducidos'],
   sql: `
     select s.team_entry_id, ts.nombre, nc.nombre_corto,
            s.posicion_esperada::float8 posicion_esperada,
            s.puntos_medios::float8 puntos_medios,
            s.prob_posiciones::jsonb prob_posiciones,
            s.equipos, s.simulaciones,
-           to_char(s.calculado_en, 'DD/MM/YYYY HH24:MI') calculado_en
+           to_char(s.calculado_en, 'DD/MM/YYYY HH24:MI') calculado_en,
+           -- Por to_jsonb y no por nombre de columna: así la consulta vale antes y después de aplicar
+           -- la migración 0065 (sin ella las dos salen null y la pantalla lo trata como «no se sabe»).
+           (to_jsonb(s)->>'partidos_pendientes')::int partidos_pendientes,
+           (to_jsonb(s)->>'partidos_deducidos')::int  partidos_deducidos
       from analytics.simulacion_final s
       join core.team_entry te on te.id = s.team_entry_id
       join core.team_season ts on ts.id = te.team_season_id

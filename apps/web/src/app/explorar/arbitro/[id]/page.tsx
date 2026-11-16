@@ -2,11 +2,12 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta } from '@/consultas/adaptadores/postgres/conexion';
+import { EQUIPOS_DEL_ARBITRO, type FilaEquipoDeArbitro } from '@/consultas/arbitro-equipos';
 import { ARBITRO_POR_ID, type FilaArbitro } from '@/consultas/oficiales';
 import { AvisoSinArchivo, Migas } from '@/componentes/fichas/piezas';
 import { CabeceraOficial } from '@/componentes/oficiales/CabeceraOficial';
 import {
-  CompeticionesDeArbitro, ResumenDeArbitro, UltimosPartidosDeArbitro,
+  CompeticionesDeArbitro, EquiposDeArbitro, ResumenDeArbitro, UltimosPartidosDeArbitro,
 } from '@/componentes/oficiales/Arbitro';
 import { idDeOficial } from '@/lib/oficiales';
 
@@ -56,6 +57,15 @@ export default async function PaginaArbitro({ params }: { params: Promise<{ id: 
   }
   if (!fila) notFound();
 
+  // El balance con cada equipo va aparte: si esa consulta falla, la ficha sigue con lo demás.
+  let equipos: FilaEquipoDeArbitro[] = [];
+  try {
+    equipos = await consulta<FilaEquipoDeArbitro>(EQUIPOS_DEL_ARBITRO.sql, [id],
+      { presupuestoMs: EQUIPOS_DEL_ARBITRO.presupuestoMs });
+  } catch {
+    equipos = [];
+  }
+
   const temporadas = new Set(fila.competiciones.map((c) => c.temporada)).size;
   const lineas = [
     `${fila.partidos} ${fila.partidos === 1 ? 'partido arbitrado' : 'partidos arbitrados'}`,
@@ -74,6 +84,7 @@ export default async function PaginaArbitro({ params }: { params: Promise<{ id: 
         <CompeticionesDeArbitro competiciones={fila.competiciones} />
         <UltimosPartidosDeArbitro partidos={fila.ultimos} />
       </div>
+      <EquiposDeArbitro equipos={equipos} />
     </div>
   );
 }

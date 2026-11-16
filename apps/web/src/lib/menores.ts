@@ -3,8 +3,8 @@
  *
  * Decisión de David (05/11/2026, `DOCTRINA-CALIDAD.md` §9): la federación tiene **consentimiento de
  * tratamiento** de los datos de los menores, así que **el nombre se publica igual que el de un
- * adulto**. Lo que NO se publica son las **fotos**: hoy no hay ninguna foto de personas en la web y,
- * si algún día se añade, queda fuera para los menores.
+ * adulto**. Las **fotos** tienen su propia regla (`lib/fotos.ts`): sólo adultos, y nunca en la
+ * demo pública.
  *
  * `esMenor` se conserva en la firma porque las consultas lo traen y porque es la marca que decide esa
  * regla de fotos; para el nombre ya no cambia nada. No se inventa un nombre cuando la federación no lo

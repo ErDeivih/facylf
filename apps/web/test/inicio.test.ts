@@ -155,16 +155,16 @@ describe('la portada', () => {
         predLocal: 59.84, predEmpate: 21.12, predVisitante: 19.04, predMarcador: '2-1',
       }],
     });
-    expect(html).toContain('Predicción:');
+    expect(html).toContain('Pronóstico previo:');
     expect(html).toContain('59,8 %');
     expect(html).toContain('21,1 %');
     expect(html).toContain('19,0 %');
-    expect(html).toContain('2-1');
   });
 
   it('sin sesión enseña búsqueda, competiciones y una invitación honesta, sin equipos inventados', () => {
     const html = render();
-    expect(html).toContain('Una jornada de ejemplo');
+    expect(html).toContain('Fútbol de Castilla y León');
+    expect(html).toContain('href="/explorar/proximas"');
     // Un solo buscador en toda la app: el de la cabecera; la portada no repite formulario.
     expect(html).not.toContain('¿A quién buscas?');
     // La búsqueda vive en la cabecera (un solo buscador); la portada no repite el formulario.

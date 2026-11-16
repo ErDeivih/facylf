@@ -82,8 +82,12 @@ CSP es defensa adicional y no sustituye el escape y diseño seguro. Referencias:
 
 **Decisión vigente (David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9):** la federación tiene
 **consentimiento de tratamiento**, así que los **nombres** de los menores se publican igual que los de
-un adulto; las **fotos** de personas, y en particular de menores, **no se publican** (hoy no hay
-ninguna foto de persona en la web; si se añade, queda fuera para menores). El resto de minimización
+un adulto. **Fotos (16/11/2026):** la ficha muestra la foto **sólo si la persona es adulta y la foto
+existe**. Lo gobierna `FACYLF_FOTOS` (`apps/web/src/lib/fotos.ts`, migración 0066): sin variable no se
+sirve ninguna foto —así quedan la demo pública de GitHub Pages y cualquier despliegue nuevo—; con
+`adultos`, sólo personas con `es_menor = false` (un `es_menor` desconocido cuenta como menor); con
+`todas`, también menores, y eso sólo en la instancia privada por decisión expresa de David. La regla
+se aplica en la ficha y en la ruta `/api/foto/persona/<id>`, que responde con caché `private`. El resto de minimización
 sigue vigente: no se publican fecha de nacimiento, documento, contacto ni dirección.
 
 Antes de cualquier despliegue compartido:
@@ -104,8 +108,9 @@ Opciones conservadoras para menores:
 - no ofrecer rankings públicos;
 - no exponer perfiles a motores de búsqueda (`noindex`, autenticación y ausencia de sitemap);
 - reducir históricos nominales cuando dejen de ser necesarios;
-- no mostrar fotos, fecha de nacimiento, documento, contacto o dirección aunque aparezcan en una
-  respuesta original y no sean necesarios para scouting.
+- no mostrar fecha de nacimiento, documento, contacto o dirección aunque aparezcan en una
+  respuesta original y no sean necesarios para scouting; las fotos, sólo como dice la decisión del
+  16/11/2026 de más arriba.
 
 Fuente orientativa oficial: [Guía de la AEPD para centros educativos](https://www.aepd.es/guias/guia-centros-educativos.pdf),
 que trata información y consentimiento en actividades deportivas con menores.

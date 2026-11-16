@@ -1,0 +1,19 @@
+{
+  "consulta": "proximos-partidos",
+  "presupuestoMs": 1200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "federation",
+      "season"
+    ],
+    "filas": 239
+  }
+}

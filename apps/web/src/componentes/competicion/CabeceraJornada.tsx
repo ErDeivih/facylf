@@ -59,10 +59,15 @@ export function CabeceraJornada({ grupo, numero, rango, hrefAnterior, hrefSiguie
             )}
         </div>
       </div>
-      <p className="m-0 mt-2 text-nota">
+      {/* Desde una jornada se llega a la tabla y a su proyección sin pasar por la portada del grupo. */}
+      <p className="m-0 mt-2 flex flex-wrap gap-x-4 text-nota">
         <Link href={hrefClasificacion as Route}
-          className="text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
+          className="inline-flex min-h-11 items-center text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
           Clasificación
+        </Link>
+        <Link href={`${hrefClasificacion}/proyeccion` as Route}
+          className="inline-flex min-h-11 items-center text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
+          Proyección
         </Link>
       </p>
     </header>

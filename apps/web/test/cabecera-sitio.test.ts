@@ -110,10 +110,10 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/ojeo"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/comparar"/);
     for (const [etiqueta, descriptor] of [
-      ['Explorar', 'Competiciones y grupos'],
-      ['Rankings', 'Goleadores y tarjetas'],
-      ['Ojeo', 'Buscar talento'],
-      ['Comparar', 'Cara a cara'],
+      ['Competiciones', 'Ligas y grupos'],
+      ['Goleadores', 'Goles y tarjetas'],
+      ['Jugadores', 'Buscar por perfil'],
+      ['Comparar', 'Jugador frente a jugador'],
     ]) {
       expect(nav, `falta ${etiqueta}`).toContain(etiqueta);
       expect(nav, `falta el descriptor de ${etiqueta}`).toContain(descriptor);
@@ -130,8 +130,8 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
 
   it('sólo la sección activa lleva aria-current, y la decide la ruta', () => {
     expect(pinta(null)).not.toContain('aria-current');
-    expect(navFunciones(pinta('explorar'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Explorar/);
-    expect(navFunciones(pinta('rankings'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Rankings/);
+    expect(navFunciones(pinta('explorar'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Competiciones/);
+    expect(navFunciones(pinta('rankings'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Goleadores/);
   });
 
   it('panel y avisos siguen desactivados; cuenta es un enlace real a /entrar sin iniciales inventadas', () => {

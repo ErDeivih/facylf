@@ -145,83 +145,186 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
      limit $3`,
 };
 
-export type FilaProximaJornada = {
-  match_id: number;
+/** Temporada en curso para las vistas que miran hacia delante. Único sitio donde se nombra. */
+export const TEMPORADA_EN_CURSO = '2026-27';
+
+export type FilaProximoPartido = {
+  /** `null` en un cruce del calendario previsto que todavía no es partido (no tiene previa). */
+  match_id: number | null;
   grupo_id: number;
   grupo: string;
   edicion: string;
   edicion_id: number;
-  federacion: string;
-  federacion_nombre: string;
+  categoria: string;
   jornada: number;
   orden: number;
-  fecha: string | null;
-  local_id: number;
-  visitante_id: number;
+  /** Fecha prevista, `YYYY-MM-DD`. Nunca `null`: un partido sin fecha no es «próximo», es «sin fecha». */
+  fecha: string;
   local: string;
   visitante: string;
   pred_local: number | null;
   pred_empate: number | null;
   pred_visitante: number | null;
   pred_marcador: string | null;
-  max_jugada: number | null;
 };
 
 /**
- * La próxima jornada de cada grupo con partidos pendientes: la jornada más baja que aún tiene fechas
- * de hoy en adelante (o sin fecha), con los equipos y la predicción 1-X-2 ya calculada. Se agrupa en la
- * página por competición y grupo.
+ * Los partidos que aún no se han jugado y tienen fecha de hoy en adelante, dentro de una ventana de
+ * días. Un partido sin resultado con fecha ya pasada NO entra: es un resultado que falta por recoger
+ * o un aplazado, y enseñarlo como «próximo» es lo que hacía que esta pantalla abriera con la jornada 1
+ * de septiembre. Esos se cuentan aparte en `proximos-por-competicion`.
+ *
+ * Parámetros: (1) temporada, (2) días de ventana, (3) categoría o `null`.
  */
-export const PROXIMA_JORNADA: Consulta<FilaProximaJornada> = {
-  nombre: 'proxima-jornada',
-  descripcion: 'Próxima jornada pendiente de cada grupo, con sus partidos y la predicción 1-X-2.',
+export const PROXIMOS_PARTIDOS: Consulta<FilaProximoPartido> = {
+  nombre: 'proximos-partidos',
+  descripcion: 'Partidos sin jugar con fecha de hoy en adelante, dentro de una ventana, con su predicción 1-X-2.',
   plan: 'indexado',
   presupuestoMs: 1200,
-  columnas: ['match_id', 'grupo_id', 'grupo', 'edicion', 'edicion_id', 'federacion', 'federacion_nombre',
-    'jornada', 'orden', 'fecha', 'local_id', 'visitante_id', 'local', 'visitante',
-    'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador', 'max_jugada'],
+  columnas: ['match_id', 'grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
+    'local', 'visitante', 'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador'],
   sql: `
-    with pend as (
-      select m.id                      as match_id,
-             g.id                      as grupo_id,
-             g.nombre                  as grupo,
-             e.nombre_publicado        as edicion,
-             e.id                      as edicion_id,
-             f.codigo                  as federacion,
-             f.nombre                  as federacion_nombre,
-             d.numero                  as jornada,
-             m.source_order            as orden,
-             m.fecha_prevista,
-             el.id                     as local_id,
-             ev.id                     as visitante_id,
-             el.nombre_en_fuente       as local,
-             ev.nombre_en_fuente       as visitante,
-             coalesce(ml.prob_local, pp.prob_local)         as pred_local,
-             coalesce(ml.prob_empate, pp.prob_empate)       as pred_empate,
-             coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
-             coalesce(ml.marcador_probable, pp.marcador_probable) as pred_marcador,
-             (select max(d2.numero)
-                from core.match m2 join core.matchday d2 on d2.id = m2.matchday_id
-               where m2.phase_group_id = g.id and m2.goles_local is not null) as max_jugada
-        from core.match m
-        join core.phase_group g on g.id = m.phase_group_id
-        join core.competition_edition e on e.id = g.competition_edition_id
-        join core.season s on s.id = e.season_id
-        join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
-        join core.matchday d on d.id = m.matchday_id
-        join core.team_entry el on el.id = m.home_team_entry_id
-        join core.team_entry ev on ev.id = m.away_team_entry_id
-        left join analytics.poisson_partido pp on pp.match_id = m.id
-        left join analytics.prediccion_ml ml on ml.match_id = m.id
-       where m.goles_local is null and s.etiqueta = '2026-27'
-    )
-    select p.match_id, p.grupo_id, p.grupo, p.edicion, p.edicion_id, p.federacion, p.federacion_nombre,
-           p.jornada, p.orden, to_char(p.fecha_prevista, 'YYYY-MM-DD') as fecha,
-           p.local_id, p.visitante_id, p.local, p.visitante,
-           p.pred_local, p.pred_empate, p.pred_visitante, p.pred_marcador, p.max_jugada
-      from pend p
-     order by p.fecha_prevista nulls last, p.edicion, p.grupo, p.jornada, p.orden
-     limit 2000`,
+    select m.id                      as match_id,
+           g.id                      as grupo_id,
+           g.nombre                  as grupo,
+           e.nombre_publicado        as edicion,
+           e.id                      as edicion_id,
+           e.categoria               as categoria,
+           d.numero                  as jornada,
+           m.source_order            as orden,
+           to_char(m.fecha_prevista, 'YYYY-MM-DD') as fecha,
+           el.nombre_en_fuente       as local,
+           ev.nombre_en_fuente       as visitante,
+           coalesce(ml.prob_local, pp.prob_local)::float8         as pred_local,
+           coalesce(ml.prob_empate, pp.prob_empate)::float8       as pred_empate,
+           coalesce(ml.prob_visitante, pp.prob_visitante)::float8 as pred_visitante,
+           coalesce(ml.marcador_probable, pp.marcador_probable)   as pred_marcador
+      from core.match m
+      join core.phase_group g on g.id = m.phase_group_id
+      join core.competition_edition e on e.id = g.competition_edition_id
+      join core.season s on s.id = e.season_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      join core.matchday d on d.id = m.matchday_id
+      join core.team_entry el on el.id = m.home_team_entry_id
+      join core.team_entry ev on ev.id = m.away_team_entry_id
+      left join analytics.poisson_partido pp on pp.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id
+     where s.etiqueta = $1
+       and m.goles_local is null
+       and m.official_status not in ('cancelled')
+       and m.fecha_prevista >= (now() at time zone 'Europe/Madrid')::date
+       and m.fecha_prevista <  (now() at time zone 'Europe/Madrid')::date + $2::int
+       and ($3::text is null or e.categoria = $3)
+     order by e.nivel nulls last, e.nombre_publicado, g.nombre, m.fecha_prevista, d.numero, m.source_order
+     limit 1500`,
+};
+
+export type FilaCrucePrevisto = Omit<FilaProximoPartido, 'match_id' | 'pred_local' | 'pred_empate' | 'pred_visitante' | 'pred_marcador'> & {
+  /** Goles esperados de cada lado con las fuerzas de equipo y la media de la liga; `null` sin liga medida. */
+  goles_esperados_local: number | null;
+  goles_esperados_visitante: number | null;
+};
+
+/**
+ * Cruces del calendario previsto (0067) que aún no son partido, con fecha de hoy en adelante dentro de
+ * la ventana. Completa a `proximos-partidos`: el canónico no tiene fila de partido de una jornada hasta
+ * la noche en que se juega, así que lo «próximo» vive casi todo aquí.
+ *
+ * No está en `CONSULTAS_PARTIDOS` porque la tabla sólo existe con la 0067 aplicada: la página la pide
+ * aparte y, si falla, sigue con lo que hay en `core.match`.
+ *
+ * Parámetros: (1) temporada, (2) días de ventana, (3) categoría o `null`.
+ */
+export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
+  nombre: 'proximos-del-calendario',
+  descripcion: 'Cruces previstos sin partido todavía, con fecha de hoy en adelante, y sus goles esperados.',
+  plan: 'indexado',
+  presupuestoMs: 1200,
+  columnas: ['grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
+    'local', 'visitante', 'goles_esperados_local', 'goles_esperados_visitante'],
+  sql: `
+    select g.id                as grupo_id,
+           g.nombre            as grupo,
+           e.nombre_publicado  as edicion,
+           e.id                as edicion_id,
+           e.categoria         as categoria,
+           c.jornada           as jornada,
+           c.orden             as orden,
+           to_char(c.fecha_prevista, 'YYYY-MM-DD') as fecha,
+           el.nombre_en_fuente as local,
+           ev.nombre_en_fuente as visitante,
+           (l.media_local     * coalesce(fl.ataque, 1) * coalesce(fv.defensa, 1))::float8 as goles_esperados_local,
+           (l.media_visitante * coalesce(fv.ataque, 1) * coalesce(fl.defensa, 1))::float8 as goles_esperados_visitante
+      from core.calendario_pendiente c
+      join core.phase_group g on g.id = c.phase_group_id
+      join core.competition_edition e on e.id = g.competition_edition_id
+      join core.season s on s.id = e.season_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      join core.team_entry el on el.id = c.home_team_entry_id
+      join core.team_entry ev on ev.id = c.away_team_entry_id
+      left join analytics.poisson_liga l on l.competition_edition_id = e.id
+      left join analytics.poisson_equipo fl on fl.competition_edition_id = e.id and fl.team_season_id = el.team_season_id
+      left join analytics.poisson_equipo fv on fv.competition_edition_id = e.id and fv.team_season_id = ev.team_season_id
+     where s.etiqueta = $1
+       and c.fecha_prevista >= (now() at time zone 'Europe/Madrid')::date
+       and c.fecha_prevista <  (now() at time zone 'Europe/Madrid')::date + $2::int
+       and ($3::text is null or e.categoria = $3)
+     order by e.nivel nulls last, e.nombre_publicado, g.nombre, c.fecha_prevista, c.jornada, c.orden
+     limit 1500`,
+};
+
+export type FilaProximosPorCompeticion = {
+  edicion_id: number;
+  edicion: string;
+  categoria: string;
+  /** Un grupo cualquiera de la edición, para enlazar a la competición. */
+  grupo_id: number;
+  grupos: number;
+  /** Fecha del último partido con resultado, `YYYY-MM-DD`; `null` si no hay ninguno. */
+  ultimo_resultado: string | null;
+  /** Sin jugar con fecha dentro de la ventana. */
+  proximos: number;
+  /** Sin resultado y con la fecha ya pasada: resultado sin recoger o aplazado. */
+  atrasados: number;
+};
+
+/**
+ * Una fila por competición de la temporada: cuántos partidos próximos tiene en la ventana, cuándo fue
+ * su último resultado y cuántos partidos pasados siguen sin él. Es lo que permite decir, competición a
+ * competición, «sin próximos partidos publicados» y «datos hasta el 8 nov» en lugar de callar.
+ *
+ * Parámetros: (1) temporada, (2) días de ventana, (3) categoría o `null`.
+ */
+export const PROXIMOS_POR_COMPETICION: Consulta<FilaProximosPorCompeticion> = {
+  nombre: 'proximos-por-competicion',
+  descripcion: 'Por competición de la temporada: partidos próximos en la ventana, fecha del último resultado y partidos pasados sin resultado.',
+  plan: 'indexado',
+  presupuestoMs: 1500,
+  columnas: ['edicion_id', 'edicion', 'categoria', 'grupo_id', 'grupos', 'ultimo_resultado', 'proximos', 'atrasados'],
+  sql: `
+    select e.id                as edicion_id,
+           e.nombre_publicado  as edicion,
+           e.categoria         as categoria,
+           min(g.id)           as grupo_id,
+           count(distinct g.id)::int as grupos,
+           to_char(max(m.fecha_prevista) filter (where m.goles_local is not null), 'YYYY-MM-DD') as ultimo_resultado,
+           count(*) filter (where m.goles_local is null
+                              and m.official_status not in ('cancelled')
+                              and m.fecha_prevista >= (now() at time zone 'Europe/Madrid')::date
+                              and m.fecha_prevista <  (now() at time zone 'Europe/Madrid')::date + $2::int)::int as proximos,
+           count(*) filter (where m.goles_local is null
+                              and m.official_status not in ('cancelled')
+                              and m.fecha_prevista < (now() at time zone 'Europe/Madrid')::date)::int as atrasados
+      from core.competition_edition e
+      join core.season s on s.id = e.season_id
+      join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+      join core.phase_group g on g.competition_edition_id = e.id
+      join core.match m on m.phase_group_id = g.id
+     where s.etiqueta = $1
+       and ($3::text is null or e.categoria = $3)
+     group by e.id, e.nombre_publicado, e.categoria, e.nivel
+     order by e.nivel nulls last, e.nombre_publicado
+     limit 600`,
 };
 
 export type FilaGoleador = {
@@ -667,10 +770,12 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
      limit 1`,
 };
 
-export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, PROXIMA_JORNADA, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
+export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
 
 export const PARAMETROS_PARTIDOS: Record<string, readonly unknown[]> = {
   'partidos-de-grupo': ['castilla-leon', '11379752', 400],
+  'proximos-partidos': ['2026-27', 14, null],
+  'proximos-por-competicion': ['2026-27', 14, null],
   'goles-de-partidos': ['castilla-leon', '11379752', 2000],
   'grupo-del-canónico': ['castilla-leon', '11379752'],
   'clasificación-del-grupo': ['castilla-leon', '11379752'],

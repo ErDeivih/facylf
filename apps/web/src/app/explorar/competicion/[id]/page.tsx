@@ -8,6 +8,7 @@ import {
   type FilaClasificacionPantalla, type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
 import { RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
+import { PROXIMA_JORNADA_DEL_GRUPO, type FilaCruceDelGrupo } from '@/consultas/evolucion';
 import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompeticion';
@@ -17,6 +18,7 @@ import { Goleadores } from '@/componentes/competicion/Goleadores';
 import { PanelCalidad } from '@/componentes/competicion/PanelCalidad';
 import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
+import { CrucesPrevistos } from '@/componentes/partidos/CrucesPrevistos';
 import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
 import { decimal2 } from '@/lib/formato';
 import { IndicadoresGrupo } from '@/componentes/competicion/IndicadoresGrupo';
@@ -199,6 +201,14 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
     }
     : null;
 
+  // Próxima jornada según el calendario previsto (0067). Va aparte: sin esa tabla, o si la consulta
+  // falla, la pantalla sigue como estaba.
+  let proximaJornada: FilaCruceDelGrupo[] = [];
+  try {
+    proximaJornada = await consulta<FilaCruceDelGrupo>(PROXIMA_JORNADA_DEL_GRUPO.sql, [grupo.grupo_id],
+      { presupuestoMs: PROXIMA_JORNADA_DEL_GRUPO.presupuestoMs });
+  } catch { proximaJornada = []; }
+
   // Jornada que se enseña: la pedida en la URL si existe; si no, la última con resultados.
   const jornadasConPartidos = [...new Set(partidos.map((p) => p.jornada))].sort((a, b) => a - b);
   const pedida = Number(jornadaPedida);
@@ -277,6 +287,9 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
         Ver clasificación final estimada
       </Link>
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
+        {proximaJornada.length > 0 && (
+          <CrucesPrevistos titulo={`Próxima jornada · ${proximaJornada[0].jornada}`} cruces={proximaJornada} />
+        )}
         <Jornada
           numero={jornada}
           partidos={partidosDeLaJornada}

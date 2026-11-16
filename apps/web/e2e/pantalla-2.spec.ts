@@ -191,7 +191,7 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
 
     // Navegación de funciones con la sección activa.
     const funciones = cabecera.getByRole('navigation', { name: 'Funciones' });
-    await expect(funciones.getByRole('link', { name: 'Explorar' })).toHaveAttribute('aria-current', 'page');
+    await expect(funciones.getByRole('link', { name: 'Competiciones' })).toHaveAttribute('aria-current', 'page');
 
     // Las cuatro funciones tienen pantalla y navegan; ninguna queda como enlace muerto.
     await expect(cabecera.locator('a[href="/explorar/rankings"]')).toHaveCount(1);
@@ -510,9 +510,9 @@ test.describe('pantalla 2 · competición de Castilla y León', () => {
       .map((el) => (el.textContent ?? '').trim() || el.getAttribute('aria-label') || '')
       .filter(Boolean));
     expect(orden[0]).toContain('Fondo Popular');
-    expect(orden[1]).toContain('Explorar');
-    expect(orden[2]).toContain('Rankings');
-    expect(orden[3]).toContain('Ojeo');
+    expect(orden[1]).toContain('Competiciones');
+    expect(orden[2]).toContain('Goleadores');
+    expect(orden[3]).toContain('Jugadores');
     expect(orden[4]).toContain('Comparar');
     expect(orden[5]).toBe('Entrar o crear cuenta');
     expect(orden[6]).toBe('Cambiar a tema oscuro');

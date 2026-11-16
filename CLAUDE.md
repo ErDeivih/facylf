@@ -14,8 +14,11 @@ arquitectura actual.
 - Las SQLite y los archivos comprimidos son evidencia de ingesta. La web objetivo consulta el
   PostgreSQL canónico mediante un rol de sólo lectura.
 - La instancia es privada. Los nombres de menores **se publican** porque la federación tiene
-  consentimiento de tratamiento (decisión de David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9); las
-  **fotos** de personas, y en particular de menores, **no se publican**. No abras datos a Internet sin
+  consentimiento de tratamiento (decisión de David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9). Las
+  **fotos**: la ficha muestra foto **sólo si la persona es adulta y la foto existe**
+  (`FACYLF_FOTOS=adultos`); la demo pública no lleva fotos de nadie; las de menores sólo con
+  `FACYLF_FOTOS=todas`, en la instancia privada y por decisión expresa (16/11/2026,
+  `apps/web/src/lib/fotos.ts`). No abras datos a Internet sin
   una decisión explícita y una revisión de `docs/plataforma-web/SEGURIDAD-OPERACION.md`.
 - Conserva los límites, pausas, reintentos e idempotencia de los recolectores. No dupliques workers ni
   cambies su ritmo como efecto lateral de una tarea web.

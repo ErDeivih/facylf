@@ -3,8 +3,14 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta } from '@/consultas/adaptadores/postgres/conexion';
+import { CLASIFICACION_CALCULADA, type FilaClasificacionPantalla } from '@/consultas/competiciones';
+import {
+  CONTEXTO_DE_PREVIA, POSICION_POR_JORNADA, type FilaContextoDePrevia, type FilaPosicionPorJornada,
+} from '@/consultas/evolucion';
 import { PREVIA_DEL_PARTIDO, type FilaPrevia, type PuntoJornada, type H2HPrevia, type JugadorPrevia } from '@/consultas/previa';
 import { SinCanonico } from '@/componentes/SinCanonico';
+import { PosicionPorJornada } from '@/componentes/fichas/PosicionPorJornada';
+import { InsigniasRacha } from '@/componentes/oficiales/piezas';
 import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
 import { Barra1X2 } from '@/componentes/partidos/Barra1X2';
 import type { PrediccionDePartido } from '@/lib/prediccion';
@@ -59,6 +65,31 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
     throw error;
   }
   if (!f) notFound();
+
+  // Forma, posición, campo y evolución van aparte de la consulta principal: si algo de esto falla, la
+  // previa sigue con la predicción, que es lo que no puede faltar.
+  let contexto: FilaContextoDePrevia | undefined;
+  let tabla: FilaClasificacionPantalla[] = [];
+  let evolucionLocal: FilaPosicionPorJornada[] = [];
+  let evolucionVisitante: FilaPosicionPorJornada[] = [];
+  try {
+    [contexto] = await consulta<FilaContextoDePrevia>(CONTEXTO_DE_PREVIA.sql, [f.match_id]);
+    if (contexto) {
+      [tabla, evolucionLocal, evolucionVisitante] = await Promise.all([
+        consulta<FilaClasificacionPantalla>(CLASIFICACION_CALCULADA.sql, [contexto.grupo_id]),
+        consulta<FilaPosicionPorJornada>(POSICION_POR_JORNADA.sql, [f.local_id]),
+        consulta<FilaPosicionPorJornada>(POSICION_POR_JORNADA.sql, [f.visitante_id]),
+      ]);
+    }
+  } catch {
+    contexto = undefined;
+  }
+  const signos = (forma: string | undefined) => [...(forma ?? '')].filter((s): s is 'G' | 'E' | 'P' => s === 'G' || s === 'E' || s === 'P');
+  const lados = [
+    { nombre: f.local, id: Number(f.local_id), forma: signos(contexto?.forma_local) },
+    { nombre: f.visitante, id: Number(f.visitante_id), forma: signos(contexto?.forma_visitante) },
+  ].map((lado) => ({ ...lado, fila: tabla.find((t) => Number(t.equipo_id) === lado.id) ?? null }));
+  const jornadaDeLaTabla = tabla[0]?.jornada ?? null;
   const jugadoresLocal: JugadorPrevia[] = f.jugadores_local ?? [];
   const jugadoresVisitante: JugadorPrevia[] = f.jugadores_visitante ?? [];
   const h2h: H2HPrevia[] = f.h2h ?? [];
@@ -78,18 +109,42 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
   return (
     <div className="flex flex-col gap-4">
       <nav className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
-        <Link href={`/explorar/competicion/${f.local_id}` as Route} className="hover:underline">{f.edicion}</Link>
+        <Link href={(contexto ? `/explorar/competicion/${contexto.grupo_id}` : '/explorar/competiciones') as Route} className="hover:underline">{f.edicion}</Link>
         <span aria-hidden="true">›</span><span>{f.grupo}</span><span aria-hidden="true">›</span><span className="text-[var(--texto)]">Previa</span>
       </nav>
       <header>
         <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">{f.local} – {f.visitante}</h1>
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
           Jornada {f.jornada}{f.fecha ? ` · ${f.fecha.split('-').reverse().join('/')}` : ''}{f.hora ? ` · ${f.hora}` : ''}
-          {f.campo ? ` · ${f.campo}` : ''}{f.arbitro ? ` · Árbitro: ${f.arbitro}` : ' · Árbitro sin designar'}
+          {f.campo && !contexto?.campo_id ? ` · ${f.campo}` : ''}
+          {f.campo && contexto?.campo_id ? <>{' · '}<Link href={`/explorar/campo/${contexto.campo_id}` as Route} className="font-semibold text-[var(--accion)] hover:underline">{f.campo}</Link></> : null}
+          {f.arbitro ? ` · Árbitro: ${f.arbitro}` : ' · Árbitro sin designar'}
         </p>
       </header>
 
       <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} matriz={f.matriz} sinExplicacion />
+
+      {contexto && (
+        <section aria-labelledby="forma-previa" className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
+          <h2 id="forma-previa" className="m-0 text-bloque font-bold text-[var(--texto)]">Forma y posición</h2>
+          <ul className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
+            {lados.map((lado) => (
+              <li key={lado.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[var(--fondo-sutil)] pt-2 first:border-t-0 first:pt-0">
+                <span className="flex min-w-0 flex-col">
+                  <Link href={`/explorar/equipo/${lado.id}` as Route} className="break-words text-tabla font-semibold text-[var(--texto)] hover:text-[var(--accion)] hover:underline">{lado.nombre}</Link>
+                  <span className="text-nota tabular-nums text-[var(--texto-suave)]">
+                    {lado.fila ? `${lado.fila.posicion}.º · ${lado.fila.puntos} puntos en ${lado.fila.jugados} partidos` : 'Sin partidos jugados en el grupo'}
+                  </span>
+                </span>
+                <InsigniasRacha signos={lado.forma} />
+              </li>
+            ))}
+          </ul>
+          {jornadaDeLaTabla !== null && (
+            <p className="m-0 mt-2 text-nota text-[var(--texto-suave)]">Resultados hasta la jornada {jornadaDeLaTabla}.</p>
+          )}
+        </section>
+      )}
 
       <section aria-labelledby="otros-calculos" className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
         <details>
@@ -133,13 +188,22 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         </ul>
       </section>
 
-      <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
-        <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Puesto y puntos por jornada</h2>
-        <div className="mt-2 grid gap-4 sm:grid-cols-2">
-          <GraficaPuntos datos={puntosLocal} nombre={f.local} />
-          <GraficaPuntos datos={puntosVisitante} nombre={f.visitante} />
-        </div>
-      </section>
+      {evolucionLocal.length > 1 || evolucionVisitante.length > 1
+        ? (
+          <PosicionPorJornada titulo="Posición y puntos por jornada" series={[
+            { nombre: f.local, filas: evolucionLocal },
+            { nombre: f.visitante, filas: evolucionVisitante },
+          ]} />
+        )
+        : (
+          <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
+            <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Puesto y puntos por jornada</h2>
+            <div className="mt-2 grid gap-4 sm:grid-cols-2">
+              <GraficaPuntos datos={puntosLocal} nombre={f.local} />
+              <GraficaPuntos datos={puntosVisitante} nombre={f.visitante} />
+            </div>
+          </section>
+        )}
     </div>
   );
 }

@@ -9,7 +9,8 @@ import {
 } from '@/lib/inicio';
 
 /**
- * La portada: búsqueda, competiciones de Castilla y León y los equipos que sigue la cuenta.
+ * La portada: accesos, últimos resultados, competiciones de Castilla y León y los equipos que sigue la
+ * cuenta.
  *
  * Es una pieza de presentación pura: recibe las competiciones y los favoritos ya resueltos por la
  * página, de modo que las pruebas puedan enseñar el estado con sesión, sin sesión y con error sin
@@ -25,7 +26,14 @@ const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg
 const BOTON_PRIMARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-inverso)] hover:opacity-90';
 const BOTON_SECUNDARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
 
-/** Un partido de la jornada de ejemplo de la portada (datos reales del canónico). */
+/** `2026-11-08` → «8 nov». Si no es una fecha, se deja como llega. */
+function fechaDePortada(fecha: string): string {
+  const d = new Date(`${fecha.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return fecha;
+  return new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(d);
+}
+
+/** Un partido del bloque «Últimos resultados» de la portada. */
 export type PartidoDeEjemplo = {
   partidoId: number;
   grupoId: number;
@@ -55,52 +63,54 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
   const seguidos = accesos.slice(0, 3);
   return (
     <div className="flex flex-col gap-[22px]">
-      <section aria-labelledby="jornada-ejemplo"
-        className="rounded-[var(--radius-tarjeta)] bg-[var(--fondo-fuerte)] px-6 py-6 text-[var(--texto-fuerte)]">
-        <h1 id="jornada-ejemplo" className="m-0 text-titulo font-extrabold tracking-[-0.02em]">
-          Una jornada de ejemplo
-        </h1>
-        <p className="m-0 mt-1 text-tabla text-[var(--texto-tenue)]">
-          Partidos reales de la temporada 2026-27, con fecha, equipos y marcador. Toca «Ver partido» para abrir la jornada.
-        </p>
-        <ul className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-2">
-          {jornada.map((partido) => (
-            <li key={partido.partidoId}
-              className="flex flex-col gap-1 rounded-[var(--radius-lg)] bg-[var(--fondo-elevado)]/5 px-3 py-2.5">
-              <span className="text-etiqueta text-[var(--texto-fuerte-suave)]">
-                {partido.fechaTexto}{partido.jornada !== null ? ` · Jornada ${partido.jornada}` : ''}{partido.edicion ? ` · ${partido.edicion}` : ''}
-              </span>
-              <span className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-tabla font-semibold">
-                  {partido.local} <span className="mx-1 rounded bg-[var(--accion)] px-1.5 py-0.5 text-[var(--texto-inverso)]">{partido.golesLocal} - {partido.golesVisitante}</span> {partido.visitante}
-                </span>
-                <Link href={partido.jornadaNumero !== null
+      <header className="flex flex-col gap-3">
+        <div>
+          <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
+            Fútbol de Castilla y León
+          </h1>
+          <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
+            Resultados, clasificaciones y pronósticos, de Tercera Federación al fútbol base.
+          </p>
+        </div>
+        <nav aria-label="Accesos" className="flex flex-wrap gap-2">
+          <Link href={'/explorar/proximas' as Route} className={BOTON_PRIMARIO}>Próximos partidos</Link>
+          <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route} className={BOTON_SECUNDARIO}>Competiciones</Link>
+          <Link href={'/explorar/rankings' as Route} className={BOTON_SECUNDARIO}>Goleadores</Link>
+        </nav>
+      </header>
+
+      {jornada.length > 0 && (
+        <section aria-labelledby="ultimos-resultados" className="flex flex-col gap-3">
+          <h2 id="ultimos-resultados" className="m-0 text-bloque font-bold text-[var(--texto)]">Últimos resultados</h2>
+          <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2">
+            {jornada.map((partido) => (
+              <li key={partido.partidoId}>
+                <Link href={(partido.jornadaNumero !== null
                   ? `/explorar/competicion/${partido.grupoId}/jornada/${partido.jornadaNumero}`
-                  : `/explorar/competicion/${partido.grupoId}`}
-                  className="text-nota font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">
-                  Ver partido
+                  : `/explorar/competicion/${partido.grupoId}`) as Route}
+                  className={`${TARJETA} flex h-full min-h-11 flex-col gap-1 px-4 py-3 hover:border-[var(--borde-fuerte)]`}>
+                  <span className="text-nota text-[var(--texto-suave)]">
+                    {partido.edicion}{partido.jornada !== null ? ` · Jornada ${partido.jornada}` : ''}{partido.fechaTexto ? ` · ${fechaDePortada(partido.fechaTexto)}` : ''}
+                  </span>
+                  <span className="flex items-center justify-between gap-3 text-tabla font-semibold text-[var(--texto)]">
+                    <span className="min-w-0 break-words">{partido.local}</span>
+                    <span className="flex-none tabular-nums">{partido.golesLocal}</span>
+                  </span>
+                  <span className="flex items-center justify-between gap-3 text-tabla font-semibold text-[var(--texto)]">
+                    <span className="min-w-0 break-words">{partido.visitante}</span>
+                    <span className="flex-none tabular-nums">{partido.golesVisitante}</span>
+                  </span>
+                  {partido.predLocal != null && partido.predEmpate != null && partido.predVisitante != null && (
+                    <span className="text-nota tabular-nums text-[var(--texto-suave)]">
+                      Pronóstico previo: 1 {formateaPorcentaje(partido.predLocal)} · X {formateaPorcentaje(partido.predEmpate)} · 2 {formateaPorcentaje(partido.predVisitante)}
+                    </span>
+                  )}
                 </Link>
-              </span>
-              {partido.predLocal != null && partido.predEmpate != null && partido.predVisitante != null && (
-                <span className="text-etiqueta tabular-nums text-[var(--texto-fuerte-suave)]">
-                  Predicción: 1 {formateaPorcentaje(partido.predLocal)} · X {formateaPorcentaje(partido.predEmpate)} · 2 {formateaPorcentaje(partido.predVisitante)}
-                  {partido.predMarcador ? ` · ${partido.predMarcador}` : ''}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-        <p className="m-0 mt-3 text-nota text-[var(--texto-tenue)]">
-          También puedes <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route}
-            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">buscar por competición</Link>
-          {' · '}
-          <Link href={'/explorar/proximas' as Route}
-            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">ver la próxima jornada</Link>
-          {' · '}
-          <Link href={'/explorar/modelo' as Route}
-            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">cómo se calcula</Link>.
-        </p>
-      </section>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section aria-labelledby="explorar-competicion" className={`${TARJETA} px-4 py-4`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">

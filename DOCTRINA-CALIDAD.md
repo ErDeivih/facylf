@@ -123,4 +123,4 @@ Antes de dar una pantalla por buena: recorrerla y preguntar de cada texto **«¿
 ## 9. Nombres de marca y de personas
 
 - **No usar el nombre de otra empresa como nombre de la app.** «Garmin» es una marca registrada: si el producto se llama Garmin Athletics, hay que renombrarlo. Cualquier app inspirada en otra se llama distinto.
-- **Menores de edad**: si la federación tiene consentimiento de tratamiento, **el nombre se publica** (en FACYLF así es). Las **fotos** quedan sin publicar de momento.
+- **Menores de edad**: si la federación tiene consentimiento de tratamiento, **el nombre se publica** (en FACYLF así es). Las **fotos** (16/11/2026): la ficha muestra foto sólo si la persona es adulta y la foto existe (`FACYLF_FOTOS=adultos`); la demo pública no lleva ninguna; las de menores, sólo con `FACYLF_FOTOS=todas` en la instancia privada.

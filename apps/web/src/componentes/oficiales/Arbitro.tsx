@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { Cifras, type Cifra } from '@/componentes/estadisticas/Cifras';
 import { TARJETA } from '@/componentes/estadisticas/controles';
+import type { FilaEquipoDeArbitro } from '@/consultas/arbitro-equipos';
 import type { FilaArbitro, LineaCompeticionArbitro, PartidoDeArbitro } from '@/consultas/oficiales';
 import { mediaPorPartido, mediaTexto } from '@/lib/oficiales';
 import { fechaCorta } from '@/lib/presentacion-canonico';
@@ -135,6 +136,40 @@ export function UltimosPartidosDeArbitro({ partidos }: { partidos: readonly Part
             ))}
           </ul>
         )}
+    </section>
+  );
+}
+
+/**
+ * Cómo le ha ido a cada equipo con este árbitro: partidos, balance y tarjetas. Es un recuento y se
+ * enseña con su número de partidos delante, porque con tres o cuatro el balance dice poco.
+ */
+export function EquiposDeArbitro({ equipos }: { equipos: readonly FilaEquipoDeArbitro[] }) {
+  if (equipos.length === 0) return null;
+  return (
+    <section aria-labelledby="equipos-arbitro" className={TARJETA}>
+      <div className="px-4 py-3.5">
+        <h2 id="equipos-arbitro" className="m-0 text-bloque font-bold text-[var(--texto)]">Con cada equipo</h2>
+        <p className="m-0 mt-0.5 text-nota text-[var(--texto-suave)]">
+          Equipos con dos partidos o más dirigidos por este árbitro.
+        </p>
+      </div>
+      <ul className="m-0 list-none p-0">
+        {equipos.map((e) => (
+          <li key={e.equipo_id} className="border-t border-[var(--fondo-sutil)]">
+            <Link href={`/explorar/equipo/${e.equipo_id}` as Route}
+              className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
+              <span className="break-words text-tabla font-semibold text-[var(--texto)]">{e.equipo}</span>
+              <span className="text-nota tabular-nums text-[var(--texto-suave)]">
+                {e.partidos} partidos · {e.ganados} V · {e.empatados} E · {e.perdidos} D
+                {e.con_acta > 0
+                  ? ` · ${mediaTexto(mediaPorPartido(e.amarillas, e.con_acta))} amarillas por partido · ${e.rojas} ${e.rojas === 1 ? 'roja' : 'rojas'}`
+                  : ' · sin actas para contar tarjetas'}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

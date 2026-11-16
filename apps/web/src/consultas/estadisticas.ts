@@ -296,6 +296,34 @@ export const CONSULTAS_ESTADISTICAS = [RESUMEN_DE_ESTADISTICAS, EVENTOS_DEL_GRUP
   OPCIONES_DE_ESTADISTICAS] as const;
 
 /** Parámetros de ejemplo: los usan la prueba de contrato y la medición. */
+/**
+ * Las dos consultas globales, acotadas a UNA categoría. La página general no enseña nunca un ranking
+ * que mezcle categorías: un alevín con 38 goles no va delante del máximo goleador de Tercera.
+ *
+ * Se derivan del texto de las consultas de arriba añadiendo una condición, para no mantener dos copias
+ * de ochenta líneas. `test/estadisticas-categoria.test.ts` comprueba que la condición está puesta.
+ *
+ * Parámetros de `RESUMEN_POR_CATEGORIA`: (1) federación, (2) temporada, (3) categoría.
+ * Parámetros de `GOLEADORES_POR_CATEGORIA`: los cinco de `goleadores-de-estadísticas` y (6) categoría.
+ */
+export const RESUMEN_POR_CATEGORIA: Consulta<{ datos: ResumenEstadisticas | null }> = {
+  ...RESUMEN_DE_ESTADISTICAS,
+  nombre: 'resumen-por-categoría',
+  descripcion: 'Resumen de estadísticas de una federación y temporada, acotado a una categoría.',
+  sql: RESUMEN_DE_ESTADISTICAS.sql.replace(
+    'and ($2::text is null or s.etiqueta = $2)',
+    'and ($2::text is null or s.etiqueta = $2)\n         and e.categoria = $3::text'),
+};
+
+export const GOLEADORES_POR_CATEGORIA: Consulta<FilaGoleadorEstadisticas> = {
+  ...GOLEADORES_DE_ESTADISTICAS,
+  nombre: 'goleadores-por-categoría',
+  descripcion: 'Máximos goleadores de una federación y temporada, acotados a una categoría.',
+  sql: GOLEADORES_DE_ESTADISTICAS.sql.replace(
+    'and ($2::text is null or se.etiqueta = $2)',
+    'and ($2::text is null or se.etiqueta = $2)\n         and ce.categoria = $6::text'),
+};
+
 export const PARAMETROS_ESTADISTICAS: Record<string, readonly unknown[]> = {
   'resumen-de-estadísticas': ['castilla-leon', '2026-27'],
   'eventos-del-grupo': [3769],

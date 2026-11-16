@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { Route } from 'next';
-import { CanonicoNoDisponible, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
+import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, TEMPORADA_EN_CURSO,
-  type FilaProximoPartido, type FilaProximosPorCompeticion,
+  PROXIMOS_DEL_CALENDARIO, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, TEMPORADA_EN_CURSO,
+  type FilaCrucePrevisto, type FilaProximoPartido, type FilaProximosPorCompeticion,
 } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import {
-  CATEGORIAS_FILTRABLES, VENTANAS, agrupaProximos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, urlDeProximas,
+  CATEGORIAS_FILTRABLES, VENTANAS, agrupaProximos, conCrucesPrevistos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, urlDeProximas,
   type CompeticionConProximos, type FiltrosProximas,
 } from '@/lib/proximas';
 import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
@@ -41,6 +41,17 @@ export default async function PantallaProximas({ searchParams }: {
     if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Próximos partidos" motivo={error.message} />;
     throw error;
   }
+
+  // Los cruces del calendario previsto se piden aparte: su tabla sólo existe con la migración 0067
+  // aplicada. Si la consulta falla, la pantalla sigue con los partidos que ya tienen fila.
+  let previstos: FilaCrucePrevisto[] = [];
+  try {
+    previstos = await consulta<FilaCrucePrevisto>(PROXIMOS_DEL_CALENDARIO.sql,
+      [TEMPORADA_EN_CURSO, filtros.dias, filtros.categoria], { presupuestoMs: PROXIMOS_DEL_CALENDARIO.presupuestoMs });
+  } catch {
+    previstos = [];
+  }
+  partidos = conCrucesPrevistos(partidos, previstos);
 
   const { con, sin } = agrupaProximos(partidos, resumen);
 
@@ -164,8 +175,8 @@ function Competicion({ competicion, abierta }: { competicion: CompeticionConProx
             {grupo.partidos.map((p) => {
               const prediccion = linea1X2(p);
               return (
-                <li key={p.match_id} className="border-t border-[var(--fondo-sutil)] first:border-t-0">
-                  <Link href={`/explorar/previa/${p.match_id}` as Route}
+                <li key={p.match_id ?? `c-${p.grupo_id}-${p.jornada}-${p.orden}`} className="border-t border-[var(--fondo-sutil)] first:border-t-0">
+                  <Link href={(p.match_id !== null ? `/explorar/previa/${p.match_id}` : `/explorar/competicion/${p.grupo_id}`) as Route}
                     className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
                     <span className="text-nota tabular-nums text-[var(--texto-suave)]">
                       {diaCorto(p.fecha)}{p.jornada !== grupo.partidos[0].jornada ? ` · Jornada ${p.jornada}` : ''}

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata, Route } from 'next';
 import { CanonicoNoDisponible, consulta } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  GOLEADORES_DE_ESTADISTICAS, OPCIONES_DE_ESTADISTICAS, RESUMEN_DE_ESTADISTICAS,
+  GOLEADORES_POR_CATEGORIA, OPCIONES_DE_ESTADISTICAS, RESUMEN_POR_CATEGORIA,
   type FilaGoleadorEstadisticas, type FilaOpcionesEstadisticas, type ResumenEstadisticas,
 } from '@/consultas/estadisticas';
 import { GRUPOS_DEL_SELECTOR, type FilaGrupoSelector } from '@/consultas/catalogo-selector';
@@ -15,18 +15,20 @@ import { BarraReparto, GraficoBarras } from '@/componentes/estadisticas/Graficos
 import { ListaCompeticiones } from '@/componentes/estadisticas/ListaCompeticiones';
 import { ListaGoleadores, TablaDisciplina } from '@/componentes/estadisticas/Tablas';
 import {
-  avisoDeFiltroInexistente, conclusionDeGoleadores, conclusionDeMes, conclusionDeResultados, conclusionDeTramos,
+  avisoDeFiltroInexistente, CATEGORIAS_DE_ESTADISTICAS, categoriaDeEstadisticas, conclusionDeGoleadores, conclusionDeMes, conclusionDeResultados, conclusionDeTramos,
   decimal, etiquetaDeMesCorta, FEDERACION_POR_DEFECTO, golesPorMesOrdenados, golesPorPartido,
   goleadoresConAcumulado, leeFiltrosEstadisticas, numero, porcentaje, repartoDeResultados, TITULO_ESTADISTICAS,
-  temporadaPorDefecto, tieneFiltrosEstadisticas, tokensDeBusqueda, tramosCompletos,
-  type FiltrosEstadisticas as FiltrosEstadisticasTipo,
+  temporadaPorDefecto, tieneFiltrosEstadisticas, tokensDeBusqueda, tramosCompletos, urlDeEstadisticasConCategoria,
+  type CategoriaDeEstadisticas, type FiltrosEstadisticas as FiltrosEstadisticasTipo,
 } from '@/lib/estadisticas';
+import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
 
 /**
  * Estadísticas globales (WALL objetivo 5): una federación y una temporada, con sus cifras, resultados,
  * goles por jornada, goles por tramo, goleadores y disciplina.
  *
- * El estado vive en la URL (`fed`, `temp`, `q`). La página abre en Castilla y León y la temporada más
+ * Siempre de UNA categoría (`cat`, por defecto aficionados): las cifras y los rankings no mezclan
+ * alevines con Tercera Federación. El estado vive en la URL (`fed`, `temp`, `cat`, `q`). La página abre en Castilla y León y la temporada más
  * reciente publicada; no se inventa una competición ni una temporada que el catálogo no tenga.
  *
  * La búsqueda de competición no filtra las cifras: sirve para saltar a las estadísticas de un grupo
@@ -37,7 +39,9 @@ export const metadata: Metadata = { title: TITULO_ESTADISTICAS };
 export default async function PantallaEstadisticas({ searchParams }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const filtros = leeFiltrosEstadisticas(await searchParams);
+  const parametros = await searchParams;
+  const filtros = leeFiltrosEstadisticas(parametros);
+  const categoria = categoriaDeEstadisticas(parametros.cat);
 
   let opciones: FilaOpcionesEstadisticas = { federaciones: null, temporadas: null };
   try {
@@ -71,7 +75,18 @@ export default async function PantallaEstadisticas({ searchParams }: {
         <span className="text-[var(--texto)]" aria-current="page">Estadísticas</span>
       </nav>
       <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">Estadísticas</h1>
-      <FiltrosEstadisticas filtros={filtros} opciones={opciones} federacion={federacion} temporada={temporada} />
+      <FiltrosEstadisticas filtros={filtros} opciones={opciones} federacion={federacion} temporada={temporada} categoria={categoria} />
+      <nav aria-label="Categoría" className="flex flex-wrap gap-2">
+        {CATEGORIAS_DE_ESTADISTICAS.map((c) => (
+          <Link key={c} href={urlDeEstadisticasConCategoria(filtros, c) as Route}
+            aria-current={c === categoria ? 'true' : undefined}
+            className={`inline-flex min-h-11 items-center rounded-[var(--radius-md)] border px-3 text-tabla font-semibold ${c === categoria
+              ? 'border-[var(--accion)] bg-[var(--accion)] text-[var(--texto-inverso)]'
+              : 'border-[var(--borde)] bg-[var(--fondo-elevado)] text-[var(--texto)] hover:border-[var(--accion)]'}`}>
+            {etiquetaCategoria(c)}
+          </Link>
+        ))}
+      </nav>
       {aviso !== null
         ? (
           <SinDatos titulo="Sin datos">
@@ -83,7 +98,7 @@ export default async function PantallaEstadisticas({ searchParams }: {
         )
         : (
           <Suspense fallback={<EsqueletoEstadisticas />}>
-            <Contenido federacion={federacion} temporada={temporada} filtros={filtros} />
+            <Contenido federacion={federacion} temporada={temporada} filtros={filtros} categoria={categoria} />
           </Suspense>
         )}
     </div>
@@ -91,10 +106,11 @@ export default async function PantallaEstadisticas({ searchParams }: {
 }
 
 /** Las cifras del ámbito y, si se ha buscado, las competiciones que coinciden. */
-async function Contenido({ federacion, temporada, filtros }: {
+async function Contenido({ federacion, temporada, filtros, categoria }: {
   federacion: string | null;
   temporada: string | null;
   filtros: FiltrosEstadisticasTipo;
+  categoria: CategoriaDeEstadisticas;
 }) {
   if (federacion === null || temporada === null) {
     return <SinDatos titulo="Sin datos">No hay federaciones o temporadas publicadas.</SinDatos>;
@@ -105,10 +121,10 @@ async function Contenido({ federacion, temporada, filtros }: {
   let competiciones: FilaGrupoSelector[] = [];
   try {
     const [resumenFilas, goleadoresFilas] = await Promise.all([
-      consulta<{ datos: ResumenEstadisticas | null }>(RESUMEN_DE_ESTADISTICAS.sql, [federacion, temporada],
-        { presupuestoMs: RESUMEN_DE_ESTADISTICAS.presupuestoMs }),
-      consulta<FilaGoleadorEstadisticas>(GOLEADORES_DE_ESTADISTICAS.sql, [federacion, temporada, null, 1, 10],
-        { presupuestoMs: GOLEADORES_DE_ESTADISTICAS.presupuestoMs }),
+      consulta<{ datos: ResumenEstadisticas | null }>(RESUMEN_POR_CATEGORIA.sql, [federacion, temporada, categoria],
+        { presupuestoMs: RESUMEN_POR_CATEGORIA.presupuestoMs }),
+      consulta<FilaGoleadorEstadisticas>(GOLEADORES_POR_CATEGORIA.sql, [federacion, temporada, null, 1, 10, categoria],
+        { presupuestoMs: GOLEADORES_POR_CATEGORIA.presupuestoMs }),
     ]);
     resumen = resumenFilas[0]?.datos ?? null;
     goleadores = goleadoresFilas;

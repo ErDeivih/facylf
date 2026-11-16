@@ -8,6 +8,7 @@ import {
 } from '@/consultas/entidades';
 import { PARTIDOS_DE_PERSONA, type FilaPartidoDePersona } from '@/consultas/fichas';
 import { CabeceraJugador, type ContextoDeJugador } from '@/componentes/fichas/Cabeceras';
+import { tieneFoto } from '@/lib/fotos';
 import {
   IdentidadDelJugador, MinutosPorTemporada, TablaTrayectoria, TotalesJugador, UltimosPartidosJugador,
 } from '@/componentes/fichas/Jugador';
@@ -55,6 +56,7 @@ export default async function PaginaJugador({ params }: { params: Promise<{ id: 
   let persona: FilaPersona | undefined;
   let trayectoria: FilaTemporadaDePersona[] = [];
   let partidos: FilaPartidoDePersona[] = [];
+  let conFoto = false;
   try {
     persona = await personaDe(id);
     if (!persona) notFound();
@@ -64,6 +66,7 @@ export default async function PaginaJugador({ params }: { params: Promise<{ id: 
     ]);
     trayectoria = t as unknown as FilaTemporadaDePersona[];
     partidos = p as unknown as FilaPartidoDePersona[];
+    conFoto = await tieneFoto(id, persona.es_menor);
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) return <AvisoSinArchivo titulo="Jugador" />;
     throw error;
@@ -87,7 +90,7 @@ export default async function PaginaJugador({ params }: { params: Promise<{ id: 
         ...(federaciones[0] ? [{ texto: federaciones[0] }] : []),
         { texto: persona.nombre_mostrado },
       ]} />
-      <CabeceraJugador jugador={persona} contexto={contexto} />
+      <CabeceraJugador jugador={persona} contexto={contexto} conFoto={conFoto} />
       <div className="flex justify-end">
         <Link href={`/explorar/jugador/${id}/historial`}
           className="text-tabla font-semibold text-[var(--accion)] hover:underline">
