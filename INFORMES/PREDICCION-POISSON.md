@@ -130,6 +130,24 @@ goles totales (y luego el local), que es una regla explícita, no un desempate o
 - **Ligas sin datos suficientes:** si una edición no tiene ningún partido con marcador ni media de su
   federación, no se publica predicción (se enseña «sin datos suficientes»), no un 33/33/33 inventado.
 
+### 3.1 · Lo que salió al calcularlo (16/11/2026)
+
+| Medida | Valor |
+|---|---:|
+| Ligas con parámetros (2025-26 + 2026-27) | **4.179** |
+| Equipos/inscripciones con parámetros | **104.568** |
+| Partidos de 2026-27 con predicción | **270.639** de 290.186 |
+| Partidos sin predicción (su liga no tiene ni un marcador) | 19.547 |
+| Media de los porcentajes | **1: 45,08 % · X: 18,65 % · 2: 36,27 %** |
+| Suma mínima y máxima de los tres porcentajes | **100,00 / 100,00** |
+| Matrices con 36 celdas | **270.639 de 270.639** |
+
+Comprobación de calibración sobre los **58.355 partidos ya jugados** de 2026-27: la media de goles
+esperados fue **5,554** y la real **5,639** (factor 1,015; el modelo se queda un 1,5 % corto, no infla).
+El reparto real de esos partidos fue 47,44 % / 12,48 % / 40,08 %, con muy pocos empates porque la base
+incluye fútbol sala y categorías de cantera de muchos goles; el modelo da más empates (18,65 %) y menos
+victorias. Es un límite conocido de la Poisson independiente y está dicho en §4.
+
 ## 4 · Lo que el modelo NO hace (límites dichos)
 
 - **No usa Dixon-Coles ni corrección de marcadores bajos.** Dos Poisson independientes sobreestiman algo
