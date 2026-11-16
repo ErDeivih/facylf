@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 /**
  * Gobernador de memoria: cuántos recolectores pueden tener navegador a la vez, a partir de un PRESUPUESTO.
  *
@@ -266,20 +269,48 @@ export function plazaAbandonada({ pid, host, miHost, procesoVivo: sigueVivo, ult
  */
 export const PLAZA_PRIORITARIA = 'slot-prioridad.lock';
 
+/**
+ * ── DOS PLAZAS RESERVADAS (16/11/2026) ─────────────────────────────────────────────────────────────
+ *
+ * David pide dos navegadores para Castilla y León en el servidor. Cada trabajador coge SU plaza reservada:
+ * el primero la de siempre (`slot-prioridad.lock`, para no invalidar lo que hay) y el segundo la nueva.
+ * Las reservadas son ficheros distintos, así que dos trabajadores no se pisan; y el reparto de las demás
+ * descuenta sólo las que estén ACTIVAS, no las posibles.
+ */
+export const PLAZAS_PRIORITARIAS = [PLAZA_PRIORITARIA, 'slot-prioridad-2.lock'];
+
+/** La primera plaza reservada que esté libre en `dir`, o null si están todas ocupadas. */
+export function plazaPrioritariaLibre(dir, { exists = null } = {}) {
+  const existe = exists ?? ((ruta) => existsSync(ruta));
+  for (const nombre of PLAZAS_PRIORITARIAS) {
+    if (!existe(join(dir, nombre))) return nombre;
+  }
+  return null;
+}
+
+/** Cuántas de las reservadas están ocupadas ahora mismo. */
+export function prioritariasActivas(dir, { exists = null } = {}) {
+  const existe = exists ?? ((ruta) => existsSync(ruta));
+  return PLAZAS_PRIORITARIAS.filter((nombre) => existe(join(dir, nombre))).length;
+}
+
 /** Cuántas plazas reparten las federaciones normales. Nunca menos de una. */
-export function plazasCompartidas({ plazas, prioritariaActiva = false } = {}) {
+export function plazasCompartidas({ plazas, prioritariaActiva = false, prioritariasActivas: activas = 0 } = {}) {
   const p = Math.max(1, Math.floor(Number(plazas)) || 1);
-  return prioritariaActiva && p > 1 ? p - 1 : p;
+  // `prioritariaActiva` es la firma antigua (una sola); el número manda cuando viene.
+  const reservadas = Math.max(Number(activas) || 0, prioritariaActiva ? 1 : 0);
+  return Math.max(1, p - Math.min(reservadas, p - 1));
 }
 
 /**
  * ¿Tiene que soltar su plaza una federación normal porque la prioritaria acaba de entrar? Sólo la que ocupa
  * una plaza que ya no está en el reparto (la última), y se comprueba entre trabajos, nunca a mitad de uno.
  */
-export function cedePorPrioridad({ nombreSlot, plazas, prioritariaActiva = false } = {}) {
+export function cedePorPrioridad({ nombreSlot, plazas, prioritariaActiva = false, prioritariasActivas: activas = 0 } = {}) {
   const m = /^slot-(\d+)\.lock$/.exec(String(nombreSlot ?? ''));
-  if (!prioritariaActiva || !m) return { ceder: false, motivo: 'sin prioritaria activa o plaza no numerada' };
-  const limite = plazasCompartidas({ plazas, prioritariaActiva });
+  const reservadas = Math.max(Number(activas) || 0, prioritariaActiva ? 1 : 0);
+  if (!reservadas || !m) return { ceder: false, motivo: 'sin prioritaria activa o plaza no numerada' };
+  const limite = plazasCompartidas({ plazas, prioritariasActivas: reservadas });
   const n = Number(m[1]);
   return n > limite
     ? { ceder: true, motivo: `la federación prioritaria ocupa su plaza reservada: se libera la plaza ${n} (quedan ${limite} compartidas)` }

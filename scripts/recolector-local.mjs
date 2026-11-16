@@ -5,7 +5,8 @@ import { spawnSync } from 'node:child_process';
 import {
   repartePlazas, cabeOtroNavegador, tocaReciclar, decideEsperaDePlaza,
   decideTurnoDePlaza, plazaAbandonada, RESERVA_GB, TURNO_PLAZA_MIN,
-  PLAZA_PRIORITARIA, plazasCompartidas, cedePorPrioridad, nombreFichaEspera,
+  PLAZA_PRIORITARIA, PLAZAS_PRIORITARIAS, plazaPrioritariaLibre, prioritariasActivas,
+  plazasCompartidas, cedePorPrioridad, nombreFichaEspera,
 } from './lib/presupuesto-memoria.mjs';
 import { freemem, hostname, totalmem } from 'node:os';
 import { Builder, By, until } from 'selenium-webdriver';
@@ -318,6 +319,21 @@ async function adquiereSlotChrome(db) {
      * sin esperar turno ni cola; las demás reparten entonces una plaza menos, así que el total de navegadores
      * no sube.
      */
+    for (const nombreReservada of PLAZAS_PRIORITARIAS) {
+      const rutaReservada = join(CARPETA_SLOTS_CHROME, nombreReservada);
+      if (!existsSync(rutaReservada)) continue;
+      try {
+        const [pid, host] = fichaDePlaza(rutaReservada);
+        const estado = plazaAbandonada({
+          pid, host, miHost: MI_CONTENEDOR,
+          procesoVivo: procesoVivo(pid), ultimoLatidoMs: statSync(rutaReservada).mtimeMs, ahoraMs: Date.now(),
+        });
+        if (estado.abandonada) {
+          rmSync(rutaReservada, { force: true });
+          console.log(`  · plaza reservada liberada (${estado.motivo}).`);
+        }
+      } catch { rmSync(rutaReservada, { force: true }); }
+    }
     const rutaPrioritaria = join(CARPETA_SLOTS_CHROME, PLAZA_PRIORITARIA);
     if (existsSync(rutaPrioritaria)) {
       try {
@@ -339,19 +355,25 @@ async function adquiereSlotChrome(db) {
         // grande es para que las DEMÁS se aparten cuando David necesita memoria, no para frenar a CyL.
         memoriaDeLaMaquinaGb: freemem() / 1024 ** 3, reservaDeLaMaquinaGb: Math.min(RESERVA_MAQUINA_GB, 1),
       });
-      if (aire.cabe) {
+      // Cada trabajador de CyL coge SU plaza reservada (dos hay). Si no queda ninguna libre o la memoria no
+      // da, ESPERA: no se lleva una compartida, que es capacidad de las otras catorce federaciones.
+      const libre = plazaPrioritariaLibre(CARPETA_SLOTS_CHROME);
+      if (aire.cabe && libre) {
+        const rutaLibre = join(CARPETA_SLOTS_CHROME, libre);
         try {
-          const fd = openSync(rutaPrioritaria, 'wx');
+          const fd = openSync(rutaLibre, 'wx');
           writeFileSync(fd, `${process.pid} ${MI_CONTENEDOR}`); closeSync(fd);
           rmSync(miFicha, { force: true });
-          console.log(`  · plaza reservada de la federación prioritaria (${PLAZA_PRIORITARIA}).`);
-          return { ruta: rutaPrioritaria, desde: Date.now(), nombre: PLAZA_PRIORITARIA };
+          console.log(`  · plaza reservada de la federación prioritaria (${libre}).`);
+          return { ruta: rutaLibre, desde: Date.now(), nombre: libre };
         } catch (error) {
           if (error?.code !== 'EEXIST') throw error;
         }
       }
+      return null;
     }
-    const slots = todas.slice(0, plazasCompartidas({ plazas: reparto.plazas, prioritariaActiva: existsSync(rutaPrioritaria) }));
+    const reservadas = prioritariasActivas(CARPETA_SLOTS_CHROME);
+    const slots = todas.slice(0, plazasCompartidas({ plazas: reparto.plazas, prioritariasActivas: reservadas }));
     /*
      * ── LIMPIAR PLAZAS NO PUEDE DEPENDER DE TENER RAM ─────────────────────────────────────────────────
      *
@@ -2869,7 +2891,7 @@ async function ejecutar(db) {
           const cesion = cedePorPrioridad({
             nombreSlot: slotChrome?.nombre,
             plazas: repartePlazas({ memoriaGb: Number(process.env.FACYLF_MEMORIA_GB), memoriaTotalGb: totalmem() / 1024 ** 3 }).plazas,
-            prioritariaActiva: existsSync(join(CARPETA_SLOTS_CHROME, PLAZA_PRIORITARIA)),
+            prioritariasActivas: prioritariasActivas(CARPETA_SLOTS_CHROME),
           });
           if (cesion.ceder) {
             console.log(`  · ${cesion.motivo}.`);

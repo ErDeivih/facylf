@@ -57,6 +57,15 @@ function banderasDeAhorro() {
   return [
     // Cada worker usa UNA pestaña y sólo necesita HTML.
     '--blink-settings=imagesEnabled=false',
+    // ── TERCEROS QUE NO RESUELVEN (medido el 16/11/2026) ────────────────────────────────────────────
+    // El acta tarda 47-67 s con el servidor al 75 % de CPU ociosa y las imágenes ya apagadas. El portal
+    // responde en 0,45 s, así que la espera es de los subrecursos de publicidad/consentimiento: dominios
+    // que no resuelven y que Chrome espera hasta agotar el tiempo. Aquí se fuerza a que TODO lo que no sea
+    // el portal y su CDN falle al instante (NOTFOUND), sin esperar. Solo se pide HTML, así que no se pierde
+    // nada del acta.
+    '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE *.rfcylf.es, EXCLUDE filesrfcylf.filesnovanet.es',
+    '--disable-domain-reliability',
+    '--no-pings',
     '--disable-extensions',
     '--disable-sync',
     '--disable-default-apps',
