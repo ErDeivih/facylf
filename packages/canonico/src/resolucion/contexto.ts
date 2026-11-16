@@ -22,8 +22,28 @@ export function leeFederaciones(raiz: string): FuenteFederacion[] {
   return lista.filter((f) => f && typeof f.codigo === 'string');
 }
 
+/**
+ * Nombres alternativos de una federación.
+ *
+ * Castilla y León tiene tres nombres vivos y los tres nombran lo mismo: el código del catálogo
+ * (`castilla-leon`), el que usa la documentación y quien lo pide por su nombre (`castilla-y-leon`) y el del
+ * servicio y la carpeta de la cola en el servidor (`federacion`). El catálogo NO gana filas: se traduce la
+ * entrada, no se duplica la fuente.
+ */
+const ALIAS: Record<string, string> = {
+  'castilla-y-leon': 'castilla-leon',
+  federacion: 'castilla-leon',
+};
+
+/** El código del catálogo para un nombre, venga como venga. Desconocido → se devuelve tal cual. */
+export function codigoCanonicoDeFederacion(codigo: string): string {
+  const limpio = String(codigo ?? '').trim().toLowerCase();
+  return ALIAS[limpio] ?? limpio;
+}
+
 export function fuenteDeFederacion(raiz: string, codigo: string): FuenteFederacion {
-  const fuente = leeFederaciones(raiz).find((f) => f.codigo === codigo);
+  const buscado = codigoCanonicoDeFederacion(codigo);
+  const fuente = leeFederaciones(raiz).find((f) => f.codigo === buscado);
   if (!fuente) throw new Error(`La federación «${codigo}» no está en config/federaciones-espana.json`);
   return fuente;
 }

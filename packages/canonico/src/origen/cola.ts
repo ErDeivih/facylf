@@ -5,6 +5,7 @@
  * siguen escribiendo mientras esto corre. AquÃ­ no hay una sola sentencia de escritura ni un `pragma`
  * que cambie el modo de diario: la conexiÃ³n es `readOnly` y todo lo demÃ¡s es `select`.
  */
+import { codigoCanonicoDeFederacion } from '../resolucion/contexto.js';
 import { DatabaseSync } from './sqlite.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
@@ -142,7 +143,10 @@ export class ColaOrigen {
      */
     const forzada = process.env[`FACYLF_COLA_${federacion.toUpperCase().replace(/[^A-Z0-9]/g, '_')}`];
     if (forzada) return isAbsolute(forzada) ? forzada : join(raiz, forzada);
-    const carpeta = CARPETA_ESPECIAL[federacion] ?? `descargas-${federacion}`;
+    // El nombre puede venir con alias (`castilla-y-leon`, `federacion`): la carpeta y la cola son las de
+    // Castilla y León. Sin esto, `--federacion castilla-y-leon` busca `descargas-castilla-y-leon` y no existe.
+    const canonica = codigoCanonicoDeFederacion(federacion);
+    const carpeta = CARPETA_ESPECIAL[canonica] ?? `descargas-${canonica}`;
     return join(raiz, carpeta, 'recolector-local', 'cola-v2.sqlite');
   }
 
