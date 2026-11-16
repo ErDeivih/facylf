@@ -144,6 +144,84 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
      limit $3`,
 };
 
+export type FilaProximaJornada = {
+  match_id: number;
+  grupo_id: number;
+  grupo: string;
+  edicion: string;
+  edicion_id: number;
+  federacion: string;
+  federacion_nombre: string;
+  jornada: number;
+  orden: number;
+  fecha: string | null;
+  local_id: number;
+  visitante_id: number;
+  local: string;
+  visitante: string;
+  pred_local: number | null;
+  pred_empate: number | null;
+  pred_visitante: number | null;
+  pred_marcador: string | null;
+  max_jugada: number | null;
+};
+
+/**
+ * La próxima jornada de cada grupo con partidos pendientes: la jornada más baja que aún tiene fechas
+ * de hoy en adelante (o sin fecha), con los equipos y la predicción 1-X-2 ya calculada. Se agrupa en la
+ * página por competición y grupo.
+ */
+export const PROXIMA_JORNADA: Consulta<FilaProximaJornada> = {
+  nombre: 'proxima-jornada',
+  descripcion: 'Próxima jornada pendiente de cada grupo, con sus partidos y la predicción 1-X-2.',
+  plan: 'indexado',
+  presupuestoMs: 1200,
+  columnas: ['match_id', 'grupo_id', 'grupo', 'edicion', 'edicion_id', 'federacion', 'federacion_nombre',
+    'jornada', 'orden', 'fecha', 'local_id', 'visitante_id', 'local', 'visitante',
+    'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador', 'max_jugada'],
+  sql: `
+    with pend as (
+      select m.id                      as match_id,
+             g.id                      as grupo_id,
+             g.nombre                  as grupo,
+             e.nombre_publicado        as edicion,
+             e.id                      as edicion_id,
+             f.codigo                  as federacion,
+             f.nombre                  as federacion_nombre,
+             d.numero                  as jornada,
+             m.source_order            as orden,
+             m.fecha_prevista,
+             el.id                     as local_id,
+             ev.id                     as visitante_id,
+             el.nombre_en_fuente       as local,
+             ev.nombre_en_fuente       as visitante,
+             pp.prob_local             as pred_local,
+             pp.prob_empate            as pred_empate,
+             pp.prob_visitante         as pred_visitante,
+             pp.marcador_probable      as pred_marcador,
+             (select max(d2.numero)
+                from core.match m2 join core.matchday d2 on d2.id = m2.matchday_id
+               where m2.phase_group_id = g.id and m2.goles_local is not null) as max_jugada
+        from core.match m
+        join core.phase_group g on g.id = m.phase_group_id
+        join core.competition_edition e on e.id = g.competition_edition_id
+        join core.season s on s.id = e.season_id
+        join core.federation f on f.id = e.federation_id and (${SQL_FEDERACION_NO_EXCLUIDA})
+        join core.matchday d on d.id = m.matchday_id
+        join core.team_entry el on el.id = m.home_team_entry_id
+        join core.team_entry ev on ev.id = m.away_team_entry_id
+        left join analytics.poisson_partido pp on pp.match_id = m.id
+       where m.goles_local is null and s.etiqueta = '2026-27'
+    )
+    select p.match_id, p.grupo_id, p.grupo, p.edicion, p.edicion_id, p.federacion, p.federacion_nombre,
+           p.jornada, p.orden, to_char(p.fecha_prevista, 'YYYY-MM-DD') as fecha,
+           p.local_id, p.visitante_id, p.local, p.visitante,
+           p.pred_local, p.pred_empate, p.pred_visitante, p.pred_marcador, p.max_jugada
+      from pend p
+     order by p.fecha_prevista nulls last, p.edicion, p.grupo, p.jornada, p.orden
+     limit 2000`,
+};
+
 export type FilaGoleador = {
   match_id: number;
   minuto: number | null;
@@ -573,7 +651,7 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
      limit 1`,
 };
 
-export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
+export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, PROXIMA_JORNADA, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
 
 export const PARAMETROS_PARTIDOS: Record<string, readonly unknown[]> = {
   'partidos-de-grupo': ['castilla-leon', '11379752', 400],

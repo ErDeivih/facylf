@@ -92,7 +92,10 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
         </ul>
         <p className="m-0 mt-3 text-nota text-[var(--texto-tenue)]">
           También puedes <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route}
-            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">buscar por competición</Link>.
+            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">buscar por competición</Link>
+          {' · '}
+          <Link href={'/explorar/proximas' as Route}
+            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">ver la próxima jornada</Link>.
         </p>
       </section>
 

@@ -32,7 +32,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
    */
   fechaUltimaJugada?: string | null;
   /** Pestaña que se está viendo; las que tienen pantalla se marcan y enlazan. */
-  activa?: 'clasificacion' | 'jornadas' | 'calendario' | 'estadisticas';
+  activa?: 'clasificacion' | 'jornadas' | 'calendario' | 'estadisticas' | 'proyeccion';
 }) {
   const fechaDerecha = fechaUltimaJugada === undefined ? fechaFin : fechaUltimaJugada;
   const totalJornadas = grupo.jornadas_previstas;
@@ -46,6 +46,7 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
     { etiqueta: 'Jornadas', href: `${rutaBase}/jornadas`, activa: activa === 'jornadas' },
     { etiqueta: 'Calendario', href: `${rutaBase}/calendario`, activa: activa === 'calendario' },
     { etiqueta: 'Estadísticas', href: `${rutaBase}/estadisticas`, activa: activa === 'estadisticas' },
+    { etiqueta: 'Proyección', href: `${rutaBase}/proyeccion`, activa: activa === 'proyeccion' },
     // Goleadores está en esta misma página: la pestaña lleva a su sección. Disciplina y Equipos no tienen
     // pantalla y se han quitado de la barra: una pestaña apagada que no lleva a ninguna parte sólo ocupa
     // sitio y confunde (hallazgo 2 de Codex, 16/11/2026).

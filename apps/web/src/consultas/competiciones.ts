@@ -565,6 +565,43 @@ export const PARTIDOS_CSV_DEL_GRUPO: Consulta<{
      limit 2000`,
 };
 
+export type FilaSimulacionFinal = {
+  team_entry_id: number;
+  nombre: string;
+  nombre_corto: string | null;
+  posicion_esperada: number;
+  puntos_medios: number;
+  prob_posiciones: number[];
+  equipos: number;
+  simulaciones: number;
+  calculado_en: string;
+};
+
+/**
+ * Clasificación final estimada de un grupo: posición media, puntos medios y probabilidad de cada puesto.
+ * La escribe `scripts/prediccion/03-simulacion.mjs` en `analytics.simulacion_final` (0062).
+ */
+export const SIMULACION_DEL_GRUPO: Consulta<FilaSimulacionFinal> = {
+  nombre: 'simulacion-del-grupo',
+  descripcion: 'Clasificación final esperada por Monte Carlo: posición media, puntos y probabilidad de cada puesto.',
+  plan: 'indexado',
+  presupuestoMs: 300,
+  columnas: ['team_entry_id', 'nombre', 'nombre_corto', 'posicion_esperada', 'puntos_medios', 'prob_posiciones', 'equipos', 'simulaciones', 'calculado_en'],
+  sql: `
+    select s.team_entry_id, ts.nombre, nc.nombre_corto,
+           s.posicion_esperada::float8 posicion_esperada,
+           s.puntos_medios::float8 puntos_medios,
+           s.prob_posiciones::jsonb prob_posiciones,
+           s.equipos, s.simulaciones,
+           to_char(s.calculado_en, 'DD/MM/YYYY HH24:MI') calculado_en
+      from analytics.simulacion_final s
+      join core.team_entry te on te.id = s.team_entry_id
+      join core.team_season ts on ts.id = te.team_season_id
+      left join analytics.nombre_corto_equipo nc on nc.team_entry_id = te.id
+     where s.phase_group_id = $1
+     order by s.posicion_esperada, ts.nombre`,
+};
+
 export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
   CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO, SIN_ACTA_DEL_GRUPO, PARTIDOS_CSV_DEL_GRUPO] as const;
 
@@ -578,4 +615,5 @@ export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'calidad-del-grupo': [797],
   'sin-acta-del-grupo': [797],
   'partidos-csv-del-grupo': [797],
+  'simulacion-del-grupo': [44],
 };
