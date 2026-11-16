@@ -61,7 +61,10 @@ try {
     .sort((a, b) => cuando(b.jugado_en) - cuando(a.jugado_en));
   // Los que tengan acta publicada primero: «Ver partido» siempre abre una ficha.
   const conActa = jugados.filter((f) => f.calidad_acta !== null);
-  jornada = (conActa.length > 0 ? conActa : jugados)
+  // Para la portada se prefieren partidos con predicción: los últimos resultados pueden ser tan
+  // recientes que aún no estén en la foto del modelo, y entonces la portada no enseñaría ninguna.
+  const conPrediccion = jugados.filter((f) => f.pred_local != null);
+  jornada = (conPrediccion.length >= 1 ? conPrediccion : conActa.length > 0 ? conActa : jugados)
     .slice(0, 4)
     .map((f) => ({
       partidoId: f.partido_id,
