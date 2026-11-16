@@ -23,6 +23,7 @@ const RUTAS = [
   '/explorar/arbitro/1',
   '/explorar/campo/1',
   '/explorar/rankings',
+  '/explorar/goleadores',
   '/explorar/estadisticas',
   '/explorar/previa/93926',
   '/explorar/competicion/44',
