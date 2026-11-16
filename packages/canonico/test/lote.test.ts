@@ -801,12 +801,23 @@ describe('pareja de equipos: el calendario contra el acta', () => {
       expect(equiposDelPartido).toEqual({ local: 'C.D. RIBERT "A"', visitante: 'S.D. SAN JOSE "B"' });
 
       // Las apariciones del acta van a los equipos del acta: el `local` a Ribert y el `visitante` a San José.
+      // El conteo se acota a la federación de pruebas: el canónico real tiene un equipo de Tenerife que
+      // también se llama «S.D. SAN JOSE "B"» (72 apariciones como visitante), y contar todo el mundo hacía
+      // que la prueba dependiera de esos datos ajenos.
       const aparicionesLocal = await cuenta(pool,
-        `select count(*) n from core.appearance a join core.team_entry te on te.id = a.team_entry_id
-          where a.lado = 'local' and te.nombre_en_fuente = 'C.D. RIBERT "A"'`, []);
+        `select count(*) n from core.appearance a
+           join core.team_entry te on te.id = a.team_entry_id
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where a.lado = 'local' and te.nombre_en_fuente = 'C.D. RIBERT "A"' and f.codigo = $1`, [FEDERACION]);
       const aparicionesVisitante = await cuenta(pool,
-        `select count(*) n from core.appearance a join core.team_entry te on te.id = a.team_entry_id
-          where a.lado = 'visitante' and te.nombre_en_fuente = 'S.D. SAN JOSE "B"'`, []);
+        `select count(*) n from core.appearance a
+           join core.team_entry te on te.id = a.team_entry_id
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where a.lado = 'visitante' and te.nombre_en_fuente = 'S.D. SAN JOSE "B"' and f.codigo = $1`, [FEDERACION]);
       expect(aparicionesLocal).toBe(2);
       expect(aparicionesVisitante).toBe(1);
 
