@@ -52,6 +52,14 @@ describe('predicción en la ficha', () => {
     expect(html).not.toContain('resultado probable');
   });
 
+  it('marca «Pasó» en la celda del desenlace real, sin juzgar acierto', () => {
+    const html = renderToStaticMarkup(createElement(PrediccionPartido, {
+      local: 'A', visitante: 'B', prediccion: PREDICCION, jugado: true, resultado: 'local',
+    }));
+    expect(html).toContain('Pasó');
+    expect(html).not.toContain('Acierto');
+  });
+
   it('sin predicción lo dice; no inventa un reparto', () => {
     const html = renderToStaticMarkup(createElement(PrediccionPartido, {
       local: 'A', visitante: 'B', prediccion: null, jugado: false,

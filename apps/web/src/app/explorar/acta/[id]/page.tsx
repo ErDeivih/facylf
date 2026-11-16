@@ -110,16 +110,30 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
     },
   };
 
+  const jugado = acta.goles_local !== null && acta.goles_visitante !== null;
+  const resultado: 'local' | 'empate' | 'visitante' | null = !jugado
+    ? null
+    : (acta.goles_local as number) > (acta.goles_visitante as number)
+      ? 'local'
+      : (acta.goles_local as number) === (acta.goles_visitante as number) ? 'empate' : 'visitante';
+  const localCorto = acta.local_nombre_corto ?? acta.local;
+  const visitanteCorto = acta.visitante_nombre_corto ?? acta.visitante;
+
   return (
     <div className="flex flex-col gap-[18px]">
       <MigaActa acta={acta} />
       <CabeceraActa acta={acta} />
-      <PrediccionPartido
-        local={acta.local}
-        visitante={acta.visitante}
-        prediccion={prediccion}
-        jugado={acta.goles_local !== null}
-      />
+      {/* En un partido jugado la expectativa previa es contexto, no el contenido principal: va al
+          lateral para no empujar la cronología (criterio de Claude, 16/11/2026). */}
+      {!jugado && (
+        <PrediccionPartido
+          local={localCorto}
+          visitante={visitanteCorto}
+          prediccion={prediccion}
+          jugado={false}
+          resultado={null}
+        />
+      )}
       <div className="flex flex-wrap items-start gap-[18px]">
         <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-[18px]">
           <CronologiaActa
@@ -129,6 +143,15 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
           />
         </div>
         <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-[18px]">
+          {jugado && (
+            <PrediccionPartido
+              local={localCorto}
+              visitante={visitanteCorto}
+              prediccion={prediccion}
+              jugado
+              resultado={resultado}
+            />
+          )}
           <ContextoActa
             oficiales={acta.oficiales}
             enfrentamientos={acta.enfrentamientos}
