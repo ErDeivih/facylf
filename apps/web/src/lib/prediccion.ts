@@ -17,6 +17,12 @@ export type PrediccionDePartido = {
   ventaja_casa: number;
   /** Partidos con marcador con los que se estimó la liga. */
   partidos_liga: number;
+  /** Banda de desacuerdo entre los modelos (porcentajes 0-100), si el modelo la publica. */
+  banda?: {
+    local: [number, number];
+    empate: [number, number];
+    visitante: [number, number];
+  } | null;
 };
 
 /** Porcentaje compacto para la lista de la jornada: 60 %. */

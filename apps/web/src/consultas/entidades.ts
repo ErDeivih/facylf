@@ -978,10 +978,10 @@ export const PARTIDOS_DEL_CANONICO: Consulta<FilaPartidoListado> = {
            m.played_at                          as jugado_en,
            m.official_status                    as estado,
            r.quality                            as calidad_acta,
-           pp.prob_local                        as pred_local,
-           pp.prob_empate                       as pred_empate,
-           pp.prob_visitante                    as pred_visitante,
-           pp.marcador_probable                 as pred_marcador,
+           coalesce(ml.prob_local, pp.prob_local)         as pred_local,
+           coalesce(ml.prob_empate, pp.prob_empate)       as pred_empate,
+           coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
+           coalesce(ml.marcador_probable, pp.marcador_probable) as pred_marcador,
            (count(*) over ())::int              as total
       from core.match m
       join core.phase_group g on g.id = m.phase_group_id
@@ -993,6 +993,7 @@ export const PARTIDOS_DEL_CANONICO: Consulta<FilaPartidoListado> = {
       join core.team_entry vis on vis.id = m.away_team_entry_id
       left join core.match_report r on r.match_id = m.id
       left join analytics.poisson_partido pp on pp.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id
      where ($1::text is null or f.codigo = $1)
        and ($2::text is null or s.etiqueta = $2)
        and ($3::int is null or j.numero = $3)

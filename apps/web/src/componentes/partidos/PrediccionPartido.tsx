@@ -59,6 +59,11 @@ export function PrediccionPartido({ local, visitante, prediccion, jugado, result
             <dd className={`m-0 font-bold tabular-nums text-[var(--texto)] ${favorito === p.clave ? 'text-bloque' : 'text-cuerpo'}`}>
               {formateaPorcentaje(p.valor)}
             </dd>
+            {prediccion.banda && (
+              <span className="block text-[10px] leading-tight tabular-nums text-[var(--texto-suave)]">
+                {Math.round(prediccion.banda[p.clave][0])}–{Math.round(prediccion.banda[p.clave][1])} %
+              </span>
+            )}
             {resultado === p.clave && (
               <span className="text-etiqueta font-semibold text-[var(--texto-suave)]">Pasó</span>
             )}

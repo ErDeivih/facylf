@@ -90,6 +90,15 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
         media_total: Number(acta.liga_media_total),
         ventaja_casa: Number(acta.liga_ventaja_casa),
         partidos_liga: Number(acta.liga_partidos),
+        banda: acta.pred_local_low != null && acta.pred_local_high != null
+          && acta.pred_empate_low != null && acta.pred_empate_high != null
+          && acta.pred_visitante_low != null && acta.pred_visitante_high != null
+          ? {
+            local: [Number(acta.pred_local_low), Number(acta.pred_local_high)],
+            empate: [Number(acta.pred_empate_low), Number(acta.pred_empate_high)],
+            visitante: [Number(acta.pred_visitante_low), Number(acta.pred_visitante_high)],
+          }
+          : null,
       }
       : null;
 

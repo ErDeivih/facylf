@@ -116,9 +116,9 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
            ncv.nombre_corto          as visitante_nombre_corto,
            m.goles_local,
            m.goles_visitante,
-           pp.prob_local             as pred_local,
-           pp.prob_empate            as pred_empate,
-           pp.prob_visitante         as pred_visitante,
+           coalesce(ml.prob_local, pp.prob_local)       as pred_local,
+           coalesce(ml.prob_empate, pp.prob_empate)     as pred_empate,
+           coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
            v.nombre                  as campo,
            po.nombre_mostrado        as arbitro,
            r.quality                 as calidad_acta,
@@ -139,6 +139,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       left join core.match_official o on o.match_id = m.id and o.rol = 'principal'
       left join core.person po on po.id = o.person_id
       left join analytics.poisson_partido pp on pp.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id
      where f.codigo = $1 and g.codigo_externo = $2
      order by d.numero, m.source_order
      limit $3`,
@@ -195,10 +196,10 @@ export const PROXIMA_JORNADA: Consulta<FilaProximaJornada> = {
              ev.id                     as visitante_id,
              el.nombre_en_fuente       as local,
              ev.nombre_en_fuente       as visitante,
-             pp.prob_local             as pred_local,
-             pp.prob_empate            as pred_empate,
-             pp.prob_visitante         as pred_visitante,
-             pp.marcador_probable      as pred_marcador,
+             coalesce(ml.prob_local, pp.prob_local)         as pred_local,
+             coalesce(ml.prob_empate, pp.prob_empate)       as pred_empate,
+             coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
+             coalesce(ml.marcador_probable, pp.marcador_probable) as pred_marcador,
              (select max(d2.numero)
                 from core.match m2 join core.matchday d2 on d2.id = m2.matchday_id
                where m2.phase_group_id = g.id and m2.goles_local is not null) as max_jugada
@@ -211,6 +212,7 @@ export const PROXIMA_JORNADA: Consulta<FilaProximaJornada> = {
         join core.team_entry el on el.id = m.home_team_entry_id
         join core.team_entry ev on ev.id = m.away_team_entry_id
         left join analytics.poisson_partido pp on pp.match_id = m.id
+        left join analytics.prediccion_ml ml on ml.match_id = m.id
        where m.goles_local is null and s.etiqueta = '2026-27'
     )
     select p.match_id, p.grupo_id, p.grupo, p.edicion, p.edicion_id, p.federacion, p.federacion_nombre,
@@ -464,6 +466,12 @@ export type FilaActaCanonica = {
   pred_visitante?: number | null;
   pred_marcador?: string | null;
   pred_prob_marcador?: number | null;
+  pred_local_low?: number | null;
+  pred_local_high?: number | null;
+  pred_empate_low?: number | null;
+  pred_empate_high?: number | null;
+  pred_visitante_low?: number | null;
+  pred_visitante_high?: number | null;
   liga_media_total?: number | null;
   liga_ventaja_casa?: number | null;
   liga_partidos?: number | null;
@@ -500,6 +508,7 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
     'visitante_nombre_corto', 'local_id', 'visitante_id',
     'local_club_id', 'visitante_club_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'goles_local',
     'goles_visitante', 'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador', 'pred_prob_marcador',
+    'pred_local_low', 'pred_local_high', 'pred_empate_low', 'pred_empate_high', 'pred_visitante_low', 'pred_visitante_high',
     'liga_media_total', 'liga_ventaja_casa', 'liga_partidos', 'penaltis_local', 'penaltis_visitante', 'estado', 'calidad_acta', 'eventos',
     'alineaciones', 'oficiales', 'cuerpo_tecnico', 'enfrentamientos'],
   sql: `
@@ -539,11 +548,17 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
                     where cav.club_id = tsv.club_id and cav.tipo = 'escudo' and cav.vigente) as visitante_tiene_escudo,
            m.goles_local,
            m.goles_visitante,
-           pp.prob_local                       as pred_local,
-           pp.prob_empate                      as pred_empate,
-           pp.prob_visitante                   as pred_visitante,
-           pp.marcador_probable                as pred_marcador,
-           pp.prob_marcador                    as pred_prob_marcador,
+           coalesce(ml.prob_local, pp.prob_local)         as pred_local,
+           coalesce(ml.prob_empate, pp.prob_empate)       as pred_empate,
+           coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
+           coalesce(ml.marcador_probable, pp.marcador_probable) as pred_marcador,
+           coalesce(ml.prob_marcador, pp.prob_marcador)   as pred_prob_marcador,
+           ml.prob_local_low                    as pred_local_low,
+           ml.prob_local_high                   as pred_local_high,
+           ml.prob_empate_low                   as pred_empate_low,
+           ml.prob_empate_high                  as pred_empate_high,
+           ml.prob_visitante_low                as pred_visitante_low,
+           ml.prob_visitante_high               as pred_visitante_high,
            pl.media_total                      as liga_media_total,
            pl.ventaja_casa                     as liga_ventaja_casa,
            pl.partidos                         as liga_partidos,
@@ -644,6 +659,7 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
       left join analytics.nombre_corto_equipo ncv on ncv.team_entry_id = ev.id
       left join core.venue v on v.id = m.venue_id
       left join analytics.poisson_partido pp on pp.match_id = m.id
+      left join analytics.prediccion_ml ml on ml.match_id = m.id
       left join analytics.poisson_liga pl on pl.competition_edition_id = e.id
       join core.match_report r on r.match_id = m.id
      where m.id = $1
