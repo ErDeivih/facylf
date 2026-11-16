@@ -1,6 +1,6 @@
 # ingesta-nocturna.ps1 -- pasada nocturna de ingesta y actualizacion de resultados de todas las ligas.
 #
-# Pensada para el Programador de tareas de Windows, una vez al dia (03:10). Hace UNA cosa: importar al
+# Pensada para el Programador de tareas de Windows, una vez al dia (03:40). Hace UNA cosa: importar al
 # canonico lo que los recolectores ya han dejado en las colas de las 19 federaciones, con un limite de
 # tiempo para no pisar la manana. No arranca recolectores, no cambia pausas ni workers, no toca el servidor.
 #

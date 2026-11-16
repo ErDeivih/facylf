@@ -9,7 +9,7 @@ servidor. Es la pasada de cierre del día, con un límite de tiempo para no inva
 | Pieza | Valor |
 |---|---|
 | Tarea | **`FACyLF ingesta nocturna`** (Programador de tareas de Windows) |
-| Cuándo | **todos los días a las 03:10** |
+| Cuándo | **todos los días a las 03:40** (40 min después de la pasada horaria de las 03:00, para no solaparse) |
 | Comando | `powershell -NoProfile -ExecutionPolicy Bypass -File F:\Proyectos\facylf\scripts\ingesta-nocturna.ps1` |
 | Script | [`scripts/ingesta-nocturna.ps1`](../../scripts/ingesta-nocturna.ps1) |
 | Límite | **25 minutos** de importación (parámetro `-Minutos`) |
@@ -22,7 +22,7 @@ Comprobado el 16/11/2026:
 ```
 TaskName : FACyLF ingesta nocturna
 State    : Ready
-NextRunTime : 17/11/2026 3:10:00
+NextRunTime : 17/11/2026 3:40:00
 ```
 
 ## 2 · Qué hace, en orden
