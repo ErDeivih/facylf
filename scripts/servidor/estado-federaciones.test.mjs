@@ -97,3 +97,19 @@ test('si la base no contesta, falla con un mensaje y no inventa filas', () => {
   assert.equal(salida.status, 1, salida.texto);
   assert.doesNotMatch(salida.stdout, /castilla-la-mancha .*\d{3}/, 'no debe imprimir filas inventadas');
 });
+
+/*
+ * El atasco que no se ve: contenedor ARRIBA y sin escribir desde hace más de 10 minutos. Pasó el 16/11/2026
+ * con los recolectores esperando un DNS que no resolvía. Tiene que salir en el comando y en el AVISO.
+ */
+test('un contenedor arriba con la ingesta parada sale marcado y cuenta como atascado', () => {
+  const entorno = prepara();
+  const ahora = Date.now() / 1000;
+  const log = join(entorno.raiz, 'descargas-castilla-la-mancha', 'recolector-local', 'worker-programado.log');
+  utimesSync(log, ahora - 45 * 60, ahora - 45 * 60);
+  const salida = ejecuta(entorno);
+  assert.equal(salida.status, 0, salida.texto);
+  const fila = salida.stdout.split('\n').find((l) => l.startsWith('castilla-la-mancha'));
+  assert.match(fila, /sin ingesta/, 'la línea debe avisar: ' + fila);
+  assert.match(salida.stdout, /AVISO: 1 recolector/, salida.stdout);
+});

@@ -27,6 +27,7 @@ PG_CONTENEDOR="${FACYLF_PG_CONTENEDOR:-facylf-postgres}"
 PG_USUARIO="${FACYLF_PG_USUARIO:-facylf_admin}"
 PG_BASE="${FACYLF_PG_BASE:-facylf}"
 AVISO_MIN="${FACYLF_AVISO_MIN:-90}"   # a partir de aquí, la ingesta se marca como vieja
+ATASCO_MIN="${FACYLF_ATASCO_MIN:-10}" # contenedor ARRIBA con la ingesta parada más de esto = atascado
 
 # ── LAS FILAS SE CUENTAN EN LA BASE CANÓNICA, NO EN LAS COLAS ──────────────────────────────────────────
 #
@@ -107,7 +108,7 @@ printf 'ESTADO FACYLF · %s · %s\n' "$(date '+%Y-%m-%d %H:%M')" "$(hostname 2>/
 printf '%-20s %-30s %12s  %-16s %s\n' 'federación' 'contenedor' 'partidos' 'última ingesta' 'estado'
 printf '%-20s %-30s %12s  %-16s %s\n' '──────────' '──────────' '────────' '──────────────' '──────'
 
-total=0; arriba=0; ingiriendo=0; ahora="$(date +%s)"
+total=0; arriba=0; ingiriendo=0; atascados=0; ahora="$(date +%s)"
 while IFS='|' read -r codigo partidos; do
   [ -z "${codigo:-}" ] && continue
   contenedor="$(contenedor_de "$codigo")"
@@ -125,7 +126,22 @@ while IFS='|' read -r codigo partidos; do
   # «Ingiriendo» = escritura reciente, sin mirar el contenedor: un supervisor dentro de su tanda no escribe
   # hasta que termina, y la pregunta es «¿hay ingesta viva?». El contenedor se cuenta aparte.
   if [ "$edad" -le "$AVISO_MIN" ]; then ingiriendo=$((ingiriendo + 1)); fi
+  # ── EL ATASCO QUE NADIE VE (16/11/2026) ─────────────────────────────────────────────────────────────
+  # Un contenedor puede estar «arriba» con CPU a cero durante horas: pasó hoy, con los recolectores
+  # esperando un DNS que no resolvía. Si está arriba y no escribe desde hace más de ATASCO_MIN, se avisa.
+  # Se cuenta «arriba» ANTES de adornar la columna: si no, el marcado dejaba de sumar en el total.
   [ "$estado" = "arriba" ] && arriba=$((arriba + 1))
+  # ── ESPERAR PLAZA NO ES ESTAR ATASCADO ───────────────────────────────────────────────────────────────
+  # Con 15 federaciones y 2 plazas compartidas, la mayoría espera su turno la mayor parte del tiempo: eso
+  # es el diseño, no una avería. Se distingue leyendo la última línea del registro: si dice que espera
+  # Chrome, es turno; si no, es atasco de verdad (pasó el 16/11 con el DNS roto).
+  if [ "$estado" = "arriba" ] && [ "$edad" -gt "$ATASCO_MIN" ]; then
+    ultima="$(tail -n 1 "$RAIZ/$(carpeta_de "$codigo")/recolector-local/worker-programado.log" 2>/dev/null)"
+    case "$ultima" in
+      *"esperando para abrir Chrome"*) estado="$estado (espera plaza)" ;;
+      *) atascados=$((atascados + 1)); estado="$estado ⚠ sin ingesta" ;;
+    esac
+  fi
   total=$((total + partidos))
   printf '%-20s %-30s %12s  %-16s %s\n' "$codigo" "${contenedor:-sin contenedor}" "$(miles "$partidos")" "$cuando" "$estado"
 done <<< "$mapa_filas"
@@ -133,3 +149,9 @@ done <<< "$mapa_filas"
 printf '\n'
 printf 'TOTAL: %s partidos · %s federaciones · %s contenedores arriba · %s con ingesta en los últimos %s min\n' \
   "$(miles "$total")" "$(grep -c '|' <<< "$mapa_filas")" "$arriba" "$ingiriendo" "$AVISO_MIN"
+# El aviso va SIEMPRE, también cuando no hay ninguno: un cero explícito se lee y se vigila.
+if [ "$atascados" -gt 0 ]; then
+  printf 'AVISO: %s recolector(es) arriba ATASCADOS (sin ingesta y sin esperar plaza) más de %s min\n' "$atascados" "$ATASCO_MIN"
+else
+  printf 'AVISO: ninguno atascado (los que no escriben están esperando plaza)\n'
+fi
