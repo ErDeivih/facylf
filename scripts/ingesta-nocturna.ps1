@@ -116,6 +116,17 @@ try {
   } | ConvertTo-Json | Set-Content -LiteralPath $Marca -Encoding utf8
 
   if ($codigo -ne 0) { Log "FALLO: el importador devolvio $codigo"; exit 3 }
+
+  # Los domingos, despues de la ingesta, se recalculan parametros, predicciones y clasificacion final.
+  # Va encadenado aqui para que no dependa de que alguien se acuerde de lanzar otro comando.
+  if ((Get-Date).DayOfWeek -eq 'Sunday') {
+    Log 'prediccion semanal: recalculando parametros, predicciones y simulacion'
+    & node 'scripts\prediccion\actualiza-semanal.mjs' --temporada $Temporada 2>&1 |
+      ForEach-Object { Add-Content -LiteralPath $Log -Value $_ -Encoding utf8 }
+    if ($LASTEXITCODE -ne 0) { Log "AVISO: la prediccion semanal devolvio $LASTEXITCODE" }
+    else { Log 'prediccion semanal: bien' }
+  }
+
   Log 'ingesta nocturna: termino bien'
 } catch {
   Log ("FALLO: {0}" -f $_.Exception.Message)
