@@ -9,6 +9,8 @@ import { CabeceraActa } from '@/componentes/acta/CabeceraActa';
 import { ContextoActa } from '@/componentes/acta/ContextoActa';
 import { CronologiaActa } from '@/componentes/acta/CronologiaActa';
 import { MigaActa } from '@/componentes/acta/MigaActa';
+import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
+import type { PrediccionDePartido } from '@/lib/prediccion';
 import {
   alineacionesPorLado, construyeCronologia, etiquetaEstado, tieneActa, tituloDeActa,
 } from '@/lib/acta';
@@ -73,6 +75,24 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
   }
   if (!acta || !tieneActa(acta.calidad_acta)) notFound();
 
+  // La predicción sólo se enseña si están los tres porcentajes y los datos de la liga: una fila a
+  // medias no se completa con ceros ni con 33/33/33.
+  const prediccion: PrediccionDePartido | null =
+    acta.pred_local != null && acta.pred_empate != null && acta.pred_visitante != null
+      && acta.pred_marcador != null && acta.pred_prob_marcador != null
+      && acta.liga_media_total != null && acta.liga_ventaja_casa != null && acta.liga_partidos != null
+      ? {
+        prob_local: Number(acta.pred_local),
+        prob_empate: Number(acta.pred_empate),
+        prob_visitante: Number(acta.pred_visitante),
+        marcador_probable: acta.pred_marcador,
+        prob_marcador: Number(acta.pred_prob_marcador),
+        media_total: Number(acta.liga_media_total),
+        ventaja_casa: Number(acta.liga_ventaja_casa),
+        partidos_liga: Number(acta.liga_partidos),
+      }
+      : null;
+
   const equipos: { local: EquipoEnActa; visitante: EquipoEnActa } = {
     local: {
       nombre: acta.local,
@@ -94,6 +114,12 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
     <div className="flex flex-col gap-[18px]">
       <MigaActa acta={acta} />
       <CabeceraActa acta={acta} />
+      <PrediccionPartido
+        local={acta.local}
+        visitante={acta.visitante}
+        prediccion={prediccion}
+        jugado={acta.goles_local !== null}
+      />
       <div className="flex flex-wrap items-start gap-[18px]">
         <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-[18px]">
           <CronologiaActa

@@ -6,6 +6,7 @@ import { nombresDelPartido } from '@/lib/nombres-equipo';
 import { marcadorDePartido } from '@/lib/pantalla-competicion';
 import { fechaDePartido, type JornadaResumen, type PartidoDeJornada } from '@/lib/jornadas';
 import { fechaCorta } from '@/lib/vocabulario-pantalla';
+import { porcentajeCorto } from '@/lib/prediccion';
 
 /**
  * Partidos de una jornada, con escudo, nombres cortos, marcador, campo y árbitro.
@@ -86,6 +87,13 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                         {marcador.texto}
                         <span className="sr-only">, {marcador.accesible}</span>
                       </span>
+                      {!marcador.jugado && partido.pred_local != null && partido.pred_empate != null
+                        && partido.pred_visitante != null && (
+                        <span className="whitespace-nowrap tabular-nums text-etiqueta text-[var(--texto-suave)]"
+                          title="Predicción 1-X-2 antes de jugar">
+                          1 {porcentajeCorto(partido.pred_local)} · X {porcentajeCorto(partido.pred_empate)} · 2 {porcentajeCorto(partido.pred_visitante)}
+                        </span>
+                      )}
                       {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
                       <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">
                         {fechaCorta(fechaDePartido(partido))}

@@ -60,6 +60,10 @@ export type FilaPartidoCanonico = {
   visitante_nombre_corto?: string | null;
   goles_local: number | null;
   goles_visitante: number | null;
+  /** Predicción 1-X-2 (0061). `null` si la liga aún no tiene marcadores con los que estimar. */
+  pred_local?: number | null;
+  pred_empate?: number | null;
+  pred_visitante?: number | null;
   campo: string | null;
   arbitro: string | null;
   calidad_acta: string | null;
@@ -74,7 +78,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
   columnas: ['match_id', 'jornada', 'orden', 'fecha', 'fecha_prevista', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
     'local_codigo', 'visitante_codigo', 'local_club_id', 'visitante_club_id', 'local_tiene_escudo',
     'visitante_tiene_escudo', 'local_nombre_corto', 'visitante_nombre_corto', 'goles_local', 'goles_visitante',
-    'campo', 'arbitro', 'calidad_acta', 'estado'],
+    'pred_local', 'pred_empate', 'pred_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
   sql: `
     select m.id                      as match_id,
            d.numero                  as jornada,
@@ -112,6 +116,9 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
            ncv.nombre_corto          as visitante_nombre_corto,
            m.goles_local,
            m.goles_visitante,
+           pp.prob_local             as pred_local,
+           pp.prob_empate            as pred_empate,
+           pp.prob_visitante         as pred_visitante,
            v.nombre                  as campo,
            po.nombre_mostrado        as arbitro,
            r.quality                 as calidad_acta,
@@ -131,6 +138,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
       left join core.match_report r on r.match_id = m.id
       left join core.match_official o on o.match_id = m.id and o.rol = 'principal'
       left join core.person po on po.id = o.person_id
+      left join analytics.poisson_partido pp on pp.match_id = m.id
      where f.codigo = $1 and g.codigo_externo = $2
      order by d.numero, m.source_order
      limit $3`,
@@ -372,6 +380,15 @@ export type FilaActaCanonica = {
   visitante_tiene_escudo: boolean;
   goles_local: number | null;
   goles_visitante: number | null;
+  /** Predicción 1-X-2 y sus datos de liga (0061); `null` si no hay datos suficientes. */
+  pred_local?: number | null;
+  pred_empate?: number | null;
+  pred_visitante?: number | null;
+  pred_marcador?: string | null;
+  pred_prob_marcador?: number | null;
+  liga_media_total?: number | null;
+  liga_ventaja_casa?: number | null;
+  liga_partidos?: number | null;
   penaltis_local: number | null;
   penaltis_visitante: number | null;
   estado: string;
@@ -404,7 +421,8 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
     'fecha_prevista', 'hora', 'campo', 'municipio', 'local', 'visitante', 'local_nombre_corto',
     'visitante_nombre_corto', 'local_id', 'visitante_id',
     'local_club_id', 'visitante_club_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'goles_local',
-    'goles_visitante', 'penaltis_local', 'penaltis_visitante', 'estado', 'calidad_acta', 'eventos',
+    'goles_visitante', 'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador', 'pred_prob_marcador',
+    'liga_media_total', 'liga_ventaja_casa', 'liga_partidos', 'penaltis_local', 'penaltis_visitante', 'estado', 'calidad_acta', 'eventos',
     'alineaciones', 'oficiales', 'cuerpo_tecnico', 'enfrentamientos'],
   sql: `
     select m.id::int                           as match_id,
@@ -443,6 +461,14 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
                     where cav.club_id = tsv.club_id and cav.tipo = 'escudo' and cav.vigente) as visitante_tiene_escudo,
            m.goles_local,
            m.goles_visitante,
+           pp.prob_local                       as pred_local,
+           pp.prob_empate                      as pred_empate,
+           pp.prob_visitante                   as pred_visitante,
+           pp.marcador_probable                as pred_marcador,
+           pp.prob_marcador                    as pred_prob_marcador,
+           pl.media_total                      as liga_media_total,
+           pl.ventaja_casa                     as liga_ventaja_casa,
+           pl.partidos                         as liga_partidos,
            m.penaltis_local,
            m.penaltis_visitante,
            m.official_status                   as estado,
@@ -539,6 +565,8 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
       left join analytics.nombre_corto_equipo ncl on ncl.team_entry_id = el.id
       left join analytics.nombre_corto_equipo ncv on ncv.team_entry_id = ev.id
       left join core.venue v on v.id = m.venue_id
+      left join analytics.poisson_partido pp on pp.match_id = m.id
+      left join analytics.poisson_liga pl on pl.competition_edition_id = e.id
       join core.match_report r on r.match_id = m.id
      where m.id = $1
        and r.quality <> 'unavailable'
