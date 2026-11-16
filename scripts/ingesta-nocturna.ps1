@@ -87,6 +87,9 @@ try {
   }
 
   Set-Content -LiteralPath $Candado -Value (Get-Date -Format 'o') -Encoding ascii
+  # Candado compartido con la pasada horaria: mientras la nocturna importa, la de cada hora ve el candado
+  # fresco y no arranca encima. Sin esto, una nocturna de 25 min podía solaparse con la de las 04:00.
+  Set-Content -LiteralPath $CandadoHorario -Value (Get-Date -Format 'o') -Encoding ascii
   $codigo = 0
   try {
     Log "importando: node scripts\importar-masivo.mjs --temporadas $Temporada --minutos $Minutos"
@@ -95,6 +98,7 @@ try {
     $codigo = $LASTEXITCODE
   } finally {
     Remove-Item -LiteralPath $Candado -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $CandadoHorario -Force -ErrorAction SilentlyContinue
   }
 
   $despues = CuentaCanonica
