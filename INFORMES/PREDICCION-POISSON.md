@@ -72,6 +72,9 @@ defensa(i) = (GC_i + k · media_equipo(e)) / ((n_i + k) · media_equipo(e))
 - `k = 6` partidos equivalentes de encogido: con un solo partido, el dato no dispara la fuerza; con 30,
   pesa casi entero. Es la misma idea que un prior bayesiano débil y evita publicar 5,00 por un 5-0 aislado.
 - Sin partidos: `ataque = defensa = 1,00` exactamente (la media), nunca 0.
+- **Normalización final:** dentro de cada edición, la media de las fuerzas ponderada por partidos se lleva a
+  `1,00` (se divide cada fuerza por esa media). Así la media de la liga vuelve a ser el punto de referencia y
+  la mezcla con la temporada anterior no favorece sistemáticamente a un lado.
 
 Cuando el equipo tiene datos de la **temporada anterior** del mismo club, se mezclan con peso `0,5` por
 partido (la temporada pasada informa, pero la actual manda):
