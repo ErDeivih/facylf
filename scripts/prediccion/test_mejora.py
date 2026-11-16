@@ -8,6 +8,8 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from clasificacion import calendario_restante, simula
+from grafo_minutos import solape, tramos
+from marcadores import INDICES, rejilla
 from modelos import CONFIGS, entrena, predice
 from registro import actualiza, deriva, proximos
 from variables import construye
@@ -27,6 +29,16 @@ def muestra(partidos):
 
 
 class PruebasMejora(unittest.TestCase):
+    def test_marcadores_conservan_el_signo_del_modelo(self):
+        p = [.59, .17, .24]
+        m = rejilla(3.2, 1.1, p)
+        np.testing.assert_allclose([m[c].sum() for c in INDICES], p)
+
+    def test_grafo_mide_presencia_simultanea_en_el_campo(self):
+        t = tramos({1, 2}, {1, 2, 3}, [('sale', 45, 1), ('entra', 45, 3)], 90)
+        self.assertEqual(solape(t[1], t[3]), 0)
+        self.assertEqual(solape(t[2], t[3]), 45)
+
     def test_los_resultados_del_dia_y_del_futuro_no_entran_en_las_variables(self):
         filas = [partido(1, '2025-10-04', 1, 2, (2, 0)), partido(2, '2025-10-04', 1, 3, (0, 0)),
                  partido(3, '2025-10-05', 1, 2, (0, 1))]

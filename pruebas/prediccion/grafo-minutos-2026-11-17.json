@@ -1,0 +1,714 @@
+{
+  "lados_verificados": 130995,
+  "por_temporada": {
+    "2024": {
+      "cobertura_grafo": 0.9050435354033185,
+      "base": {
+        "n": 36522,
+        "log_loss": 0.7521442180974977,
+        "brier": 0.4344215456767925,
+        "acierto": 0.6758666009528503,
+        "ece": 0.00549780022899968,
+        "ece_por_clase": {
+          "local": 0.007106593506990662,
+          "empate": 0.0024023759211995277,
+          "visitante": 0.006984431258808849
+        },
+        "calibracion": [
+          {
+            "clase": "local",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 6413,
+            "previsto": 0.1006019518446989,
+            "observado": 0.09371588959925152
+          },
+          {
+            "clase": "local",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 7944,
+            "previsto": 0.30532512084182223,
+            "observado": 0.30173716012084595
+          },
+          {
+            "clase": "local",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 8844,
+            "previsto": 0.49823584916862407,
+            "observado": 0.48948439620081413
+          },
+          {
+            "clase": "local",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 7221,
+            "previsto": 0.6949923777169995,
+            "observado": 0.6906245672344551
+          },
+          {
+            "clase": "local",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 6100,
+            "previsto": 0.8947629309224493,
+            "observado": 0.9075409836065573
+          },
+          {
+            "clase": "empate",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 34276,
+            "previsto": 0.10035041662205912,
+            "observado": 0.09881549772435523
+          },
+          {
+            "clase": "empate",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 2245,
+            "previsto": 0.2261545153550968,
+            "observado": 0.21069042316258352
+          },
+          {
+            "clase": "empate",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 1,
+            "previsto": 0.4118062841581412,
+            "observado": 0.0
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 10278,
+            "previsto": 0.09747475480268389,
+            "observado": 0.09437633780891223
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 9751,
+            "previsto": 0.29909002037599963,
+            "observado": 0.31207055686596247
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 7572,
+            "previsto": 0.49286584220500423,
+            "observado": 0.5002641310089805
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 4948,
+            "previsto": 0.6928994922637415,
+            "observado": 0.7000808407437349
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 3973,
+            "previsto": 0.8914891764017396,
+            "observado": 0.8927762396174176
+          }
+        ]
+      },
+      "grafo": {
+        "n": 36522,
+        "log_loss": 0.7521468415315795,
+        "brier": 0.4345195084741808,
+        "acierto": 0.6768796889546027,
+        "ece": 0.005183650757341003,
+        "ece_por_clase": {
+          "local": 0.00685540728869964,
+          "empate": 0.002107712016210002,
+          "visitante": 0.006587832967113367
+        },
+        "calibracion": [
+          {
+            "clase": "local",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 6435,
+            "previsto": 0.10030683899011444,
+            "observado": 0.09277389277389278
+          },
+          {
+            "clase": "local",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 7871,
+            "previsto": 0.30516755604944523,
+            "observado": 0.30377334519120824
+          },
+          {
+            "clase": "local",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 8907,
+            "previsto": 0.49773454127038,
+            "observado": 0.4870326709329741
+          },
+          {
+            "clase": "local",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 7172,
+            "previsto": 0.6950998942013105,
+            "observado": 0.691717791411043
+          },
+          {
+            "clase": "local",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 6137,
+            "previsto": 0.8948432716108449,
+            "observado": 0.9064689587746456
+          },
+          {
+            "clase": "empate",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 34223,
+            "previsto": 0.09969854427902916,
+            "observado": 0.09888086959062618
+          },
+          {
+            "clase": "empate",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 2298,
+            "previsto": 0.22827626815752688,
+            "observado": 0.2071366405570061
+          },
+          {
+            "clase": "empate",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 1,
+            "previsto": 0.41571316880980175,
+            "observado": 0.0
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 10329,
+            "previsto": 0.09700568673731695,
+            "observado": 0.09429760867460547
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 9691,
+            "previsto": 0.29935748666493245,
+            "observado": 0.3131771746981736
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 7578,
+            "previsto": 0.4933954530191041,
+            "observado": 0.5019794140934284
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 4894,
+            "previsto": 0.6931975951557217,
+            "observado": 0.693297915815284
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 4030,
+            "previsto": 0.8915230088695036,
+            "observado": 0.894789081885856
+          }
+        ]
+      }
+    },
+    "2025": {
+      "cobertura_grafo": 0.9499491424362527,
+      "base": {
+        "n": 28511,
+        "log_loss": 0.7426065212847527,
+        "brier": 0.4296381923466752,
+        "acierto": 0.6823682087615306,
+        "ece": 0.003971134201029919,
+        "ece_por_clase": {
+          "local": 0.003871700180054629,
+          "empate": 0.004231372697817031,
+          "visitante": 0.003810329725218096
+        },
+        "calibracion": [
+          {
+            "clase": "local",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 5254,
+            "previsto": 0.09958794447970529,
+            "observado": 0.09783022459078797
+          },
+          {
+            "clase": "local",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 6180,
+            "previsto": 0.305110232079515,
+            "observado": 0.30889967637540455
+          },
+          {
+            "clase": "local",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 6628,
+            "previsto": 0.49718225488949425,
+            "observado": 0.4996982498491249
+          },
+          {
+            "clase": "local",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 5558,
+            "previsto": 0.6950514974502401,
+            "observado": 0.6881971932349766
+          },
+          {
+            "clase": "local",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 4891,
+            "previsto": 0.899619713684788,
+            "observado": 0.9043140462073196
+          },
+          {
+            "clase": "empate",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 26423,
+            "previsto": 0.09605733271731817,
+            "observado": 0.09408469893653257
+          },
+          {
+            "clase": "empate",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 2087,
+            "previsto": 0.23003200058669182,
+            "observado": 0.19741255390512696
+          },
+          {
+            "clase": "empate",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 1,
+            "previsto": 0.44097937333749154,
+            "observado": 0.0
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 8137,
+            "previsto": 0.09631399152149116,
+            "observado": 0.09819343738478555
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 7314,
+            "previsto": 0.29906304811745393,
+            "observado": 0.30653541153951325
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 5872,
+            "previsto": 0.49367499330655296,
+            "observado": 0.493358310626703
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 3901,
+            "previsto": 0.6957020260572874,
+            "observado": 0.6995642143040246
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 3287,
+            "previsto": 0.8948085072435279,
+            "observado": 0.9014298752662002
+          }
+        ]
+      },
+      "grafo": {
+        "n": 28511,
+        "log_loss": 0.7430774282835964,
+        "brier": 0.42978401876871297,
+        "acierto": 0.6813159833046895,
+        "ece": 0.0047426762207602655,
+        "ece_por_clase": {
+          "local": 0.005230828240636226,
+          "empate": 0.004307803071187547,
+          "visitante": 0.004689397350457023
+        },
+        "calibracion": [
+          {
+            "clase": "local",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 5257,
+            "previsto": 0.09965192557965707,
+            "observado": 0.09625261556020544
+          },
+          {
+            "clase": "local",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 6204,
+            "previsto": 0.3056020142830264,
+            "observado": 0.3104448742746615
+          },
+          {
+            "clase": "local",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 6628,
+            "previsto": 0.49772983062201326,
+            "observado": 0.5013578756789379
+          },
+          {
+            "clase": "local",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 5553,
+            "previsto": 0.6959879222476895,
+            "observado": 0.6875562758869079
+          },
+          {
+            "clase": "local",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 4869,
+            "previsto": 0.8994961485048877,
+            "observado": 0.9057301293900185
+          },
+          {
+            "clase": "empate",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 26409,
+            "previsto": 0.09605054681978709,
+            "observado": 0.09379378242265894
+          },
+          {
+            "clase": "empate",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 2102,
+            "previsto": 0.23036198020878734,
+            "observado": 0.20028544243577545
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.0,
+            "hasta": 0.2,
+            "n": 8175,
+            "previsto": 0.09672368654206544,
+            "observado": 0.1000611620795107
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.2,
+            "hasta": 0.4,
+            "n": 7273,
+            "previsto": 0.2990368120740522,
+            "observado": 0.30688849168156196
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.4,
+            "hasta": 0.6,
+            "n": 5862,
+            "previsto": 0.4939127915760558,
+            "observado": 0.49129989764585463
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.6,
+            "hasta": 0.8,
+            "n": 3899,
+            "previsto": 0.6959968604484673,
+            "observado": 0.702231341369582
+          },
+          {
+            "clase": "visitante",
+            "desde": 0.8,
+            "hasta": 1.0,
+            "n": 3302,
+            "previsto": 0.8940989538992787,
+            "observado": 0.8970321017565112
+          }
+        ]
+      }
+    }
+  },
+  "total": {
+    "base": {
+      "n": 65033,
+      "log_loss": 0.7479628136746943,
+      "brier": 0.43232448438798565,
+      "acierto": 0.6787169590823121,
+      "ece": 0.004241642537654223,
+      "ece_por_clase": {
+        "local": 0.0044553302356310255,
+        "empate": 0.0032042230926069984,
+        "visitante": 0.005065374284724643
+      },
+      "calibracion": [
+        {
+          "clase": "local",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 11667,
+          "previsto": 0.10014531391758169,
+          "observado": 0.09556869803719893
+        },
+        {
+          "clase": "local",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 14124,
+          "previsto": 0.3052310955974822,
+          "observado": 0.30487114131973947
+        },
+        {
+          "clase": "local",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 15472,
+          "previsto": 0.49778450332567725,
+          "observado": 0.4938598759048604
+        },
+        {
+          "clase": "local",
+          "desde": 0.6,
+          "hasta": 0.8,
+          "n": 12779,
+          "previsto": 0.6950180907991931,
+          "observado": 0.6895688238516315
+        },
+        {
+          "clase": "local",
+          "desde": 0.8,
+          "hasta": 1.0,
+          "n": 10991,
+          "previsto": 0.8969242014611262,
+          "observado": 0.9061049949959057
+        },
+        {
+          "clase": "empate",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 60699,
+          "previsto": 0.09848158589972482,
+          "observado": 0.09675612448310515
+        },
+        {
+          "clase": "empate",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 4332,
+          "previsto": 0.2280225466751196,
+          "observado": 0.20429362880886426
+        },
+        {
+          "clase": "empate",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 2,
+          "previsto": 0.42639282874781637,
+          "observado": 0.0
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 18415,
+          "previsto": 0.09696185060398364,
+          "observado": 0.09606299212598425
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 17065,
+          "previsto": 0.29907846015924,
+          "observado": 0.30969821271608555
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 13444,
+          "previsto": 0.4932192589908042,
+          "observado": 0.4972478429038977
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.6,
+          "hasta": 0.8,
+          "n": 8849,
+          "previsto": 0.6941349634275591,
+          "observado": 0.6998530907447169
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.8,
+          "hasta": 1.0,
+          "n": 7260,
+          "previsto": 0.8929920194426431,
+          "observado": 0.8966942148760331
+        }
+      ]
+    },
+    "grafo": {
+      "n": 65033,
+      "log_loss": 0.7481707364601042,
+      "brier": 0.43244343099055566,
+      "acierto": 0.678824596743192,
+      "ece": 0.004194613391095004,
+      "ece_por_clase": {
+        "local": 0.005066170964921025,
+        "empate": 0.0030722499595382596,
+        "visitante": 0.004445419248825729
+      },
+      "calibracion": [
+        {
+          "clase": "local",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 11692,
+          "previsto": 0.10001237441615153,
+          "observado": 0.09433800889497092
+        },
+        {
+          "clase": "local",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 14075,
+          "previsto": 0.30535905721329165,
+          "observado": 0.3067140319715808
+        },
+        {
+          "clase": "local",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 15535,
+          "previsto": 0.4977325314746044,
+          "observado": 0.4931445123913743
+        },
+        {
+          "clase": "local",
+          "desde": 0.6,
+          "hasta": 0.8,
+          "n": 12725,
+          "previsto": 0.6954874163813924,
+          "observado": 0.6899017681728881
+        },
+        {
+          "clase": "local",
+          "desde": 0.8,
+          "hasta": 1.0,
+          "n": 11006,
+          "previsto": 0.8969016813507226,
+          "observado": 0.9061421043067418
+        },
+        {
+          "clase": "empate",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 60632,
+          "previsto": 0.09810961491992634,
+          "observado": 0.09666512732550468
+        },
+        {
+          "clase": "empate",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 4400,
+          "previsto": 0.22927266968746995,
+          "observado": 0.20386363636363636
+        },
+        {
+          "clase": "empate",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 1,
+          "previsto": 0.41571316880980175,
+          "observado": 0.0
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.0,
+          "hasta": 0.2,
+          "n": 18504,
+          "previsto": 0.09688110007518005,
+          "observado": 0.09684392563769996
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.2,
+          "hasta": 0.4,
+          "n": 16964,
+          "previsto": 0.29922000338861365,
+          "observado": 0.3104810186276821
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.4,
+          "hasta": 0.6,
+          "n": 13440,
+          "previsto": 0.4936210957736317,
+          "observado": 0.4973214285714286
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.6,
+          "hasta": 0.8,
+          "n": 8793,
+          "previsto": 0.6944388478995425,
+          "observado": 0.6972591834413738
+        },
+        {
+          "clase": "visitante",
+          "desde": 0.8,
+          "hasta": 1.0,
+          "n": 7332,
+          "previsto": 0.8926830975885868,
+          "observado": 0.8957992362247681
+        }
+      ]
+    }
+  },
+  "mejora_log_loss": -0.0002079227854099308
+}
