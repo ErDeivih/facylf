@@ -1,0 +1,21 @@
+{
+  "consulta": "proxima-jornada",
+  "presupuestoMs": 1200,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Aggregate",
+      "Index Scan",
+      "Limit",
+      "Nested Loop",
+      "Result",
+      "Seq Scan",
+      "Sort"
+    ],
+    "seqScans": [
+      "federation",
+      "season"
+    ],
+    "filas": 492
+  }
+}
