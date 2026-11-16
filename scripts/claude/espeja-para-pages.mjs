@@ -298,6 +298,19 @@ for (const codigo of escudosFed) {
 
 // Recursos del build (CSS, JS, fuentes) y del favicon.
 cpSync('apps/web/.next/static', join(salida, '_next', 'static'), { recursive: true });
+// Las fuentes y demás url() del CSS apuntan a `/_next/...` en la raíz del dominio; en Pages el sitio
+// vive en un subdirectorio y esas peticiones daban 404. Se reescriben al prefijo publicado.
+function reescribeCss(dir) {
+  for (const entrada of readdirSync(dir)) {
+    const p = join(dir, entrada);
+    if (statSync(p).isDirectory()) { reescribeCss(p); continue; }
+    if (!entrada.endsWith('.css')) continue;
+    const antes = readFileSync(p, 'utf8');
+    const despues = antes.replaceAll(/url\((['"]?)\/_next\//g, `url($1${base}/_next/`);
+    if (despues !== antes) writeFileSync(p, despues, 'utf8');
+  }
+}
+reescribeCss(join(salida, '_next', 'static'));
 for (const fichero of ['icon.svg', 'favicon.ico']) {
   try {
     const r = await fetch(`${origen}/${fichero}`);
