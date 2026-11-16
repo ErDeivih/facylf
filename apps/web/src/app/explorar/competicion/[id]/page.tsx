@@ -272,6 +272,10 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
         </a>
       </p>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
+      <Link href={`${ruta}/proyeccion` as Route}
+        className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--accion)] hover:bg-[var(--fondo-sutil)]">
+        Ver clasificación final estimada
+      </Link>
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
         <Jornada
           numero={jornada}

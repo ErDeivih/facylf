@@ -20,6 +20,7 @@ const RUTAS = [
   '/explorar/competiciones',
   '/explorar/proximas',
   '/explorar/modelo',
+  '/explorar/previa/93926',
   '/explorar/competicion/44',
   '/explorar/competicion/44/jornadas',
   '/explorar/competicion/44/jornada/1',

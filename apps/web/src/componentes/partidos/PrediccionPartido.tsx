@@ -10,13 +10,15 @@ import { Barra1X2 } from './Barra1X2';
  *
  * El favorito (si saca más de 5 puntos al segundo) se destaca con borde y cuerpo mayor, no sólo con color.
  */
-export function PrediccionPartido({ local, visitante, prediccion, jugado, resultado = null }: {
+export function PrediccionPartido({ local, visitante, prediccion, jugado, resultado = null, matriz = null, sinExplicacion = false }: {
   local: string;
   visitante: string;
   prediccion: PrediccionDePartido | null;
   jugado: boolean;
   /** Desenlace real cuando el partido ya se jugó: local, empate o visitante. */
   resultado?: 'local' | 'empate' | 'visitante' | null;
+  matriz?: Record<string, number> | null;
+  sinExplicacion?: boolean;
 }) {
   if (prediccion === null) {
     return (
@@ -78,6 +80,21 @@ export function PrediccionPartido({ local, visitante, prediccion, jugado, result
         Marcador más probable: <strong className="tabular-nums">{prediccion.marcador_probable}</strong>
         <span className="text-[var(--texto-suave)]"> ({formateaPorcentaje(prediccion.prob_marcador)})</span>
       </p>
+      {matriz && (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-etiqueta font-semibold text-[var(--texto)]">Los cinco marcadores más probables</summary>
+          <table className="mt-1 w-full border-collapse text-etiqueta">
+            <thead><tr className="text-[var(--texto-suave)]"><th className="text-left font-semibold">Marcador</th><th className="text-right font-semibold">Probabilidad</th></tr></thead>
+            <tbody>
+              {Object.entries(matriz).map(([m, p]) => ({ m, p: Number(p) * 100 }))
+                .sort((a, b) => b.p - a.p).slice(0, 5).map(({ m, p }) => (
+                  <tr key={m} className="border-t border-[var(--fondo-sutil)]"><td className="py-0.5 text-[var(--texto)]">{m}</td><td className="py-0.5 text-right tabular-nums text-[var(--texto)]">{p.toFixed(1).replace('.', ',')} %</td></tr>
+                ))}
+            </tbody>
+          </table>
+        </details>
+      )}
+      {!sinExplicacion && (
       <p className="m-0 mt-1 text-etiqueta leading-snug text-[var(--texto-suave)]">
         {lineaDePrediccion({
           local, visitante,
@@ -86,6 +103,7 @@ export function PrediccionPartido({ local, visitante, prediccion, jugado, result
           partidos_liga: prediccion.partidos_liga,
         })}
       </p>
+      )}
     </section>
   );
 }
