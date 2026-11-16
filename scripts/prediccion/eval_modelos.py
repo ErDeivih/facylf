@@ -310,7 +310,26 @@ def main():
     ml.fit(muestra_ml[features], y_train)
     p_ml = ml.predict_proba(valid[features])
 
-    modelos = [('base-frecuencias', p_naive), ('poisson-dixon-coles', p_poisson), ('elo', p_elo), ('ml-variables', p_ml)]
+    # Ponderación por importancia: menos peso a goleadas contra rivales muy inferiores, más a los
+    # igualados y a los partidos de la parte final de la temporada. Es una aproximación sin fuga:
+    # solo usa goles, Elo previo y momento, todos conocidos antes del partido.
+    gd = (muestra_ml.gl - muestra_ml.gv).abs().to_numpy()
+    dif_elo = muestra_ml.elo_diff.abs().fillna(0).to_numpy()
+    momento = muestra_ml.momento.fillna(0.5).to_numpy()
+    pesos = np.ones(len(muestra_ml))
+    pesos[(gd >= 4) & (dif_elo > 150)] *= 0.55
+    pesos[gd <= 1] *= 1.15
+    pesos[momento > 0.75] *= 1.25
+    pesos[(momento > 0.6) & (dif_elo < 60)] *= 1.15
+    pesos = np.clip(pesos, 0.5, 2.0)
+    ml_peso = HistGradientBoostingClassifier(max_iter=220, learning_rate=0.06, max_leaf_nodes=31,
+                                             l2_regularization=1.0, early_stopping=True,
+                                             validation_fraction=0.1, random_state=42)
+    ml_peso.fit(muestra_ml[features], y_train, sample_weight=pesos)
+    p_ml_peso = ml_peso.predict_proba(valid[features])
+
+    modelos = [('base-frecuencias', p_naive), ('poisson-dixon-coles', p_poisson), ('elo', p_elo),
+               ('ml-variables', p_ml), ('ml-ponderado', p_ml_peso)]
     resultados = [metricas(y_valid, p, n) for n, p in modelos]
     print(json.dumps(resultados, ensure_ascii=False, indent=2), flush=True)
 

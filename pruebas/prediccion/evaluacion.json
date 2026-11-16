@@ -1,5 +1,5 @@
 {
-  "generado_en": "2026-11-16T16:37:55",
+  "generado_en": "2026-11-16T18:11:09",
   "train_hasta": "2023-24",
   "validacion": [
     "2024-25",
@@ -36,6 +36,13 @@
       "brier": 0.56528,
       "acierto": 0.5424,
       "n": 667727
+    },
+    {
+      "modelo": "ml-ponderado",
+      "log_loss": 0.94224,
+      "brier": 0.56784,
+      "acierto": 0.5427,
+      "n": 667727
     }
   ],
   "por_temporada": {
@@ -67,6 +74,13 @@
         "brier": 0.55548,
         "acierto": 0.5545,
         "n": 213778
+      },
+      "ml-ponderado": {
+        "modelo": "ml-ponderado",
+        "log_loss": 0.92664,
+        "brier": 0.55735,
+        "acierto": 0.5548,
+        "n": 213778
       }
     },
     "2025-26": {
@@ -96,6 +110,13 @@
         "log_loss": 0.94453,
         "brier": 0.56989,
         "acierto": 0.5368,
+        "n": 453949
+      },
+      "ml-ponderado": {
+        "modelo": "ml-ponderado",
+        "log_loss": 0.94959,
+        "brier": 0.57278,
+        "acierto": 0.537,
         "n": 453949
       }
     }
