@@ -1,4 +1,5 @@
 import { formateaPorcentaje, lineaDePrediccion, type PrediccionDePartido } from '@/lib/prediccion';
+import { Barra1X2 } from './Barra1X2';
 
 /**
  * Predicción del partido en su ficha: 1-X-2, marcador más probable y una línea de explicación.
@@ -45,6 +46,9 @@ export function PrediccionPartido({ local, visitante, prediccion, jugado, result
         <p className="m-0 text-etiqueta text-[var(--texto-suave)]">
           {jugado ? 'Expectativa previa al partido' : 'Expectativa antes de jugar'}
         </p>
+      </div>
+      <div className="mt-2">
+        <Barra1X2 local={prediccion.prob_local} empate={prediccion.prob_empate} visitante={prediccion.prob_visitante} />
       </div>
       <dl className="m-0 mt-2 grid grid-cols-3 gap-2">
         {porcentajes.map((p) => (

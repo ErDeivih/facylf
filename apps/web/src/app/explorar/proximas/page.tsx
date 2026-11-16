@@ -5,6 +5,7 @@ import { CanonicoNoDisponible, consulta } from '@/consultas/adaptadores/postgres
 import { PROXIMA_JORNADA, type FilaProximaJornada } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { formateaPorcentaje } from '@/lib/prediccion';
+import { Barra1X2 } from '@/componentes/partidos/Barra1X2';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Próxima jornada — Fondo Popular' };
@@ -90,6 +91,11 @@ export default async function PantallaProximas() {
                           </span>
                         </span>
                       </div>
+                      {partido.pred_local != null && partido.pred_empate != null && partido.pred_visitante != null && (
+                        <div className="mt-1.5">
+                          <Barra1X2 local={partido.pred_local} empate={partido.pred_empate} visitante={partido.pred_visitante} />
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

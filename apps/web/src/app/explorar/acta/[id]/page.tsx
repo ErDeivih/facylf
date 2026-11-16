@@ -134,15 +134,13 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
       <CabeceraActa acta={acta} />
       {/* En un partido jugado la expectativa previa es contexto, no el contenido principal: va al
           lateral para no empujar la cronología (criterio de Claude, 16/11/2026). */}
-      {!jugado && (
-        <PrediccionPartido
-          local={localCorto}
-          visitante={visitanteCorto}
-          prediccion={prediccion}
-          jugado={false}
-          resultado={null}
-        />
-      )}
+      <PrediccionPartido
+        local={localCorto}
+        visitante={visitanteCorto}
+        prediccion={prediccion}
+        jugado={jugado}
+        resultado={resultado}
+      />
       <div className="flex flex-wrap items-start gap-[18px]">
         <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-[18px]">
           <CronologiaActa
@@ -152,15 +150,6 @@ export default async function PantallaActa({ params }: { params: Promise<{ id: s
           />
         </div>
         <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-[18px]">
-          {jugado && (
-            <PrediccionPartido
-              local={localCorto}
-              visitante={visitanteCorto}
-              prediccion={prediccion}
-              jugado
-              resultado={resultado}
-            />
-          )}
           <ContextoActa
             oficiales={acta.oficiales}
             enfrentamientos={acta.enfrentamientos}

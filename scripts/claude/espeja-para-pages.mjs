@@ -19,6 +19,7 @@ const RUTAS = [
   '/explorar/calidad',
   '/explorar/competiciones',
   '/explorar/proximas',
+  '/explorar/modelo',
   '/explorar/competicion/44',
   '/explorar/competicion/44/jornadas',
   '/explorar/competicion/44/jornada/1',

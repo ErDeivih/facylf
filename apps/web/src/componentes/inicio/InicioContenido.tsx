@@ -95,7 +95,10 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
             className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">buscar por competición</Link>
           {' · '}
           <Link href={'/explorar/proximas' as Route}
-            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">ver la próxima jornada</Link>.
+            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">ver la próxima jornada</Link>
+          {' · '}
+          <Link href={'/explorar/modelo' as Route}
+            className="font-semibold text-[var(--texto-fuerte)] underline underline-offset-2">cómo se calcula</Link>.
         </p>
       </section>
 
