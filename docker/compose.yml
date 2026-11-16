@@ -633,6 +633,34 @@ services:
 
   # La pasada del fin de semana: reabre jornadas y actas del sábado y el domingo en TODAS las federaciones y
   # deja su informe. Necesita ver las colas de todas, por eso monta todas las carpetas.
+  # ── SEGUNDO NAVEGADOR DE CYL (16/11/2026) ────────────────────────────────────────────────────────────
+  # David pide dos navegadores en el servidor para Castilla y León. El recolector es de un trabajador por
+  # federación (guarda de instancia única), así que el segundo va con SU PROPIA COLA y temporadas disjuntas:
+  #   federacion  -> 2026-27 y 2024-25
+  #   federacion2 -> 2023-24
+  # Cada uno tiene su plaza reservada (slot-prioridad y slot-prioridad-2), así que ninguno espera turno.
+  federacion2:
+    <<: *recolector
+    container_name: facylf-federacion2-1
+    mem_limit: 4096m
+    memswap_limit: 4096m
+    env_file:
+      - ../descargas-federacion/recolector-local/entorno-servidor.env
+    command: ["bash", "docker/entrada-recolector.sh", "cyl-2"]
+    cpus: 1.0
+    environment:
+      <<: *ambiente-recolector
+      FACYLF_PRIORITARIA: "1"
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../perfiles:/app/perfiles:ro
+      - plazas:/app/.estado-workers
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      - ../descargas-federacion-2:/app/descargas-federacion-2
+      - ../recolector.config.json:/app/recolector.config.json
+      # El catálogo (competiciones y grupos) se comparte en SÓLO LECTURA desde la carpeta de la federación.
+      - ../descargas-federacion:/app/descargas-federacion:ro
+
   fin-de-semana:
     <<: *recolector
     mem_limit: 512m
