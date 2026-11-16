@@ -86,6 +86,22 @@ try {
     resumen.push({ paso: nombre, ultima: lineas.at(-1) ?? '' });
     log(`  ${nombre}: bien`);
   }
+  // El modelo de ML se entrena con las temporadas anteriores y publica en analytics.prediccion_ml.
+  const scriptModelo = join(RAIZ, 'scripts', 'prediccion', '04-modelo.py');
+  log(`  modelo: python scripts/prediccion/04-modelo.py`);
+  const modelo = spawnSync('python', [scriptModelo], {
+    cwd: RAIZ, encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, timeout: 1800000,
+  });
+  const textoModelo = `${modelo.stdout ?? ''}${modelo.stderr ?? ''}`.trim();
+  if (textoModelo) appendFileSync(LOG, `${textoModelo}\n`, 'utf8');
+  if (modelo.status !== 0) {
+    log(`  modelo: FALLO (codigo ${modelo.status ?? 'sin codigo'})`);
+    process.exitCode = 4;
+  } else {
+    resumen.push({ paso: 'modelo', ultima: textoModelo.split('\n').filter(Boolean).at(-1) ?? '' });
+    log('  modelo: bien');
+  }
+
   writeFileSync(MARCA, JSON.stringify({
     temporada: TEMPORADA, simulaciones: Number(SIMULACIONES), resumen,
     hecho_en: new Date().toISOString(), codigo: process.exitCode ?? 0,
