@@ -72,6 +72,9 @@ def matriz_1x2(lh, la, rho=0.0, maxg=8):
     """Probabilidades 1-X-2 de una matriz Poisson (o DC) de 0..maxg para arrays de λ."""
     lh = np.asarray(lh, dtype=float)
     la = np.asarray(la, dtype=float)
+    if len(lh) > 10_000:
+        return np.concatenate([matriz_1x2(lh[i:i + 10_000], la[i:i + 10_000], rho, maxg)
+                               for i in range(0, len(lh), 10_000)])
     ks = np.arange(maxg + 1)
     ph = np.exp(-lh[:, None] + ks[None, :] * np.log(np.maximum(lh[:, None], 1e-12))
                 - np.array([math.lgamma(k + 1) for k in ks])[None, :])
@@ -129,6 +132,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--train-hasta', default='2023-24')
     ap.add_argument('--validar', nargs='+', default=['2024-25', '2025-26'])
+    ap.add_argument('--salida', type=Path, default=SALIDA)
     args = ap.parse_args()
 
     c = psycopg2.connect(url_lector())
@@ -363,6 +367,9 @@ def main():
     mejor = min(resultados, key=lambda r: r['log_loss'])
     p_mejor = dict(modelos)[mejor['modelo']]
     calib = calibracion(y_valid, p_mejor)
+    for fed, grupo in por_federacion.items():
+        m = fed_valid == fed
+        grupo['calibracion'] = calibracion(y_valid[m], p_mejor[m])
 
     salida = {
         'generado_en': datetime.now().isoformat(timespec='seconds'),
@@ -378,8 +385,9 @@ def main():
         'calibracion_mejor': {'modelo': mejor['modelo'], 'bins': calib},
         'features_ml': features,
     }
-    (SALIDA / 'evaluacion.json').write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding='utf-8')
-    print(f'guardado {SALIDA / "evaluacion.json"}', flush=True)
+    args.salida.mkdir(parents=True, exist_ok=True)
+    (args.salida / 'evaluacion.json').write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(f'guardado {args.salida / "evaluacion.json"}', flush=True)
 
 
 if __name__ == '__main__':
