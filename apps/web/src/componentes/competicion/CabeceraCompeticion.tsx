@@ -46,9 +46,10 @@ export function CabeceraCompeticion({ grupo, grupos, temporadas, rutaBase, fecha
     { etiqueta: 'Jornadas', href: `${rutaBase}/jornadas`, activa: activa === 'jornadas' },
     { etiqueta: 'Calendario', href: `${rutaBase}/calendario`, activa: activa === 'calendario' },
     { etiqueta: 'Estadísticas', href: `${rutaBase}/estadisticas`, activa: activa === 'estadisticas' },
-    { etiqueta: 'Goleadores', activa: false },
-    { etiqueta: 'Disciplina', activa: false },
-    { etiqueta: 'Equipos', activa: false },
+    // Goleadores está en esta misma página: la pestaña lleva a su sección. Disciplina y Equipos no tienen
+    // pantalla y se han quitado de la barra: una pestaña apagada que no lleva a ninguna parte sólo ocupa
+    // sitio y confunde (hallazgo 2 de Codex, 16/11/2026).
+    { etiqueta: 'Goleadores', href: `${rutaBase}#goleadores`, activa: false },
   ];
   return (
     <Card className="overflow-hidden">

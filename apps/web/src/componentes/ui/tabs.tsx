@@ -18,7 +18,10 @@ export function TabsNav({ pestanas, etiqueta = 'Secciones de la competición', c
 }) {
   return (
     <nav aria-label={etiqueta} className={cn('relative -mx-1', className)}>
-      <ul data-tabs-scroll className="m-0 flex list-none items-stretch gap-1 overflow-x-auto px-1 pb-0">
+      {/* En móvil las pestañas se envuelven: con scroll horizontal y sin flechas, las últimas quedaban
+          fuera de la vista y no se descubrían (hallazgo 3 de Codex, 16/11/2026). En pantalla grande
+          siguen en una sola fila. */}
+      <ul data-tabs-scroll className="m-0 flex list-none flex-wrap items-stretch gap-1 px-1 pb-0 sm:flex-nowrap sm:overflow-x-auto">
         {pestanas.map((p) => (
           <li key={p.etiqueta} className="flex">
             {p.href === undefined ? (

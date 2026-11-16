@@ -22,24 +22,35 @@ const fecha = (p: FilaPartidoCanonico) => {
   return null;
 };
 
-/** El último partido con resultado y el primero sin resultado (el próximo), del grupo. */
+/** ¿La fecha publicada del partido es hoy o posterior? */
+function esFechaFutura(p: FilaPartidoCanonico, hoy = new Date()): boolean {
+  const texto = p.fecha_prevista ?? p.fecha;
+  if (!texto) return false;
+  const fecha = new Date(`${texto}T23:59:59`);
+  return !Number.isNaN(fecha.getTime()) && fecha.getTime() >= hoy.getTime();
+}
+
+/** El último partido con resultado y el primero sin resultado. `esFuturo` dice si ese pendiente es
+ *  realmente el próximo (fecha de hoy en adelante) o un aplazado viejo que no se debe anunciar como tal. */
 export function ultimoYProximo(partidos: readonly FilaPartidoCanonico[]): {
-  ultimo: FilaPartidoCanonico | null; proximo: FilaPartidoCanonico | null;
+  ultimo: FilaPartidoCanonico | null; proximo: FilaPartidoCanonico | null; esFuturo: boolean;
 } {
   const conResultado = partidos.filter((p) => p.goles_local !== null && p.goles_visitante !== null)
     .sort((a, b) => (a.jornada - b.jornada));
   const sinResultado = partidos.filter((p) => p.goles_local === null || p.goles_visitante === null)
     .sort((a, b) => (a.jornada - b.jornada));
   const ultimo = conResultado.at(-1) ?? null;
-  // «Próximo» es el primer partido sin resultado DESPUÉS de la última jornada jugada; si no hay, el primero de
-  // todos (un aplazado viejo), para no enseñar como próximo un partido de una jornada ya pasada.
-  const proximo = (ultimo === null ? null : sinResultado.find((p) => p.jornada >= ultimo.jornada))
+  // «Próximo» es el primer partido sin resultado DESPUÉS de la última jornada jugada; si no hay, el primero
+  // con fecha de hoy en adelante. Si tampoco, se enseña el aplazado más antiguo, pero etiquetado como
+  // «Partido pendiente»: un 04/10 no es el próximo partido de nadie.
+  const candidato = (ultimo === null ? null : sinResultado.find((p) => p.jornada >= ultimo.jornada))
+    ?? sinResultado.find((p) => esFechaFutura(p))
     ?? sinResultado[0] ?? null;
-  return { ultimo, proximo };
+  return { ultimo, proximo: candidato, esFuturo: candidato !== null && esFechaFutura(candidato) };
 }
 
 export function UltimoYProximo({ partidos }: { partidos: readonly FilaPartidoCanonico[] }) {
-  const { ultimo, proximo } = ultimoYProximo(partidos);
+  const { ultimo, proximo, esFuturo } = ultimoYProximo(partidos);
   if (!ultimo && !proximo) return null;
   const tarjeta = (p: FilaPartidoCanonico, titulo: string) => {
     const acta = tieneActa(p.calidad_acta) ? rutaDeActa(p.match_id) : null;
@@ -65,7 +76,7 @@ export function UltimoYProximo({ partidos }: { partidos: readonly FilaPartidoCan
   return (
     <div className="flex basis-full flex-wrap gap-2">
       {ultimo && <div className="min-w-0 flex-[1_1_200px]">{tarjeta(ultimo, 'Último resultado')}</div>}
-      {proximo && <div className="min-w-0 flex-[1_1_200px]">{tarjeta(proximo, 'Próximo partido')}</div>}
+      {proximo && <div className="min-w-0 flex-[1_1_200px]">{tarjeta(proximo, esFuturo ? 'Próximo partido' : 'Partido pendiente')}</div>}
     </div>
   );
 }

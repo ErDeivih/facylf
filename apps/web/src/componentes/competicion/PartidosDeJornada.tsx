@@ -58,7 +58,10 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
               const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
               return (
                 <li key={partido.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2.5">
-                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,44%)] items-start gap-2 sm:grid-cols-[minmax(0,1fr)_320px]">
+                  {/* La columna derecha es una fracción, no 320 px fijos: dentro de la columna lateral de la
+                      clasificación (320 px) un ancho fijo dejaba la de nombres a cero y los partían letra a
+                      letra (hallazgo 1 de Codex, 16/11/2026). */}
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,45%)] items-start gap-2">
                     <div className="flex min-w-0 flex-col gap-1">
                       <Link href={enlaceEquipo(partido.local_id)} title={nombres.completo_local}
                         className="flex min-w-0 items-center gap-2">

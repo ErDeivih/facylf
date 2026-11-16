@@ -51,14 +51,22 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
             un `title`, para que también lo oiga un lector de pantalla.
           */}
           <button type="button" disabled
+            title="Casa no disponible: la base guarda partidos jugados en casa, pero no el desglose V-E-D ni los goles por condición"
+            aria-label="Casa (no disponible)"
             className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
             Casa
           </button>
           <button type="button" disabled
+            title="Fuera no disponible: la base guarda partidos jugados fuera, pero no el desglose V-E-D ni los goles por condición"
+            aria-label="Fuera (no disponible)"
             className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
             Fuera
           </button>
         </div>
+        <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
+          El desglose casa/fuera no está disponible: hay partidos jugados por condición, pero no victorias,
+          empates, derrotas ni goles por condición.
+        </p>
       </div>
 
       {filas.length === 0

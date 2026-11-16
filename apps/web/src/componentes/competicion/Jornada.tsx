@@ -70,7 +70,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
               const enlaceEquipo = (id: number) => `/explorar/equipo/${id}` as Route;
               return (
                 <li key={p.match_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2">
-                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,44%)] items-start gap-2 sm:grid-cols-[minmax(0,1fr)_320px]">
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,45%)] items-start gap-2">
                     <div className="flex min-w-0 flex-col gap-1">
                       <Link href={enlaceEquipo(p.local_id)} title={nombres.completo_local}
                         className="flex min-w-0 items-center gap-2">

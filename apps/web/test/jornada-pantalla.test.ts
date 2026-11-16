@@ -391,7 +391,7 @@ describe('los partidos de una jornada', () => {
     const html = render();
     expect(html).toContain('Árbitro: ');
     expect(html).toContain('MARTÍN EZQUERRA, PABLO');
-    expect(html).toContain('grid-cols-[minmax(0,1fr)_minmax(0,44%)]');
+    expect(html).toContain('grid-cols-[minmax(0,1fr)_minmax(0,45%)]');
     expect(html).toContain('items-end');
     // El nombre ya NO se recorta con `truncate`: el 13/11/2026 se cambió a `break-words` porque la
     // medición a 390 detectó 28 textos cortados (nombres de equipo, campo y árbitro) y el encargo de UI
