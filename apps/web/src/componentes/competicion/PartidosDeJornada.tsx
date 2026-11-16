@@ -90,7 +90,7 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                         {marcador.texto}
                         <span className="sr-only">, {marcador.accesible}</span>
                       </span>
-                      {!marcador.jugado && partido.pred_local != null && partido.pred_empate != null
+                      {partido.pred_local != null && partido.pred_empate != null
                         && partido.pred_visitante != null && (
                         <span className="whitespace-nowrap tabular-nums text-etiqueta text-[var(--texto-suave)]"
                           title="Predicción 1-X-2 antes de jugar">

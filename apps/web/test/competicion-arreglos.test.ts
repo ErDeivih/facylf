@@ -56,6 +56,17 @@ describe('arreglos de la auditoría Codex', () => {
     expect(html).toContain('45%');
   });
 
+  it('la tarjeta de jornada enseña 1-X-2 también en un partido ya jugado', () => {
+    const html = renderToStaticMarkup(createElement(Jornada, {
+      numero: 10,
+      partidos: [{ ...PARTIDO, pred_local: 59.84, pred_empate: 21.12, pred_visitante: 19.04 } as unknown as FilaPartidoCanonico],
+      hrefAnterior: null, hrefSiguiente: null, hrefActa: () => null,
+    }));
+    expect(html).toContain('1 60 %');
+    expect(html).toContain('X 21 %');
+    expect(html).toContain('2 19 %');
+  });
+
   it('un aplazado de una jornada pasada es «Partido pendiente», no «Próximo partido»', () => {
     const partidos = [fila(5, '2026-10-04', null), fila(10, '2026-11-08', 2)];
     const { proximo, esFuturo } = ultimoYProximo(partidos);

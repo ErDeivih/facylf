@@ -920,6 +920,11 @@ export type FilaPartidoListado = {
   jugado_en: string | null;
   estado: string;
   calidad_acta: string | null;
+  /** Predicción 1-X-2 del partido (0061); `null` si su liga no tiene marcadores aún. */
+  pred_local?: number | null;
+  pred_empate?: number | null;
+  pred_visitante?: number | null;
+  pred_marcador?: string | null;
   total: number;
 };
 
@@ -951,7 +956,7 @@ export const PARTIDOS_DEL_CANONICO: Consulta<FilaPartidoListado> = {
   columnas: ['partido_id', 'jornada_numero', 'jornada_id', 'temporada', 'federacion',
     'federacion_nombre', 'edicion', 'edicion_categoria', 'grupo', 'grupo_id', 'local_id', 'local',
     'visitante_id', 'visitante', 'goles_local', 'goles_visitante', 'fecha_prevista', 'jugado_en',
-    'estado', 'calidad_acta', 'total'],
+    'estado', 'calidad_acta', 'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador', 'total'],
   sql: `
     select m.id                                 as partido_id,
            j.numero                             as jornada_numero,
@@ -973,6 +978,10 @@ export const PARTIDOS_DEL_CANONICO: Consulta<FilaPartidoListado> = {
            m.played_at                          as jugado_en,
            m.official_status                    as estado,
            r.quality                            as calidad_acta,
+           pp.prob_local                        as pred_local,
+           pp.prob_empate                       as pred_empate,
+           pp.prob_visitante                    as pred_visitante,
+           pp.marcador_probable                 as pred_marcador,
            (count(*) over ())::int              as total
       from core.match m
       join core.phase_group g on g.id = m.phase_group_id
@@ -983,6 +992,7 @@ export const PARTIDOS_DEL_CANONICO: Consulta<FilaPartidoListado> = {
       join core.team_entry loc on loc.id = m.home_team_entry_id
       join core.team_entry vis on vis.id = m.away_team_entry_id
       left join core.match_report r on r.match_id = m.id
+      left join analytics.poisson_partido pp on pp.match_id = m.id
      where ($1::text is null or f.codigo = $1)
        and ($2::text is null or s.etiqueta = $2)
        and ($3::int is null or j.numero = $3)

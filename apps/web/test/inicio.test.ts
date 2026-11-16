@@ -146,6 +146,22 @@ describe('la portada', () => {
     }),
   );
 
+  it('la jornada de ejemplo enseña la predicción 1-X-2 del partido', () => {
+    const html = render({
+      jornada: [{
+        partidoId: 2000559, grupoId: 44, jornadaNumero: 5, fechaTexto: '2026-11-08',
+        jornada: 5, edicion: 'Tercera Federación', local: 'U.D. Santa Marta de Tormes',
+        visitante: 'Júpiter Leonés', golesLocal: 2, golesVisitante: 0,
+        predLocal: 59.84, predEmpate: 21.12, predVisitante: 19.04, predMarcador: '2-1',
+      }],
+    });
+    expect(html).toContain('Predicción:');
+    expect(html).toContain('59,8 %');
+    expect(html).toContain('21,1 %');
+    expect(html).toContain('19,0 %');
+    expect(html).toContain('2-1');
+  });
+
   it('sin sesión enseña búsqueda, competiciones y una invitación honesta, sin equipos inventados', () => {
     const html = render();
     expect(html).toContain('Una jornada de ejemplo');

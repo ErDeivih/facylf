@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { formateaPorcentaje } from '@/lib/prediccion';
 import type { Route } from 'next';
 import type { FilaAcceso } from '@/consultas/usuario';
 import { rutaDeAcceso } from '@/lib/cuentas';
@@ -36,6 +37,11 @@ export type PartidoDeEjemplo = {
   visitante: string;
   golesLocal: number;
   golesVisitante: number;
+  /** Predicción 1-X-2 (opcional: una fila antigua sin predicción no rompe la portada). */
+  predLocal?: number | null;
+  predEmpate?: number | null;
+  predVisitante?: number | null;
+  predMarcador?: string | null;
 };
 
 export function InicioContenido({ competiciones, jornada = [], sesion, accesos, errorAccesos = false }: {
@@ -75,6 +81,12 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
                   Ver partido
                 </Link>
               </span>
+              {partido.predLocal != null && partido.predEmpate != null && partido.predVisitante != null && (
+                <span className="text-etiqueta tabular-nums text-[var(--texto-fuerte-suave)]">
+                  Predicción: 1 {formateaPorcentaje(partido.predLocal)} · X {formateaPorcentaje(partido.predEmpate)} · 2 {formateaPorcentaje(partido.predVisitante)}
+                  {partido.predMarcador ? ` · ${partido.predMarcador}` : ''}
+                </span>
+              )}
             </li>
           ))}
         </ul>

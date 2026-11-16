@@ -4,6 +4,7 @@ import type { FilaPartidoCanonico } from '@/consultas/partidos';
 import { Escudo } from '@/componentes/Escudo';
 import { nombresDelPartido } from '@/lib/nombres-equipo';
 import { marcadorDePartido } from '@/lib/pantalla-competicion';
+import { porcentajeCorto } from '@/lib/prediccion';
 
 /**
  * Tarjeta de la jornada del prototipo: resultados de una jornada con sus flechas para moverse.
@@ -97,6 +98,12 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                         {marcador.texto}
                         <span className="sr-only">, {marcador.accesible}</span>
                       </span>
+                      {p.pred_local != null && p.pred_empate != null && p.pred_visitante != null && (
+                        <span className="whitespace-nowrap tabular-nums text-etiqueta text-[var(--texto-suave)]"
+                          title="Predicción 1-X-2">
+                          1 {porcentajeCorto(p.pred_local)} · X {porcentajeCorto(p.pred_empate)} · 2 {porcentajeCorto(p.pred_visitante)}
+                        </span>
+                      )}
                       {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
                       {campo !== '' && (
                         <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"

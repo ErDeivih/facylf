@@ -74,6 +74,10 @@ try {
       visitante: f.visitante,
       golesLocal: f.goles_local as number,
       golesVisitante: f.goles_visitante as number,
+      predLocal: f.pred_local ?? null,
+      predEmpate: f.pred_empate ?? null,
+      predVisitante: f.pred_visitante ?? null,
+      predMarcador: f.pred_marcador ?? null,
     }));
 } catch (error) {
   // Si la consulta falla, la portada sigue sin el bloque, pero se deja rastro en el registro del servidor.
