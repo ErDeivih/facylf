@@ -105,7 +105,18 @@ export function banderasDeChrome({ variante = 'pnfg', perfil = null, identidad =
     banderas.push('--window-size=1280,900', '--window-position=-32000,-32000', '--start-minimized');
   }
 
-  banderas.push(...banderasDeAhorro());
+  /*
+   * ── INTERRUPTOR DE GPU (16/11/2026) ─────────────────────────────────────────────────────────────────
+   *
+   * El servidor tarda 5,6 s por acta y el PC 0,9 s con la misma red y los núcleos libres: la diferencia está
+   * en cómo pinta. Con `FACYLF_SIN_GPU=0` se dejan de apagar la GPU, el rasterizado por software y el límite
+   * de un solo renderer, para medir ese hueco en UN trabajador sin tocar a los demás. Por defecto, nada cambia.
+   */
+  const ahorro = banderasDeAhorro();
+  const conGpu = process.env.FACYLF_SIN_GPU === '0';
+  banderas.push(...(conGpu
+    ? ahorro.filter((b) => !['--disable-gpu', '--disable-software-rasterizer', '--renderer-process-limit=1'].includes(b))
+    : ahorro));
   if (lang) banderas.push(`--lang=${lang}`);
   if (perfil) banderas.push(`--user-data-dir=${perfil}`);
   if (identidad) banderas.push(`--user-agent=${identidad}`);

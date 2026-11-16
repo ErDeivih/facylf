@@ -74,3 +74,25 @@ test('el techo de reciclado sólo cambia si el valor es un número positivo', ()
   assert.equal(topeDeNavegadorMb('0'), 900);
   assert.equal(topeDeNavegadorMb('-10'), 900);
 });
+
+/*
+ * Prueba del interruptor de GPU (16/11/2026): el servidor pinta las páginas 3 veces más lento que el PC.
+ * Con `FACYLF_SIN_GPU=0` se dejan de apagar GPU, rasterizado por software y el límite de un renderer, para
+ * medir si el hueco es de renderizado. Por defecto NO cambia nada.
+ */
+test('por defecto se apaga la GPU, como siempre', async () => {
+  delete process.env.FACYLF_SIN_GPU;
+  const { banderasDeChrome } = await import('./banderas-chrome.mjs');
+  const banderas = banderasDeChrome({ variante: 'pnfg', headless: true });
+  assert.ok(banderas.includes('--disable-gpu'));
+  assert.ok(banderas.includes('--renderer-process-limit=1'));
+});
+
+test('con FACYLF_SIN_GPU=0 se deja la GPU y el renderer sin límite', async () => {
+  process.env.FACYLF_SIN_GPU = '0';
+  const { banderasDeChrome } = await import('./banderas-chrome.mjs');
+  const banderas = banderasDeChrome({ variante: 'pnfg', headless: true });
+  assert.ok(!banderas.includes('--disable-gpu'), 'no debe apagar la GPU');
+  assert.ok(!banderas.includes('--renderer-process-limit=1'), 'no debe limitar el renderer');
+  delete process.env.FACYLF_SIN_GPU;
+});

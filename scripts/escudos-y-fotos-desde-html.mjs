@@ -226,11 +226,15 @@ async function principal() {
   const shaVigente = new Map(fotosVigentes.rows.map((r) => [String(r.person_id), r.sha256]));
 
   let fotosNuevas = 0;
+  let fotosDemasiadoGrandes = 0;
   let fotosIguales = 0;
   let fotosSinPersona = 0;
   for (const foto of fotos.values()) {
     const personId = personaDe.get(String(foto.jugador));
     if (!personId) { fotosSinPersona += 1; continue; }
+    // La tabla admite hasta 512 KB por imagen (check de la migración 0066). Una foto mayor no puede
+    // guardarse: se cuenta y se sigue, en vez de tumbar la pasada entera.
+    if (foto.contenido.length < 1 || foto.contenido.length > 524288) { fotosDemasiadoGrandes += 1; continue; }
     const sha = createHash('sha256').update(foto.contenido).digest('hex');
     if (shaVigente.get(String(personId)) === sha) { fotosIguales += 1; continue; }
     if (seco) { fotosNuevas += 1; continue; }
@@ -259,7 +263,7 @@ async function principal() {
   console.log(JSON.stringify({
     federacion, ficheros: ficheros.length,
     escudos: { nuevos: escudosNuevos, iguales: escudosIguales, fallidos: escudosFallidos, clubes_en_html: clubes.rowCount },
-    fotos: { nuevas: fotosNuevas, iguales: fotosIguales, sin_persona: fotosSinPersona },
+    fotos: { nuevas: fotosNuevas, iguales: fotosIguales, sin_persona: fotosSinPersona, demasiado_grandes: fotosDemasiadoGrandes },
     clubes_sin_escudo: Number(sinEscudo.rows[0]?.n ?? 0),
     seco,
   }, null, 2));
