@@ -30,12 +30,6 @@ export function Barra1X2({ local, empate, visitante, etiqueta }: {
         {tramo(px, `X ${x.toFixed(1)} %`, 'bg-[var(--fondo-sutil)] text-[var(--texto)]')}
         {tramo(p2, `2 ${v.toFixed(1)} %`, 'bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]')}
       </div>
-      {/* Los tres porcentajes siempre legibles, aunque un tramo sea demasiado estrecho para su etiqueta. */}
-      <div className="mt-0.5 flex justify-between gap-2 text-[10px] tabular-nums text-[var(--texto-suave)]">
-        <span>1 {l.toFixed(1).replace('.', ',')} %</span>
-        <span>X {x.toFixed(1).replace('.', ',')} %</span>
-        <span>2 {v.toFixed(1).replace('.', ',')} %</span>
-      </div>
     </div>
   );
 }
