@@ -48,10 +48,13 @@ La ingesta del servidor no lee ninguna de las cuatro:
 | Web publicada (`facylf-web`) | `facylf` | `DATABASE_URL_LECTOR=…/facylf` |
 | Recolectores | sus colas SQLite | no hablan con PostgreSQL |
 
-Ni `scripts/`, ni `config/`, ni el compose del servidor referencian `facylf_canonico*`. La única referencia
-viva del proyecto es la del PC: `DATABASE_URL_LECTOR_SERVIDOR=…/facylf_canonico_4` en `.env`, que usa
-`tmp/sirve-web-servidor.ps1` para enseñar la web apuntando a esa copia. **Borrar `_4` rompería esa vía
-opcional del PC, no la ingesta ni la web del servidor.**
+El importador, el cron, las copias y la web **no** referencian `facylf_canonico*`. Sí hay dos piezas del
+PC que sí: `DATABASE_URL_LECTOR_SERVIDOR=…/facylf_canonico_4` en `.env` (la usa
+`tmp/sirve-web-servidor.ps1` para enseñar la web apuntando a esa copia) y
+`scripts/claude/publica-canonico.ps1`, que **restaura una copia nueva** desde el canónico del PC y por
+defecto la llama `facylf_canonico_4` (`-BaseNueva`). Ninguna de las dos es la ingesta: son la vía de
+publicación/restauración del PC. **Borrar `_4` no afecta a la ingesta ni a la web del servidor; sí
+obliga a cambiar el nombre de la base nueva de `publica-canonico.ps1` o a volver a crearla.**
 
 ## 4 · Qué se ganaría y qué se perdería
 
@@ -71,8 +74,9 @@ opcional del PC, no la ingesta ni la web del servidor.**
    `facylf_canonico_2`, `facylf_canonico_3` y `facylf_canonico_4`. Eso libera los 116 GB.
 3. Si solo se quiere aliviar `/`: borrar primero `facylf_canonico` y `_2` (57 GB) deja margen y conserva
    las dos más recientes.
-4. Revisar antes si algún proceso del PC sigue usando `facylf_canonico_4` (`sirve-web-servidor.ps1`); si
-   se quiere mantener esa vía, conservar `_4` o reapuntarla a `facylf`.
+4. Revisar antes si algún proceso del PC sigue usando `facylf_canonico_4` (`sirve-web-servidor.ps1` y
+   `scripts/claude/publica-canonico.ps1`); si se quiere mantener esa vía, conservar `_4` o reapuntar el
+   script a otra base.
 
 ## 6 · Reproducir la medida
 
