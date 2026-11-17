@@ -802,6 +802,21 @@ export function marcadorConGolesDeActa(db, ref, golesLocal, golesVisitante) {
 
 /** Tras guardar un acta: si su partido tiene un 0-0 (o nada) y el acta tiene goles, el resultado pasa a ser el calculado. */
 export function corrigeMarcadorDesdeActa(db, ref) {
+  // EL MARCADOR DEL ACTA MANDA SIEMPRE (17/11/2026). La federación publica en la página de la jornada un
+  // resultado que puede ser PROVISIONAL —el del descanso—, y ese no es el resultado final. Antes sólo se
+  // corregía si el guardado estaba vacío o en 0-0, así que un 1-0 provisional que acabó 2-1 se quedaba mal.
+  // El acta trae en su cabecera el marcador final (`datos.golesLocal/golesVisitante`), y ése es el bueno.
+  const acta = db.prepare(`select datos from actas where temporada=? and competicion=? and grupo=? and jornada=? and codigo=?`)
+    .get(ref.temporada, ref.competicion, ref.grupo, ref.jornada, ref.acta);
+  if (acta?.datos) {
+    let d = null;
+    try { d = JSON.parse(acta.datos); } catch { d = null; }
+    if (d && Number.isFinite(d.golesLocal) && Number.isFinite(d.golesVisitante)) {
+      return Number(db.prepare(`update partidos set goles_local=?, goles_visitante=? where temporada=? and competicion=?
+          and grupo=? and jornada=? and codigo_acta=?`)
+        .run(d.golesLocal, d.golesVisitante, ref.temporada, ref.competicion, ref.grupo, ref.jornada, ref.acta).changes ?? 0);
+    }
+  }
   const g = golesDeActaEnCola(db, ref);
   if (!g || g.local + g.visitante === 0) return 0;
   return Number(db.prepare(`update partidos set goles_local=?, goles_visitante=? where temporada=? and competicion=? and grupo=?
