@@ -227,7 +227,8 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         ))}
       </div>
 
-      <section aria-labelledby="enfrentamientos" className={`${TARJETA} overflow-hidden`}>
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+      <section aria-labelledby="enfrentamientos" className={`${TARJETA} min-w-0 overflow-hidden lg:col-span-1`}>
         <h2 id="enfrentamientos" className="m-0 px-4 py-3 text-bloque font-bold text-[var(--texto)]">Últimos enfrentamientos</h2>
         {enfrentamientos.length === 0
           ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3 text-tabla text-[var(--texto-suave)]">Sin enfrentamientos anteriores publicados.</p>
@@ -245,6 +246,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
             </ul>
           )}
       </section>
+      <div className="min-w-0 lg:col-span-2">
 
       {evolucionLocal.length > 1 || evolucionVisitante.length > 1
         ? (
@@ -262,6 +264,8 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
             </div>
           </section>
         )}
+      </div>
+      </div>
     </div>
   );
 }
