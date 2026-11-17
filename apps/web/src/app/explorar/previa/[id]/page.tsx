@@ -155,15 +155,16 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
 
       {/* Lo primero: la predicción y el marcador más probable. */}
       <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} matriz={f.matriz} sinExplicacion />
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
       {f.matriz && (
-        <section aria-labelledby="matriz-marcadores" className={`${TARJETA} px-4 py-3`}>
+        <section aria-labelledby="matriz-marcadores" className={`${TARJETA} min-w-0 px-4 py-3 lg:col-span-2`}>
           <h2 id="matriz-marcadores" className="m-0 text-bloque font-bold text-[var(--texto)]">Matriz de resultados posibles</h2>
           <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Probabilidad de cada marcador según el Poisson del partido. Filas: goles de {f.local}; columnas: goles de {f.visitante}.</p>
           <MatrizMarcadores local={f.local} visitante={f.visitante} matriz={f.matriz} />
         </section>
       )}
 
-      <section aria-labelledby="datos-partido" className={`${TARJETA} px-4 py-3`}>
+      <section aria-labelledby="datos-partido" className={`${TARJETA} min-w-0 px-4 py-3 ${f.matriz ? 'lg:col-span-1' : 'lg:col-span-3'}`}>
         <h2 id="datos-partido" className="m-0 text-bloque font-bold text-[var(--texto)]">Datos del partido</h2>
         <dl className="m-0 mt-1">
           {datos.map((d) => (
@@ -174,6 +175,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
           ))}
         </dl>
       </section>
+      </div>
 
       {contexto && (
         <section aria-labelledby="forma-previa" className={`${TARJETA} px-4 py-3`}>
