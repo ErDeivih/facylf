@@ -1,7 +1,7 @@
 import type { Consulta } from './contratos';
 import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 
-export type JugadorPrevia = { nombre: string; minutos: number | null; goles: number };
+export type JugadorPrevia = { persona_id: number; nombre: string; minutos: number | null; goles: number };
 export type H2HPrevia = { fecha: string | null; local: string; visitante: string; gl: number; gv: number };
 export type PuntoJornada = { jornada: number; puntos: number };
 
@@ -70,12 +70,12 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
            coalesce(ml.marcador_probable, pp.marcador_probable) marcador,
            coalesce(ml.prob_marcador, pp.prob_marcador) prob_marcador,
            pp.matriz,
-           (select jsonb_agg(jsonb_build_object('nombre', p.nombre_mostrado, 'minutos', coalesce(ps.minutos_exactos, ps.minutos_estimados), 'goles', ps.goles)
+           (select jsonb_agg(jsonb_build_object('persona_id', ps.person_id, 'nombre', p.nombre_mostrado, 'minutos', coalesce(ps.minutos_exactos, ps.minutos_estimados), 'goles', ps.goles)
                     order by coalesce(ps.minutos_exactos, ps.minutos_estimados) desc nulls last)
               from analytics.player_team_season_summary ps
               join core.person p on p.id = ps.person_id
              where ps.team_entry_id = el.id limit 14) jugadores_local,
-           (select jsonb_agg(jsonb_build_object('nombre', p.nombre_mostrado, 'minutos', coalesce(ps.minutos_exactos, ps.minutos_estimados), 'goles', ps.goles)
+           (select jsonb_agg(jsonb_build_object('persona_id', ps.person_id, 'nombre', p.nombre_mostrado, 'minutos', coalesce(ps.minutos_exactos, ps.minutos_estimados), 'goles', ps.goles)
                     order by coalesce(ps.minutos_exactos, ps.minutos_estimados) desc nulls last)
               from analytics.player_team_season_summary ps
               join core.person p on p.id = ps.person_id

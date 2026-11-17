@@ -12,7 +12,9 @@ import { SinCanonico } from '@/componentes/SinCanonico';
 import { PosicionPorJornada } from '@/componentes/fichas/PosicionPorJornada';
 import { InsigniasRacha } from '@/componentes/oficiales/piezas';
 import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
+import { FotoJugador } from '@/componentes/fichas/FotoJugador';
 import type { PrediccionDePartido } from '@/lib/prediccion';
+import { modoDeFotos } from '@/lib/fotos';
 
 export const revalidate = 60;
 
@@ -89,6 +91,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
     { nombre: f.visitante, id: Number(f.visitante_id), forma: signos(contexto?.forma_visitante) },
   ].map((lado) => ({ ...lado, fila: tabla.find((t) => Number(t.equipo_id) === lado.id) ?? null }));
   const jornadaDeLaTabla = tabla[0]?.jornada ?? null;
+  const conFotos = modoDeFotos() !== 'ninguna';
   const jugadoresLocal: JugadorPrevia[] = f.jugadores_local ?? [];
   const jugadoresVisitante: JugadorPrevia[] = f.jugadores_visitante ?? [];
   const h2h: H2HPrevia[] = f.h2h ?? [];
@@ -200,8 +203,8 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
             {plantilla.jugadores.length > 0 && (
               <ul className="m-0 list-none p-0">
                 {plantilla.jugadores.map((j) => (
-                  <li key={j.nombre} className="flex items-baseline justify-between gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2">
-                    <span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span>
+                  <li key={j.nombre} className="flex items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2">
+                    <span className="flex min-w-0 items-center gap-2"><FotoJugador personaId={j.persona_id} nombre={j.nombre} permitida={conFotos} /><span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span></span>
                     <span className="flex-none text-nota tabular-nums text-[var(--texto-suave)]">
                       {j.minutos == null ? 'minutos sin publicar' : `${j.minutos} min`}
                       {j.goles > 0 ? ` · ${j.goles} ${j.goles === 1 ? 'gol' : 'goles'}` : ''}

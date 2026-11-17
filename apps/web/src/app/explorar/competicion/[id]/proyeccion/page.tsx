@@ -7,10 +7,12 @@ import {
   type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo, type FilaSimulacionFinal,
 } from '@/consultas/competiciones';
 import { ZONAS_DEL_GRUPO, type FilaZonas } from '@/consultas/paneles';
+import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompeticion';
 import { MigaCompeticion } from '@/componentes/competicion/MigaCompeticion';
 import { ProyeccionFinal } from '@/componentes/competicion/ProyeccionFinal';
+import { EloDelGrupo } from '@/componentes/competicion/EloDelGrupo';
 import { idDeGrupoDeUrl } from '@/lib/calendario';
 import { fechaUltimaJugadaDePortada } from '@/lib/jornadas';
 import { temporadasPublicables, type ZonasDelGrupo } from '@/lib/pantalla-competicion';
@@ -46,18 +48,21 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
   let temporadas: FilaEdicionDeLaCompeticion[] = [];
   let filas: FilaSimulacionFinal[] = [];
   let zonas: ZonasDelGrupo | null = null;
+  let partidos: FilaPartidoCanonico[] = [];
   try {
     portada = await portadaDe(id);
     if (portada) {
-      const [h, t, s, z] = await consultaEnUnaFoto([
+      const [h, t, s, z, p] = await consultaEnUnaFoto([
         { sql: GRUPOS_DE_LA_EDICION.sql, parametros: [portada.edicion_id] },
         { sql: EDICIONES_DE_LA_COMPETICION.sql, parametros: [portada.grupo_id] },
         { sql: SIMULACION_DEL_GRUPO.sql, parametros: [id] },
         { sql: ZONAS_DEL_GRUPO.sql, parametros: [id] },
+        { sql: PARTIDOS_DE_GRUPO.sql, parametros: [portada.federacion, portada.grupo_codigo, 400] },
       ]);
       hermanos = h as unknown as FilaGrupoDeLaEdicion[];
       temporadas = temporadasPublicables(t as unknown as FilaEdicionDeLaCompeticion[], undefined, portada.edicion_id);
       filas = s as unknown as FilaSimulacionFinal[];
+      partidos = p as unknown as FilaPartidoCanonico[];
       const zona = (z as unknown as FilaZonas[])[0];
       zonas = zona
         ? {
@@ -87,6 +92,7 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
         activa="proyeccion"
       />
       <ProyeccionFinal grupo={portada} filas={filas} zonas={zonas} />
+      <EloDelGrupo partidos={partidos} />
     </div>
   );
 }

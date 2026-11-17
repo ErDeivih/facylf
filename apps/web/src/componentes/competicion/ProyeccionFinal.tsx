@@ -7,19 +7,29 @@ import {
   unDecimal,
 } from '@/lib/proyeccion';
 
-// La muestra de Monte Carlo puede ser unánime sin certificar el puesto final.
-const porcentajeDeProbabilidad = (p: number) => porcentajeGeneral(Math.min(p, 99.99));
+const porcentaje = (p: number) => porcentajeGeneral(Math.min(p, 99.99));
+
+/** Zona dominante de un equipo, para el filo de color de la fila. */
+function zonaDe(e: { probs: number[]; zonas: ReturnType<typeof tramosDelReglamento> }): 'ascenso' | 'promocion' | 'descenso' | 'medio' {
+  const p = (t: { probabilidad: number } | null) => t?.probabilidad ?? 0;
+  if (p(e.zonas.descenso) >= 50) return 'descenso';
+  if (p(e.zonas.ascenso) >= 50) return 'ascenso';
+  if (p(e.zonas.promocion) >= 40) return 'promocion';
+  return 'medio';
+}
+
+const FILO: Record<string, string> = {
+  ascenso: 'border-l-[var(--victoria)]',
+  promocion: 'border-l-[var(--accion)]',
+  descenso: 'border-l-[var(--derrota)]',
+  medio: 'border-l-[var(--borde)]',
+};
 
 /**
- * Contenido de la pestaña «Proyección».
- *
- * Una fila por equipo, pensada para 390 px: puesto medio, nombre, puntos estimados y el tramo de
- * puestos en el que acaba ocho de cada diez veces. Debajo de cada equipo, las probabilidades que
- * importan con su rango escrito (campeón, ascenso, descenso). El reparto puesto a puesto se abre bajo
- * demanda: es el detalle, no la lectura principal.
- *
- * Tres estados antes de la tabla, cada uno con su texto: no hay simulación; la hay pero no cubre lo
- * que queda de liga (no se enseña); la hay y además parte del calendario está deducido (se dice).
+ * Clasificación final: una tabla legible, no una tarjeta por equipo. La primera lectura es el puesto
+ * esperado y el rango en el que acaba ocho de cada diez veces; las probabilidades de campeón, ascenso y
+ * descenso van en columnas. La matriz completa de puesto a puesto queda plegada y se desplaza dentro de
+ * su caja: es el detalle, no la portada.
  */
 export function ProyeccionFinal({ grupo, filas, zonas }: {
   grupo: FilaPortadaGrupo;
@@ -70,106 +80,98 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
   const maximo = Math.max(1, ...equipos.flatMap((e) => e.probs));
   const deducidos = primera.partidos_deducidos ?? 0;
   const simulados = (primera.partidos_pendientes ?? 0) + deducidos;
+  const n = equipos[0]?.probs.length ?? 0;
 
   return (
     <section aria-labelledby="proyeccion" className="flex flex-col gap-3">
       <header className="flex flex-col gap-1">
-        <h2 id="proyeccion" className="m-0 text-bloque font-bold text-[var(--texto)]">Clasificación final estimada</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="proyeccion" className="m-0 text-bloque font-bold text-[var(--texto)]">Clasificación final estimada</h2>
+          <p className="m-0 text-nota text-[var(--texto-suave)]">{primera.equipos} equipos · {primera.simulaciones.toLocaleString('es-ES')} simulaciones</p>
+        </div>
         <p className="m-0 text-nota text-[var(--texto-suave)]">
-          {simulados} partidos por jugar · {primera.simulaciones.toLocaleString('es-ES')} simulaciones · {primera.calculado_en}
+          {simulados} partidos por jugar · {primera.calculado_en}
+          {deducidos > 0 ? ` · ${deducidos} deducidos del formato de liga` : ''}
         </p>
-        {deducidos > 0 && (
-          <p className="m-0 text-nota text-[var(--texto-suave)]">
-            {deducidos} de esos partidos aún no tienen fecha publicada: se cuentan por el formato de liga.
-          </p>
-        )}
       </header>
 
-      <p aria-hidden="true" className="m-0 flex gap-3 px-3 text-nota text-[var(--texto-suave)]">
-        <span className="w-8 flex-none text-right">Puesto</span>
-        <span className="min-w-0 flex-1">Equipo</span>
-        <span className="flex-none">Puntos</span>
-      </p>
-      <ol className="m-0 flex list-none flex-col gap-2 p-0">
-        {equipos.map((e) => (
-          <li key={e.id}
-            className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 py-3">
-            <div className="flex items-baseline gap-3">
-              <span className="w-8 flex-none text-right text-bloque font-bold tabular-nums text-[var(--texto)]"
-                title={`Puesto medio al final de la liga: ${unDecimal(e.posicion)}`}>
-                <span className="sr-only">Puesto medio </span>{unDecimal(e.posicion)}
-              </span>
-              <span className="min-w-0 flex-1 break-words text-tabla font-semibold text-[var(--texto)]">{e.nombre}</span>
-              <span className="flex-none text-tabla tabular-nums text-[var(--texto-suave)]">
-                {Math.round(e.puntos)} pts
-              </span>
-            </div>
-            <dl className="m-0 mt-2 flex flex-wrap gap-x-4 gap-y-1 pl-11 text-nota tabular-nums text-[var(--texto-suave)]">
-              {e.tramo && (
-                <div className="flex gap-1">
-                  <dt>Acaba {textoDeTramo(e.tramo)}</dt>
-                  <dd className="m-0 font-semibold text-[var(--texto)]">{porcentajeDeProbabilidad(e.tramo.probabilidad)}</dd>
-                </div>
-              )}
-              {e.campeon >= 1 && (
-                <div className="flex gap-1">
-                  <dt>Campeón</dt>
-                  <dd className="m-0 font-semibold text-[var(--texto)]">{porcentajeDeProbabilidad(e.campeon)}</dd>
-                </div>
-              )}
-              {e.zonas.ascenso && e.zonas.ascenso.hasta > 1 && e.zonas.ascenso.probabilidad >= 1 && (
-                <div className="flex gap-1">
-                  <dt>Ascenso ({textoDeTramo(e.zonas.ascenso)})</dt>
-                  <dd className="m-0 font-semibold text-[var(--texto)]">{porcentajeDeProbabilidad(e.zonas.ascenso.probabilidad)}</dd>
-                </div>
-              )}
-              {e.zonas.promocion && e.zonas.promocion.probabilidad >= 1 && (
-                <div className="flex gap-1">
-                  <dt>Fase de ascenso ({textoDeTramo(e.zonas.promocion)})</dt>
-                  <dd className="m-0 font-semibold text-[var(--texto)]">{porcentajeDeProbabilidad(e.zonas.promocion.probabilidad)}</dd>
-                </div>
-              )}
-              {e.zonas.descenso && e.zonas.descenso.probabilidad >= 1 && (
-                <div className="flex gap-1">
-                  <dt>Descenso ({textoDeTramo(e.zonas.descenso)})</dt>
-                  <dd className="m-0 font-semibold text-[var(--texto)]">{porcentajeDeProbabilidad(e.zonas.descenso.probabilidad)}</dd>
-                </div>
-              )}
-            </dl>
-            <details className="mt-2 pl-11">
-              <summary className="inline-flex min-h-11 cursor-pointer items-center text-nota font-semibold text-[var(--accion)]">
-                Puesto a puesto
-              </summary>
-              <div className="flex h-16 items-end gap-px" role="img"
-                aria-label={`Probabilidad de ${e.nombre} en cada puesto, del 1.º al ${e.probs.length}.º`}>
-                {e.probs.map((p, i) => (
-                  <span key={i} title={`${i + 1}.º: ${porcentajeDeProbabilidad(p)}`} className="flex h-full flex-1 items-end">
-                    <span className="w-full rounded-t-[2px] bg-[var(--accion)]"
-                      style={{ height: p > 0 ? `${Math.max(3, (p / maximo) * 100)}%` : '0' }} />
-                  </span>
-                ))}
-              </div>
-              <div className="flex justify-between text-etiqueta tabular-nums text-[var(--texto-suave)]">
-                <span>1.º</span><span>{e.probs.length}.º</span>
-              </div>
-              <table className="mt-2 w-full border-collapse text-nota">
-                <caption className="sr-only">Probabilidad de {e.nombre} en cada puesto</caption>
-                <tbody>
-                  {e.probs.map((p, i) => (p >= 1 ? (
-                    <tr key={i} className="border-t border-[var(--fondo-sutil)]">
-                      <th scope="row" className="py-1 text-left font-normal text-[var(--texto-suave)]">{i + 1}.º</th>
-                      <td className="py-1 text-right tabular-nums text-[var(--texto)]">{porcentajeDeProbabilidad(p)}</td>
-                    </tr>
-                  ) : null))}
-                </tbody>
-              </table>
-            </details>
-          </li>
-        ))}
-      </ol>
+      <div className="overflow-x-auto rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]" tabIndex={0} role="region" aria-label="Clasificación final estimada">
+        <table className="w-full min-w-[560px] border-collapse text-tabla">
+          <caption className="sr-only">Puesto esperado, puntos y probabilidades de cada equipo</caption>
+          <thead>
+            <tr className="border-b border-[var(--borde)] text-left text-etiqueta text-[var(--texto-suave)]">
+              <th scope="col" className="px-2 py-2 text-right font-semibold">#</th>
+              <th scope="col" className="px-2 py-2 font-semibold">Equipo</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Pts</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Acaba</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Campeón</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Ascenso</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Descenso</th>
+            </tr>
+          </thead>
+          <tbody>
+            {equipos.map((e) => {
+              const zona = zonaDe(e);
+              return (
+                <tr key={e.id} className={`border-b border-l-4 border-[var(--fondo-sutil)] ${FILO[zona]} last:border-b-0`}>
+                  <td className="px-2 py-2 text-right align-top tabular-nums font-bold text-[var(--texto)]">{unDecimal(e.posicion)}</td>
+                  <td className="px-2 py-2 align-top">
+                    <span className="block font-semibold text-[var(--texto)]">{e.nombre}</span>
+                    <span className="block text-etiqueta text-[var(--texto-suave)]">
+                      {e.tramo ? `80 %: ${textoDeTramo(e.tramo)}` : 'sin rango'}
+                    </span>
+                  </td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{Math.round(e.puntos)}</td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.tramo ? porcentaje(e.tramo.probabilidad) : '—'}</td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.campeon >= 1 ? porcentaje(e.campeon) : '—'}</td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.ascenso && e.zonas.ascenso.probabilidad >= 1 ? porcentaje(e.zonas.ascenso.probabilidad) : '—'}</td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.descenso && e.zonas.descenso.probabilidad >= 1 ? porcentaje(e.zonas.descenso.probabilidad) : '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-etiqueta text-[var(--texto-suave)]" aria-label="Leyenda">
+        <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--victoria)]" /> Ascenso</span>
+        <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--accion)]" /> Fase de ascenso</span>
+        <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--derrota)]" /> Descenso</span>
+        <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--borde)]" /> Zona media</span>
+      </div>
+
+      <details className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+        <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 text-tabla font-semibold text-[var(--texto)]">
+          Matriz de puestos
+          <span className="text-etiqueta font-normal text-[var(--texto-suave)]">probabilidad de acabar en cada puesto</span>
+        </summary>
+        <div className="overflow-x-auto p-2" tabIndex={0} role="region" aria-label="Matriz de puestos">
+          <table className="border-collapse text-etiqueta">
+            <caption className="sr-only">Probabilidad de cada equipo de acabar en cada puesto, del 1 al {n}</caption>
+            <thead><tr><th scope="col" className="sticky left-0 bg-[var(--fondo-elevado)] px-1 py-1 text-left font-semibold text-[var(--texto-suave)]">Equipo</th>
+              {Array.from({ length: n }, (_, i) => <th key={i} scope="col" className="px-1 py-1 text-right font-semibold tabular-nums text-[var(--texto-suave)]">{i + 1}</th>)}
+            </tr></thead>
+            <tbody>
+              {equipos.map((e) => (
+                <tr key={e.id}>
+                  <th scope="row" className="sticky left-0 max-w-[140px] truncate bg-[var(--fondo-elevado)] px-1 py-0.5 text-left font-medium text-[var(--texto)]">{e.nombre}</th>
+                  {e.probs.map((p, i) => (
+                    <td key={i} title={`${e.nombre}: ${i + 1}.º ${porcentaje(p)}`}
+                      className="px-1 py-0.5 text-right tabular-nums text-[var(--texto)]"
+                      style={{ background: p >= 1 ? `color-mix(in oklab, var(--accion) ${Math.min(55, (p / maximo) * 55)}%, transparent)` : undefined }}>
+                      {p >= 1 ? Math.round(p) : '·'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
 
       <p className="m-0 text-nota text-[var(--texto-suave)]">
-        Los porcentajes de un equipo suman 100 % entre todos sus puestos.{' '}
+        «Acaba» es el tramo de puestos que reúne al menos el 80 % de la simulación. Los porcentajes de un
+        equipo suman 100 % entre todos sus puestos.{' '}
         <Link href={'/explorar/modelo' as Route} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">Cómo se calcula</Link>
       </p>
     </section>
