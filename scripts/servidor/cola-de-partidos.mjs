@@ -85,7 +85,10 @@ function principal() {
   }
 
   if (!seco) {
-    const adelanta = db.prepare(`update trabajos set prioridad = 1, siguiente_intento = ?, actualizado_en = ?
+    // NO se toca `prioridad`: el recolector la recalcula por categoría de competición
+    // (`reprioritizaPlan`) y escribirla aquí sólo servía para pisarla con un valor peor. Lo único que hace
+    // falta es que el trabajo esté DISPONIBLE: su `siguiente_intento` pasa a ahora.
+    const adelanta = db.prepare(`update trabajos set siguiente_intento = ?, actualizado_en = ?
       where tipo = 'acta' and temporada = ? and competicion = ? and grupo = ? and jornada = ? and acta = ?`);
     const marca = new Date(ahora).toISOString();
     db.exec('begin');
