@@ -201,6 +201,15 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal }: {
           ))}
         </div>
       )}
+      {zonas && zonasPresentes.length > 0 && (
+        <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-etiqueta text-[var(--texto-suave)]">
+          {zonas.origen === 'reglamento' && 'Zonas según el reglamento publicado.'}
+          {zonas.origen === 'aprendida' && `Zonas estimadas con ${zonas.temporadas ?? 'varias'} temporadas anteriores.`}
+          {zonas.origen === 'historica' && `Zonas estimadas con ${zonas.temporadas ?? 'varias'} temporadas comparables; no son el reglamento de este grupo.`}
+          {zonas.origen === 'regla' && 'Zonas según regla funcional provisional (por verificar con el reglamento).'}
+          {zonas.origen === 'ninguna' && 'Sin zona publicada para este grupo.'}
+        </p>
+      )}
     </section>
   );
 }

@@ -68,8 +68,13 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
       const historica = (zh as unknown as FilaZonasHistoricas[])[0];
       zonas = zona && zona.origen !== 'ninguna'
         ? {
-          ascensos: zona.ascensos, promocion: zona.promocion, descensos: zona.descensos,
-          promocion_permanencia: zona.promocion_permanencia, origen: zona.origen,
+          ascensos: zona.ascensos, promocion: zona.promocion,
+          // Regla funcional confirmada por David: de Tercera Federación descienden 3, no 2.
+          descensos: portada.federacion === 'castilla-leon' && portada.categoria === 'aficionados' && portada.division === 'tercera-federacion'
+            ? Math.max(3, zona.descensos) : zona.descensos,
+          promocion_permanencia: zona.promocion_permanencia,
+          origen: portada.federacion === 'castilla-leon' && portada.categoria === 'aficionados' && portada.division === 'tercera-federacion' && zona.descensos < 3
+            ? 'regla' : zona.origen,
           confianza: zona.confianza, temporadas: zona.temporadas,
         }
         : historica

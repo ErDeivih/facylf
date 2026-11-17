@@ -195,8 +195,12 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   );
   const zone = zonas[0]
     ? {
-      ascensos: zonas[0].ascensos, promocion: zonas[0].promocion, descensos: zonas[0].descensos,
-      promocion_permanencia: zonas[0].promocion_permanencia, origen: zonas[0].origen,
+      ascensos: zonas[0].ascensos, promocion: zonas[0].promocion,
+      descensos: grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion'
+        ? Math.max(3, zonas[0].descensos) : zonas[0].descensos,
+      promocion_permanencia: zonas[0].promocion_permanencia,
+      origen: grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion' && zonas[0].descensos < 3
+        ? 'regla' : zonas[0].origen,
       confianza: zonas[0].confianza, temporadas: zonas[0].temporadas,
     }
     : null;

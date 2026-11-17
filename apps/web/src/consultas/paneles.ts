@@ -312,6 +312,15 @@ export const ZONAS_HISTORICAS: Consulta<FilaZonasHistoricas> = {
       join core.phase_group pg on pg.id = z.phase_group_id
       join core.competition_edition ce on ce.id = pg.competition_edition_id
      where ce.categoria = $1 and ce.division = $2 and ce.genero = $3
+       and ce.federation_id = (select ce2.federation_id from core.phase_group pg2
+                                 join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
+                                where pg2.id = $4)
+       and ce.modalidad = (select ce2.modalidad from core.phase_group pg2
+                             join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
+                            where pg2.id = $4)
+       and coalesce(ce.provincia, '') = coalesce((select ce2.provincia from core.phase_group pg2
+                                                   join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
+                                                  where pg2.id = $4), '')
        and z.phase_group_id <> $4 and z.origen = 'aprendida' and z.temporadas >= 2
      group by z.ascensos, z.promocion, z.descensos
      order by count(*) desc

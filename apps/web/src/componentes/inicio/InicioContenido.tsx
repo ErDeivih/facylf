@@ -27,6 +27,9 @@ export type SesionDeLaPortada = { nombre: string | null } | null;
 /** Categorías con acceso directo desde la portada, en el orden de edad. */
 const CATEGORIAS_DE_PORTADA = ['aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin'] as const;
 
+/** Provincias de Castilla y León para buscar por territorio. */
+const PROVINCIAS_DE_PORTADA = ['Ávila', 'Burgos', 'León', 'Palencia', 'Salamanca', 'Segovia', 'Soria', 'Valladolid', 'Zamora'] as const;
+
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
 const BOTON_PRIMARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-inverso)] hover:opacity-90';
 const BOTON_SECUNDARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
@@ -174,6 +177,24 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
               href={`${urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada)}&cat=${categoria}` as Route}
               className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] hover:border-[var(--accion)]">
               {etiquetaCategoria(categoria)}
+            </Link>
+          ))}
+        </nav>
+        <details className="mt-3 rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-tabla font-semibold text-[var(--texto)]">Orden de categorías</summary>
+          <div className="grid gap-2 pb-2 text-nota leading-5 text-[var(--texto-suave)] sm:grid-cols-2">
+            <p className="m-0"><b className="text-[var(--texto)]">Aficionados:</b> Tercera Federación → Regional → Provincial Primera → Segunda → Tercera.</p>
+            <p className="m-0"><b className="text-[var(--texto)]">Juvenil:</b> Liga Nacional → Regional A/B → Provincial Primera → Segunda → Tercera.</p>
+            <p className="m-0"><b className="text-[var(--texto)]">Cadete e infantil:</b> Primera Regional → Segunda Regional → Provinciales.</p>
+            <p className="m-0">Las copas y fases de ascenso van aparte de la liga regular.</p>
+          </div>
+        </details>
+        <nav aria-label="Provincias" className="mt-3 flex flex-wrap gap-2">
+          {PROVINCIAS_DE_PORTADA.map((provincia) => (
+            <Link key={provincia}
+              href={`${urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada)}&prov=${encodeURIComponent(provincia)}` as Route}
+              className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-medium text-[var(--texto-suave)] hover:border-[var(--accion)] hover:text-[var(--accion)]">
+              {provincia}
             </Link>
           ))}
         </nav>
