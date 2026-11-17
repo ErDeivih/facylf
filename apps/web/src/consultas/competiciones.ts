@@ -687,6 +687,7 @@ export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
   'ediciones-de-la-competición': [797],
   'clasificación-de-la-pantalla': [797],
   'clasificación-calculada': [797],
+  'clasificacion-por-condicion': [44, 'local'],
   'frescura-del-grupo': [797],
   'calidad-del-grupo': [797],
   'sin-acta-del-grupo': [797],

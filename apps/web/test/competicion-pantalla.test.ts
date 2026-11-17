@@ -188,7 +188,7 @@ describe.skipIf(!hayCanonico)('la pantalla 2 contra el canónico real (Castilla 
 
   it('los goleadores del grupo son datos del grupo, ordenados por goles y con la marca de menor', async () => {
     const filas = await consulta<Record<string, unknown>>(RANKING_GOLEADORES.sql,
-      [FEDERACION, '2025-26', 'juvenil', null, GRUPO_CYL, 1, 10]);
+      [FEDERACION, '2025-26', 'juvenil', null, GRUPO_CYL, 1, 10, null, null]);
     expect(filas.length).toBeGreaterThan(0);
     const goles = filas.map((f) => Number(f.goles));
     expect(goles).toEqual([...goles].sort((a, b) => b - a));
