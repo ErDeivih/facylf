@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaPortadaGrupo, FilaSimulacionFinal } from '@/consultas/competiciones';
+import { Escudo } from '@/componentes/Escudo';
 import type { ZonasDelGrupo } from '@/lib/pantalla-competicion';
 import {
   porcentajeDeProbabilidad as porcentajeGeneral, simulacionCubreLoQueQueda, textoDeTramo, tramoMasProbable, tramosDelReglamento,
@@ -71,6 +72,8 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
       nombre: f.nombre_corto ?? f.nombre,
       posicion: f.posicion_esperada,
       puntos: f.puntos_medios,
+      clubId: f.club_id,
+      tieneEscudo: f.tiene_escudo,
       probs,
       campeon: probs[0] ?? 0,
       tramo: tramoMasProbable(probs),
@@ -81,6 +84,9 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
   const deducidos = primera.partidos_deducidos ?? 0;
   const simulados = (primera.partidos_pendientes ?? 0) + deducidos;
   const n = equipos[0]?.probs.length ?? 0;
+  const hayAscenso = equipos.some((e) => (e.zonas.ascenso?.probabilidad ?? 0) >= 1);
+  const hayPromocion = equipos.some((e) => (e.zonas.promocion?.probabilidad ?? 0) >= 1);
+  const hayDescenso = equipos.some((e) => (e.zonas.descenso?.probabilidad ?? 0) >= 1);
 
   return (
     <section aria-labelledby="proyeccion" className="flex flex-col gap-3">
@@ -105,8 +111,9 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
               <th scope="col" className="px-2 py-2 text-right font-semibold">Pts</th>
               <th scope="col" className="px-2 py-2 text-right font-semibold">Acaba</th>
               <th scope="col" className="px-2 py-2 text-right font-semibold">Campeón</th>
-              <th scope="col" className="px-2 py-2 text-right font-semibold">Ascenso</th>
-              <th scope="col" className="px-2 py-2 text-right font-semibold">Descenso</th>
+              {hayAscenso && <th scope="col" className="px-2 py-2 text-right font-semibold">Ascenso</th>}
+              {hayPromocion && <th scope="col" className="px-2 py-2 text-right font-semibold">Playoff</th>}
+              {hayDescenso && <th scope="col" className="px-2 py-2 text-right font-semibold">Descenso</th>}
             </tr>
           </thead>
           <tbody>
@@ -116,7 +123,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
                 <tr key={e.id} className={`border-b border-l-4 border-[var(--fondo-sutil)] ${FILO[zona]} last:border-b-0`}>
                   <td className="px-2 py-2 text-right align-top tabular-nums font-bold text-[var(--texto)]">{unDecimal(e.posicion)}</td>
                   <td className="px-2 py-2 align-top">
-                    <span className="block font-semibold text-[var(--texto)]">{e.nombre}</span>
+                    <span className="flex items-center gap-2"><Escudo equipoId={e.id} nombre={e.nombre} clubId={e.clubId} tieneEscudo={e.tieneEscudo} /><span className="min-w-0 break-words font-semibold text-[var(--texto)]">{e.nombre}</span></span>
                     <span className="block text-etiqueta text-[var(--texto-suave)]">
                       {e.tramo ? `80 %: ${textoDeTramo(e.tramo)}` : 'sin rango'}
                     </span>
@@ -124,8 +131,9 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
                   <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{Math.round(e.puntos)}</td>
                   <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.tramo ? porcentaje(e.tramo.probabilidad) : '—'}</td>
                   <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.campeon >= 1 ? porcentaje(e.campeon) : '—'}</td>
-                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.ascenso && e.zonas.ascenso.probabilidad >= 1 ? porcentaje(e.zonas.ascenso.probabilidad) : '—'}</td>
-                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.descenso && e.zonas.descenso.probabilidad >= 1 ? porcentaje(e.zonas.descenso.probabilidad) : '—'}</td>
+                  {hayAscenso && <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.ascenso && e.zonas.ascenso.probabilidad >= 1 ? porcentaje(e.zonas.ascenso.probabilidad) : '—'}</td>}
+                  {hayPromocion && <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.promocion && e.zonas.promocion.probabilidad >= 1 ? porcentaje(e.zonas.promocion.probabilidad) : '—'}</td>}
+                  {hayDescenso && <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.descenso && e.zonas.descenso.probabilidad >= 1 ? porcentaje(e.zonas.descenso.probabilidad) : '—'}</td>}
                 </tr>
               );
             })}

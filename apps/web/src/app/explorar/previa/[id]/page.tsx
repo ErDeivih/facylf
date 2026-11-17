@@ -13,6 +13,7 @@ import { PosicionPorJornada } from '@/componentes/fichas/PosicionPorJornada';
 import { InsigniasRacha } from '@/componentes/oficiales/piezas';
 import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
 import { FotoJugador } from '@/componentes/fichas/FotoJugador';
+import { MatrizMarcadores } from '@/componentes/partidos/MatrizMarcadores';
 import type { PrediccionDePartido } from '@/lib/prediccion';
 import { modoDeFotos } from '@/lib/fotos';
 
@@ -154,6 +155,13 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
 
       {/* Lo primero: la predicción y el marcador más probable. */}
       <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} matriz={f.matriz} sinExplicacion />
+      {f.matriz && (
+        <section aria-labelledby="matriz-marcadores" className={`${TARJETA} px-4 py-3`}>
+          <h2 id="matriz-marcadores" className="m-0 text-bloque font-bold text-[var(--texto)]">Matriz de resultados posibles</h2>
+          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Probabilidad de cada marcador según el Poisson del partido. Filas: goles de {f.local}; columnas: goles de {f.visitante}.</p>
+          <MatrizMarcadores local={f.local} visitante={f.visitante} matriz={f.matriz} />
+        </section>
+      )}
 
       <section aria-labelledby="datos-partido" className={`${TARJETA} px-4 py-3`}>
         <h2 id="datos-partido" className="m-0 text-bloque font-bold text-[var(--texto)]">Datos del partido</h2>

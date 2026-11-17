@@ -575,6 +575,8 @@ export type FilaSimulacionFinal = {
   equipos: number;
   simulaciones: number;
   calculado_en: string;
+  club_id: number | null;
+  tiene_escudo: boolean | null;
   /** Partidos sin resultado con fila en el calendario que entraron en la simulación. `null` antes de 0065. */
   partidos_pendientes: number | null;
   /** Partidos que la simulación dedujo del formato de liga porque aún no tienen fila. `null` antes de 0065. */
@@ -591,9 +593,11 @@ export const SIMULACION_DEL_GRUPO: Consulta<FilaSimulacionFinal> = {
   plan: 'indexado',
   presupuestoMs: 300,
   columnas: ['team_entry_id', 'nombre', 'nombre_corto', 'posicion_esperada', 'puntos_medios', 'prob_posiciones', 'equipos', 'simulaciones', 'calculado_en',
-    'partidos_pendientes', 'partidos_deducidos'],
+    'partidos_pendientes', 'partidos_deducidos', 'club_id', 'tiene_escudo'],
   sql: `
     select s.team_entry_id, ts.nombre, nc.nombre_corto,
+           ts.club_id,
+           exists(select 1 from core.club_asset ca where ca.club_id = ts.club_id and ca.tipo='escudo' and ca.vigente) tiene_escudo,
            s.posicion_esperada::float8 posicion_esperada,
            s.puntos_medios::float8 puntos_medios,
            s.prob_posiciones::jsonb prob_posiciones,
