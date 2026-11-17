@@ -138,7 +138,7 @@ export default async function PantallaCompeticion({ params, searchParams }: {
       />
 
       <Suspense fallback={<EsqueletoContenido filas={Math.max(1, grupo.equipos)} />}>
-        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} vista={vista} />
+        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} vista={vista} hermanos={hermanos} />
       </Suspense>
     </div>
   );
@@ -148,10 +148,11 @@ export default async function PantallaCompeticion({ params, searchParams }: {
  * Todo lo que va debajo de la cabecera. Se lee en UNA sola foto del canónico: así la tabla, la forma, la
  * jornada y los goleadores no se contradicen si el importador escribe justo en ese momento.
  */
-async function Contenido({ grupo, jornadaPedida, partidos, vista }: {
+async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   grupo: FilaPortadaGrupo;
   jornadaPedida: string | undefined;
   vista: string | undefined;
+  hermanos: readonly FilaGrupoDeLaEdicion[];
   /** Los partidos ya se pidieron arriba: los necesita la fecha de la barra y la forma de la tabla. */
   partidos: readonly FilaPartidoCanonico[];
 }) {
@@ -245,6 +246,22 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista }: {
   const motivoConciliar = oficialJornada !== null && jornadaResultados !== null && oficialJornada !== jornadaResultados
     ? `la federación publicó su tabla de la jornada ${oficialJornada} y los resultados llegan a la ${jornadaResultados}`
     : 'la tabla oficial publicada no coincide con los resultados';
+  let quintos: { grupo: string; equipo: string; puntos: number; jugados: number }[] = [];
+  if (grupo.categoria === 'juvenil' && hermanos.length === 2) {
+    try {
+      const tablas = await Promise.all(hermanos.map(async (h) => ({
+        grupo: h.grupo,
+        filas: await consulta<FilaClasificacionPantalla>(CLASIFICACION_CALCULADA.sql, [h.grupo_id]),
+      })));
+      quintos = tablas.map((t) => {
+        const quinto = t.filas[t.filas.length - 5];
+        return { grupo: t.grupo, equipo: quinto?.equipo ?? 'sin datos', puntos: quinto?.puntos ?? 0, jugados: quinto?.jugados ?? 0 };
+      });
+    } catch { quintos = []; }
+  }
+  const peorQuinto = quintos.length === 2
+    ? quintos.slice().sort((a, b) => (a.puntos / Math.max(1, a.jugados)) - (b.puntos / Math.max(1, b.jugados)))[0]
+    : null;
   const idsDescenso = new Set(clasificacion.filter((f) => zonaDe(f.posicion, equipos, zone) === 'desciende').map((f) => f.equipo_id));
   const arrastresPosibles = arrastres.filter((a) => idsDescenso.has(a.equipo_id));
   const fechaActualizado = frescura && frescura.ultimo
@@ -309,6 +326,22 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista }: {
             {arrastresPosibles.map((a) => (
               <li key={`${a.equipo_id}-${a.filial_id}`} className="py-1.5 text-tabla text-[var(--texto)]">
                 <b>{a.equipo}</b> · {a.filial} <span className="text-nota text-[var(--texto-suave)]">(nivel {a.nivel})</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {quintos.length === 2 && (
+        <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
+          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Peor quinto</h2>
+          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Comparación entre los dos grupos; desciende el peor quinto. Criterio provisional hasta confirmar el reglamento.</p>
+          <ul className="m-0 mt-2 list-none divide-y divide-[var(--fondo-sutil)] p-0">
+            {quintos.map((q) => (
+              <li key={q.grupo} className="flex justify-between gap-2 py-1.5 text-tabla">
+                <span className="text-[var(--texto)]">{q.grupo}: <b>{q.equipo}</b></span>
+                <span className={peorQuinto?.grupo === q.grupo ? 'font-bold text-[var(--derrota)]' : 'text-[var(--texto-suave)]'}>
+                  {q.puntos} pts / {q.jugados} PJ
+                </span>
               </li>
             ))}
           </ul>
