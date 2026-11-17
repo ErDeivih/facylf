@@ -169,7 +169,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
         sql: RANKING_GOLEADORES.sql,
-        parametros: [grupo.federacion, grupo.temporada, null, null, grupo.grupo_id, 1, 8],
+        parametros: [grupo.federacion, grupo.temporada, null, null, grupo.grupo_id, 1, 8, null, null],
       },
       { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       { sql: CALIDAD_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },

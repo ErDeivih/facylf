@@ -25,10 +25,12 @@ export default async function PantallaGoleadores({ searchParams }: {
   const p = await searchParams;
   const categoria = typeof p.categoria === 'string' && CATEGORIAS.some(([c]) => c === p.categoria)
     ? p.categoria : 'aficionados';
+  const modalidad = p.modalidad === 'futbol-sala' ? 'futbol-sala' : 'futbol';
+  const genero = p.genero === 'femenino' || p.genero === 'mixto' ? p.genero : 'masculino';
   let filas: FilaRanking[] = [];
   try {
     filas = await consulta<FilaRanking>(RANKING_GOLEADORES.sql,
-      ['castilla-leon', '2026-27', categoria, null, null, 3, 200]);
+      ['castilla-leon', '2026-27', categoria, null, null, 3, 200, modalidad, genero]);
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Goleadores" motivo={error.message} />;
     throw error;
@@ -38,16 +40,28 @@ export default async function PantallaGoleadores({ searchParams }: {
       <header>
         <h1 className="m-0 text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">Goleadores</h1>
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
-          Castilla y León · temporada 2026-27 · una categoría cada vez, con al menos 3 partidos.
+          Castilla y León · 2026-27 · una categoría, una modalidad y un género cada vez · mínimo 3 partidos.
         </p>
       </header>
       <nav aria-label="Categorías" className="flex flex-wrap gap-1.5">
         {CATEGORIAS.map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores?categoria=${clave}` as Route}
+          <Link key={clave} href={`/explorar/goleadores?categoria=${clave}&modalidad=${modalidad}&genero=${genero}` as Route}
             aria-current={clave === categoria ? 'page' : undefined}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === categoria ? 'border-[var(--accion)] bg-[var(--accion)] text-[var(--texto-inverso)]' : 'border-[var(--borde)] bg-[var(--fondo-elevado)] text-[var(--texto)] hover:border-[var(--accion)]'}`}>
             {texto}
           </Link>
+        ))}
+      </nav>
+      <nav aria-label="Modalidad" className="flex flex-wrap gap-1.5">
+        {[['futbol', 'Fútbol 11'], ['futbol-sala', 'Fútbol sala']].map(([clave, texto]) => (
+          <Link key={clave} href={`/explorar/goleadores?categoria=${categoria}&modalidad=${clave}&genero=${genero}` as Route}
+            className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === modalidad ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
+        ))}
+      </nav>
+      <nav aria-label="Género" className="flex flex-wrap gap-1.5">
+        {[['masculino', 'Masculino'], ['femenino', 'Femenino'], ['mixto', 'Mixto']].map(([clave, texto]) => (
+          <Link key={clave} href={`/explorar/goleadores?categoria=${categoria}&modalidad=${modalidad}&genero=${clave}` as Route}
+            className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === genero ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
         ))}
       </nav>
       <section className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
