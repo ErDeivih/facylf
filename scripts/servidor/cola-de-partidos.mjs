@@ -113,6 +113,25 @@ function principal() {
     console.log(`  apartadas (3 fallos): ${cuenta.apartado ?? 0} · aplazadas (+7 días): ${cuenta.aplazado ?? 0}`);
     if (!seco) console.log(`  adelantadas en la cola: ${tocaAdelantar.length}`);
   }
+  // ── LA JORNADA DE ESTA SEMANA VA PRIMERO ────────────────────────────────────────────────────────
+  // El calendario ya trae las jornadas futuras con su fecha, pero sus páginas no se han abierto todavía
+  // (0 partidos descubiertos para el finde que viene). Con `--semana` se ponen disponibles AHORA las
+  // jornadas de los próximos 7 días, para que el recolector las abra y traiga horarios antes del sábado.
+  if (argumentos.includes('--semana') && !seco) {
+    const hoy = new Date(ahora).toISOString().slice(0, 10);
+    const dentroDe7 = new Date(ahora + 7 * 86400e3).toISOString().slice(0, 10);
+    const marca = new Date(ahora).toISOString();
+    const r = db.prepare(`
+      update trabajos set siguiente_intento = ?, actualizado_en = ?
+       where estado = 'pendiente' and tipo = 'jornada'
+         and exists (select 1 from jornadas j
+                      where j.temporada = trabajos.temporada and j.competicion = trabajos.competicion
+                        and j.grupo = trabajos.grupo and j.numero = trabajos.jornada
+                        and j.fecha >= ? and j.fecha <= ?)
+    `).run(marca, marca, hoy, dentroDe7);
+    console.log(`JORNADAS DE LA SEMANA adelantadas: ${r.changes}`);
+  }
+
   // ── REPASO DEL LUNES: la jornada siguiente, con horario y si ya hay acta (árbitro) ─────────────
   if (argumentos.includes('--proxima')) {
     const hoy = new Date(ahora).toISOString().slice(0, 10);
@@ -126,7 +145,14 @@ function principal() {
        group by fecha order by fecha limit 5
     `).all(hoy, ...(filtroTemporada ? [filtroTemporada] : []));
     console.log('PRÓXIMAS FECHAS (repaso del lunes):');
-    for (const d of proximos) console.log(`  ${d.fecha} · ${d.jornadas} jornadas en el calendario`);
+    for (const d of proximos) {
+      // Y de esos días, cuántos partidos ya están descubiertos y cuántos traen hora: es lo que se mira el lunes.
+      const detalle = db.prepare(`
+        select count(*) partidos, sum(case when hora is not null then 1 else 0 end) con_hora
+          from partidos where fecha = ?
+      `).get(d.fecha);
+      console.log(`  ${d.fecha} · ${d.jornadas} jornadas en el calendario · ${detalle.partidos} partidos descubiertos, ${detalle.con_hora ?? 0} con hora`);
+    }
   }
   return informe;
 }
