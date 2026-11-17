@@ -14,6 +14,7 @@ import { InsigniasRacha } from '@/componentes/oficiales/piezas';
 import { PrediccionPartido } from '@/componentes/partidos/PrediccionPartido';
 import { FotoJugador } from '@/componentes/fichas/FotoJugador';
 import { MatrizMarcadores } from '@/componentes/partidos/MatrizMarcadores';
+import { Escudo } from '@/componentes/Escudo';
 import type { PrediccionDePartido } from '@/lib/prediccion';
 import { modoDeFotos } from '@/lib/fotos';
 
@@ -143,14 +144,22 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         <span aria-hidden="true">›</span><span className="text-[var(--texto)]" aria-current="page">Previa</span>
       </nav>
 
-      <header className="flex flex-col gap-1">
+      <header className={`${TARJETA} px-4 py-3`}>
         <p className="m-0 text-nota text-[var(--texto-suave)]">
           Jornada {f.jornada}{fechaLarga(f.fecha) ? ` · ${fechaLarga(f.fecha)}` : ''}{f.hora ? ` · ${f.hora}` : ''}
         </p>
-        <h1 className="m-0 flex flex-col text-titulo font-bold tracking-[-0.02em] text-[var(--texto)]">
-          <span className="break-words">{f.local}</span>
-          <span className="break-words">{f.visitante}</span>
-        </h1>
+        <div className="mt-2 grid grid-cols-2 items-start gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2">
+          {[{ nombre: f.local, id: f.local_id, club: f.local_club_id, escudo: f.local_tiene_escudo, lado: lados[0] },
+            { nombre: f.visitante, id: f.visitante_id, club: f.visitante_club_id, escudo: f.visitante_tiene_escudo, lado: lados[1] }].map((equipo, i) => (
+            <div key={equipo.id} className={i === 0 ? 'flex min-w-0 flex-col items-start gap-1' : 'flex min-w-0 flex-col items-end gap-1 text-right'}>
+              <Escudo equipoId={Number(equipo.id)} nombre={equipo.nombre} clubId={equipo.club} tieneEscudo={equipo.escudo} />
+              <h1 className="m-0 break-words text-tabla font-bold leading-tight text-[var(--texto)] sm:text-bloque">{equipo.nombre}</h1>
+              {equipo.lado?.fila && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{equipo.lado.fila.posicion}.º · {equipo.lado.fila.puntos} pts</span>}
+              <InsigniasRacha signos={equipo.lado?.forma ?? []} />
+            </div>
+          ))}
+          <span className="hidden self-center text-etiqueta font-semibold uppercase tracking-wide text-[var(--texto-suave)] sm:block">vs</span>
+        </div>
       </header>
 
       {/* Lo primero: la predicción y el marcador más probable. */}

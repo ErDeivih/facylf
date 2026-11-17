@@ -11,6 +11,8 @@ export type FilaPrevia = {
   visitante: string;
   local_id: number;
   visitante_id: number;
+  local_tiene_escudo: boolean | null;
+  visitante_tiene_escudo: boolean | null;
   local_club_id: number;
   visitante_club_id: number;
   edicion: string;
@@ -46,7 +48,7 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
   descripcion: 'Previa de un partido: contexto, predicción, plantillas, enfrentamientos y puntos por jornada.',
   plan: 'indexado',
   presupuestoMs: 800,
-  columnas: ['match_id', 'local', 'visitante', 'local_id', 'visitante_id', 'local_club_id', 'visitante_club_id',
+  columnas: ['match_id', 'local', 'visitante', 'local_id', 'visitante_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'local_club_id', 'visitante_club_id',
     'edicion', 'grupo', 'jornada', 'fecha', 'hora', 'campo', 'municipio', 'arbitro',
     'pred_local', 'pred_empate', 'pred_visitante', 'pred_local_low', 'pred_local_high',
     'pred_empate_low', 'pred_empate_high', 'pred_visitante_low', 'pred_visitante_high',
@@ -56,6 +58,8 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
     select m.id match_id,
            el.nombre_en_fuente local, ev.nombre_en_fuente visitante,
            el.id local_id, ev.id visitante_id,
+           exists(select 1 from core.club_asset ca where ca.club_id = tsl.club_id and ca.tipo='escudo' and ca.vigente) local_tiene_escudo,
+           exists(select 1 from core.club_asset ca where ca.club_id = tsv.club_id and ca.tipo='escudo' and ca.vigente) visitante_tiene_escudo,
            tsl.club_id local_club_id, tsv.club_id visitante_club_id,
            e.nombre_publicado edicion, g.nombre grupo, d.numero jornada,
            to_char(coalesce(m.played_at, m.fecha_prevista::timestamptz), 'YYYY-MM-DD') fecha,
