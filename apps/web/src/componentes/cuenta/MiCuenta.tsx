@@ -25,7 +25,7 @@ const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 export function MiCuenta({ perfil, correo = null, aviso = null }: {
   perfil: PerfilCuenta;
   correo?: string | null;
-  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | null;
+  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' | null;
 }) {
   const estado = estadoDeCuenta(perfil);
   const correoVisible = correo === null ? null : enmascaraCorreo(correo);
@@ -54,6 +54,8 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
         {aviso === 'contrasena-actual' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La contraseña actual no es correcta.</p>}
         {aviso === 'contrasena-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido cambiar. Inténtalo de nuevo.</p>}
         {aviso === 'baja-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido dar de baja la cuenta. Inténtalo de nuevo.</p>}
+        {aviso === 'perfil' && <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Perfil guardado.</p>}
+        {aviso === 'perfil-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido guardar el perfil.</p>}
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
           {perfil.nombre !== null ? `Sesión de ${perfil.nombre}.` : 'Sesión abierta.'}
         </p>
@@ -90,6 +92,20 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
               <Fila etiqueta="Avisos sin leer" valor={`${perfil.avisosSinLeer}`} />
             </dl>
             <p className="m-0 text-nota text-[var(--texto-suave)]">{estado.detalle}</p>
+            <form action="/api/cuentas/perfil" method="post" className="flex flex-col gap-2 border-t border-[var(--fondo-sutil)] pt-3">
+              <p className="m-0 text-tabla font-semibold text-[var(--texto)]">Editar perfil</p>
+              <label className="text-nota text-[var(--texto-suave)]">Nombre visible
+                <input name="nombre" defaultValue={perfil.nombre ?? ''} maxLength={60} required className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
+              <label className="text-nota text-[var(--texto-suave)]">Zona horaria
+                <select name="zona" defaultValue={perfil.zonaHoraria} className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]">
+                  <option value="Europe/Madrid">Europe/Madrid</option>
+                  <option value="Atlantic/Canary">Atlantic/Canary</option>
+                  <option value="Europe/Lisbon">Europe/Lisbon</option>
+                </select>
+              </label>
+              <button type="submit" className={BOTON}>Guardar perfil</button>
+            </form>
           </section>
 
           <section id="avisos" aria-labelledby="avisos-titulo" className={`${TARJETA} flex flex-col gap-3`}>
