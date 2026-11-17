@@ -75,7 +75,7 @@ export default async function Inicio() {
 let jornada: PartidoDeEjemplo[] = [];
 try {
   const partidos = await consulta<FilaPartidoListado>(PARTIDOS_DEL_CANONICO.sql, [
-    FEDERACION_DE_LA_PORTADA, TEMPORADA_EN_CURSO, null, 25, 0,
+    FEDERACION_DE_LA_PORTADA, TEMPORADA_EN_CURSO, null, 100, 0,
   ], { presupuestoMs: PARTIDOS_DEL_CANONICO.presupuestoMs });
   const iso = (v: unknown): string => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? '').slice(0, 10));
   const cuando = (v: unknown): number => (v instanceof Date ? v.getTime() : (Date.parse(String(v ?? '')) || 0));

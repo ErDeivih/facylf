@@ -169,6 +169,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
       {f.matriz && (
         <section aria-labelledby="matriz-marcadores" className={`${TARJETA} min-w-0 px-4 py-3 lg:col-span-2`}>
           <h2 id="matriz-marcadores" className="m-0 text-bloque font-bold text-[var(--texto)]">Matriz de resultados posibles</h2>
+          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">La matriz es del modelo Poisson; la predicción 1-X-2, si aparece arriba, es del modelo ML y puede no coincidir con ella.</p>
           <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Probabilidad de cada marcador según el Poisson del partido. Filas: goles de {f.local}; columnas: goles de {f.visitante}.</p>
           <MatrizMarcadores local={f.local} visitante={f.visitante} matriz={f.matriz} />
         </section>

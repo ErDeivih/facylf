@@ -375,19 +375,16 @@ export const CLASIFICACION_CALCULADA: Consulta<FilaClasificacionPantalla> = {
        where m.phase_group_id = $1 and m.goles_local is not null
     ),
     oficial as (
-      select s.team_entry_id, s.puntos, s.jugados, s.ganados, s.empatados, s.perdidos,
+      select s.team_entry_id, s.posicion, s.puntos, s.jugados, s.ganados, s.empatados, s.perdidos,
              s.goles_favor, s.goles_contra, d.numero as jornada
         from core.standing_snapshot s join core.matchday d on d.id = s.matchday_id
        where s.phase_group_id = $1 and s.origen = 'oficial'
          and s.matchday_id = (select max(matchday_id) from core.standing_snapshot
                                where phase_group_id = $1 and origen = 'oficial')
     )
-    select row_number() over (order by
-                              case when o.jornada = u.jornada then o.puntos else a.puntos end desc,
-                              (case when o.jornada = u.jornada then o.goles_favor else a.goles_favor end
-                               - case when o.jornada = u.jornada then o.goles_contra else a.goles_contra end) desc,
-                              case when o.jornada = u.jornada then o.goles_favor else a.goles_favor end desc,
-                              te.nombre_en_fuente)::int as posicion,
+    select case when o.jornada = u.jornada then o.posicion
+                else row_number() over (order by a.puntos desc,
+                              (a.goles_favor - a.goles_contra) desc, a.goles_favor desc, te.nombre_en_fuente)::int end as posicion,
            te.id                          as equipo_id,
            te.nombre_en_fuente            as equipo,
            case when o.jornada = u.jornada then o.puntos else a.puntos end as puntos,
@@ -400,7 +397,7 @@ export const CLASIFICACION_CALCULADA: Consulta<FilaClasificacionPantalla> = {
            a.goles_favor                  as goles_favor_reconstruida,
            a.goles_contra                 as goles_contra_reconstruida,
            case when o.jornada = u.jornada then 'oficial' else 'reconstruida' end as origen,
-           coalesce(o.jornada, u.jornada)::int as jornada,
+           u.jornada::int as jornada,
            cl.id                          as club_id,
            exists (select 1 from core.club_asset ca
                     where ca.club_id = cl.id and ca.tipo = 'escudo' and ca.vigente) as tiene_escudo,

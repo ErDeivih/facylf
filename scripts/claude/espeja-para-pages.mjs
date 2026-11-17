@@ -400,16 +400,14 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
   // Se dejan los controles a la vista (enseñan el producto) pero sin formulario, y se avisa.
   let formularioNeutralizado = 0;
   const neutralizaFiltros = (html) => {
-    if (!/action="[^"]*\/explorar\/competiciones"[^>]*method="get"/.test(html)) return html;
-    formularioNeutralizado += 1;
-    const aviso = '<p class="m-0 px-1 text-nota text-[var(--texto-suave)]">En esta foto estática los filtros se ven pero no filtran: la demo no tiene servidor. En la app completa (enlace del cartel) funcionan con las mismas opciones, incluido el estado sin resultados.</p>';
-    let salida = html
-      .replace(/<form\b([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)method="get"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
-      .replace(/<form\b([^>]*)method="get"([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
-      .replace(/<\/form>/, '</div>');
-    salida = salida.replace(/(<div[^>]*data-filtros-sin-servidor="1">)/, aviso + '$1');
-    return salida;
+    // No se convierte el formulario en div: eso dejaba cierres huérfanos y rompía el buscador.
+    // Solo se corrige la acción para que apunte a una página que existe en la foto.
+    return html
+      .replace(/action="[^"]*\/explorar\/competiciones"/g, `action="${base}/explorar/competiciones"`)
+      .replace(/(<form[^>]*action="[^"]*\/explorar\/competiciones"[^>]*>)/g,
+        '<p class="m-0 px-1 text-nota text-[var(--texto-suave)]">En esta foto estática los filtros se ven pero no filtran: la demo no tiene servidor.</p>$1');
   };
+;
 
   // Fotos de persona: la ficha usa /api/foto/persona/<id>, que en Pages no existe. Se descargan del
   // servidor privado (con FACYLF_FOTOS=todas) y se publican como ficheros estáticos. David autorizó
