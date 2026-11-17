@@ -13,12 +13,14 @@ import { porcentajeCorto } from '@/lib/prediccion';
  * árbitro y el acta. Los nombres van cortos (`nombreCorto`), con el completo en el `title`; los
  * equipos y el acta son enlaces reales. Un partido sin marcador se enseña «—», nunca 0-0.
  */
-export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefActa }: {
+export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefActa, etiquetas }: {
   numero: number | null;
   partidos: readonly FilaPartidoCanonico[];
   hrefAnterior: string | null;
   hrefSiguiente: string | null;
   hrefActa?: (partido: FilaPartidoCanonico) => string | null;
+  /** Zona de cada equipo (asciende, fase de ascenso, permanencia, desciende). */
+  etiquetas?: ReadonlyMap<number, string>;
 }) {
   const flecha = 'flex size-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] text-lg';
   return (
@@ -79,6 +81,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                           clubId={p.local_club_id} tieneEscudo={p.local_tiene_escudo} />
                         <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
                           {nombres.local}
+                          {etiquetas?.get(p.local_id) && <span className="ml-1 rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1 text-etiqueta font-normal text-[var(--texto-suave)]">{etiquetas.get(p.local_id)}</span>}
                         </span>
                       </Link>
                       <Link href={enlaceEquipo(p.visitante_id)} title={nombres.completo_visitante}
@@ -87,6 +90,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                           clubId={p.visitante_club_id} tieneEscudo={p.visitante_tiene_escudo} />
                         <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
                           {nombres.visitante}
+                          {etiquetas?.get(p.visitante_id) && <span className="ml-1 rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1 text-etiqueta font-normal text-[var(--texto-suave)]">{etiquetas.get(p.visitante_id)}</span>}
                         </span>
                       </Link>
                     </div>

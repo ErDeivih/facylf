@@ -18,7 +18,7 @@ import { Goleadores } from '@/componentes/competicion/Goleadores';
 import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { CrucesPrevistos } from '@/componentes/partidos/CrucesPrevistos';
-import { formaHasta, temporadasPublicables, tituloDeCompeticion } from '@/lib/pantalla-competicion';
+import { etiquetaZona, formaHasta, temporadasPublicables, tituloDeCompeticion, zonaDe } from '@/lib/pantalla-competicion';
 import { decimal2 } from '@/lib/formato';
 import { IndicadoresGrupo } from '@/componentes/competicion/IndicadoresGrupo';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
@@ -225,6 +225,13 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const conJornada = (n: number) => `${ruta}?jornada=${n}`;
 
   const equipos = grupo.equipos || clasificacion.length;
+  const etiquetasDeZona = new Map<number,string>();
+  if (zone) {
+    for (const f of clasificacion) {
+      const z = zonaDe(f.posicion, equipos, zone);
+      if (z) etiquetasDeZona.set(f.equipo_id, etiquetaZona(z));
+    }
+  }
   // ¿La tabla oficial publicada coincide con la calculada? Si está desfasada se dice, y no se publica la oficial.
   const oficialDesfasada = clasificacion.some((f) => f.oficial_jornada != null
     && (f.oficial_jugados !== f.jugados || f.oficial_puntos !== f.puntos));
@@ -289,6 +296,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
           hrefAnterior={anterior === null ? null : conJornada(anterior)}
           hrefSiguiente={siguiente === null ? null : conJornada(siguiente)}
           hrefActa={(partido) => (tieneActa(partido.calidad_acta) ? rutaDeActa(partido.match_id) : null)}
+          etiquetas={etiquetasDeZona}
         />
         <Goleadores filas={goleadores} />
       </aside>
