@@ -111,7 +111,21 @@ function principal() {
   if (rutaAplazados && !seco) {
     writeFileSync(rutaAplazados, aplazados.map((a) => JSON.stringify(a)).join('\n') + (aplazados.length ? '\n' : ''));
   }
-  const informe = { cuando: new Date(ahora).toISOString(), cola: ruta, seco, partidos: partidos.length, ...cuenta, adelantados: tocaAdelantar.length, aplazados_listados: aplazados.length };
+  // ── REINTENTO SEMANAL DE LOS APLAZADOS ────────────────────────────────────────────────────────
+  // Sin esto la lista de aplazados sólo se mira: los partidos quedan apartados para siempre. Los lunes
+  // se les da otra oportunidad; si el acta sigue sin estar, vuelven a apartarse solos por el clasificador.
+  let aplazadosReintentados = 0;
+  if (argumentos.includes('--reintentar-aplazados') && !seco) {
+    const marca = new Date(ahora).toISOString();
+    const reabre = db.prepare(`update trabajos set prioridad = ?, siguiente_intento = ?, actualizado_en = ?
+      where tipo = 'acta' and temporada = ? and competicion = ? and grupo = ? and jornada = ? and acta = ?`);
+    for (const a of aplazados) {
+      reabre.run(BANDA_ACTAS_RECIENTES, marca, marca, a.temporada, a.competicion, a.grupo, a.jornada, a.acta);
+      aplazadosReintentados++;
+    }
+  }
+
+  const informe = { cuando: new Date(ahora).toISOString(), cola: ruta, seco, partidos: partidos.length, ...cuenta, adelantados: tocaAdelantar.length, aplazados_listados: aplazados.length, aplazados_reintentados: aplazadosReintentados };
   if (json) {
     console.log(JSON.stringify(informe, null, 2));
   } else {
@@ -120,6 +134,7 @@ function principal() {
     console.log(`  hechas: ${cuenta.hecha} · esperando su hora: ${cuenta.espera} · toca ahora: ${cuenta.toca}`);
     console.log(`  apartadas (3 fallos): ${cuenta.apartado ?? 0} · aplazadas (+7 días): ${cuenta.aplazado ?? 0}`);
     if (!seco) console.log(`  adelantadas en la cola: ${tocaAdelantar.length}`);
+    if (aplazadosReintentados) console.log(`  aplazados reintentados: ${aplazadosReintentados}`);
   }
   // ── LA JORNADA DE ESTA SEMANA VA PRIMERO ────────────────────────────────────────────────────────
   // El calendario ya trae las jornadas futuras con su fecha, pero sus páginas no se han abierto todavía
