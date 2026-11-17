@@ -28,6 +28,7 @@ PG_USUARIO="${FACYLF_PG_USUARIO:-facylf_admin}"
 PG_BASE="${FACYLF_PG_BASE:-facylf}"
 AVISO_MIN="${FACYLF_AVISO_MIN:-90}"   # a partir de aquí, la ingesta se marca como vieja
 ATASCO_MIN="${FACYLF_ATASCO_MIN:-10}" # contenedor ARRIBA con la ingesta parada más de esto = atascado
+DISCO_UMBRAL="${FACYLF_DISCO_UMBRAL:-85}" # % de uso a partir del cual se avisa (el SSD del sistema llegó al 94 %)
 
 # ── LAS FILAS SE CUENTAN EN LA BASE CANÓNICA, NO EN LAS COLAS ──────────────────────────────────────────
 #
@@ -150,6 +151,18 @@ printf '\n'
 printf 'TOTAL: %s partidos · %s federaciones · %s contenedores arriba · %s con ingesta en los últimos %s min\n' \
   "$(miles "$total")" "$(grep -c '|' <<< "$mapa_filas")" "$arriba" "$ingiriendo" "$AVISO_MIN"
 # El aviso va SIEMPRE, también cuando no hay ninguno: un cero explícito se lee y se vigila.
+# ── EL DISCO TAMBIÉN SE AVISA (16/11/2026) ─────────────────────────────────────────────────────────────
+# El disco del sistema llegó al 94 % y ahí viven Docker y las colas del SSD. Un contenedor no puede
+# «quedarse sin almacenamiento» por sí solo si el disco revienta para todos, así que se avisa por punto de
+# montaje. Se puede silenciar con FACYLF_DISCO_UMBRAL=101.
+for punto in / /srv/data; do
+  uso="$(df -P "$punto" 2>/dev/null | awk 'NR==2 {gsub("%","",$5); print $5}')"
+  [ -n "$uso" ] || continue
+  if [ "$uso" -ge "$DISCO_UMBRAL" ]; then
+    printf 'AVISO: disco %s al %s %% (umbral %s %%)\n' "$punto" "$uso" "$DISCO_UMBRAL"
+  fi
+done
+
 if [ "$atascados" -gt 0 ]; then
   printf 'AVISO: %s recolector(es) arriba ATASCADOS (sin ingesta y sin esperar plaza) más de %s min\n' "$atascados" "$ATASCO_MIN"
 else

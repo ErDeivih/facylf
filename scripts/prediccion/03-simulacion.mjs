@@ -214,7 +214,7 @@ try {
       const formato = formatoDeLiga(lista.length, grupo.jornadas);
       if (formato === null) { cuenta.sinFormato += 1; continue; }
       faltan = partidosQueFaltan({
-        equipos: lista.map((e) => e.te), existentes: crucesDe.get(g) ?? [], formato,
+        equipos: lista.map((e) => e.te), existentes: crucesDe.get(g) ?? [], formato, tolerarDuplicados: true,
       });
       if (faltan === null) { cuenta.sinFormato += 1; continue; }
     }

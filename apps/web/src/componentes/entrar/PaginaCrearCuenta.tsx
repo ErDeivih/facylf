@@ -34,7 +34,7 @@ export function PaginaCrearCuenta({ aviso, volver }: { aviso: string | null; vol
         <p className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">
           ¿Ya tienes cuenta?{' '}
           <Link href={rutaConVolver('/entrar', volver) as Route}
-            className="font-semibold text-[var(--accion)] underline underline-offset-2">
+            className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] underline underline-offset-2">
             Entrar
           </Link>
         </p>

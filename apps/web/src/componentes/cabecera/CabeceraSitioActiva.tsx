@@ -21,9 +21,11 @@ import { seccionActiva } from './activo';
 export function CabeceraSitioActiva({
   tema: temaDelServidor,
   permiteTema: permiteEnServidor,
+  conSesion = false,
 }: {
   tema: Tema;
   permiteTema: boolean;
+  conSesion?: boolean;
 }) {
   const ruta = usePathname();
   const permiteTema = ruta ? esRutaConTema(ruta) : permiteEnServidor;
@@ -39,5 +41,5 @@ export function CabeceraSitioActiva({
     setTema(efectivo);
   }, [ruta, permiteTema]);
 
-  return <CabeceraSitio activo={seccionActiva(ruta)} tema={tema} permiteTema={permiteTema} />;
+  return <CabeceraSitio activo={seccionActiva(ruta)} tema={tema} permiteTema={permiteTema} conSesion={conSesion} />;
 }

@@ -30,9 +30,8 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
   if (filas.length === 0) {
     return (
       <Aviso titulo="Sin clasificación final estimada">
-        Este grupo no tiene clasificación final estimada: o ya ha terminado, o su formato (fases,
-        eliminatorias) no permite saber qué partidos quedan.{' '}
-        <Link href={rutaClasificacion} className="font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
+        Todavía no hay estimación de la clasificación final de este grupo.{' '}
+        <Link href={rutaClasificacion} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
       </Aviso>
     );
   }
@@ -50,7 +49,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
       <Aviso titulo="Clasificación final pendiente de recalcular">
         La última estimación ({primera.calculado_en}) se hizo sin las jornadas que quedan por publicar y
         no se muestra.{' '}
-        <Link href={rutaClasificacion} className="font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
+        <Link href={rutaClasificacion} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">Ver la clasificación</Link>
       </Aviso>
     );
   }
@@ -171,7 +170,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
 
       <p className="m-0 text-nota text-[var(--texto-suave)]">
         Los porcentajes de un equipo suman 100 % entre todos sus puestos.{' '}
-        <Link href={'/explorar/modelo' as Route} className="font-semibold text-[var(--accion)] hover:underline">Cómo se calcula</Link>
+        <Link href={'/explorar/modelo' as Route} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">Cómo se calcula</Link>
       </p>
     </section>
   );

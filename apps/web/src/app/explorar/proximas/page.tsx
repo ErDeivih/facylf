@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  PROXIMOS_DEL_CALENDARIO, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, TEMPORADA_EN_CURSO,
+  HAY_CALENDARIO_FUTURO, PROXIMOS_DEL_CALENDARIO, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, TEMPORADA_EN_CURSO,
   type FilaCrucePrevisto, type FilaProximoPartido, type FilaProximosPorCompeticion,
 } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Próximos partidos — Fondo Popular' };
 
 /**
- * Próximos partidos, competición a competición.
+ * Próximos partidos, competición a competición y, dentro de cada una, día a día.
  *
  * Sólo entra lo que aún no se ha jugado y tiene fecha de hoy en adelante, dentro de la ventana elegida
  * (7, 14 o 30 días). Cada competición dice hasta qué día tiene resultados; las que no tienen ningún
@@ -51,6 +51,17 @@ export default async function PantallaProximas({ searchParams }: {
   } catch {
     previstos = [];
   }
+  // ¿Está cargado el calendario futuro? `false` también si la tabla no existe: en los dos casos lo que
+  // se le dice al visitante es lo mismo, que el calendario está pendiente de cargar.
+  let hayCalendario = previstos.length > 0;
+  if (!hayCalendario) {
+    try {
+      const [fila] = await consulta<{ hay: boolean }>(HAY_CALENDARIO_FUTURO.sql, [TEMPORADA_EN_CURSO]);
+      hayCalendario = fila?.hay === true;
+    } catch {
+      hayCalendario = false;
+    }
+  }
   partidos = conCrucesPrevistos(partidos, previstos);
 
   const { con, sin } = agrupaProximos(partidos, resumen);
@@ -68,22 +79,35 @@ export default async function PantallaProximas({ searchParams }: {
 
       <Filtros filtros={filtros} />
 
-      {con.length === 0 ? (
+      {!hayCalendario && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-4">
-          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Sin partidos en los próximos {filtros.dias} días</h2>
+          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Calendario pendiente de cargar</h2>
           <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
-            La federación aún no ha publicado partidos con fecha en ese plazo
-            {filtros.categoria ? ` para ${etiquetaCategoria(filtros.categoria).toLowerCase()}` : ''}.
-            {filtros.dias < 30 && (
-              <>
-                {' '}
-                <Link href={urlDeProximas({ ...filtros, dias: 30 }) as Route} className="font-semibold text-[var(--accion)] hover:underline">
-                  Ampliar a 30 días
-                </Link>
-              </>
-            )}
+            Las jornadas que aún no se han jugado no están cargadas todavía.
+            {con.length > 0 ? ' Debajo sólo aparecen los partidos con fecha ya publicada.' : ''}
           </p>
         </section>
+      )}
+
+      {con.length === 0 ? (
+        hayCalendario && (
+          <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-4">
+            <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Sin partidos en los próximos {filtros.dias} días</h2>
+            <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
+              No hay partidos con fecha en ese plazo
+              {filtros.categoria ? ` para ${etiquetaCategoria(filtros.categoria).toLowerCase()}` : ''}.
+              {filtros.dias < 30 && (
+                <>
+                  {' '}
+                  <Link href={urlDeProximas({ ...filtros, dias: 30 }) as Route}
+                    className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">
+                    Ampliar a 30 días
+                  </Link>
+                </>
+              )}
+            </p>
+          </section>
+        )
       ) : (
         <div className="flex flex-col gap-3">
           {con.map((competicion, i) => <Competicion key={competicion.edicionId} competicion={competicion} abierta={i < 3} />)}
@@ -93,7 +117,7 @@ export default async function PantallaProximas({ searchParams }: {
       {sin.length > 0 && (
         <section aria-labelledby="sin-proximos" className="flex flex-col gap-2">
           <h2 id="sin-proximos" className="m-0 text-bloque font-bold text-[var(--texto)]">
-            Sin próximos partidos publicados
+            {hayCalendario ? `Sin partidos en ${filtros.dias} días` : 'Sin calendario futuro cargado'}
           </h2>
           <ul className="m-0 list-none overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-0">
             {sin.map((c) => (
@@ -163,23 +187,23 @@ function Competicion({ competicion, abierta }: { competicion: CompeticionConProx
           {frescura(competicion.ultimoResultado, competicion.atrasados)}
         </span>
       </summary>
-      {competicion.grupos.map((grupo) => (
-        <section key={grupo.grupoId} className="border-t border-[var(--borde)]">
+      {competicion.fechas.map((dia) => (
+        <section key={dia.fecha} className="border-t border-[var(--borde)]">
           <h3 className="m-0 flex items-baseline justify-between gap-3 bg-[var(--fondo-sutil)] px-4 py-2 text-nota font-semibold text-[var(--texto)]">
-            <Link href={`/explorar/competicion/${grupo.grupoId}` as Route} className="min-w-0 break-words hover:underline">
-              {grupo.grupo}
-            </Link>
-            <span className="flex-none tabular-nums text-[var(--texto-suave)]">Jornada {grupo.partidos[0].jornada}</span>
+            <span>{diaCorto(dia.fecha)}</span>
+            <span className="flex-none tabular-nums text-[var(--texto-suave)]">
+              {dia.partidos.length} {dia.partidos.length === 1 ? 'partido' : 'partidos'}
+            </span>
           </h3>
           <ul className="m-0 list-none p-0">
-            {grupo.partidos.map((p) => {
+            {dia.partidos.map((p) => {
               const prediccion = linea1X2(p);
               return (
                 <li key={p.match_id ?? `c-${p.grupo_id}-${p.jornada}-${p.orden}`} className="border-t border-[var(--fondo-sutil)] first:border-t-0">
                   <Link href={(p.match_id !== null ? `/explorar/previa/${p.match_id}` : `/explorar/competicion/${p.grupo_id}`) as Route}
                     className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
-                    <span className="text-nota tabular-nums text-[var(--texto-suave)]">
-                      {diaCorto(p.fecha)}{p.jornada !== grupo.partidos[0].jornada ? ` · Jornada ${p.jornada}` : ''}
+                    <span className="break-words text-nota tabular-nums text-[var(--texto-suave)]">
+                      {competicion.grupos.length > 1 ? `${p.grupo} · ` : ''}Jornada {p.jornada}
                     </span>
                     <span className="break-words text-tabla font-semibold text-[var(--texto)]">
                       {p.local} <span className="font-normal text-[var(--texto-suave)]">–</span> {p.visitante}

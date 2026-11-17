@@ -29,7 +29,18 @@ describe('próximos partidos', () => {
     expect(con[0].partidos).toBe(3);
     expect(con[0].grupos.map((g) => [g.grupo, g.partidos.length])).toEqual([['Grupo A', 2], ['Grupo B', 1]]);
     expect(con[0].ultimoResultado).toBe('2026-11-08');
+    expect(con[0].fechas.map((f) => [f.fecha, f.partidos.length])).toEqual([['2026-11-21', 3]]);
     expect(sin.map((s) => s.edicion)).toEqual(['Juvenil Provincial']);
+  });
+
+  it('dentro de una competición los partidos van por día, del más cercano al más lejano', () => {
+    const { con } = agrupaProximos(
+      [partido({ fecha: '2026-11-22' }), partido({ match_id: 2, grupo_id: 11, grupo: 'Grupo B', fecha: '2026-11-21' }),
+        partido({ match_id: 3, grupo_id: 11, grupo: 'Grupo B', fecha: '2026-11-22' })],
+      [resumen({})],
+    );
+    expect(con[0].fechas.map((f) => f.fecha)).toEqual(['2026-11-21', '2026-11-22']);
+    expect(con[0].fechas[1].partidos.map((p) => p.grupo)).toEqual(['Grupo A', 'Grupo B']);
   });
 
   it('escribe la fecha y el 1-X-2 en corto', () => {

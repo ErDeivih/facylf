@@ -26,7 +26,7 @@
  */
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
@@ -120,7 +120,8 @@ const arg = (n, d = null) => { const i = argumentos.indexOf(`--${n}`); return i 
 
 async function principal() {
   const federacion = arg('federacion');
-  const limite = Number(arg('limite', 0));
+  const limite = Number(arg('limite', 50));
+  const desde = Number(arg('desde', 0)) || 0;
   const seco = argumentos.includes('--seco');
   const raiz = process.env.FACYLF_RAIZ ?? RAIZ;
   if (!federacion) {
@@ -129,9 +130,24 @@ async function principal() {
   }
   const origen = ORIGENES[federacion] ?? `https://www.${federacion}.es`;
 
+  // Una sola instancia: si hay otra viva, no se arranca. El candado se suelta en el `finally`.
+  const carpetaEstado = join(raiz, 'estado');
+  const candado = join(carpetaEstado, 'escudos-fotos.lock');
+  try { readdirSync(carpetaEstado); } catch { /* se crea al escribir */ }
+  if (existsSync(candado)) {
+    const pid = Number(readFileSync(candado, 'utf8').trim());
+    let vivo = false;
+    if (Number.isInteger(pid) && pid > 0) { try { process.kill(pid, 0); vivo = true; } catch { vivo = false; } }
+    if (vivo) { console.error(`ya hay una instancia (PID ${pid}); no se arranca otra`); process.exit(3); }
+    unlinkSync(candado);
+  }
+  writeFileSync(candado, String(process.pid), 'utf8');
+  process.on('exit', () => { try { unlinkSync(candado); } catch { /* ya no está */ } });
+
   let ficheros = archivosHtml(raiz, federacion);
-  if (limite > 0) ficheros = ficheros.slice(0, limite);
-  console.log(`HTML archivados de ${federacion}: ${ficheros.length}`);
+  const total = ficheros.length;
+  ficheros = ficheros.slice(desde, limite > 0 ? desde + limite : undefined);
+  console.log(`HTML archivados de ${federacion}: ${total} · lote desde ${desde}, ${ficheros.length} ficheros`);
 
   const escudos = new Map();
   const fotos = new Map(); // clave `${jugador}|${temporada}` → { mime, contenido }

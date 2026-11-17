@@ -292,7 +292,7 @@ export function UltimosResultados({ partidos, grupoId }: {
                         {insignia.letra}
                       </span>
                     )}
-                    <span className="min-w-0 truncate font-semibold text-[var(--texto)]">
+                    <span className="min-w-0 break-words font-semibold text-[var(--texto)]">
                       {partido.condicion === 'casa' ? 'contra' : 'en'} {partido.rival}
                     </span>
                   </span>

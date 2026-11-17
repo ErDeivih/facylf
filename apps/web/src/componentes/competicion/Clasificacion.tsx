@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Route } from 'next';
 import type { FilaClasificacionPantalla } from '@/consultas/competiciones';
 import { Escudo } from '@/componentes/Escudo';
 import { insigniaForma } from '@/lib/forma-equipo';
@@ -18,7 +19,9 @@ import {
  * `data-tabla-scroll` y las dos primeras columnas —puesto y equipo— quedan fijas a la izquierda, que es
  * la identidad de la fila.
  */
-export function Clasificacion({ filas, rachas, zonas, equipos }: {
+export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal }: {
+  /** Ruta de la clasificación final estimada del grupo. Si llega, se enlaza junto al título de la tabla. */
+  hrefFinal?: string;
   filas: readonly FilaClasificacionPantalla[];
   rachas: ReadonlyMap<number, string>;
   zonas: ZonasDelGrupo | null;
@@ -36,11 +39,22 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
     ] as Array<[Exclude<ZonaPantalla, null>, number]>).filter(([, n]) => n > 0)
     : [];
   const fijas = 'sticky z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)]';
+  // Cabecera fija al desplazar la página en móvil. Sólo funciona si ningún antepasado de la tabla es un
+  // contenedor con desplazamiento: por eso en móvil la sección recorta con `overflow-clip` y el envoltorio
+  // de la tabla no desplaza (la tabla cabe entera a 390 px). En escritorio la tabla se desplaza dentro de
+  // su caja, como antes.
+  const cabeceraFija = 'max-md:sticky max-md:top-0 max-md:z-[var(--capa-pegajoso)] max-md:bg-[var(--fondo-elevado)] max-md:shadow-[inset_0_-1px_0_var(--borde)]';
   return (
     <section aria-labelledby="clasificacion"
-      className="-mx-4 min-w-0 w-full flex-[999_1_auto] overflow-hidden rounded-none border-x-0 md:mx-0 md:flex-[999_1_640px] md:rounded-[var(--radius-tarjeta)] md:border-x rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+      className="-mx-4 min-w-0 w-full flex-[999_1_auto] overflow-clip rounded-none border-x-0 md:mx-0 md:flex-[999_1_640px] md:rounded-[var(--radius-tarjeta)] md:border-x rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-3.5">
         <h2 id="clasificacion" className="m-0 text-bloque font-bold text-[var(--texto)]">Clasificación</h2>
+        {hrefFinal && (
+          <Link href={hrefFinal as Route}
+            className="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-[var(--accion)] px-3 text-tabla font-semibold text-[var(--accion)] hover:bg-[var(--fondo-sutil)]">
+            Clasificación final
+          </Link>
+        )}
         <div role="group" aria-label="Vista" className="flex rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] p-[3px]">
           <span className="flex h-9 items-center rounded-[var(--radius-md)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] shadow-[var(--sombra-segmento)]">
             Total
@@ -78,16 +92,16 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
         : (
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Clasificación: desplázate en horizontal para ver todas las columnas"
-            className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
+            className="relative md:overflow-x-auto focus-visible:[outline-offset:-2px]">
             <table className="w-full table-fixed border-separate border-spacing-0 text-tabla md:table-auto md:min-w-[600px]">
               <caption className="sr-only">
                 Clasificación del grupo: posición, partidos jugados, victorias-empatadas-derrotas, goles y puntos de cada equipo.
               </caption>
               <thead>
                 <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
-                  <th scope="col" className={`${fijas} left-0 w-7 py-2 pl-2 pr-1 text-left font-semibold md:w-9 md:pl-4 md:pr-1.5`}>#</th>
-                  <th scope="col" className={`${fijas} left-9 px-1.5 py-2 text-left font-semibold`}>Equipo</th>
-                  <th scope="col" className="w-8 px-0.5 py-2 font-semibold md:w-auto md:px-1.5" title="Partidos jugados">PJ</th>
+                  <th scope="col" className={`${fijas} max-md:top-0 max-md:shadow-[inset_0_-1px_0_var(--borde)] left-0 w-7 py-2 pl-2 pr-1 text-left font-semibold md:w-9 md:pl-4 md:pr-1.5`}>#</th>
+                  <th scope="col" className={`${fijas} max-md:top-0 max-md:shadow-[inset_0_-1px_0_var(--borde)] left-9 px-1.5 py-2 text-left font-semibold`}>Equipo</th>
+                  <th scope="col" className={`${cabeceraFija} w-8 px-0.5 py-2 font-semibold md:w-auto md:px-1.5`} title="Partidos jugados">PJ</th>
                   {/*
                     El recuento de victorias-empatadas-derrotas también se rotula V-E-D: la aplicación
                     usa V-E-D para Victoria/Empate/Derrota en toda la interfaz (decisión de David,
@@ -96,7 +110,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos }: {
                   */}
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Victorias-Empates-Derrotas">V-E-D</th>
                   <th scope="col" className="hidden px-1.5 py-2 font-semibold md:table-cell" title="Goles a favor y en contra">Goles</th>
-                  <th scope="col" className="w-9 py-2 pl-0.5 pr-1 font-semibold md:w-auto md:pl-1.5 md:pr-4">Pts</th>
+                  <th scope="col" className={`${cabeceraFija} w-9 py-2 pl-0.5 pr-1 font-semibold md:w-auto md:pl-1.5 md:pr-4`}>Pts</th>
                   <th scope="col" className="hidden w-[3.75rem] px-0.5 py-2 text-left font-semibold md:table-cell md:w-auto md:px-1.5"
                     title="Últimos 5 partidos hasta la jornada de la tabla, del más antiguo al más reciente">Forma</th>
                 </tr>

@@ -6,7 +6,7 @@ import { NOMBRE_PRODUCTO } from './marca';
  * Pie del sitio: adónde ir, de dónde salen los datos y qué no es esta web.
  *
  * Tres grupos de enlaces a pantallas que existen y una línea de procedencia. No hay enlaces a redes ni
- * a páginas legales que el producto no tiene: un pie no promete lo que no hay detrás.
+ * a nada que el producto no tenga: un pie no promete lo que no hay detrás.
  */
 const GRUPOS: readonly { titulo: string; enlaces: readonly { texto: string; href: string }[] }[] = [
   {
@@ -20,7 +20,7 @@ const GRUPOS: readonly { titulo: string; enlaces: readonly { texto: string; href
   {
     titulo: 'Estadísticas',
     enlaces: [
-      { texto: 'Goleadores', href: '/explorar/rankings' },
+      { texto: 'Goleadores', href: '/explorar/goleadores' },
       { texto: 'Estadísticas', href: '/explorar/estadisticas' },
       { texto: 'Comparar jugadores', href: '/explorar/comparar' },
     ],
@@ -30,6 +30,7 @@ const GRUPOS: readonly { titulo: string; enlaces: readonly { texto: string; href
     enlaces: [
       { texto: 'Pronósticos', href: '/explorar/modelo' },
       { texto: 'Cobertura', href: '/explorar/datos' },
+      { texto: 'Privacidad y cookies', href: '/explorar/legal' },
       { texto: 'Publicidad', href: '/explorar/publicidad' },
     ],
   },

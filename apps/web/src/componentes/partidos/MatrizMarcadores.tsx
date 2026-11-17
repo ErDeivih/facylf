@@ -58,7 +58,7 @@ export function MatrizMarcadores({ local, visitante, matriz }: {
           </caption>
           <thead>
             <tr>
-              <td className="w-8" />
+              <td className="w-8 text-etiqueta text-[var(--texto-suave)]" aria-hidden="true">L / V</td>
               {GOLES.map((gv) => (
                 <th key={gv} scope="col" className="py-1 font-semibold text-[var(--texto-suave)]">{gv}</th>
               ))}
@@ -73,7 +73,7 @@ export function MatrizMarcadores({ local, visitante, matriz }: {
                   return (
                     <td key={gv} title={`${gl}-${gv}: ${pct(p)} %`}
                       style={{ backgroundColor: `color-mix(in srgb, var(--accion) ${Math.round((p / maximo) * 55)}%, transparent)` }}
-                      className="border border-[var(--fondo)] py-2 text-[var(--texto)]">
+                      className={`border border-[var(--fondo)] py-2 text-[var(--texto)] ${p === maximo ? 'font-extrabold outline outline-2 -outline-offset-2 outline-[var(--texto)]' : ''}`}>
                       {pct(p)}
                     </td>
                   );
@@ -83,7 +83,7 @@ export function MatrizMarcadores({ local, visitante, matriz }: {
           </tbody>
         </table>
         <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">
-          Filas: goles de {local}. Columnas: goles de {visitante}.
+          Filas (L): goles de {local}. Columnas (V): goles de {visitante}. El recuadro marca el más probable.
           {fuera >= 0.1 ? ` Con cinco goles o más de un equipo: ${pct(fuera)} %.` : ''}
         </p>
       </div>

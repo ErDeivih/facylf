@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { GRUPOS_DEL_SELECTOR, type FilaGrupoSelector } from '@/consultas/catalogo-selector';
 import { PARTIDOS_DEL_CANONICO, type FilaPartidoListado } from '@/consultas/entidades';
+import {
+  PROXIMOS_DEL_CALENDARIO, PROXIMOS_PARTIDOS, TEMPORADA_EN_CURSO,
+  type FilaCrucePrevisto, type FilaProximoPartido,
+} from '@/consultas/partidos';
+import { agrupaProximos, conCrucesPrevistos, type CompeticionConProximos } from '@/lib/proximas';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { InicioContenido, type PartidoDeEjemplo } from '@/componentes/inicio/InicioContenido';
 import type { FilaAcceso } from '@/consultas/usuario';
@@ -18,10 +23,10 @@ export const metadata: Metadata = {
 /**
  * Portada de Fondo Popular.
  *
- * Tres bloques, como el prototipo:
- *  · búsqueda por nombre de equipo, jugador o club (la misma consulta canónica que `/buscar`);
- *  · «Explorar una competición»: una selección real de competiciones de Castilla y León y el acceso al
- *    selector completo, donde se puede pedir cualquier temporada, también histórica;
+ * Cuatro bloques, en el orden en que se buscan:
+ *  · «Próximos partidos»: lo que se juega esta semana en las ligas de aficionados, por competición;
+ *  · «Últimos resultados»;
+ *  · «Competiciones»: las ligas sénior de mayor a menor nivel y el acceso por categoría;
  *  · «Tus equipos»: si hay sesión, los favoritos de `app.mis_accesos`; si no, se invita a entrar y NO
  *    se pinta ningún equipo inventado.
  *
@@ -36,7 +41,9 @@ export default async function Inicio() {
   let filas: FilaGrupoSelector[] = [];
   try {
     filas = await consulta<FilaGrupoSelector>(GRUPOS_DEL_SELECTOR.sql, [
-      FEDERACION_DE_LA_PORTADA, null, null, null, null, null, null, [], 60, 0,
+      // Aficionados: la portada enseña primero las ligas sénior (Tercera, regionales, provinciales). El
+      // resto de categorías se alcanza con los accesos de categoría.
+      FEDERACION_DE_LA_PORTADA, null, 'aficionados', null, null, null, null, [], 60, 0,
     ], { presupuestoMs: GRUPOS_DEL_SELECTOR.presupuestoMs });
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
@@ -45,9 +52,25 @@ export default async function Inicio() {
     throw error;
   }
 
-  const competiciones = competicionesDePortada(filas);
+  // De mayor a menor nivel competitivo; sin nivel publicado, al final.
+  const porNivel = [...filas].sort((a, b) => (a.nivel ?? 99) - (b.nivel ?? 99));
+  const competiciones = competicionesDePortada(porNivel);
 
-// Jornada de ejemplo de la portada: los últimos partidos jugados de la temporada de la portada. Si la consulta
+  // Lo próximo: partidos con fila y cruces del calendario previsto, de aficionados y de los próximos
+  // siete días. Va aparte: si falla (o el calendario no está cargado), la portada sigue sin ese bloque.
+  let proximos: CompeticionConProximos[] = [];
+  try {
+    const parametros = [TEMPORADA_EN_CURSO, 7, 'aficionados'];
+    const [conFila, previstos] = await Promise.all([
+      consulta<FilaProximoPartido>(PROXIMOS_PARTIDOS.sql, parametros).catch(() => [] as FilaProximoPartido[]),
+      consulta<FilaCrucePrevisto>(PROXIMOS_DEL_CALENDARIO.sql, parametros).catch(() => [] as FilaCrucePrevisto[]),
+    ]);
+    proximos = agrupaProximos(conCrucesPrevistos(conFila, previstos), []).con.slice(0, 3);
+  } catch {
+    proximos = [];
+  }
+
+// Últimos resultados de la portada: los últimos partidos jugados de la temporada de la portada. Si la consulta
 // falla, la portada sigue sin ese bloque (no se inventa nada).
 let jornada: PartidoDeEjemplo[] = [];
 try {
@@ -84,7 +107,7 @@ try {
     }));
 } catch (error) {
   // Si la consulta falla, la portada sigue sin el bloque, pero se deja rastro en el registro del servidor.
-  console.error('[portada] no se pudo cargar la jornada de ejemplo:', error);
+  console.error('[portada] no se pudieron cargar los últimos resultados:', error);
   jornada = [];
 }
 
@@ -102,6 +125,7 @@ const sesion = await sesionActual();
   return (
     <InicioContenido
       competiciones={competiciones}
+      proximos={proximos}
       jornada={jornada}
       sesion={sesion ? { nombre: sesion.nombre } : null}
       accesos={accesos}

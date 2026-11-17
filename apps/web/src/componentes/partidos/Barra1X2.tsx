@@ -13,6 +13,8 @@ export function Barra1X2({ local, empate, visitante, etiqueta }: {
   const x = Number(empate) || 0;
   const v = Number(visitante) || 0;
   const total = Math.max(0.01, l + x + v);
+  // Porcentaje con coma decimal, como en el resto de la interfaz.
+  const pct = (n: number) => `${n.toFixed(1).replace('.', ',')} %`;
   const p1 = (l / total) * 100;
   const px = (x / total) * 100;
   const p2 = (v / total) * 100;
@@ -24,11 +26,11 @@ export function Barra1X2({ local, empate, visitante, etiqueta }: {
   );
   return (
     <div>
-      <div role="img" aria-label={etiqueta ?? `1 ${l.toFixed(1)} %, X ${x.toFixed(1)} %, 2 ${v.toFixed(1)} %`}
+      <div role="img" aria-label={etiqueta ?? `1 ${pct(l)}, X ${pct(x)}, 2 ${pct(v)}`}
         className="flex h-6 w-full overflow-hidden rounded-[var(--radius-md)] border border-[var(--borde)]">
-        {tramo(p1, `1 ${l.toFixed(1)} %`, 'bg-[var(--accion)] text-[var(--texto-inverso)]')}
-        {tramo(px, `X ${x.toFixed(1)} %`, 'bg-[var(--fondo-sutil)] text-[var(--texto)]')}
-        {tramo(p2, `2 ${v.toFixed(1)} %`, 'bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]')}
+        {tramo(p1, `1 ${pct(l)}`, 'bg-[var(--accion)] text-[var(--texto-inverso)]')}
+        {tramo(px, `X ${pct(x)}`, 'bg-[var(--fondo-sutil)] text-[var(--texto)]')}
+        {tramo(p2, `2 ${pct(v)}`, 'bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]')}
       </div>
     </div>
   );

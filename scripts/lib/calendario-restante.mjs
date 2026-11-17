@@ -43,7 +43,7 @@ export function partidosTotales(equipos, formato) {
  *   `null` si lo que existe no encaja con el formato (un cruce repetido, un equipo ajeno al grupo): en
  *   ese caso el grupo no es la liga que parecía y no se deduce nada.
  */
-export function partidosQueFaltan({ equipos, existentes, formato }) {
+export function partidosQueFaltan({ equipos, existentes, formato, tolerarDuplicados = false }) {
   const dentro = new Set(equipos);
   const vistos = new Set();
   for (const p of existentes) {
@@ -51,7 +51,13 @@ export function partidosQueFaltan({ equipos, existentes, formato }) {
     const clave = formato === 'doble'
       ? `${p.local}>${p.visitante}`
       : [p.local, p.visitante].sort().join('~');
-    if (vistos.has(clave)) return null;
+    // Un cruce repetido con el mismo local es un dato raro (reprogramación o acta duplicada), pero no
+    // invalida el grupo: se cuenta una vez y se sigue. Antes se descartaba la liga entera y dejaba sin
+    // proyección a grupos como la Tercera Federación, grupo VIII.
+    if (vistos.has(clave)) {
+      if (tolerarDuplicados) continue;
+      return null;
+    }
     vistos.add(clave);
   }
   const faltan = [];

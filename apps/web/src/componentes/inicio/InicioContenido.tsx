@@ -3,6 +3,8 @@ import { formateaPorcentaje } from '@/lib/prediccion';
 import type { Route } from 'next';
 import type { FilaAcceso } from '@/consultas/usuario';
 import { rutaDeAcceso } from '@/lib/cuentas';
+import { diaCorto, linea1X2, type CompeticionConProximos } from '@/lib/proximas';
+import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
 import {
   etiquetaDeAcceso, FEDERACION_DE_LA_PORTADA, rutaDeCompeticion, temporadaDeLaPortada,
   textoDeCobertura, textoSiguiente, urlDelSelector, type CompeticionDePortada,
@@ -21,6 +23,9 @@ import {
  * inventados.
  */
 export type SesionDeLaPortada = { nombre: string | null } | null;
+
+/** Categorías con acceso directo desde la portada, en el orden de edad. */
+const CATEGORIAS_DE_PORTADA = ['aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin'] as const;
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
 const BOTON_PRIMARIO = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-inverso)] hover:opacity-90';
@@ -52,8 +57,10 @@ export type PartidoDeEjemplo = {
   predMarcador?: string | null;
 };
 
-export function InicioContenido({ competiciones, jornada = [], sesion, accesos, errorAccesos = false }: {
+export function InicioContenido({ competiciones, proximos = [], jornada = [], sesion, accesos, errorAccesos = false }: {
   competiciones: readonly CompeticionDePortada[];
+  /** Próximos partidos por competición (como mucho tres competiciones). Vacío si no hay calendario. */
+  proximos?: readonly CompeticionConProximos[];
   jornada?: readonly PartidoDeEjemplo[];
   sesion: SesionDeLaPortada;
   accesos: readonly FilaAcceso[];
@@ -78,6 +85,42 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
           <Link href={'/explorar/rankings' as Route} className={BOTON_SECUNDARIO}>Goleadores</Link>
         </nav>
       </header>
+
+      {proximos.length > 0 && (
+        <section aria-labelledby="proximos-portada" className="flex flex-col gap-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 id="proximos-portada" className="m-0 text-bloque font-bold text-[var(--texto)]">Próximos partidos</h2>
+            <Link href={'/explorar/proximas' as Route}
+              className="inline-flex min-h-11 items-center text-tabla font-semibold text-[var(--accion)] hover:underline">
+              Ver todos
+            </Link>
+          </div>
+          <div className="grid gap-3 lg:grid-cols-3">
+            {proximos.map((competicion) => (
+              <section key={competicion.edicionId} className={`${TARJETA} overflow-hidden`}>
+                <h3 className="m-0 break-words px-4 py-3 text-tabla font-bold text-[var(--texto)]">{competicion.edicion}</h3>
+                <ul className="m-0 list-none p-0">
+                  {competicion.fechas.flatMap((dia) => dia.partidos).slice(0, 3).map((p) => {
+                    const prediccion = linea1X2(p);
+                    return (
+                      <li key={p.match_id ?? `c-${p.grupo_id}-${p.jornada}-${p.orden}`} className="border-t border-[var(--fondo-sutil)]">
+                        <Link href={(p.match_id !== null ? `/explorar/previa/${p.match_id}` : `/explorar/competicion/${p.grupo_id}`) as Route}
+                          className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
+                          <span className="text-nota tabular-nums text-[var(--texto-suave)]">{diaCorto(p.fecha)} · Jornada {p.jornada}</span>
+                          <span className="break-words text-tabla font-semibold text-[var(--texto)]">
+                            {p.local} <span className="font-normal text-[var(--texto-suave)]">–</span> {p.visitante}
+                          </span>
+                          {prediccion && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{prediccion}</span>}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {jornada.length > 0 && (
         <section aria-labelledby="ultimos-resultados" className="flex flex-col gap-3">
@@ -115,7 +158,7 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
       <section aria-labelledby="explorar-competicion" className={`${TARJETA} px-4 py-4`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h2 id="explorar-competicion" className="m-0 text-bloque font-bold text-[var(--texto)]">Explorar una competición</h2>
+            <h2 id="explorar-competicion" className="m-0 text-bloque font-bold text-[var(--texto)]">Competiciones</h2>
             <p className="m-0 mt-0.5 text-nota text-[var(--texto-suave)]">
               Castilla y León{temporada !== null ? ` · ${temporada}` : ''}
             </p>
@@ -125,6 +168,15 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
             Ver todas
           </Link>
         </div>
+        <nav aria-label="Categorías" className="mt-3 flex flex-wrap gap-2">
+          {CATEGORIAS_DE_PORTADA.map((categoria) => (
+            <Link key={categoria}
+              href={`${urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada)}&cat=${categoria}` as Route}
+              className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] hover:border-[var(--accion)]">
+              {etiquetaCategoria(categoria)}
+            </Link>
+          ))}
+        </nav>
         {competiciones.length === 0
           ? (
             <p className="m-0 mt-3 text-tabla text-[var(--texto-suave)]">
@@ -137,9 +189,6 @@ export function InicioContenido({ competiciones, jornada = [], sesion, accesos, 
                 <li key={competicion.grupoId}>
                   <Link href={rutaDeCompeticion(competicion.grupoId) as Route}
                     className="flex h-full min-h-11 flex-col gap-0.5 rounded-[var(--radius-lg)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2.5 hover:border-[var(--borde-fuerte)] focus-visible:[outline-offset:2px]">
-                    <span className="text-etiqueta text-[var(--texto-suave)]">
-                      {competicion.temporada} · {competicion.federacionNombre}
-                    </span>
                     <span className="text-tabla font-semibold text-[var(--texto)]">{competicion.edicion}</span>
                     <span className="text-nota text-[var(--texto-suave)]">
                       {competicion.grupo} · {textoDeCobertura(competicion)}

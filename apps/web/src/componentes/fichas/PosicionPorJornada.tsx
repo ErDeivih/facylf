@@ -10,8 +10,8 @@ import type { FilaPosicionPorJornada } from '@/consultas/evolucion';
 export type SerieDePosicion = { nombre: string; filas: readonly FilaPosicionPorJornada[] };
 
 const ANCHO = 320;
-const ALTO = 132;
-const MARGEN = { izquierda: 26, derecha: 8, arriba: 8, abajo: 20 };
+const ALTO = 104;
+const MARGEN = { izquierda: 26, derecha: 30, arriba: 10, abajo: 20 };
 
 export function PosicionPorJornada({ series, titulo = 'Posición por jornada' }: {
   series: readonly SerieDePosicion[];
@@ -66,9 +66,22 @@ export function PosicionPorJornada({ series, titulo = 'Posición por jornada' }:
             <polyline fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"
               strokeDasharray={i === 0 ? undefined : '4 3'}
               points={s.filas.map((f) => `${x(f.jornada).toFixed(1)},${y(f.posicion).toFixed(1)}`).join(' ')} />
+            {s.filas.map((f) => (
+              <circle key={f.jornada} cx={x(f.jornada)} cy={y(f.posicion)} r="1.8" fill="currentColor" />
+            ))}
             {(() => {
               const fin = s.filas[s.filas.length - 1];
-              return <circle cx={x(fin.jornada)} cy={y(fin.posicion)} r="3" fill="currentColor" />;
+              // Con dos equipos en el mismo puesto final, la segunda etiqueta baja para no pisar a la primera.
+              const otro = conDatos[1 - i]?.filas.at(-1);
+              const choca = i === 1 && otro !== undefined && Math.abs(y(otro.posicion) - y(fin.posicion)) < 11;
+              return (
+                <>
+                  <circle cx={x(fin.jornada)} cy={y(fin.posicion)} r="3.2" fill="currentColor" />
+                  <text x={x(fin.jornada) + 6} y={y(fin.posicion) + 3.5 + (choca ? 11 : 0)} fontSize="10" fontWeight="700" fill="currentColor">
+                    {fin.posicion}.º
+                  </text>
+                </>
+              );
             })()}
           </g>
         ))}

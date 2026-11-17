@@ -169,7 +169,7 @@ describe('la portada', () => {
     expect(html).not.toContain('¿A quién buscas?');
     // La búsqueda vive en la cabecera (un solo buscador); la portada no repite el formulario.
     expect(html).not.toContain('action="/buscar"');
-    expect(html).toContain('Explorar una competición');
+    expect(html).toContain('id="explorar-competicion"');
     expect(html).toContain('href="/explorar/competiciones?fed=castilla-leon');
     expect(html).toContain('href="/explorar/competicion/3769"');
     expect(html).toContain('href="/explorar/competicion/3000"');
@@ -219,7 +219,7 @@ describe('la portada', () => {
     const html = render({ sesion: { nombre: 'Ana' }, errorAccesos: true });
     expect(html).toContain('No se han podido cargar tus equipos.');
     expect(html).toContain('href="/mi-panel"');
-    expect(html).toContain('Explorar una competición');
+    expect(html).toContain('id="explorar-competicion"');
   });
 
   it('sin competiciones lo dice en lugar de pintar una rejilla vacía', () => {

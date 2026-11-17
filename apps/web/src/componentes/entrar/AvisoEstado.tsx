@@ -9,7 +9,7 @@ export function AvisoEstado({ texto }: { texto: string | null }) {
   return (
     <div role="status" aria-live="polite" aria-atomic="true">
       {texto !== null && (
-        <p className="border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2.5 text-tabla leading-6 text-[var(--texto)]">
+        <p className="m-0 rounded-[var(--radius-md)] border border-[var(--borde-fuerte)] bg-[var(--fondo-sutil)] px-3 py-2.5 text-tabla font-semibold leading-6 text-[var(--texto)]">
           {texto}
         </p>
       )}

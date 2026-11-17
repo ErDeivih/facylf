@@ -24,6 +24,7 @@ const RUTAS = [
   '/explorar/campo/1',
   '/explorar/rankings',
   '/explorar/goleadores',
+  '/explorar/legal',
   '/explorar/estadisticas',
   '/explorar/previa/93926',
   '/explorar/competicion/44',
@@ -83,9 +84,9 @@ function prepara(html) {
 }
 
 function quitaDeNavegacion(html) {
-  return html
-    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?funcion-rankings[\s\S]*?<\/li>/g, '')
-    .replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/rankings[\s\S]*?<\/li>/g, '');
+  // Ojo: `funcion-rankings` es el id del descriptor de Goleadores; borrar por ese texto se llevaba
+  // también Goleadores. Solo se quita la entrada cuyo enlace real es /explorar/rankings.
+  return html.replace(/<li[^>]*>(?:(?!<\/li>)[\s\S])*?explorar\/rankings[\s\S]*?<\/li>/g, '');
 }
 
 /** Nombre del fichero donde el paso de render deja el DOM de una ruta. */

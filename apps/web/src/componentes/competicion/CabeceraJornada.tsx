@@ -67,7 +67,7 @@ export function CabeceraJornada({ grupo, numero, rango, hrefAnterior, hrefSiguie
         </Link>
         <Link href={`${hrefClasificacion}/proyeccion` as Route}
           className="inline-flex min-h-11 items-center text-[var(--texto-suave)] hover:text-[var(--accion)] hover:underline">
-          Proyección
+          Clasificación final
         </Link>
       </p>
     </header>

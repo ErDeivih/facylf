@@ -141,10 +141,13 @@ export function CabeceraSitio({
   activo = null,
   tema = 'claro',
   permiteTema = false,
+  conSesion = false,
 }: {
   activo?: SeccionActiva;
   tema?: Tema;
   permiteTema?: boolean;
+  /** Hay cookie de sesión: el icono de cuenta lleva al panel en vez de a la entrada. */
+  conSesion?: boolean;
 }) {
   return (
     <header className="bg-[var(--fondo-fuerte)] text-[var(--texto-fuerte)]">
@@ -195,7 +198,9 @@ export function CabeceraSitio({
               El `p-1` con `-m-1` deja dentro del contenedor de desplazamiento el hueco que necesita el
               anillo de foco (2 px de trazo + 2 px de separación) sin crecer: el anillo no se recorta.
             */}
-            <ul className="-m-1 flex items-center gap-1 overflow-x-auto p-1 [scrollbar-width:thin]">
+            {/* `relative`: los descriptores ocultos (`sr-only`, en posición absoluta) quedan dentro de esta caja
+                con desplazamiento; sin él se salían por la derecha y la página ganaba 1 px de scroll horizontal. */}
+            <ul className="relative -m-1 flex flex-wrap items-center gap-1 p-1 lg:flex-nowrap lg:overflow-visible">
               {FUNCIONES.map((funcion) => {
                 const activa = activo === funcion.clave;
                 const descriptorId = `funcion-${funcion.clave}-desc`;
@@ -243,8 +248,9 @@ export function CabeceraSitio({
           </nav>
 
           <Link
-            href="/entrar"
-            aria-label="Entrar o crear cuenta"
+            href={(conSesion ? '/mi-panel' : '/entrar') as Route}
+            aria-label={conSesion ? 'Mi panel' : 'Entrar o crear cuenta'}
+            title={conSesion ? 'Mi panel' : 'Entrar'}
             className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] lg:order-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
           >
             <IconoCuenta />

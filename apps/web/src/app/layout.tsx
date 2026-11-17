@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/tema';
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
+import { SESION_COOKIE } from '@/lib/sesion';
 import { PieSitio } from '@/componentes/marca/PieSitio';
 import { TITULO_POR_DEFECTO } from '@/componentes/marca/marca';
 import '@fontsource-variable/inter';
@@ -38,7 +39,8 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <html lang="es" data-tema={tema}>
       <body className="antialiased">
-        <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} />
+        {/* Sólo se mira si la cookie existe (sin consulta): si la sesión ha caducado, el panel manda a entrar. */}
+        <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} conSesion={Boolean(almacen.get(SESION_COOKIE)?.value)} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
         <PieSitio />
       </body>

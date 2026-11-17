@@ -256,36 +256,40 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   return (
     <div className="flex flex-wrap items-start gap-4">
       <UltimoYProximo partidos={partidos} />
-      {lineaFrescura && (
-        <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
-          {lineaFrescura}
-        </p>
-      )}
-      {kpi && <IndicadoresGrupo {...kpi} />}
-      {kpi && (
-        <PanelCalidad
-          actas={frescura?.actas ?? 0}
-          conResultado={frescura?.con_resultado ?? 0}
-          porcentajeActas={kpi.porcentajeActas}
-          fecha={fechaActualizado}
-          descuadres={descuadres}
-          jornadaOficial={oficialJornada}
-          jornadaResultados={jornadaResultados}
-          hrefSinActa={`${ruta}/sin-acta`}
-        />
-      )}
-      <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
-        Resultados hasta la jornada {jornadaResultados ?? '—'} · tabla oficial de la jornada {oficialJornada === null ? 'sin publicar' : oficialJornada}
-        {' · '}
-        <a className="underline decoration-dotted" href={`${ruta}/partidos/descarga`} download>
-          Descargar los partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`} en CSV
-        </a>
-      </p>
-      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} />
-      <Link href={`${ruta}/proyeccion` as Route}
-        className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--accion)] hover:bg-[var(--fondo-sutil)]">
-        Ver clasificación final estimada
-      </Link>
+      {/* Cobertura, comprobaciones y descarga: siguen aquí, pero plegadas. Lo primero que se ve es la tabla. */}
+      <details className="basis-full rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+        <summary className="flex min-h-11 cursor-pointer items-center px-4 text-tabla font-semibold text-[var(--texto)]">
+          Datos del grupo{fechaActualizado === null ? '' : ` · actualizado el ${fechaActualizado}`}
+        </summary>
+        <div className="flex flex-wrap items-start gap-4 border-t border-[var(--fondo-sutil)] px-4 py-3">
+          {lineaFrescura && (
+            <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
+              {lineaFrescura}
+            </p>
+          )}
+          {kpi && <IndicadoresGrupo {...kpi} />}
+          {kpi && (
+            <PanelCalidad
+              actas={frescura?.actas ?? 0}
+              conResultado={frescura?.con_resultado ?? 0}
+              porcentajeActas={kpi.porcentajeActas}
+              fecha={fechaActualizado}
+              descuadres={descuadres}
+              jornadaOficial={oficialJornada}
+              jornadaResultados={jornadaResultados}
+              hrefSinActa={`${ruta}/sin-acta`}
+            />
+          )}
+          <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
+            Resultados hasta la jornada {jornadaResultados ?? '—'} · tabla oficial de la jornada {oficialJornada === null ? 'sin publicar' : oficialJornada}
+            {' · '}
+            <a className="underline decoration-dotted" href={`${ruta}/partidos/descarga`} download>
+              Descargar los partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`} en CSV
+            </a>
+          </p>
+        </div>
+      </details>
+      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
         {proximaJornada.length > 0 && (
           <CrucesPrevistos titulo={`Próxima jornada · ${proximaJornada[0].jornada}`} cruces={proximaJornada} />

@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (id === null) return {};
   try {
     const p = await portadaDe(id);
-    return p ? { title: `Proyección · ${p.edicion} · ${p.grupo} — Fondo Popular` } : {};
+    return p ? { title: `Clasificación final · ${p.edicion} · ${p.grupo} — Fondo Popular` } : {};
   } catch { return {}; }
 }
 
@@ -68,14 +68,14 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
         : null;
     }
   } catch (error) {
-    if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Proyección" motivo={error.message} />;
+    if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Clasificación final" motivo={error.message} />;
     throw error;
   }
   if (!portada) notFound();
 
   return (
     <div className="flex flex-col gap-4">
-      <MigaCompeticion grupo={portada} tramos={[{ texto: 'Proyección' }]} />
+      <MigaCompeticion grupo={portada} tramos={[{ texto: 'Clasificación final' }]} />
       <CabeceraCompeticion
         grupo={portada}
         grupos={hermanos}
