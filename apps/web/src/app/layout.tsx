@@ -4,6 +4,7 @@ import { CABECERA_RUTA, TEMA_COOKIE, esRutaConTema, temaDeCookie } from '@/lib/t
 import { CabeceraSitioActiva } from '@/componentes/cabecera/CabeceraSitioActiva';
 import { SESION_COOKIE } from '@/lib/sesion';
 import { PieSitio } from '@/componentes/marca/PieSitio';
+import { Metricas } from '@/componentes/Metricas';
 import { TITULO_POR_DEFECTO } from '@/componentes/marca/marca';
 import '@fontsource-variable/inter';
 import './globals.css';
@@ -43,6 +44,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <CabeceraSitioActiva tema={tema} permiteTema={permiteTema} conSesion={Boolean(almacen.get(SESION_COOKIE)?.value)} />
         <main className="mx-auto max-w-[1240px] px-5 py-8">{children}</main>
         <PieSitio />
+        <Metricas />
       </body>
     </html>
   );

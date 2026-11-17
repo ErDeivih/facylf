@@ -25,7 +25,7 @@ const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 export function MiCuenta({ perfil, correo = null, aviso = null }: {
   perfil: PerfilCuenta;
   correo?: string | null;
-  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | null;
+  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | null;
 }) {
   const estado = estadoDeCuenta(perfil);
   const correoVisible = correo === null ? null : enmascaraCorreo(correo);
@@ -50,6 +50,10 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
             La petición no venía de esta web; no se ha guardado nada.
           </p>
         )}
+        {aviso === 'contrasena' && <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Contraseña cambiada.</p>}
+        {aviso === 'contrasena-actual' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La contraseña actual no es correcta.</p>}
+        {aviso === 'contrasena-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido cambiar. Inténtalo de nuevo.</p>}
+        {aviso === 'baja-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido dar de baja la cuenta. Inténtalo de nuevo.</p>}
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
           {perfil.nombre !== null ? `Sesión de ${perfil.nombre}.` : 'Sesión abierta.'}
         </p>
@@ -152,9 +156,22 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
             <dl className="m-0 grid gap-x-4 gap-y-2 sm:grid-cols-2">
               <Fila etiqueta="Verificación en dos pasos" valor="No disponible" />
               <Fila etiqueta="Verificación del correo" valor="No implementada" />
-              <Fila etiqueta="Cambio de contraseña" valor="No disponible desde la web" />
+              <Fila etiqueta="Cambio de contraseña" valor="Disponible" />
               <Fila etiqueta="Sesiones" valor="Sesión abierta en este navegador" />
             </dl>
+            <form action="/api/cuentas/contrasena" method="post" className="flex flex-col gap-2 border-t border-[var(--fondo-sutil)] pt-3">
+              <p className="m-0 text-tabla font-semibold text-[var(--texto)]">Cambiar contraseña</p>
+              <label className="text-nota text-[var(--texto-suave)]">Contraseña actual
+                <input name="actual" type="password" autoComplete="current-password" required className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
+              <label className="text-nota text-[var(--texto-suave)]">Nueva contraseña
+                <input name="nueva" type="password" autoComplete="new-password" minLength={10} required className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
+              <label className="text-nota text-[var(--texto-suave)]">Repite la nueva
+                <input name="repetir" type="password" autoComplete="new-password" minLength={10} required className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
+              <button type="submit" className={BOTON}>Cambiar contraseña</button>
+            </form>
             <form action="/api/cuentas/salir" method="post" className="m-0">
               <button type="submit" className={BOTON}>Cerrar sesión</button>
             </form>
@@ -169,9 +186,10 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
               Puedes descargar una copia de los datos de tu cuenta en formato JSON.
             </p>
             <a href="/api/cuentas/exportar" download className={BOTON}>Descargar mis datos</a>
-            <p className="m-0 text-nota text-[var(--texto-suave)]">
-              La baja de la cuenta todavía no está disponible desde la web.
-            </p>
+            <form action="/api/cuentas/baja" method="post" className="m-0">
+              <button type="submit" className={BOTON}>Darme de baja</button>
+            </form>
+            <p className="m-0 text-nota text-[var(--texto-suave)]">La baja borra favoritos, avisos y preferencias, y anonimiza el perfil. No se puede deshacer.</p>
           </section>
         </div>
       </div>

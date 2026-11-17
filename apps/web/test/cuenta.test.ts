@@ -184,9 +184,10 @@ describe('la pantalla de Mi cuenta', () => {
     expect(html).toContain('Descargar mis datos');
     expect(html).toContain('href="/api/cuentas/exportar"');
     // No hay botones que finjan cambiar contraseña, 2FA ni darse de baja.
-    expect(html).not.toContain('Cambiar contraseña');
+    expect(html).toContain('Cambiar contraseña');
+    expect(html).toContain('action="/api/cuentas/contrasena"');
     expect(html).not.toContain('Activar verificación');
-    expect(html).not.toContain('Darme de baja');
+    expect(html).toContain('Darme de baja');
   });
 });
 
