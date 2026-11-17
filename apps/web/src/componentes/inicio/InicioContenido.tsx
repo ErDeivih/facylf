@@ -5,6 +5,7 @@ import type { FilaAcceso } from '@/consultas/usuario';
 import { rutaDeAcceso } from '@/lib/cuentas';
 import { diaCorto, linea1X2, type CompeticionConProximos } from '@/lib/proximas';
 import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
+import { normalizaProvincia } from '@/lib/provincias-cyl';
 import {
   etiquetaDeAcceso, FEDERACION_DE_LA_PORTADA, rutaDeCompeticion, temporadaDeLaPortada,
   textoDeCobertura, textoSiguiente, urlDelSelector, type CompeticionDePortada,
@@ -174,7 +175,7 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
         <nav aria-label="Categorías" className="mt-3 flex flex-wrap gap-2">
           {CATEGORIAS_DE_PORTADA.map((categoria) => (
             <Link key={categoria}
-              href={`${urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada)}&cat=${categoria}` as Route}
+              href={`/explorar/competiciones/categoria/${categoria}` as Route}
               className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] hover:border-[var(--accion)]">
               {etiquetaCategoria(categoria)}
             </Link>
@@ -192,7 +193,7 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
         <nav aria-label="Provincias" className="mt-3 flex flex-wrap gap-2">
           {PROVINCIAS_DE_PORTADA.map((provincia) => (
             <Link key={provincia}
-              href={`${urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada)}&prov=${encodeURIComponent(provincia)}` as Route}
+              href={`/explorar/competiciones/provincia/${encodeURIComponent(normalizaProvincia(provincia))}` as Route}
               className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 text-tabla font-medium text-[var(--texto-suave)] hover:border-[var(--accion)] hover:text-[var(--accion)]">
               {provincia}
             </Link>
