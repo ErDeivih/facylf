@@ -155,7 +155,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
             <div key={equipo.id} className={i === 0 ? 'flex min-w-0 flex-col items-start gap-1' : 'flex min-w-0 flex-col items-end gap-1 text-right'}>
               <Escudo equipoId={Number(equipo.id)} nombre={equipo.nombre} clubId={equipo.club} tieneEscudo={equipo.escudo} />
               <p className="m-0 break-words text-tabla font-bold leading-tight text-[var(--texto)] sm:text-bloque">{equipo.nombre}</p>
-              {equipo.lado?.fila && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{equipo.lado.fila.posicion}.º · {equipo.lado.fila.puntos} pts</span>}
+              {equipo.lado?.fila && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{equipo.lado.fila.posicion}.º · {equipo.lado.fila.puntos} {equipo.lado.fila.puntos === 1 ? 'pt' : 'pts'}</span>}
               <InsigniasRacha signos={equipo.lado?.forma ?? []} />
             </div>
           ))}

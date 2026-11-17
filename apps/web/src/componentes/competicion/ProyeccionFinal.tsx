@@ -97,7 +97,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
         </div>
         <p className="m-0 text-nota text-[var(--texto-suave)]">
           {simulados} partidos por jugar · {primera.calculado_en}
-          {deducidos > 0 ? ` · ${deducidos} deducidos del formato de liga` : ''}
+          
         </p>
         {zonas?.origen === 'historica' && (
           <p className="m-0 text-nota text-[var(--texto-suave)]">
@@ -114,7 +114,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
               <th scope="col" className="px-2 py-2 text-right font-semibold">#</th>
               <th scope="col" className="px-2 py-2 font-semibold">Equipo</th>
               <th scope="col" className="px-2 py-2 text-right font-semibold">Pts</th>
-              <th scope="col" className="px-2 py-2 text-right font-semibold">Acaba</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold">Puesto probable</th>
               <th scope="col" className="px-2 py-2 text-right font-semibold">Campeón</th>
               {hayAscenso && <th scope="col" className="px-2 py-2 text-right font-semibold">Ascenso</th>}
               {hayPromocion && <th scope="col" className="px-2 py-2 text-right font-semibold">Playoff</th>}
@@ -130,11 +130,11 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
                   <td className="px-2 py-2 align-top">
                     <span className="flex items-center gap-2"><Escudo equipoId={e.id} nombre={e.nombre} clubId={e.clubId} tieneEscudo={e.tieneEscudo} /><span className="min-w-0 break-words font-semibold text-[var(--texto)]">{e.nombre}</span></span>
                     <span className="block text-etiqueta text-[var(--texto-suave)]">
-                      {e.tramo ? `80 %: ${textoDeTramo(e.tramo)}` : 'sin rango'}
+                      {e.tramo ? 'rango habitual' : 'sin rango'}
                     </span>
                   </td>
                   <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{Math.round(e.puntos)}</td>
-                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.tramo ? porcentaje(e.tramo.probabilidad) : '—'}</td>
+                  <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.tramo ? textoDeTramo(e.tramo) : '—'}</td>
                   <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.campeon >= 1 ? porcentaje(e.campeon) : '—'}</td>
                   {hayAscenso && <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.ascenso && e.zonas.ascenso.probabilidad >= 1 ? porcentaje(e.zonas.ascenso.probabilidad) : '—'}</td>}
                   {hayPromocion && <td className="px-2 py-2 text-right align-top tabular-nums text-[var(--texto)]">{e.zonas.promocion && e.zonas.promocion.probabilidad >= 1 ? porcentaje(e.zonas.promocion.probabilidad) : '—'}</td>}
@@ -147,7 +147,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-etiqueta text-[var(--texto-suave)]" aria-label="Leyenda">
-        <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--victoria)]" /> Ascenso</span>
+        {hayAscenso && <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--victoria)]" /> Ascenso</span>}
         <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--accion)]" /> Fase de ascenso</span>
         <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--derrota)]" /> Descenso</span>
         <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--borde)]" /> Zona media</span>
@@ -183,7 +183,7 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
       </details>
 
       <p className="m-0 text-nota text-[var(--texto-suave)]">
-        «Acaba» es el tramo de puestos que reúne al menos el 80 % de la simulación. Los porcentajes de un
+        «Puesto probable» es el tramo que reúne al menos el 80 % de la simulación. Los porcentajes de un
         equipo suman 100 % entre todos sus puestos.{' '}
         <Link href={'/explorar/modelo' as Route} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">Cómo se calcula</Link>
       </p>

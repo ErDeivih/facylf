@@ -15,7 +15,6 @@ import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompetici
 import { Clasificacion } from '@/componentes/competicion/Clasificacion';
 import { EsqueletoContenido } from '@/componentes/competicion/EsqueletoContenido';
 import { Goleadores } from '@/componentes/competicion/Goleadores';
-import { PanelCalidad } from '@/componentes/competicion/PanelCalidad';
 import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { CrucesPrevistos } from '@/componentes/partidos/CrucesPrevistos';
@@ -272,21 +271,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
             </p>
           )}
           {kpi && <IndicadoresGrupo {...kpi} />}
-          {kpi && (
-            <PanelCalidad
-              actas={frescura?.actas ?? 0}
-              conResultado={frescura?.con_resultado ?? 0}
-              porcentajeActas={kpi.porcentajeActas}
-              fecha={fechaActualizado}
-              descuadres={descuadres}
-              jornadaOficial={oficialJornada}
-              jornadaResultados={jornadaResultados}
-              hrefSinActa={`${ruta}/sin-acta`}
-            />
-          )}
           <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
-            Resultados hasta la jornada {jornadaResultados ?? '—'} · tabla oficial de la jornada {oficialJornada === null ? 'sin publicar' : oficialJornada}
-            {' · '}
             <a className="underline decoration-dotted" href={`${ruta}/partidos/descarga`} download>
               Descargar los partidos jugados{frescura === null ? '' : ` (${frescura.con_resultado})`} en CSV
             </a>

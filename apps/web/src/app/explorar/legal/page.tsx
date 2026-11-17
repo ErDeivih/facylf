@@ -26,7 +26,9 @@ export default function PaginaLegal() {
         <h2 id="legal-datos" className={TITULO}>De dónde salen los datos</h2>
         <p className={PARRAFO}>
           Los resultados, clasificaciones, alineaciones y actas son los que publica la Real Federación de
-          Castilla y León de Fútbol. {NOMBRE_PRODUCTO} no es una web oficial de la federación.
+          Castilla y León de Fútbol. {NOMBRE_PRODUCTO} no es una web oficial de la federación: reproduce
+          esos datos y añade cálculos propios. Para ejercer derechos sobre los datos deportivos, la vía
+          es la federación que los publica.
         </p>
         <p className={PARRAFO}>
           Los pronósticos y la clasificación final estimada son cálculos propios a partir de esos
@@ -41,36 +43,35 @@ export default function PaginaLegal() {
         <h2 id="legal-personas" className={TITULO}>Jugadores, técnicos y árbitros</h2>
         <p className={PARRAFO}>
           Se muestra el nombre tal como figura en las actas de la federación, también el de los menores.
-          No se muestran fecha de nacimiento, documento, dirección ni datos de contacto.
+          No se muestra la fecha de nacimiento completa, ni documento, dirección o datos de contacto. En el buscador de talento puede aparecer el año de nacimiento como referencia deportiva.
         </p>
         <p className={PARRAFO}>
-          Las fotos de ficha, también las de menores, se muestran con la autorización de tratamiento de la federación; la demo pública las sirve como ficheros estáticos.
+          Las fotos de ficha, también las de menores, se muestran con la autorización de tratamiento de la federación. En la demo pública se sirven como ficheros estáticos.
         </p>
       </section>
 
       <section aria-labelledby="legal-cuenta" className={TARJETA}>
         <h2 id="legal-cuenta" className={TITULO}>Tu cuenta</h2>
         <p className={PARRAFO}>
-          La cuenta es opcional. Si la creas, se guardan tu nombre, tu correo, una huella de tu contraseña (no la
-          contraseña) y los equipos, clubes y jugadores que decides seguir, con tus preferencias de avisos.
+          La demo pública es una foto estática: no permite crear cuenta ni iniciar sesión. En la app
+          privada la cuenta es opcional y guarda tu nombre, correo, una huella de la contraseña (nunca la
+          contraseña) y los equipos, clubes o jugadores que decides seguir.
         </p>
         <p className={PARRAFO}>
           Puedes descargar tus datos desde{' '}
-          <Link href={'/mi-cuenta' as Route} className="inline-flex min-h-11 items-center font-semibold text-[var(--accion)] hover:underline">
-            Mi cuenta
-          </Link>
-          . La baja de la cuenta todavía no se puede hacer desde la web.
+          En la app privada puedes consultar y descargar tus datos desde Mi cuenta. La baja de la cuenta
+          todavía no se puede hacer desde la web.
         </p>
       </section>
 
       <section aria-labelledby="legal-cookies" className={TARJETA}>
         <h2 id="legal-cookies" className={TITULO}>Cookies</h2>
-        <p className={PARRAFO}>Sólo se usan dos, las dos propias y necesarias para que la web funcione:</p>
+        <p className={PARRAFO}>La demo pública sólo usa la cookie de tema. La app privada usa además la de sesión; las dos son propias y necesarias:</p>
         <dl className="m-0 mt-2">
           <div className="border-t border-[var(--fondo-sutil)] py-2">
             <dt className="text-tabla font-semibold text-[var(--texto)]">Sesión</dt>
             <dd className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">
-              Mantiene tu sesión abierta cuando entras con tu cuenta. Dura siete días y se borra al salir.
+              Mantiene la sesión abierta en la app privada. Dura siete días.
             </dd>
           </div>
           <div className="border-t border-[var(--fondo-sutil)] py-2">
