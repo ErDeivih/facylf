@@ -42,7 +42,7 @@ export function PaginaEntrar({ aviso, volver }: { aviso: string | null; volver: 
           </Link>
         </p>
         <p className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">
-          Si has olvidado la contraseña, todavía no se puede recuperar desde la web.
+          <Link href={'/recuperar' as Route} className="font-semibold text-[var(--accion)] underline underline-offset-2">He olvidado la contraseña</Link>
         </p>
       </section>
     </div>
