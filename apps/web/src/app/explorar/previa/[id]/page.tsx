@@ -175,6 +175,20 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         </section>
       )}
 
+      {prediccion && f.poisson_local != null && (
+        <section className={`${TARJETA} min-w-0 px-4 py-3 lg:col-span-3`}>
+          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Modelos</h2>
+          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Dos cálculos distintos, para que se vea cuánto coinciden. El modelo principal es ML; Poisson usa los goles esperados de la liga.</p>
+          <table className="mt-2 w-full border-collapse text-tabla">
+            <caption className="sr-only">Comparación de probabilidades ML y Poisson</caption>
+            <thead><tr className="text-left text-etiqueta text-[var(--texto-suave)]"><th className="py-1 font-semibold">Modelo</th><th className="py-1 text-right font-semibold">1</th><th className="py-1 text-right font-semibold">X</th><th className="py-1 text-right font-semibold">2</th></tr></thead>
+            <tbody>
+              <tr className="border-t border-[var(--fondo-sutil)]"><th scope="row" className="py-1 text-left font-semibold text-[var(--texto)]">ML</th><td className="py-1 text-right tabular-nums">{Math.round(prediccion.prob_local)} %</td><td className="py-1 text-right tabular-nums">{Math.round(prediccion.prob_empate)} %</td><td className="py-1 text-right tabular-nums">{Math.round(prediccion.prob_visitante)} %</td></tr>
+              <tr className="border-t border-[var(--fondo-sutil)]"><th scope="row" className="py-1 text-left font-semibold text-[var(--texto)]">Poisson</th><td className="py-1 text-right tabular-nums">{Math.round(Number(f.poisson_local))} %</td><td className="py-1 text-right tabular-nums">{Math.round(Number(f.poisson_empate))} %</td><td className="py-1 text-right tabular-nums">{Math.round(Number(f.poisson_visitante))} %</td></tr>
+            </tbody>
+          </table>
+        </section>
+      )}
       <section aria-labelledby="datos-partido" className={`${TARJETA} min-w-0 px-4 py-3 ${f.matriz ? 'lg:col-span-1' : 'lg:col-span-3'}`}>
         <h2 id="datos-partido" className="m-0 text-bloque font-bold text-[var(--texto)]">Datos del partido</h2>
         <dl className="m-0 mt-1">

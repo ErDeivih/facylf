@@ -32,6 +32,9 @@ export type FilaPrevia = {
   pred_empate_high: number | null;
   pred_visitante_low: number | null;
   pred_visitante_high: number | null;
+  poisson_local: number | null;
+  poisson_empate: number | null;
+  poisson_visitante: number | null;
   marcador: string | null;
   prob_marcador: number | null;
   matriz: Record<string, number> | null;
@@ -51,7 +54,7 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
   columnas: ['match_id', 'local', 'visitante', 'local_id', 'visitante_id', 'local_tiene_escudo', 'visitante_tiene_escudo', 'local_club_id', 'visitante_club_id',
     'edicion', 'grupo', 'jornada', 'fecha', 'hora', 'campo', 'municipio', 'arbitro',
     'pred_local', 'pred_empate', 'pred_visitante', 'pred_local_low', 'pred_local_high',
-    'pred_empate_low', 'pred_empate_high', 'pred_visitante_low', 'pred_visitante_high',
+    'pred_empate_low', 'pred_empate_high', 'pred_visitante_low', 'pred_visitante_high', 'poisson_local', 'poisson_empate', 'poisson_visitante',
     'marcador', 'prob_marcador', 'matriz', 'jugadores_local', 'jugadores_visitante', 'h2h',
     'puntos_local', 'puntos_visitante'],
   sql: `
