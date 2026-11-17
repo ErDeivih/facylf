@@ -1,0 +1,13 @@
+[Unit]
+Description=Deja en marcha los tres recolectores de Castilla y Leon tras un reinicio
+After=docker.service facylf-limpia-plazas.service
+Requires=docker.service
+Wants=facylf-limpia-plazas.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/facylf-arranca-cyl.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
