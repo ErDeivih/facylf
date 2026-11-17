@@ -20,10 +20,11 @@ import { porcentajeCorto } from '@/lib/prediccion';
  *  · sin campo o sin árbitro no se inventa un hueco vacío;
  *  · el enlace al acta sólo aparece si la página pasa `hrefActa` y el partido tiene acta publicada.
  */
-export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
+export function PartidosDeJornada({ jornada, partidos, hrefActa, etiquetas }: {
   jornada: JornadaResumen;
   partidos: readonly PartidoDeJornada[];
   hrefActa?: (partido: FilaPartidoCanonico) => string | null;
+  etiquetas?: ReadonlyMap<number, string>;
 }) {
   return (
     <section aria-labelledby="partidos"
@@ -69,6 +70,7 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                           clubId={partido.local_club_id} tieneEscudo={partido.local_tiene_escudo} />
                         <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaLocal ? 'font-bold' : 'font-medium'}`}>
                           {nombres.local}
+                          {etiquetas?.get(partido.local_id) && <span className="ml-1 rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1 text-etiqueta font-normal text-[var(--texto-suave)]">{etiquetas.get(partido.local_id)}</span>}
                         </span>
                         <span className="sr-only">Local</span>
                       </Link>
@@ -78,6 +80,7 @@ export function PartidosDeJornada({ jornada, partidos, hrefActa }: {
                           clubId={partido.visitante_club_id} tieneEscudo={partido.visitante_tiene_escudo} />
                         <span className={`min-w-0 break-words text-tabla leading-tight text-[var(--texto)] ${ganaVisitante ? 'font-bold' : 'font-medium'}`}>
                           {nombres.visitante}
+                          {etiquetas?.get(partido.visitante_id) && <span className="ml-1 rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1 text-etiqueta font-normal text-[var(--texto-suave)]">{etiquetas.get(partido.visitante_id)}</span>}
                         </span>
                         <span className="sr-only">Visitante</span>
                       </Link>

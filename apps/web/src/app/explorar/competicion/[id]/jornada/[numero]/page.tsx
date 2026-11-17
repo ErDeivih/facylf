@@ -2,7 +2,10 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta } from '@/consultas/adaptadores/postgres/conexion';
-import { GRUPO_POR_ID, type FilaPortadaGrupo } from '@/consultas/competiciones';
+import { CLASIFICACION_CALCULADA, GRUPO_POR_ID, type FilaClasificacionPantalla, type FilaPortadaGrupo } from '@/consultas/competiciones';
+import { ZONAS_DEL_GRUPO, type FilaZonas } from '@/consultas/paneles';
+import { consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
+import { etiquetaZona, zonaDe } from '@/lib/pantalla-competicion';
 import { PARTIDOS_DE_GRUPO } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraJornada } from '@/componentes/competicion/CabeceraJornada';
@@ -96,6 +99,27 @@ export default async function PantallaJornada({ params }: {
   const detalle = detalleDeJornada(partidos, numero);
   if (!detalle) notFound();
 
+  let etiquetas = new Map<number, string>();
+  try {
+    const [c, z] = await consultaEnUnaFoto([
+      { sql: CLASIFICACION_CALCULADA.sql, parametros: [portada.grupo_id] },
+      { sql: ZONAS_DEL_GRUPO.sql, parametros: [portada.grupo_id] },
+    ]);
+    const filas = c as unknown as FilaClasificacionPantalla[];
+    const zona = (z as unknown as FilaZonas[])[0];
+    if (zona) {
+      const equipos = portada.equipos || filas.length;
+      for (const f of filas) {
+        const zz = zonaDe(f.posicion, equipos, {
+          ascensos: zona.ascensos, promocion: zona.promocion, descensos: zona.descensos,
+          promocion_permanencia: zona.promocion_permanencia, origen: zona.origen,
+          confianza: zona.confianza, temporadas: zona.temporadas,
+        });
+        if (zz) etiquetas.set(f.equipo_id, etiquetaZona(zz));
+      }
+    }
+  } catch { etiquetas = new Map(); }
+
   return (
     <div className="flex flex-col gap-[18px]">
       <MigaCompeticion grupo={portada} tramos={[
@@ -116,6 +140,7 @@ export default async function PantallaJornada({ params }: {
         // Sólo los partidos con acta publicada enlazan: `unavailable` es «la fuente no la ofrece» y un
         // enlace así llevaría a un 404.
         hrefActa={(partido) => (tieneActa(partido.calidad_acta) ? rutaDeActa(partido.match_id) : null)}
+        etiquetas={etiquetas}
       />
     </div>
   );
