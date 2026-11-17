@@ -200,10 +200,10 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   const zone = zonas[0]
     ? {
       ascensos: zonas[0].ascensos, promocion: zonas[0].promocion,
-      descensos: grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion'
+      descensos: grupo.federacion === 'castilla-leon' && grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion'
         ? Math.max(3, zonas[0].descensos) : zonas[0].descensos,
       promocion_permanencia: zonas[0].promocion_permanencia,
-      origen: grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion' && zonas[0].descensos < 3
+      origen: grupo.federacion === 'castilla-leon' && grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion' && zonas[0].descensos < 3
         ? 'regla' : zonas[0].origen,
       confianza: zonas[0].confianza, temporadas: zonas[0].temporadas,
     }
@@ -230,8 +230,9 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   const conJornada = (n: number) => `${ruta}?jornada=${n}`;
 
   const equipos = grupo.equipos || clasificacion.length;
+  const vistaParcial = vista === 'local' || vista === 'fuera';
   const etiquetasDeZona = new Map<number,string>();
-  if (zone) {
+  if (zone && !vistaParcial) {
     for (const f of clasificacion) {
       const z = zonaDe(f.posicion, equipos, zone);
       if (z) etiquetasDeZona.set(f.equipo_id, etiquetaZona(z));
@@ -247,22 +248,24 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
     ? `la federación publicó su tabla de la jornada ${oficialJornada} y los resultados llegan a la ${jornadaResultados}`
     : 'la tabla oficial publicada no coincide con los resultados';
   let quintos: { grupo: string; equipo: string; puntos: number; jugados: number }[] = [];
-  if (grupo.categoria === 'juvenil' && hermanos.length === 2) {
+  if (!vistaParcial && grupo.categoria === 'juvenil' && grupo.division === 'primera' && grupo.federacion === 'castilla-leon' && hermanos.length === 2 && clasificacion.length >= 5) {
     try {
       const tablas = await Promise.all(hermanos.map(async (h) => ({
         grupo: h.grupo,
         filas: await consulta<FilaClasificacionPantalla>(CLASIFICACION_CALCULADA.sql, [h.grupo_id]),
       })));
       quintos = tablas.map((t) => {
-        const quinto = t.filas[t.filas.length - 5];
-        return { grupo: t.grupo, equipo: quinto?.equipo ?? 'sin datos', puntos: quinto?.puntos ?? 0, jugados: quinto?.jugados ?? 0 };
-      });
+        const quinto = t.filas.length >= 5 ? t.filas[t.filas.length - 5] : null;
+        return quinto ? { grupo: t.grupo, equipo: quinto.equipo, puntos: quinto.puntos, jugados: quinto.jugados } : null;
+      }).filter((q): q is { grupo: string; equipo: string; puntos: number; jugados: number } => q !== null);
     } catch { quintos = []; }
   }
-  const peorQuinto = quintos.length === 2
-    ? quintos.slice().sort((a, b) => (a.puntos / Math.max(1, a.jugados)) - (b.puntos / Math.max(1, b.jugados)))[0]
-    : null;
-  const idsDescenso = new Set(clasificacion.filter((f) => zonaDe(f.posicion, equipos, zone) === 'desciende').map((f) => f.equipo_id));
+  const conDatos = quintos.filter((q) => q.jugados > 0);
+  const ordenados = conDatos.slice().sort((a, b) => (a.puntos / a.jugados) - (b.puntos / b.jugados));
+  const peorQuinto = ordenados.length === 2
+    && ordenados[0].puntos / ordenados[0].jugados < ordenados[1].puntos / ordenados[1].jugados
+    ? ordenados[0] : null;
+  const idsDescenso = new Set(vistaParcial ? [] : clasificacion.filter((f) => zonaDe(f.posicion, equipos, zone) === 'desciende').map((f) => f.equipo_id));
   const arrastresPosibles = arrastres.filter((a) => idsDescenso.has(a.equipo_id));
   const fechaActualizado = frescura && frescura.ultimo
     ? (() => { const d = new Date(frescura.ultimo); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); })()
@@ -317,8 +320,8 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           </Link>
         ))}
       </nav>
-      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
-      {arrastresPosibles.length > 0 && (
+      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={vistaParcial ? null : zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
+      {!vistaParcial && arrastresPosibles.length > 0 && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
           <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Posibles arrastres</h2>
           <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Mismo club con otro equipo en una categoría inferior. Es un candidato, no una plaza confirmada: falta el reglamento y la inscripción.</p>
@@ -331,10 +334,11 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           </ul>
         </section>
       )}
-      {quintos.length === 2 && (
+      {!vistaParcial && quintos.length === 2 && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
           <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Peor quinto</h2>
           <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Comparación entre los dos grupos; desciende el peor quinto. Criterio provisional hasta confirmar el reglamento.</p>
+          {peorQuinto === null && <p className="m-0 mt-1 text-nota font-semibold text-[var(--texto-suave)]">Sin determinar: empate o faltan partidos.</p>}
           <ul className="m-0 mt-2 list-none divide-y divide-[var(--fondo-sutil)] p-0">
             {quintos.map((q) => (
               <li key={q.grupo} className="flex justify-between gap-2 py-1.5 text-tabla">
