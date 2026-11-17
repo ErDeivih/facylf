@@ -23,6 +23,14 @@ export const HORAS_REINTENTO = 2;
 export const FALLOS_ANTES_DE_APARTAR = 3;
 export const DIAS_APARTADO = 3;
 export const DIAS_APLAZADO = 7;
+/*
+ * Banda de prioridad que adelanta un acta por delante del DESCUBRIMIENTO (índices de jornadas, grupos).
+ * El recolector ordena con `case when tipo='acta' then case when prioridad < -1399000000 then prioridad
+ * else -1399000000 end ...`, así que sólo un acta por debajo de -1.399.000.000 se sirve antes que el
+ * descubrimiento. Medido el 17/11/2026: con prioridad normal las actas del finde esperaron 3 h detrás de
+ * 579 índices; con esta banda empezaron a salir en el primer minuto (31 → 26 en 5 minutos).
+ */
+export const BANDA_ACTAS_RECIENTES = -1500000000;
 
 /** ¿Cuándo toca comprobar el acta de este partido? `inicio` en ms, `intentos` ya hechos. */
 export function cuandoToca({ inicio, intentos = 0 }) {
@@ -85,15 +93,15 @@ function principal() {
   }
 
   if (!seco) {
-    // NO se toca `prioridad`: el recolector la recalcula por categoría de competición
-    // (`reprioritizaPlan`) y escribirla aquí sólo servía para pisarla con un valor peor. Lo único que hace
-    // falta es que el trabajo esté DISPONIBLE: su `siguiente_intento` pasa a ahora.
-    const adelanta = db.prepare(`update trabajos set siguiente_intento = ?, actualizado_en = ?
+    // La prioridad se pone en la BANDA de actas recientes (ver arriba): es la única forma de que el
+    // recolector las sirva antes que el descubrimiento. No se usa un valor «normal» porque
+    // `reprioritizaPlan` lo recalcula por categoría y volvería a dejarlas detrás.
+    const adelanta = db.prepare(`update trabajos set prioridad = ?, siguiente_intento = ?, actualizado_en = ?
       where tipo = 'acta' and temporada = ? and competicion = ? and grupo = ? and jornada = ? and acta = ?`);
     const marca = new Date(ahora).toISOString();
     db.exec('begin');
     for (const p of tocaAdelantar) {
-      adelanta.run(marca, marca, p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta);
+      adelanta.run(BANDA_ACTAS_RECIENTES, marca, marca, p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta);
     }
     db.exec('commit');
   }
