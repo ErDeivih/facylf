@@ -14,7 +14,7 @@ export default async function Recuperaciones() {
       select id::text, correo_sha, creado_en::text
         from app.recuperacion_solicitud
        where atendida_en is null
-       order by creado_en ascending limit 200`, [], { rol: 'app' });
+       order by creado_en asc limit 200`, [], { rol: 'app' });
   } catch {
     return <FalloAdmin que="las recuperaciones" />;
   }

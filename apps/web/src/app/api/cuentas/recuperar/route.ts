@@ -13,6 +13,6 @@ export async function POST(peticion: Request): Promise<NextResponse> {
   if (!correoValido(correo)) return NextResponse.redirect(new URL('/recuperar?aviso=correo', peticion.url), 303);
   try {
     await consulta("insert into app.recuperacion_solicitud (correo_sha) values (app.sha_correo($1))", [correo], { rol: 'app' });
-  } catch { /* la respuesta es la misma aunque falle el registro */ }
+  } catch { return NextResponse.redirect(new URL('/recuperar?aviso=error', peticion.url), 303); }
   return NextResponse.redirect(new URL('/recuperar?aviso=enviado', peticion.url), 303);
 }

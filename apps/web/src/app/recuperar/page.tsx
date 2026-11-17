@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { Route } from 'next';
 
-export const metadata: Metadata = { title: 'Recuperar contraseña — Fondo Popular' };
+export const metadata: Metadata = { title: 'Recuperar contraseña — Fondo Popular', robots: { index: false, follow: false } };
 
 export default async function Recuperar({ searchParams }: { searchParams: Promise<{ aviso?: string }> }) {
   const { aviso } = await searchParams;
@@ -12,6 +12,7 @@ export default async function Recuperar({ searchParams }: { searchParams: Promis
       <p className="m-0 text-tabla text-[var(--texto-suave)]">Déjanos el correo de la cuenta. La solicitud queda registrada para que podamos atenderla; todavía no se envía un correo automático.</p>
       {aviso === 'enviado' && <p role="status" className="m-0 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Solicitud registrada. Si el correo existe, se atenderá lo antes posible.</p>}
       {aviso === 'correo' && <p role="alert" className="m-0 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Ese correo no tiene un formato válido.</p>}
+      {aviso === 'error' && <p role="alert" className="m-0 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido registrar la solicitud. Inténtalo de nuevo.</p>}
       {aviso === 'intentos' && <p role="alert" className="m-0 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Demasiados intentos. Espera unos minutos.</p>}
       {aviso === 'origen' && <p role="alert" className="m-0 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La petición no venía de esta web.</p>}
       <form action="/api/cuentas/recuperar" method="post" className="flex flex-col gap-3 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-5">

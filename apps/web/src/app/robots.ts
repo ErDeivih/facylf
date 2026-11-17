@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [{
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/mi-cuenta', '/mi-panel', '/entrar', '/crear-cuenta', '/admin', '/explorar/calidad', '/explorar/salud', '/explorar/estados', '/explorar/datos'],
+      disallow: ['/api/', '/mi-cuenta', '/mi-panel', '/recuperar', '/entrar', '/crear-cuenta', '/admin', '/explorar/calidad', '/explorar/salud', '/explorar/estados', '/explorar/datos'],
     }],
     sitemap: `${base}/sitemap.xml`,
   };
