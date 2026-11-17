@@ -118,6 +118,7 @@ export function PanelAdmin({
       <section aria-labelledby="cuentas" className={`${TARJETA} p-4`}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="cuentas" className="m-0 text-bloque font-bold text-[var(--texto)]">Cuentas</h2>
+          <Link href={'/admin/recuperaciones' as Route} className="me-4 text-tabla font-semibold text-[var(--accion)] hover:underline">Recuperaciones</Link>
           <Link href={'/admin/usuarios' as Route} className="text-tabla font-semibold text-[var(--accion)] hover:underline">
             Ir a usuarios
           </Link>
