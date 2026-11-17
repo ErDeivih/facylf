@@ -75,20 +75,17 @@ export default async function Inicio() {
 let jornada: PartidoDeEjemplo[] = [];
 try {
   const partidos = await consulta<FilaPartidoListado>(PARTIDOS_DEL_CANONICO.sql, [
-    FEDERACION_DE_LA_PORTADA, '2026-27', null, 25, 0,
+    FEDERACION_DE_LA_PORTADA, TEMPORADA_EN_CURSO, null, 25, 0,
   ], { presupuestoMs: PARTIDOS_DEL_CANONICO.presupuestoMs });
   const iso = (v: unknown): string => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v ?? '').slice(0, 10));
   const cuando = (v: unknown): number => (v instanceof Date ? v.getTime() : (Date.parse(String(v ?? '')) || 0));
   const jugados = partidos
     .filter((f) => f.goles_local !== null && f.goles_visitante !== null)
     .sort((a, b) => cuando(b.jugado_en) - cuando(a.jugado_en));
-  // Los que tengan acta publicada primero: «Ver partido» siempre abre una ficha.
+  // Los más recientes, sin reordenarlos por tener predicción: «Últimos resultados» debe enseñar los
+  // últimos de verdad. Si el más reciente no tiene acta, se sigue mostrando; el enlace abre la jornada.
   const conActa = jugados.filter((f) => f.calidad_acta !== null);
-  // Para la portada se prefieren partidos con predicción: los últimos resultados pueden ser tan
-  // recientes que aún no estén en la foto del modelo, y entonces la portada no enseñaría ninguna.
-  const conPrediccion = jugados.filter((f) => f.pred_local != null);
-  jornada = (conPrediccion.length >= 1 ? conPrediccion : conActa.length > 0 ? conActa : jugados)
-    .slice(0, 4)
+  jornada = (conActa.length > 0 ? conActa : jugados).slice(0, 4)
     .map((f) => ({
       partidoId: f.partido_id,
       grupoId: f.grupo_id,

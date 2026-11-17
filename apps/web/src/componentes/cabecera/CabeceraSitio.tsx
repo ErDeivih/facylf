@@ -181,6 +181,15 @@ export function CabeceraSitio({
           y no entran en el orden de tabulación; la cuenta es un enlace real a `/entrar` y sí entra.
         */}
         <div className="order-2 ml-auto flex items-center gap-1 lg:order-3 lg:ml-0">
+          <Link
+            href={(conSesion ? '/mi-panel' : '/entrar') as Route}
+            aria-label={conSesion ? 'Mi panel' : 'Entrar o crear cuenta'}
+            title={conSesion ? 'Mi panel' : 'Entrar'}
+            className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
+          >
+            <IconoCuenta />
+          </Link>
+          {permiteTema && <BotonTema key={tema} tema={tema} />}
         </div>
 
         {/*
@@ -192,8 +201,8 @@ export function CabeceraSitio({
           El botón va DESPUÉS de la nav en el DOM, no dentro del grupo de iconos: así el recorrido de
           Tab sigue el orden visual (logo → Explorar → Rankings → cuenta → tema → buscador).
         */}
-        <div className="order-3 flex w-full min-w-0 items-center gap-3.5 lg:contents">
-          <nav aria-label="Funciones" className="min-w-0 flex-1 lg:order-2 lg:w-auto lg:flex-none">
+        <div className="order-3 w-full min-w-0 lg:contents">
+          <nav aria-label="Funciones" className="min-w-0 lg:order-2 lg:w-auto lg:flex-none">
             {/*
               El `p-1` con `-m-1` deja dentro del contenedor de desplazamiento el hueco que necesita el
               anillo de foco (2 px de trazo + 2 px de separación) sin crecer: el anillo no se recorta.
@@ -247,16 +256,6 @@ export function CabeceraSitio({
             </ul>
           </nav>
 
-          <Link
-            href={(conSesion ? '/mi-panel' : '/entrar') as Route}
-            aria-label={conSesion ? 'Mi panel' : 'Entrar o crear cuenta'}
-            title={conSesion ? 'Mi panel' : 'Entrar'}
-            className="inline-flex size-11 flex-none items-center justify-center rounded-[var(--radius-lg)] text-[var(--texto-fuerte-suave)] hover:text-[var(--texto-fuerte)] lg:order-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]"
-          >
-            <IconoCuenta />
-          </Link>
-
-          {permiteTema && <BotonTema key={tema} tema={tema} className="lg:order-3" />}
         </div>
 
         <div className="order-4 w-full min-w-0 lg:flex-1">
