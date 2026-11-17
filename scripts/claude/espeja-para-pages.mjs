@@ -406,7 +406,7 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
     let salida = html
       .replace(/<form\b([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)method="get"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
       .replace(/<form\b([^>]*)method="get"([^>]*)action="[^"]*\/explorar\/competiciones"([^>]*)>/g, '<div$1$2$3 data-filtros-sin-servidor="1">')
-      .replace(/<\/form>/g, '</div>');
+      .replace(/<\/form>/, '</div>');
     salida = salida.replace(/(<div[^>]*data-filtros-sin-servidor="1">)/, aviso + '$1');
     return salida;
   };

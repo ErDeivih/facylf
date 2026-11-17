@@ -43,7 +43,7 @@ export default async function Inicio() {
     filas = await consulta<FilaGrupoSelector>(GRUPOS_DEL_SELECTOR.sql, [
       // Aficionados: la portada enseña primero las ligas sénior (Tercera, regionales, provinciales). El
       // resto de categorías se alcanza con los accesos de categoría.
-      FEDERACION_DE_LA_PORTADA, null, 'aficionados', null, null, null, null, [], 60, 0,
+      FEDERACION_DE_LA_PORTADA, TEMPORADA_EN_CURSO, 'aficionados', null, null, null, null, [], 60, 0,
     ], { presupuestoMs: GRUPOS_DEL_SELECTOR.presupuestoMs });
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
@@ -84,8 +84,7 @@ try {
     .sort((a, b) => cuando(b.jugado_en) - cuando(a.jugado_en));
   // Los más recientes, sin reordenarlos por tener predicción: «Últimos resultados» debe enseñar los
   // últimos de verdad. Si el más reciente no tiene acta, se sigue mostrando; el enlace abre la jornada.
-  const conActa = jugados.filter((f) => f.calidad_acta !== null);
-  jornada = (conActa.length > 0 ? conActa : jugados).slice(0, 4)
+  jornada = jugados.slice(0, 4)
     .map((f) => ({
       partidoId: f.partido_id,
       grupoId: f.grupo_id,
