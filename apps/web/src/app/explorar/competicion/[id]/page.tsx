@@ -4,7 +4,7 @@ import type { Metadata, Route } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  CALIDAD_DEL_GRUPO, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
+  CALIDAD_DEL_GRUPO, CLASIFICACION_CALCULADA, CLASIFICACION_POR_CONDICION, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
   type FilaClasificacionPantalla, type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
 import { ARRASTRES_DEL_GRUPO, RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaArrastre, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
@@ -75,10 +75,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function PantallaCompeticion({ params, searchParams }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ jornada?: string }>;
+  searchParams: Promise<{ jornada?: string; vista?: string }>;
 }) {
   const { id: idCrudo } = await params;
-  const { jornada: jornadaPedida } = await searchParams;
+  const { jornada: jornadaPedida, vista } = await searchParams;
   const id = idDeGrupo(idCrudo);
   if (Number.isNaN(id)) notFound();
 
@@ -138,7 +138,7 @@ export default async function PantallaCompeticion({ params, searchParams }: {
       />
 
       <Suspense fallback={<EsqueletoContenido filas={Math.max(1, grupo.equipos)} />}>
-        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} />
+        <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} vista={vista} />
       </Suspense>
     </div>
   );
@@ -148,9 +148,10 @@ export default async function PantallaCompeticion({ params, searchParams }: {
  * Todo lo que va debajo de la cabecera. Se lee en UNA sola foto del canónico: así la tabla, la forma, la
  * jornada y los goleadores no se contradicen si el importador escribe justo en ese momento.
  */
-async function Contenido({ grupo, jornadaPedida, partidos }: {
+async function Contenido({ grupo, jornadaPedida, partidos, vista }: {
   grupo: FilaPortadaGrupo;
   jornadaPedida: string | undefined;
+  vista: string | undefined;
   /** Los partidos ya se pidieron arriba: los necesita la fecha de la barra y la forma de la tabla. */
   partidos: readonly FilaPartidoCanonico[];
 }) {
@@ -166,7 +167,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   } | null = null;
   try {
     const [c, z, g, f, k, arr] = await consultaEnUnaFoto([
-      { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
+      { sql: (vista === 'local' || vista === 'fuera') ? CLASIFICACION_POR_CONDICION.sql : CLASIFICACION_CALCULADA.sql, parametros: (vista === 'local' || vista === 'fuera') ? [grupo.grupo_id, vista] : [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
         sql: RANKING_GOLEADORES.sql,
@@ -290,6 +291,15 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
           </p>
         </div>
       </details>
+      <nav aria-label="Vista de la clasificación" className="flex flex-wrap gap-1.5">
+        {[['total','Total'],['local','Casa'],['fuera','Fuera']].map(([clave, texto]) => (
+          <Link key={clave} href={`${ruta}${clave === 'total' ? '' : `/${clave}`}` as Route}
+            aria-current={((vista ?? 'total') === clave) ? 'page' : undefined}
+            className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${((vista ?? 'total') === clave) ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>
+            {texto}
+          </Link>
+        ))}
+      </nav>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
       {arrastresPosibles.length > 0 && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">

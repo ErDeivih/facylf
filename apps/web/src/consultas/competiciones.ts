@@ -622,7 +622,63 @@ export const SIMULACION_DEL_GRUPO: Consulta<FilaSimulacionFinal> = {
      order by s.posicion_esperada, ts.nombre`,
 };
 
-export const CONSULTAS_COMPETICIONES = [GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
+
+/** Clasificación reconstruida solo con los partidos como local o como visitante. */
+export const CLASIFICACION_POR_CONDICION: Consulta<FilaClasificacionPantalla> = {
+  nombre: 'clasificacion-por-condicion',
+  descripcion: 'Clasificación calculada solo con los partidos de casa o solo con los de fuera.',
+  plan: 'indexado',
+  presupuestoMs: 500,
+  columnas: ['posicion', 'equipo_id', 'equipo', 'puntos', 'jugados', 'ganados', 'empatados', 'perdidos',
+    'goles_favor', 'goles_contra', 'goles_favor_reconstruida', 'goles_contra_reconstruida', 'origen', 'jornada',
+    'club_id', 'tiene_escudo', 'equipo_corto', 'oficial_jornada', 'oficial_puntos', 'oficial_jugados'],
+  sql: `
+    with resultados as (
+      select m.home_team_entry_id as equipo_id, m.goles_local as gf, m.goles_visitante as gc
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+         and $2 = 'local'
+      union all
+      select m.away_team_entry_id, m.goles_visitante, m.goles_local
+        from core.match m
+       where m.phase_group_id = $1 and m.goles_local is not null and m.goles_visitante is not null
+         and $2 = 'fuera'
+    ),
+    agg as (
+      select equipo_id, count(*)::int jugados,
+             count(*) filter (where gf > gc)::int ganados,
+             count(*) filter (where gf = gc)::int empatados,
+             count(*) filter (where gf < gc)::int perdidos,
+             sum(gf)::int goles_favor, sum(gc)::int goles_contra,
+             sum(case when gf > gc then 3 when gf = gc then 1 else 0 end)::int puntos
+        from resultados group by equipo_id
+    ),
+    ultima as (
+      select max(d.numero) jornada
+        from core.match m join core.matchday d on d.id = m.matchday_id
+       where m.phase_group_id = $1 and m.goles_local is not null
+    )
+    select row_number() over (order by a.puntos desc, (a.goles_favor - a.goles_contra) desc, a.goles_favor desc, te.nombre_en_fuente)::int posicion,
+           te.id equipo_id, te.nombre_en_fuente equipo,
+           a.puntos, a.jugados, a.ganados, a.empatados, a.perdidos,
+           a.goles_favor, a.goles_contra,
+           a.goles_favor goles_favor_reconstruida, a.goles_contra goles_contra_reconstruida,
+           'reconstruida'::text origen, u.jornada::int jornada,
+           cl.id club_id,
+           exists (select 1 from core.club_asset ca where ca.club_id = cl.id and ca.tipo='escudo' and ca.vigente) tiene_escudo,
+           nce.nombre_corto equipo_corto,
+           null::smallint oficial_jornada, null::smallint oficial_puntos, null::smallint oficial_jugados
+      from agg a
+      join core.team_entry te on te.id = a.equipo_id
+      join core.team_season ts on ts.id = te.team_season_id
+      join core.club cl on cl.id = ts.club_id
+      join ultima u on true
+      left join analytics.nombre_corto_equipo nce on nce.team_entry_id = te.id
+     order by posicion
+     limit 40`,
+};
+
+export const CONSULTAS_COMPETICIONES = [CLASIFICACION_POR_CONDICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, EDICIONES_DE_LA_COMPETICION,
   CLASIFICACION_DE_LA_PANTALLA, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, CALIDAD_DEL_GRUPO, SIN_ACTA_DEL_GRUPO, PARTIDOS_CSV_DEL_GRUPO] as const;
 
 export const PARAMETROS_COMPETICIONES: Record<string, readonly unknown[]> = {
