@@ -7,7 +7,7 @@ import {
   CALIDAD_DEL_GRUPO, CLASIFICACION_CALCULADA, FRESCURA_DEL_GRUPO, EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION,
   type FilaClasificacionPantalla, type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
-import { RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
+import { ARRASTRES_DEL_GRUPO, RANKING_GOLEADORES, ZONAS_DEL_GRUPO, type FilaArrastre, type FilaRanking, type FilaZonas } from '@/consultas/paneles';
 import { PROXIMA_JORNADA_DEL_GRUPO, type FilaCruceDelGrupo } from '@/consultas/evolucion';
 import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
@@ -157,6 +157,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   let clasificacion: FilaClasificacionPantalla[] = [];
   let zonas: FilaZonas[] = [];
   let goleadores: FilaRanking[] = [];
+  let arrastres: FilaArrastre[] = [];
   let frescura: { con_resultado: number; partidos: number; actas: number; ultimo: string | null } | null = null;
   let calidad: {
     partidos: number; con_resultado: number; con_acta: number; actas: number; goles: number;
@@ -164,7 +165,7 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
     suma_pj: number; descuadre_pj: number; descuadre_puntos: number; descuadre_goles: number;
   } | null = null;
   try {
-    const [c, z, g, f, k] = await consultaEnUnaFoto([
+    const [c, z, g, f, k, arr] = await consultaEnUnaFoto([
       { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
       { sql: ZONAS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       {
@@ -173,11 +174,13 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
       },
       { sql: FRESCURA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       { sql: CALIDAD_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
+      { sql: ARRASTRES_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
     ]);
     clasificacion = c as unknown as FilaClasificacionPantalla[];
     zonas = z as unknown as FilaZonas[];
     goleadores = g as unknown as FilaRanking[];
     frescura = (f as unknown as Array<{ con_resultado: number; partidos: number; actas: number; ultimo: string | null }>)[0] ?? null;
+    arrastres = arr as unknown as FilaArrastre[];
     calidad = (k as unknown as Array<{ partidos: number; con_resultado: number; con_acta: number; actas: number; goles: number; victorias_local: number; empates: number; victorias_visitante: number; equipos: number; suma_pj: number; descuadre_pj: number; descuadre_puntos: number; descuadre_goles: number }>)[0] ?? null;
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
@@ -241,6 +244,8 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
   const motivoConciliar = oficialJornada !== null && jornadaResultados !== null && oficialJornada !== jornadaResultados
     ? `la federación publicó su tabla de la jornada ${oficialJornada} y los resultados llegan a la ${jornadaResultados}`
     : 'la tabla oficial publicada no coincide con los resultados';
+  const idsDescenso = new Set(clasificacion.filter((f) => zonaDe(f.posicion, equipos, zone) === 'desciende').map((f) => f.equipo_id));
+  const arrastresPosibles = arrastres.filter((a) => idsDescenso.has(a.equipo_id));
   const fechaActualizado = frescura && frescura.ultimo
     ? (() => { const d = new Date(frescura.ultimo); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); })()
     : null;
@@ -286,6 +291,19 @@ async function Contenido({ grupo, jornadaPedida, partidos }: {
         </div>
       </details>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
+      {arrastresPosibles.length > 0 && (
+        <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
+          <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Posibles arrastres</h2>
+          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Mismo club con otro equipo en una categoría inferior. Es un candidato, no una plaza confirmada: falta el reglamento y la inscripción.</p>
+          <ul className="m-0 mt-2 list-none divide-y divide-[var(--fondo-sutil)] p-0">
+            {arrastresPosibles.map((a) => (
+              <li key={`${a.equipo_id}-${a.filial_id}`} className="py-1.5 text-tabla text-[var(--texto)]">
+                <b>{a.equipo}</b> · {a.filial} <span className="text-nota text-[var(--texto-suave)]">(nivel {a.nivel})</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
         {proximaJornada.length > 0 && (
           <CrucesPrevistos titulo={`Próxima jornada · ${proximaJornada[0].jornada}`} cruces={proximaJornada} />

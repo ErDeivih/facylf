@@ -331,5 +331,41 @@ export const ZONAS_HISTORICAS: Consulta<FilaZonasHistoricas> = {
      limit 1`,
 };
 
-export const CONSULTAS_PANELES = [RANKING_GOLEADORES, EVOLUCION_DEL_CLUB, ZONAS_DEL_GRUPO, ZONAS_HISTORICAS, CURVA_DEL_EQUIPO,
+
+export type FilaArrastre = {
+  equipo_id: number; equipo: string; club_id: number;
+  filial_id: number; filial: string; nivel: number;
+};
+
+/** Posibles arrastres: mismo club con otro equipo en una categoría inferior de la misma temporada. */
+export const ARRASTRES_DEL_GRUPO: Consulta<FilaArrastre> = {
+  nombre: 'arrastres-del-grupo',
+  descripcion: 'Equipos del grupo que tienen otro equipo del mismo club en una categoría inferior; solo candidatos a arrastre, no una plaza confirmada.',
+  plan: 'indexado',
+  presupuestoMs: 150,
+  columnas: ['equipo_id', 'equipo', 'club_id', 'filial_id', 'filial', 'nivel'],
+  sql: `
+    with actual as (
+      select te.id equipo_id, te.nombre_en_fuente equipo, ts.club_id, ce.nivel,
+             ce.season_id, ce.federation_id
+        from core.phase_group pg
+        join core.team_entry te on te.phase_group_id = pg.id
+        join core.team_season ts on ts.id = te.team_season_id
+        join core.competition_edition ce on ce.id = pg.competition_edition_id
+       where pg.id = $1
+    )
+    select a.equipo_id, a.equipo, a.club_id,
+           b.id filial_id, b.nombre_en_fuente filial, ce2.nivel
+      from actual a
+      join core.team_season ts2 on ts2.club_id = a.club_id and ts2.season_id = a.season_id
+      join core.team_entry b on b.team_season_id = ts2.id and b.id <> a.equipo_id
+      join core.phase_group pg2 on pg2.id = b.phase_group_id
+      join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
+     where ce2.federation_id = a.federation_id
+       and ce2.nivel > a.nivel
+     order by a.equipo, ce2.nivel, b.nombre_en_fuente
+     limit 40`,
+};
+
+export const CONSULTAS_PANELES = [RANKING_GOLEADORES, EVOLUCION_DEL_CLUB, ZONAS_DEL_GRUPO, ZONAS_HISTORICAS, ARRASTRES_DEL_GRUPO, CURVA_DEL_EQUIPO,
   GOLES_POR_TRAMO, COMPARADOR_JUGADORES, COMPARACION_DE_LIGAS] as const;
