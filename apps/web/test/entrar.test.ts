@@ -64,11 +64,11 @@ describe('/entrar · una sola pantalla de entrada', () => {
     expect(entrada).toContain('method="post"');
     expect(entrada).toMatch(/<button[^>]*type="submit"[^>]*>[\s\S]*?Entrar[\s\S]*?<\/button>/);
     expect(entrada).not.toContain('Recibir un enlace');
-    expect(entrada).not.toContain('He olvidado la contraseña');
+    expect(entrada).toContain('He olvidado la contraseña');
   });
 
-  it('dice con claridad que la recuperación aún no existe, sin botón que finja', () => {
-    expect(html()).toContain('todavía no se puede recuperar desde la web');
+  it('enlaza a la solicitud de recuperación, sin prometer envío automático', () => {
+    expect(html()).toContain('href="/recuperar"');
   });
 
   it('enlaza a crear cuenta y conserva la ruta de vuelta', () => {
@@ -93,7 +93,7 @@ describe('/entrar · una sola pantalla de entrada', () => {
       expect(texto, `no debería decir «${prohibido}»`).not.toContain(prohibido);
     }
     expect(entrada).not.toContain('href="#"');
-    expect(entrada).not.toContain('href="/recuperar"');
+    expect(entrada).toContain('href="/recuperar"');
   });
 
   it('las piezas se pueden renderizar por separado', () => {

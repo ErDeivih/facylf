@@ -12,7 +12,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: TITULO_POR_DEFECTO,
   description: 'Resultados, clasificaciones y pronósticos del fútbol de Castilla y León, de Tercera Federación al fútbol base.',
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 };
 
 /**
