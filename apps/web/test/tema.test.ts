@@ -194,11 +194,12 @@ describe('el botón de tema de la cabecera', () => {
     expect(pintaCabecera({ tema: 'oscuro' })).not.toContain('Cambiar a tema');
   });
 
-  it('el botón va después de la navegación en el DOM (el orden de Tab sigue al visual)', () => {
+  it('el botón va antes de la navegación en el DOM, como en la cabecera móvil', () => {
     const html = pintaCabecera({ permiteTema: true });
-    const finNav = html.indexOf('</nav>');
+    const inicioNav = html.indexOf('<nav');
     const boton = html.indexOf('aria-label="Cambiar a tema');
-    expect(finNav).toBeGreaterThan(-1);
-    expect(boton).toBeGreaterThan(finNav);
+    expect(inicioNav).toBeGreaterThan(-1);
+    expect(boton).toBeGreaterThan(-1);
+    expect(boton).toBeLessThan(inicioNav);
   });
 });

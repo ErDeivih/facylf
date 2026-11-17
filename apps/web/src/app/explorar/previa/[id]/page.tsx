@@ -145,6 +145,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
       </nav>
 
       <header className={`${TARJETA} px-4 py-3`}>
+        <h1 className="sr-only">{f.local} – {f.visitante}</h1>
         <p className="m-0 text-nota text-[var(--texto-suave)]">
           Jornada {f.jornada}{fechaLarga(f.fecha) ? ` · ${fechaLarga(f.fecha)}` : ''}{f.hora ? ` · ${f.hora}` : ''}
         </p>
@@ -153,7 +154,7 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
             { nombre: f.visitante, id: f.visitante_id, club: f.visitante_club_id, escudo: f.visitante_tiene_escudo, lado: lados[1] }].map((equipo, i) => (
             <div key={equipo.id} className={i === 0 ? 'flex min-w-0 flex-col items-start gap-1' : 'flex min-w-0 flex-col items-end gap-1 text-right'}>
               <Escudo equipoId={Number(equipo.id)} nombre={equipo.nombre} clubId={equipo.club} tieneEscudo={equipo.escudo} />
-              <h1 className="m-0 break-words text-tabla font-bold leading-tight text-[var(--texto)] sm:text-bloque">{equipo.nombre}</h1>
+              <p className="m-0 break-words text-tabla font-bold leading-tight text-[var(--texto)] sm:text-bloque">{equipo.nombre}</p>
               {equipo.lado?.fila && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{equipo.lado.fila.posicion}.º · {equipo.lado.fila.puntos} pts</span>}
               <InsigniasRacha signos={equipo.lado?.forma ?? []} />
             </div>

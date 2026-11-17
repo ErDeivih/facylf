@@ -64,7 +64,7 @@ describe('predicción en la ficha', () => {
     const html = renderToStaticMarkup(createElement(PrediccionPartido, {
       local: 'A', visitante: 'B', prediccion: null, jugado: false,
     }));
-    expect(html).toContain('Sin datos suficientes');
+    expect(html).toContain('Aún no hay predicción publicada');
     expect(html).not.toContain('33');
   });
 

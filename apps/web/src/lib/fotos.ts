@@ -10,10 +10,10 @@ import { consulta } from '@/consultas/adaptadores/postgres/conexion';
  * Es un interruptor de despliegue, `FACYLF_FOTOS`, y no una constante: lo que no se configura no se
  * enseña.
  *
- *   · sin variable (la demo, un despliegue nuevo, una prueba) → ninguna foto;
+ *   · sin variable (la demo sin exportación, un despliegue nuevo, una prueba) → ninguna foto;
  *   · `FACYLF_FOTOS=adultos` (o `1`)                          → sólo personas que no son menores;
- *   · `FACYLF_FOTOS=todas`                                    → también menores. Sólo para la instancia
- *     privada y por decisión expresa de David; nunca en nada abierto a Internet.
+ *   · `FACYLF_FOTOS=todas`                                    → también menores. La demo pública las exporta como ficheros estáticos por decisión expresa de David
+ *     (17/11/2026).
  *
  * «No se sabe si es menor» cuenta como menor: `core.person.es_menor` nulo no desbloquea una foto.
  */

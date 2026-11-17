@@ -44,7 +44,7 @@ export default function PaginaLegal() {
           No se muestran fecha de nacimiento, documento, dirección ni datos de contacto.
         </p>
         <p className={PARRAFO}>
-          Las fotos de ficha de menores no se muestran en la versión pública de la web.
+          Las fotos de ficha, también las de menores, se muestran con la autorización de tratamiento de la federación; la demo pública las sirve como ficheros estáticos.
         </p>
       </section>
 

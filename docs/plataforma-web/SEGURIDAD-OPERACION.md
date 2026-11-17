@@ -82,12 +82,11 @@ CSP es defensa adicional y no sustituye el escape y diseño seguro. Referencias:
 
 **Decisión vigente (David, 05/11/2026, `DOCTRINA-CALIDAD.md` §9):** la federación tiene
 **consentimiento de tratamiento**, así que los **nombres** de los menores se publican igual que los de
-un adulto. **Fotos (16/11/2026):** la ficha muestra la foto **sólo si la persona es adulta y la foto
-existe**. Lo gobierna `FACYLF_FOTOS` (`apps/web/src/lib/fotos.ts`, migración 0066): sin variable no se
-sirve ninguna foto —así quedan la demo pública de GitHub Pages y cualquier despliegue nuevo—; con
-`adultos`, sólo personas con `es_menor = false` (un `es_menor` desconocido cuenta como menor); con
-`todas`, también menores, y eso sólo en la instancia privada por decisión expresa de David. La regla
-se aplica en la ficha y en la ruta `/api/foto/persona/<id>`, que responde con caché `private`. El resto de minimización
+un adulto. **Fotos (17/11/2026):** David autorizó expresamente publicar las fotos de ficha, también de
+menores, en la demo pública; se exportan como ficheros estáticos desde la instancia privada con
+`FACYLF_FOTOS=todas`. Sin variable no se sirve ninguna foto; con `adultos`, sólo personas con
+`es_menor = false`; con `todas`, también menores. La regla se aplica en la ficha y en
+`/api/foto/persona/<id>`, que responde con caché `private`. El resto de minimización
 sigue vigente: no se publican fecha de nacimiento, documento, contacto ni dirección.
 
 Antes de cualquier despliegue compartido:

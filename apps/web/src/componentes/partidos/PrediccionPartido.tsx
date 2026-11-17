@@ -27,7 +27,7 @@ export function PrediccionPartido({ local, visitante, prediccion, jugado, result
         className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3.5">
         <h2 id="prediccion" className="m-0 text-bloque font-bold text-[var(--texto)]">Predicción</h2>
         <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
-          Sin datos suficientes para este partido: su liga aún no tiene marcadores con los que estimar.
+          Aún no hay predicción publicada para este partido.
         </p>
       </section>
     );
