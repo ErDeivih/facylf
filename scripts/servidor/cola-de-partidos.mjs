@@ -31,6 +31,12 @@ export const DIAS_APLAZADO = 7;
  * 579 índices; con esta banda empezaron a salir en el primer minuto (31 → 26 en 5 minutos).
  */
 export const BANDA_ACTAS_RECIENTES = -1500000000;
+/*
+ * Banda para releer una jornada que tiene partidos sin acta. Va por debajo de la de actas (que siguen
+ * mandando) pero por encima del descubrimiento normal, porque esto es lo único que puede desbloquear un
+ * partido aplazado: cuando la federación publique el acta, el enlace aparecerá en la jornada.
+ */
+export const BANDA_JORNADAS_SIN_ACTA = -1450000000;
 
 /** ¿Cuándo toca comprobar el acta de este partido? `inicio` en ms, `intentos` ya hechos. */
 export function cuandoToca({ inicio, intentos = 0 }) {
@@ -123,6 +129,29 @@ function principal() {
       reabre.run(BANDA_ACTAS_RECIENTES, marca, marca, a.temporada, a.competicion, a.grupo, a.jornada, a.acta);
       aplazadosReintentados++;
     }
+  }
+
+  // ── PARTIDOS SIN CÓDIGO DE ACTA (APLAZADOS / SUSPENDIDOS) ──────────────────────────────────────
+  // Estos no aparecen en la consulta de arriba porque no tienen `codigo_acta`: no hay nada que pedir
+  // hasta que la federación publique el acta. Lo único que se puede hacer es VOLVER A LEER la jornada,
+  // que es donde aparecerá el enlace. Sin esto se quedan olvidados para siempre: comprobado el
+  // 17/11/2026 con cinco partidos del 15/11 en la base sin resultado y sin trabajo asociado.
+  let jornadasSinActa = 0;
+  if (argumentos.includes('--sin-acta') && !seco) {
+    const desde = new Date(ahora - 14 * 86400e3).toISOString().slice(0, 10);
+    const hoy = new Date(ahora).toISOString().slice(0, 10);
+    const sinActa = db.prepare(`
+      select distinct temporada, competicion, grupo, jornada from partidos
+       where codigo_acta is null and fecha >= ? and fecha <= ?
+    `).all(desde, hoy);
+    const marca = new Date(ahora).toISOString();
+    const reabre = db.prepare(`update trabajos set prioridad = ?, siguiente_intento = ?, actualizado_en = ?
+      where tipo = 'jornada' and temporada = ? and competicion = ? and grupo = ? and jornada = ?`);
+    for (const j of sinActa) {
+      reabre.run(BANDA_JORNADAS_SIN_ACTA, marca, marca, j.temporada, j.competicion, j.grupo, String(j.jornada));
+      jornadasSinActa++;
+    }
+    console.log(`JORNADAS CON PARTIDOS SIN ACTA releídas: ${jornadasSinActa}`);
   }
 
   const informe = { cuando: new Date(ahora).toISOString(), cola: ruta, seco, partidos: partidos.length, ...cuenta, adelantados: tocaAdelantar.length, aplazados_listados: aplazados.length, aplazados_reintentados: aplazadosReintentados };
