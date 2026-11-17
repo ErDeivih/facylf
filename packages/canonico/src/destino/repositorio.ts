@@ -150,6 +150,22 @@ export class Repositorio {
       if (tanda.length === 0) continue;
       const conflicto = tanda[0]!.conflicto;
       const nombres = Object.keys(tanda[0]!.valores);
+      /*
+       * ── UNA CLAVE REPETIDA EN LA MISMA TANDA ROMPE EL INSERT MÚLTIPLE (17/11/2026) ──────────────────
+       *
+       * PostgreSQL rechaza `INSERT ... ON CONFLICT` cuando dos filas del mismo lote tienen la misma clave
+       * («ON CONFLICT DO UPDATE command cannot affect row a second time»). Pasa cuando el acta lista dos
+       * veces a la misma persona en el mismo partido: el grupo 24219109 de 2026-27 se quedaba sin importar
+       * por esto. En ese caso se hace fila a fila, que sí resuelve duplicados sin ambigüedad.
+       */
+      const clavesDeTanda = tanda.map((f) => conflicto.map((c) => String(f.valores[c] ?? '')).join('|'));
+      if (new Set(clavesDeTanda).size !== clavesDeTanda.length) {
+        for (const f of tanda) {
+          const id = await this.upsert(tabla, f.valores, f.conflicto, { devolver, clavePrimaria: f.clavePrimaria });
+          ids.push(id);
+        }
+        continue;
+      }
       // Filas que YA existían con esas claves naturales: son las que la reversión tendrá que
       // restaurar, así que sus valores anteriores se guardan en el diario.
       const previas = new Map<string, Valores>();
