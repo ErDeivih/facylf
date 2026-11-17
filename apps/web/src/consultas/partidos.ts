@@ -770,8 +770,12 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
                          join core.phase_group g2 on g2.id = m2.phase_group_id
                          join core.competition_edition e2 on e2.id = g2.competition_edition_id
                          join core.season s2 on s2.id = e2.season_id
-                        where ((tsl2.club_id = tsl.club_id and tsv2.club_id = tsv.club_id)
-                            or (tsl2.club_id = tsv.club_id and tsv2.club_id = tsl.club_id))
+                        where ((tsl2.club_id = tsl.club_id and tsv2.club_id = tsv.club_id
+                                and el2.nombre_en_fuente_norm = el.nombre_en_fuente_norm
+                                and ev2.nombre_en_fuente_norm = ev.nombre_en_fuente_norm)
+                            or (tsl2.club_id = tsv.club_id and tsv2.club_id = tsl.club_id
+                                and el2.nombre_en_fuente_norm = ev.nombre_en_fuente_norm
+                                and ev2.nombre_en_fuente_norm = el.nombre_en_fuente_norm))
                           and tsl2.categoria = e.categoria
                           and tsv2.categoria = e.categoria
                           and m2.played_at is not null

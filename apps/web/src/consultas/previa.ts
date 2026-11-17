@@ -95,8 +95,13 @@ export const PREVIA_DEL_PARTIDO: Consulta<FilaPrevia> = {
                   join core.team_entry v2 on v2.id = m2.away_team_entry_id
                   join core.team_season v2s on v2s.id = v2.team_season_id
                  where m2.goles_local is not null and m2.id <> m.id
-                   and ((l2s.club_id = tsl.club_id and v2s.club_id = tsv.club_id)
-                     or (l2s.club_id = tsv.club_id and v2s.club_id = tsl.club_id))
+                   -- El nombre distingue el filial «B» del primer equipo; el club solo no basta.
+                   and ((l2s.club_id = tsl.club_id and v2s.club_id = tsv.club_id
+                         and l2.nombre_en_fuente_norm = el.nombre_en_fuente_norm
+                         and v2.nombre_en_fuente_norm = ev.nombre_en_fuente_norm)
+                     or (l2s.club_id = tsv.club_id and v2s.club_id = tsl.club_id
+                         and l2.nombre_en_fuente_norm = ev.nombre_en_fuente_norm
+                         and v2.nombre_en_fuente_norm = el.nombre_en_fuente_norm))
                  order by fecha desc nulls last
                  limit 5) x) h2h,
            (select jsonb_agg(jsonb_build_object('jornada', j, 'puntos', p) order by j)

@@ -25,8 +25,8 @@ export default async function PantallaGoleadores({ searchParams }: {
   const p = await searchParams;
   const categoria = typeof p.categoria === 'string' && CATEGORIAS.some(([c]) => c === p.categoria)
     ? p.categoria : 'aficionados';
-  const modalidad = p.modalidad === 'futbol-sala' ? 'futbol-sala' : 'futbol';
-  const genero = p.genero === 'femenino' || p.genero === 'mixto' ? p.genero : 'masculino';
+  const modalidad = p.modalidad === 'sala' ? 'sala' : 'futbol';
+  const genero = p.genero === 'femenina' || p.genero === 'mixta' || p.genero === 'masculina' ? p.genero : 'desconocido';
   let filas: FilaRanking[] = [];
   try {
     filas = await consulta<FilaRanking>(RANKING_GOLEADORES.sql,
@@ -45,7 +45,7 @@ export default async function PantallaGoleadores({ searchParams }: {
       </header>
       <nav aria-label="Categorías" className="flex flex-wrap gap-1.5">
         {CATEGORIAS.map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores?categoria=${clave}&modalidad=${modalidad}&genero=${genero}` as Route}
+          <Link key={clave} href={`/explorar/goleadores/${modalidad}/${genero}/${clave}` as Route}
             aria-current={clave === categoria ? 'page' : undefined}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === categoria ? 'border-[var(--accion)] bg-[var(--accion)] text-[var(--texto-inverso)]' : 'border-[var(--borde)] bg-[var(--fondo-elevado)] text-[var(--texto)] hover:border-[var(--accion)]'}`}>
             {texto}
@@ -53,14 +53,14 @@ export default async function PantallaGoleadores({ searchParams }: {
         ))}
       </nav>
       <nav aria-label="Modalidad" className="flex flex-wrap gap-1.5">
-        {[['futbol', 'Fútbol 11'], ['futbol-sala', 'Fútbol sala']].map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores?categoria=${categoria}&modalidad=${clave}&genero=${genero}` as Route}
+        {[['futbol', 'Fútbol'], ['sala', 'Fútbol sala']].map(([clave, texto]) => (
+          <Link key={clave} href={`/explorar/goleadores/${clave}/${genero}` as Route}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === modalidad ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
         ))}
       </nav>
       <nav aria-label="Género" className="flex flex-wrap gap-1.5">
-        {[['masculino', 'Masculino'], ['femenino', 'Femenino'], ['mixto', 'Mixto']].map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores?categoria=${categoria}&modalidad=${modalidad}&genero=${clave}` as Route}
+        {[['masculina', 'Masculino'], ['femenina', 'Femenino'], ['mixta', 'Mixto'], ['desconocido', 'Sin clasificar']].map(([clave, texto]) => (
+          <Link key={clave} href={`/explorar/goleadores/${modalidad}/${clave}` as Route}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === genero ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
         ))}
       </nav>

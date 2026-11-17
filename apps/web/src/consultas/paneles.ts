@@ -53,7 +53,9 @@ export const RANKING_GOLEADORES: Consulta<FilaRanking> = {
        and ($3::text is null or ce.categoria = $3)
        and ($4::text is null or ce.division = $4)
        and ($5::bigint is null or te.phase_group_id = $5)
-       and ($8::text is null or ce.modalidad = $8)
+       and ($8::text is null
+            or ($8 = 'futbol' and ce.modalidad in ('futbol11','futbol8','futbol7','desconocida'))
+            or ce.modalidad = $8)
        and ($9::text is null or ce.genero = $9)
        and ce.ambito <> 'copa'
        and s.goles > 0 and s.partidos_demostrados >= $6
