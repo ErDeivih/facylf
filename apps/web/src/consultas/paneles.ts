@@ -347,7 +347,7 @@ export const ARRASTRES_DEL_GRUPO: Consulta<FilaArrastre> = {
   sql: `
     with actual as (
       select te.id equipo_id, te.nombre_en_fuente equipo, ts.club_id, ce.nivel,
-             ce.season_id, ce.federation_id
+             ce.season_id, ce.federation_id, ce.categoria, ce.modalidad, ce.genero
         from core.phase_group pg
         join core.team_entry te on te.phase_group_id = pg.id
         join core.team_season ts on ts.id = te.team_season_id
@@ -362,7 +362,16 @@ export const ARRASTRES_DEL_GRUPO: Consulta<FilaArrastre> = {
       join core.phase_group pg2 on pg2.id = b.phase_group_id
       join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
      where ce2.federation_id = a.federation_id
-       and ce2.nivel > a.nivel
+       and ce2.season_id = a.season_id
+       and ce2.categoria = a.categoria
+       and ce2.modalidad = a.modalidad
+       and ce2.genero = a.genero
+       and ce2.ambito <> 'copa'
+       and ce2.nivel = (select min(ce3.nivel) from core.competition_edition ce3
+                         where ce3.federation_id = a.federation_id and ce3.season_id = a.season_id
+                           and ce3.categoria = a.categoria and ce3.modalidad = a.modalidad
+                           and ce3.genero = a.genero and ce3.ambito <> 'copa'
+                           and ce3.nivel > a.nivel)
      order by a.equipo, ce2.nivel, b.nombre_en_fuente
      limit 40`,
 };

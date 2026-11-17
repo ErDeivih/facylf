@@ -155,7 +155,8 @@ function reescribe(html) {
     // Fuera el JavaScript: esto es una foto estática. Sin hidratación no hay router que pida rutas SIN el
     // prefijo de publicación (eso era el 404/503 que veían los coordinadores) y cada enlace es una carga de
     // página normal contra el fichero que existe. La interactividad no es parte de la demo.
-    .replace(/<script[\s\S]*?<\/script>/gi, '');
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replaceAll('http://localhost:3001', 'https://erdeivih.github.io/fondo-popular-demo');
 }
 
 /** Quita de la navegación la entrada de Rankings (ya no tiene página en la demo). */
@@ -553,7 +554,17 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
   }
 
 writeFileSync(join(salida, '.nojekyll'), '');
-writeFileSync(join(salida, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
+writeFileSync(join(salida, 'robots.txt'), [
+  'User-agent: *',
+  'Allow: /',
+  'Disallow: /api/',
+  'Disallow: /mi-cuenta',
+  'Disallow: /mi-panel',
+  'Disallow: /entrar',
+  'Disallow: /crear-cuenta',
+  'Disallow: /admin',
+  '',
+].join('\n'));
 
 console.log(`rutas publicadas: ${rutasOk.length}/${RUTAS.length}`);
 if (rutasMal.length) console.log('rutas que fallaron:', rutasMal.join(' · '));

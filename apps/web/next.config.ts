@@ -45,6 +45,19 @@ const config: NextConfig = {
    * `outputFileTracingRoot` apunta a la RAÍZ del monorepo porque las dependencias reales de la web viven dos
    * niveles más arriba (`packages/…`): sin esto, Next traza desde `apps/web` y la imagen se queda sin ellas.
    */
+
+  async headers() {
+    return [{
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+      ],
+    }];
+  },
   output: 'standalone',
   outputFileTracingRoot: join(import.meta.dirname, '..', '..'),
   /*

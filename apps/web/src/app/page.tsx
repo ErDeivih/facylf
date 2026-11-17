@@ -16,8 +16,19 @@ import { sesionActual } from '@/lib/sesion';
 
 export const dynamic = 'force-dynamic';
 
+const SITIO = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001';
+
 export const metadata: Metadata = {
-  title: 'Inicio — Fondo Popular',
+  title: 'Fondo Popular — Fútbol de Castilla y León',
+  description: 'Resultados, clasificaciones, jornadas y pronósticos del fútbol federado de Castilla y León, de Tercera Federación al fútbol base.',
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: 'website', locale: 'es_ES', url: '/', siteName: 'Fondo Popular',
+    title: 'Fondo Popular — Fútbol de Castilla y León',
+    description: 'Resultados, clasificaciones y pronósticos del fútbol federado de Castilla y León.',
+  },
+  twitter: { card: 'summary_large_image', title: 'Fondo Popular', description: 'Fútbol federado de Castilla y León.' },
 };
 
 /**
@@ -118,7 +129,14 @@ const sesion = await sesionActual();
     }
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org', '@type': 'WebSite', name: 'Fondo Popular',
+    url: SITIO, inLanguage: 'es-ES',
+    description: 'Resultados, clasificaciones y pronósticos del fútbol federado de Castilla y León.',
+  };
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <InicioContenido
       competiciones={competiciones}
       proximos={proximos}
@@ -127,5 +145,6 @@ const sesion = await sesionActual();
       accesos={accesos}
       errorAccesos={errorAccesos}
     />
+    </>
   );
 }
