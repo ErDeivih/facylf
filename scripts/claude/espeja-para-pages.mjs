@@ -412,6 +412,32 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
     return salida;
   };
 
+  // Fotos de persona: la ficha usa /api/foto/persona/<id>, que en Pages no existe. Se descargan del
+  // servidor privado (con FACYLF_FOTOS=todas) y se publican como ficheros estáticos. David autorizó
+  // expresamente mostrar las caras, también de menores, en la demo el 17/11/2026.
+  const fotos = new Map();
+  const recorreFotos = (dir) => {
+    for (const f of readdirSync(dir)) {
+      const ruta = join(dir, f);
+      if (statSync(ruta).isDirectory()) { recorreFotos(ruta); continue; }
+      if (!f.endsWith('.html')) continue;
+      const html = readFileSync(ruta, 'utf8');
+      for (const m of html.matchAll(/\/api\/foto\/persona\/(\d+)/g)) fotos.set(m[1], null);
+    }
+  };
+  recorreFotos(salida);
+  mkdirSync(join(salida, 'fotos', 'persona'), { recursive: true });
+  for (const id of fotos.keys()) {
+    try {
+      const r = await fetch(`${origen}/api/foto/persona/${id}`);
+      if (!r.ok) continue;
+      const tipo = (r.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
+      const ext = tipo === 'image/png' ? 'png' : tipo === 'image/webp' ? 'webp' : 'jpg';
+      writeFileSync(join(salida, 'fotos', 'persona', `${id}.${ext}`), Buffer.from(await r.arrayBuffer()));
+      fotos.set(id, ext);
+    } catch { /* sin foto: se deja el monograma del HTML */ }
+  }
+
   let reescritos = 0;
   const recorreHtml = (dir) => {
     for (const f of readdirSync(dir)) {
@@ -427,7 +453,9 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
         if (sinEquipos !== antes && /\/explorar\/equipo\/\d+/.test(antes)) enlacesDeEquipoQuitados += 1;
         antes = sinEquipos;
       }
-      const despues = antes.replace(/(href|src)="(\/fondo-popular-demo\/[^"]+)"/g, (todo, atributo, url) => {
+      const conFotos = antes.replace(/src="(?:\/fondo-popular-demo)?\/api\/foto\/persona\/(\d+)"/g,
+        (todo, id) => fotos.get(id) ? `src="${base}/fotos/persona/${id}.${fotos.get(id)}"` : todo);
+      const despues = conFotos.replace(/(href|src)="(\/fondo-popular-demo\/[^"]+)"/g, (todo, atributo, url) => {
         if (existeEnFoto(url)) return todo;
         // Los recursos (CSS, JS, escudos, iconos) no son navegación: si faltan, se dejan como están.
         if (/\/(_next|escudos|escudos-fed|icon\.svg|favicon\.ico|robots\.txt)/.test(url)) return todo;
@@ -440,7 +468,7 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
   recorreHtml(salida);
   console.log(`enlaces internos reescritos al selector (no tenían página en la foto): ${reescritos}`);
   console.log(`páginas con enlaces de equipo convertidos en texto: ${enlacesDeEquipoQuitados} · formularios de filtro neutralizados: ${formularioNeutralizado}`);
-}
+  }
 
 writeFileSync(join(salida, '.nojekyll'), '');
 writeFileSync(join(salida, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
