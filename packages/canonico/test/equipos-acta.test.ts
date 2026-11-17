@@ -214,3 +214,35 @@ describe('reconciliación del partido con su acta', () => {
     expect(decision.visitante).toBe('4984');
   });
 });
+
+describe('letra repetida en el nombre del acta (17/11/2026)', () => {
+  /*
+   * Caso real del grupo 24219059, jornada 3, acta 26178041 (2026-27): el calendario dice
+   * `C.D. Colegios Diocesanos "E"` y el acta `CC.D. Colegios Diocesanos E`. El marcador del acta (1-3)
+   * coincide con el del calendario, así que es el mismo partido con una errata.
+   */
+  const conEquipos = { ...base, clavePorNombre: new Map([...CODIGOS, ['real ávila e', 'AVILA'], ['c.d. colegios diocesanos e', 'COLE']]) };
+
+  it('una letra repetida en un lado no convierte el acta en «otro partido»', () => {
+    const decision = reconciliaEquiposDelPartido({
+      ...conEquipos,
+      calendario: { localClave: 'AVILA', visitanteClave: 'COLE', local: 'Real Ávila E', visitante: 'C.D. Colegios Diocesanos E' },
+      acta: { local: 'Real Ávila E', visitante: 'CC.D. Colegios Diocesanos E' },
+    });
+    expect(decision.discrepancia?.forma).toBe('escritura');
+    expect(decision.local).toBe('AVILA');
+    expect(decision.visitante).toBe('COLE');
+  });
+
+  it('dos equipos DISTINTOS que sólo se parecen siguen siendo «otro»', () => {
+    const decision = reconciliaEquiposDelPartido({
+      ...base,
+      calendario: { localClave: 'A', visitanteClave: 'B', local: 'Sella', visitante: 'C.D. Uno' },
+      acta: { local: 'Sela', visitante: 'C.D. Uno' },
+    });
+    // Un lado coincide exacto (C.D. Uno), pero «Sella» y «Sela» no son una abreviatura con letra repetida
+    // («ll» no va seguido de punto), así que no se tolera: el acta no resuelve y no se elige nada.
+    expect(decision.actaSinResolver).toBe(true);
+    expect(decision.reparado).toBe(false);
+  });
+});

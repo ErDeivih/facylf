@@ -141,6 +141,36 @@ export function reconciliaEquiposDelPartido(entrada: EntradaReconciliacion): Dec
   // Coinciden: no hay nada que reconciliar y no se toca la fila.
   if (calLocal === actaLocal && calVisitante === actaVisitante) return sinCambios;
 
+  /*
+   * ── UNA LETRA REPETIDA NO ES OTRO EQUIPO (17/11/2026) ────────────────────────────────────────────
+   *
+   * La federación escribe a veces el nombre con una letra de más al pasarlo al acta: el calendario dice
+   * `C.D. Colegios Diocesanos "E"` y el acta `CC.D. Colegios Diocesanos E` (grupo 24219059, jornada 3,
+   * acta 26178041). El marcador del acta coincidía con el del calendario, así que era el mismo partido: una
+   * errata. Sin esta tolerancia el grupo entero se detenía con «el acta no se corresponde con la fila».
+   *
+   * Se exige que UNO de los dos equipos coincida EXACTAMENTE y que el otro sólo difiera en letras
+   * repetidas: así no se confunden dos equipos distintos de nombre parecido («Sella» / «Sela»), porque
+   * entonces ninguno de los dos lados coincidiría exacto.
+   */
+  // Sólo se colapsa la letra repetida de una ABREVIATURA («CC.D.» → «C.D.»). Aplastar cualquier letra
+  // repetida confundiría equipos distintos de nombre parecido («Sella» / «Sela»), que es justo lo que no
+  // se quiere: eso sigue siendo «otro» y el lote se detiene para que lo mire una persona.
+  const colapsaAbreviatura = (texto: string): string => texto.replace(/([a-z])\1\./g, '$1.');
+  const soloRepeticiones = (a: string, b: string): boolean => a !== b && colapsaAbreviatura(a) === colapsaAbreviatura(b);
+  const unLadoExacto = (calLocal === actaLocal && soloRepeticiones(calVisitante, actaVisitante))
+    || (calVisitante === actaVisitante && soloRepeticiones(calLocal, actaLocal));
+  if (unLadoExacto) {
+    return {
+      ...sinCambios,
+      discrepancia: {
+        forma: 'escritura',
+        calendario: { local: limpio(entrada.calendario.local), visitante: limpio(entrada.calendario.visitante) },
+        acta: { local: limpio(acta.local), visitante: limpio(acta.visitante) },
+      },
+    };
+  }
+
   const claveActaLocal = entrada.clavePorNombre.get(actaLocal);
   const claveActaVisitante = entrada.clavePorNombre.get(actaVisitante);
   if (!claveActaLocal || !claveActaVisitante) {
