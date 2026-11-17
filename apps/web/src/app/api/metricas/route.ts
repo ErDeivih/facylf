@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { consulta } from '@/consultas/adaptadores/postgres/conexion';
 import { ipDe, permite } from '@/lib/limites';
+import { limiteCompartido } from '@/lib/limites-db';
 
 /** Registro de una vista de página. Sin cookies, sin IP y sin identificar a nadie. */
 export async function POST(peticion: Request): Promise<NextResponse> {
-  if (!permite(`metricas:${ipDe(peticion)}`, 60, 10 * 60 * 1000)) return new NextResponse(null, { status: 429 });
+  const ip = ipDe(peticion);
+  if (!permite(`metricas:${ip}`, 60, 10 * 60 * 1000) || !(await limiteCompartido(`metricas:${ip}`, 120, 600))) return new NextResponse(null, { status: 429 });
   let cuerpo: { ruta?: unknown; referrer?: unknown } = {};
   try { cuerpo = await peticion.json(); } catch { return new NextResponse(null, { status: 204 }); }
   const ruta = typeof cuerpo.ruta === 'string' ? cuerpo.ruta.slice(0, 300) : '';
