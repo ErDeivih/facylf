@@ -120,6 +120,7 @@ const RUTAS = [
   '/explorar/comparar',
   '/explorar/ojeo',
   '/entrar',
+  '/recuperar',
   '/crear-cuenta',
   '/explorar/publicidad',
 ];
@@ -531,7 +532,11 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
           /<form[^>]*action="[^"]*\/buscar"[^>]*>[\s\S]*?<\/form>/,
           `<a class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)]" href="${base}/explorar/competiciones">Buscar competiciones</a>`,
         );
-        const conFiltros = neutralizaFiltros(sinBuscador);
+        const sinApi = sinBuscador.replace(
+          /<form[^>]*action="[^"]*\/api\/[^"]*"[^>]*>[\s\S]*?<\/form>/g,
+          '<p class="rounded-[var(--radius-control)] border border-dashed border-[var(--borde)] px-3 py-2 text-tabla text-[var(--texto-suave)]">En la demo pública esta acción no está disponible; se usa en la app privada.</p>',
+        );
+        const conFiltros = neutralizaFiltros(sinApi);
         const sinEquipos = conFiltros; // los nombres de equipo siguen siendo enlaces a su ficha (FP-U2)
         if (sinEquipos !== antes && /\/explorar\/equipo\/\d+/.test(antes)) enlacesDeEquipoQuitados += 1;
         antes = sinEquipos;
