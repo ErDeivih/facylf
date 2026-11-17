@@ -115,7 +115,6 @@ const RUTAS = [
   '/explorar/acta/2000559',
   '/explorar/jugador/19057/historial',
   '/explorar/federacion/castilla-leon',
-  '/buscar',
   '/explorar/comparar',
   '/explorar/ojeo',
   '/entrar',
@@ -525,7 +524,11 @@ for (const fichero of ['icon.svg', 'favicon.ico']) {
       if (!f.endsWith('.html')) continue;
       let antes = readFileSync(ruta, 'utf8');
       if (f.endsWith('.html')) {
-        const conFiltros = neutralizaFiltros(antes);
+        const sinBuscador = antes.replace(
+          /<form[^>]*action="[^"]*\/buscar"[^>]*>[\s\S]*?<\/form>/,
+          `<a class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)]" href="${base}/explorar/competiciones">Buscar competiciones</a>`,
+        );
+        const conFiltros = neutralizaFiltros(sinBuscador);
         const sinEquipos = conFiltros; // los nombres de equipo siguen siendo enlaces a su ficha (FP-U2)
         if (sinEquipos !== antes && /\/explorar\/equipo\/\d+/.test(antes)) enlacesDeEquipoQuitados += 1;
         antes = sinEquipos;
