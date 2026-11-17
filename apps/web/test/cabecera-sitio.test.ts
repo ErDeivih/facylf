@@ -106,7 +106,7 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
   it('cada función dice para qué sirve y las cuatro navegan', () => {
     const nav = navFunciones(pinta());
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/competiciones"/);
-    expect(nav).toMatch(/<a[^>]*href="\/explorar\/rankings"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar\/goleadores"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/ojeo"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/comparar"/);
     for (const [etiqueta, descriptor] of [
