@@ -24,7 +24,7 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     if (!fila?.hash_credencial || !(await verificaContrasena(actual, fila.hash_credencial))) return atras(peticion, 'contrasena-actual');
     const hash = await hashContrasena(nueva);
     await consulta('select app.cambia_contrasena($1, $2)', [sesion.userId, hash], { rol: 'app' });
-    return atras(peticion, 'contrasena');
+    return NextResponse.redirect(new URL('/entrar?aviso=contrasena', peticion.url), 303);
   } catch {
     return atras(peticion, 'contrasena-error');
   }
