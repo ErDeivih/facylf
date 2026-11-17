@@ -4,6 +4,7 @@ import { hashContrasena, verificaContrasena } from '@/lib/contrasenas';
 import { contrasenaValida, correoValido, estadoDeCredencial, normalizaCorreo, urlVolverSegura } from '@/lib/cuentas';
 import { iniciaSesion } from '@/lib/sesion';
 import { ipDe, permite } from '@/lib/limites';
+import { limiteCompartido } from '@/lib/limites-db';
 import { mismoOrigen } from '@/lib/seguridad';
 
 /**
@@ -19,7 +20,8 @@ import { mismoOrigen } from '@/lib/seguridad';
  */
 export async function POST(peticion: Request): Promise<NextResponse> {
   if (!mismoOrigen(peticion)) return atras(peticion, 'origen', null);
-  if (!permite(`entrar:${ipDe(peticion)}`, 40, 10 * 60 * 1000)) return atras(peticion, 'intentos', null);
+  const ip = ipDe(peticion);
+  if (!permite(`entrar:${ip}`, 40, 10 * 60 * 1000) || !(await limiteCompartido(`entrar:${ip}`, 80, 600))) return atras(peticion, 'intentos', null);
 
   let datos: FormData;
   try {

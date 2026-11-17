@@ -563,8 +563,15 @@ writeFileSync(join(salida, 'robots.txt'), [
   'Disallow: /entrar',
   'Disallow: /crear-cuenta',
   'Disallow: /admin',
+  'Sitemap: https://erdeivih.github.io/fondo-popular-demo/sitemap.xml',
   '',
 ].join('\n'));
+
+const publicas = rutasOk.filter((r) => !['/entrar', '/crear-cuenta'].includes(r));
+const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  + publicas.map((r) => `  <url><loc>https://erdeivih.github.io/fondo-popular-demo${r}</loc></url>`).join('\n')
+  + '\n</urlset>\n';
+writeFileSync(join(salida, 'sitemap.xml'), sitemap);
 
 console.log(`rutas publicadas: ${rutasOk.length}/${RUTAS.length}`);
 if (rutasMal.length) console.log('rutas que fallaron:', rutasMal.join(' · '));
