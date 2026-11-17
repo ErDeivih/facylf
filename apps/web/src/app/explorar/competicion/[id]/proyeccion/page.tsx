@@ -6,7 +6,7 @@ import {
   EDICIONES_DE_LA_COMPETICION, GRUPO_POR_ID, GRUPOS_DE_LA_EDICION, SIMULACION_DEL_GRUPO,
   type FilaEdicionDeLaCompeticion, type FilaGrupoDeLaEdicion, type FilaPortadaGrupo, type FilaSimulacionFinal,
 } from '@/consultas/competiciones';
-import { ZONAS_DEL_GRUPO, type FilaZonas } from '@/consultas/paneles';
+import { ZONAS_DEL_GRUPO, ZONAS_HISTORICAS, type FilaZonas, type FilaZonasHistoricas } from '@/consultas/paneles';
 import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompeticion';
@@ -52,25 +52,32 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
   try {
     portada = await portadaDe(id);
     if (portada) {
-      const [h, t, s, z, p] = await consultaEnUnaFoto([
+      const [h, t, s, z, p, zh] = await consultaEnUnaFoto([
         { sql: GRUPOS_DE_LA_EDICION.sql, parametros: [portada.edicion_id] },
         { sql: EDICIONES_DE_LA_COMPETICION.sql, parametros: [portada.grupo_id] },
         { sql: SIMULACION_DEL_GRUPO.sql, parametros: [id] },
         { sql: ZONAS_DEL_GRUPO.sql, parametros: [id] },
         { sql: PARTIDOS_DE_GRUPO.sql, parametros: [portada.federacion, portada.grupo_codigo, 400] },
+        { sql: ZONAS_HISTORICAS.sql, parametros: [portada.categoria, portada.division, portada.genero, id] },
       ]);
       hermanos = h as unknown as FilaGrupoDeLaEdicion[];
       temporadas = temporadasPublicables(t as unknown as FilaEdicionDeLaCompeticion[], undefined, portada.edicion_id);
       filas = s as unknown as FilaSimulacionFinal[];
       partidos = p as unknown as FilaPartidoCanonico[];
       const zona = (z as unknown as FilaZonas[])[0];
-      zonas = zona
+      const historica = (zh as unknown as FilaZonasHistoricas[])[0];
+      zonas = zona && zona.origen !== 'ninguna'
         ? {
           ascensos: zona.ascensos, promocion: zona.promocion, descensos: zona.descensos,
           promocion_permanencia: zona.promocion_permanencia, origen: zona.origen,
           confianza: zona.confianza, temporadas: zona.temporadas,
         }
-        : null;
+        : historica
+          ? {
+            ascensos: historica.ascensos, promocion: historica.promocion, descensos: historica.descensos,
+            promocion_permanencia: 0, origen: 'historica', confianza: null, temporadas: historica.temporadas,
+          }
+          : null;
     }
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) return <SinCanonico titulo="Clasificación final" motivo={error.message} />;

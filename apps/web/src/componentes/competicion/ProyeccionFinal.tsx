@@ -99,6 +99,11 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
           {simulados} partidos por jugar · {primera.calculado_en}
           {deducidos > 0 ? ` · ${deducidos} deducidos del formato de liga` : ''}
         </p>
+        {zonas?.origen === 'historica' && (
+          <p className="m-0 text-nota text-[var(--texto-suave)]">
+            Zonas estimadas con {zonas.temporadas ?? 'varias'} temporadas comparables de la misma categoría: no son el reglamento publicado de este grupo.
+          </p>
+        )}
       </header>
 
       <div className="overflow-x-auto rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]" tabIndex={0} role="region" aria-label="Clasificación final estimada">

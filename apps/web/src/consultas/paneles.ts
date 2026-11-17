@@ -292,5 +292,34 @@ export const PARAMETROS_PANELES: Record<string, readonly unknown[]> = {
   'comparacion-de-ligas': ['2025-26', 'juvenil', 'liga-nacional', 40],
 };
 
-export const CONSULTAS_PANELES = [RANKING_GOLEADORES, EVOLUCION_DEL_CLUB, ZONAS_DEL_GRUPO, CURVA_DEL_EQUIPO,
+
+export type FilaZonasHistoricas = { ascensos: number; promocion: number; descensos: number; temporadas: number };
+
+/**
+ * Zonas de grupos comparables de la misma federación, categoría, división y género. Solo se usa como
+ * respaldo cuando el grupo actual no tiene reglamento ni zona aprendida; la pantalla lo dice y nunca lo
+ * presenta como el reglamento de este grupo.
+ */
+export const ZONAS_HISTORICAS: Consulta<FilaZonasHistoricas> = {
+  nombre: 'zonas-historicas',
+  descripcion: 'Patrón de ascensos, promoción y descensos más repetido en grupos comparables de temporadas anteriores.',
+  plan: 'indexado',
+  presupuestoMs: 100,
+  columnas: ['ascensos', 'promocion', 'descensos', 'temporadas'],
+  sql: `
+    select z.ascensos, z.promocion, z.descensos, count(*)::int temporadas
+      from analytics.zonas_de_grupo z
+      join core.phase_group pg on pg.id = z.phase_group_id
+      join core.competition_edition ce on ce.id = pg.competition_edition_id
+     where ce.categoria = $1 and ce.division = $2 and ce.genero = $3
+       and ce.federation_id = (select ce2.federation_id from core.phase_group pg2
+                                 join core.competition_edition ce2 on ce2.id = pg2.competition_edition_id
+                                where pg2.id = $4)
+       and z.phase_group_id <> $4 and z.origen = 'aprendida' and z.temporadas >= 2
+     group by z.ascensos, z.promocion, z.descensos
+     order by count(*) desc
+     limit 1`,
+};
+
+export const CONSULTAS_PANELES = [RANKING_GOLEADORES, EVOLUCION_DEL_CLUB, ZONAS_DEL_GRUPO, ZONAS_HISTORICAS, CURVA_DEL_EQUIPO,
   GOLES_POR_TRAMO, COMPARADOR_JUGADORES, COMPARACION_DE_LIGAS] as const;
