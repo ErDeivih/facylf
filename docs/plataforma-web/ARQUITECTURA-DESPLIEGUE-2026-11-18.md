@@ -177,6 +177,8 @@ docker run --env-file ... -p 3100:3000 facylf-web:test
 
 Resultado: `/api/salud` 200, `/api/ready` 200 contra PostgreSQL real, home 200 y competición 308 (redirección normal). La imagen `facylf-web:test` se construyó correctamente.
 
+Además se levantó el stack local **web + Redis + Caddy + PostgreSQL** en el puerto 8090: `/api/salud` y `/api/ready` 200, home 200 y **11 respuestas 429** en una ráfaga de 190 peticiones, con la clave de Redis creada. El stack se apagó después de la prueba.
+
 ## 8 · Puesta en marcha
 
 ```bash
