@@ -153,6 +153,8 @@ export function ProyeccionFinal({ grupo, filas, zonas }: {
         <span className="inline-flex items-center gap-1"><i className="h-2.5 w-1 bg-[var(--borde)]" /> Zona media</span>
       </div>
 
+      <p className="m-0 text-etiqueta text-[var(--texto-suave)]">La probabilidad de descenso usa los puestos directos del reglamento; los arrastres se confirman al cerrar la temporada y pueden añadir puestos.</p>
+
       <details className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
         <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 text-tabla font-semibold text-[var(--texto)]">
           Matriz de puestos

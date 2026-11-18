@@ -19,7 +19,7 @@ import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { CrucesPrevistos } from '@/componentes/partidos/CrucesPrevistos';
 import { etiquetaZona, formaHasta, temporadasPublicables, tituloDeCompeticion, zonaDe } from '@/lib/pantalla-competicion';
-import { descensosDirectos } from '@/lib/reglamento';
+import { arrastrePendiente, descensosDirectos } from '@/lib/reglamento';
 import { decimal2 } from '@/lib/formato';
 import { IndicadoresGrupo } from '@/componentes/competicion/IndicadoresGrupo';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
@@ -201,8 +201,9 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   const equipos = grupo.equipos || clasificacion.length;
   const directos = descensosDirectos({
     federacion: grupo.federacion, categoria: grupo.categoria, division: grupo.division,
-    grupo: grupo.grupo, equipos: equipos,
+    grupo: grupo.grupo, equipos: equipos, temporada: grupo.temporada,
   });
+  const hayArrastre = arrastrePendiente({ federacion: grupo.federacion, categoria: grupo.categoria, division: grupo.division, grupo: grupo.grupo, equipos, temporada: grupo.temporada });
   const zone = zonas[0]
     ? {
       ascensos: zonas[0].ascensos, promocion: zonas[0].promocion,
@@ -323,7 +324,7 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           </Link>
         ))}
       </nav>
-      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={vistaParcial ? null : zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} />
+      <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={vistaParcial ? null : zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} arrastrePendiente={!vistaParcial && hayArrastre} />
       {!vistaParcial && arrastresPosibles.length > 0 && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
           <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Posibles arrastres</h2>

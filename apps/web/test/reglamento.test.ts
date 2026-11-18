@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { descensosDirectos } from '../src/lib/reglamento';
+import { arrastrePendiente, descensosDirectos } from '../src/lib/reglamento';
 
-const base = { federacion: 'castilla-leon', categoria: 'aficionados', division: 'tercera-federacion', grupo: 'Grupo VIII', equipos: 18 };
+const base = { federacion: 'castilla-leon', categoria: 'aficionados', division: 'tercera-federacion', grupo: 'Grupo VIII', equipos: 18, temporada: '2025-26' };
 
 describe('reglamento oficial 2025/26', () => {
   it('Tercera Federación: 3 descensos directos', () => {
@@ -25,7 +25,13 @@ describe('reglamento oficial 2025/26', () => {
     expect(descensosDirectos({ ...base, division: 'primera-provincial', grupo: 'Único', equipos: 14 })).toBe(2);
     expect(descensosDirectos({ ...base, division: 'primera-provincial', grupo: 'Único', equipos: 8 })).toBe(1);
   });
-  it('Otra federación no recibe la regla de CyL', () => {
+  it('Otra federación o temporada no recibe la circular de 2025/26', () => {
     expect(descensosDirectos({ ...base, federacion: 'andalucia' })).toBeNull();
+    expect(descensosDirectos({ ...base, temporada: '2024-25' })).toBeNull();
+  });
+  it('Aficionados y Juvenil tienen arrastre pendiente; Tercera también', () => {
+    expect(arrastrePendiente(base)).toBe(true);
+    expect(arrastrePendiente({ ...base, division: 'primera-regional', grupo: 'Grupo A' })).toBe(true);
+    expect(arrastrePendiente({ ...base, categoria: 'cadete', division: 'primera-regional' })).toBe(false);
   });
 });

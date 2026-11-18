@@ -72,12 +72,12 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
           ascensos: zona.ascensos, promocion: zona.promocion,
           descensos: descensosDirectos({
             federacion: portada.federacion, categoria: portada.categoria, division: portada.division,
-            grupo: portada.grupo, equipos: portada.equipos,
+            grupo: portada.grupo, equipos: portada.equipos, temporada: portada.temporada,
           }) ?? zona.descensos,
           promocion_permanencia: zona.promocion_permanencia,
           origen: descensosDirectos({
             federacion: portada.federacion, categoria: portada.categoria, division: portada.division,
-            grupo: portada.grupo, equipos: portada.equipos,
+            grupo: portada.grupo, equipos: portada.equipos, temporada: portada.temporada,
           }) !== null ? 'reglamento' : zona.origen,
           confianza: zona.confianza, temporadas: zona.temporadas,
         }

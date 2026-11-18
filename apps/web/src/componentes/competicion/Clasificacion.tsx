@@ -19,13 +19,15 @@ import {
  * `data-tabla-scroll` y las dos primeras columnas —puesto y equipo— quedan fijas a la izquierda, que es
  * la identidad de la fila.
  */
-export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal }: {
+export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrastrePendiente = false }: {
   /** Ruta de la clasificación final estimada del grupo. Si llega, se enlaza junto al título de la tabla. */
   hrefFinal?: string;
   filas: readonly FilaClasificacionPantalla[];
   rachas: ReadonlyMap<number, string>;
   zonas: ZonasDelGrupo | null;
   equipos: number;
+  /** El número es el mínimo directo y el arrastre aún no está cerrado. */
+  arrastrePendiente?: boolean;
 }) {
   const origen = filas[0]?.origen ?? null;
   // Si la tabla oficial no publica goles (CyL los guarda a cero), se enseñan los reconstruidos.
@@ -204,6 +206,7 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal }: {
       {zonas && zonasPresentes.length > 0 && (
         <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-etiqueta text-[var(--texto-suave)]">
           {zonas.origen === 'reglamento' && 'Zonas según el reglamento publicado.'}
+          {arrastrePendiente && ' Los puestos son descensos directos; el arrastre se confirmará al cerrar la temporada.'}
           {zonas.origen === 'aprendida' && `Zonas estimadas con ${zonas.temporadas ?? 'varias'} temporadas anteriores.`}
           {zonas.origen === 'historica' && `Zonas estimadas con ${zonas.temporadas ?? 'varias'} temporadas comparables; no son el reglamento de este grupo.`}
           {zonas.origen === 'regla' && 'Zonas según regla funcional provisional (por verificar con el reglamento).'}
