@@ -184,5 +184,10 @@
   "bugs": {
     "url": "https://github.com/ErDeivih/facylf/issues"
   },
-  "homepage": "https://github.com/ErDeivih/facylf#readme"
+  "homepage": "https://github.com/ErDeivih/facylf#readme",
+  "pnpm": {
+    "overrides": {
+      "source-map-js": "1.2.2"
+    }
+  }
 }
