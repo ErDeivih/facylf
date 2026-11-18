@@ -101,6 +101,23 @@ Por eso la clasificación se recalcula **en cada jornada**: el corte de la jorna
 de la 14, y el de la 14 no se presenta como si fuera el de la 1. El sistema debe guardar la fecha de corte
 y no mezclar predicciones de momentos distintos.
 
+
+### Reentrenamiento dentro de la temporada
+
+No basta con evaluar por jornada: el modelo se ha reentrenado con los partidos de la propia temporada
+hasta el corte y se ha validado con los siguientes partidos. En 2025-26:
+
+| Corte | Partidos train | Partidos valid | Log-loss incremental | Log-loss global |
+|---|---:|---:|---:|---:|
+| J1 | 603.091 | 111.408 | 0,9476 | 0,9581 |
+| J5 | 694.123 | 97.224 | 0,9273 | 0,9441 |
+| J10 | 791.347 | 78.560 | 0,9204 | 0,9379 |
+| J14 | 855.925 | 66.218 | 0,9203 | 0,9374 |
+
+El reentrenamiento gana en todos los cortes y la ventaja se mantiene al avanzar la temporada. El acierto
+también sube (53,2 % en J1 → 55,8 % en J14). Es la base para recalcular la clasificación en cada jornada:
+cada corte usa solo datos anteriores a ese corte.
+
 ## 6 · Calibración
 
 El mejor modelo se evalúa por bins de probabilidad. El error de calibración esperado (ECE) es

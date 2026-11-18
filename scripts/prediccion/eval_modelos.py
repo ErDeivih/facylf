@@ -133,6 +133,7 @@ def main():
     ap.add_argument('--train-hasta', default='2023-24')
     ap.add_argument('--validar', nargs='+', default=['2024-25', '2025-26'])
     ap.add_argument('--salida', type=Path, default=SALIDA)
+    ap.add_argument('--incremental', action='store_true', help='evalúa reentrenar con la temporada en curso por cortes')
     args = ap.parse_args()
 
     c = psycopg2.connect(url_lector())
@@ -383,6 +384,45 @@ def main():
         m = fed_valid == fed
         grupo['calibracion'] = calibracion(y_valid[m], p_mejor[m])
 
+    incremental = {}
+    if args.incremental:
+        print('evaluando reentrenamiento incremental por jornada…', flush=True)
+        for temporada in args.validar:
+            fila_temp = partidos[partidos['temporada'] == temporada].sort_values(['fecha', 'partido'])
+            if fila_temp.empty:
+                continue
+            cortes = {}
+            for corte in (1, 5, 10, 14):
+                base = fila_temp[fila_temp['jornada'] <= corte]
+                if base.empty:
+                    continue
+                temporada_inicio = int(str(temporada)[:4])
+                train_inc = partidos[
+                    (partidos['anio_inicio'] < temporada_inicio)
+                    | ((partidos['anio_inicio'] == temporada_inicio) & (partidos['jornada'] <= corte))
+                ].copy()
+                val_inc = fila_temp[(fila_temp['jornada'] > corte) & (fila_temp['jornada'] <= corte + 5)].copy()
+                if len(train_inc) < 1000 or len(val_inc) < 30:
+                    continue
+                train_inc['lh'], train_inc['la'] = lambdas(train_inc)
+                val_inc['lh'], val_inc['la'] = lambdas(val_inc)
+                muestra_inc = train_inc.sample(min(120000, len(train_inc)), random_state=17)
+                y_inc = np.where(muestra_inc.gl > muestra_inc.gv, 0, np.where(muestra_inc.gl == muestra_inc.gv, 1, 2))
+                modelo_inc = HistGradientBoostingClassifier(max_iter=180, learning_rate=0.06, max_leaf_nodes=31,
+                                                            l2_regularization=1.0, early_stopping=True,
+                                                            validation_fraction=0.1, random_state=19)
+                modelo_inc.fit(muestra_inc[features], y_inc)
+                y_val = np.where(val_inc.gl > val_inc.gv, 0, np.where(val_inc.gl == val_inc.gv, 1, 2))
+                p_inc = modelo_inc.predict_proba(val_inc[features])
+                p_global = ml.predict_proba(val_inc[features])
+                cortes[f'J{corte}'] = {
+                    'n_train': int(len(train_inc)), 'n_valid': int(len(val_inc)),
+                    'incremental': metricas(y_val, p_inc, 'incremental'),
+                    'global': metricas(y_val, p_global, 'global'),
+                }
+            if cortes:
+                incremental[temporada] = cortes
+
     salida = {
         'generado_en': datetime.now().isoformat(timespec='seconds'),
         'train_hasta': args.train_hasta,
@@ -397,6 +437,7 @@ def main():
         'partidos_por_federacion': partidos_por_federacion,
         'calibracion_mejor': {'modelo': mejor['modelo'], 'bins': calib},
         'features_ml': features,
+        'incremental': incremental,
     }
     args.salida.mkdir(parents=True, exist_ok=True)
     (args.salida / 'evaluacion.json').write_text(json.dumps(salida, ensure_ascii=False, indent=2), encoding='utf-8')
