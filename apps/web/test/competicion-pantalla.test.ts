@@ -228,13 +228,13 @@ describe('presentación de la pantalla de competición', () => {
     expect(siglas('')).toBe('?');
   });
 
-  it('las zonas del grupo salen del reglamento cuando está fijado (Liga Nacional: 1 asciende, 3 descienden)', async () => {
+  it('las zonas del grupo salen del reglamento cuando está fijado (Liga Nacional 2025/26: 1 asciende, 2 descienden directos)', async () => {
     const filas = await consulta<Record<string, unknown>>(ZONAS_DEL_GRUPO.sql, [GRUPO_CYL]);
     expect(filas).toHaveLength(1);
     const z = filas[0]!;
     expect(z.origen).toBe('reglamento');
     expect(Number(z.ascensos)).toBe(1);
-    expect(Number(z.descensos)).toBe(3);
+    expect(Number(z.descensos)).toBe(2);
     expect(Number(z.promocion)).toBe(0);
     expect(Number(z.promocion_permanencia)).toBe(0);
   });

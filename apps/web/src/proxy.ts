@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { CABECERA_RUTA } from '@/lib/tema';
+import { ipDe } from '@/lib/limites';
 
 /** Límite por IP y proceso: evita que un bot recorra el catálogo a base de peticiones seguidas. */
 const VENTANA_MS = 60_000;
@@ -25,12 +26,10 @@ function limitado(ip: string, maximo: number): boolean {
  * este fichero usa el nombre nuevo para no quedarse con el aviso de deprecación.
  */
 export default function proxy(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')?.trim() || 'local';
-  const esLocal = ['local', '127.0.0.1', '::1'].includes(ip);
+  const ip = ipDe(request);
   const esApi = request.nextUrl.pathname.startsWith('/api/');
   // Las páginas admiten navegación normal; el API es mucho más estrecho. Los estáticos no pasan por aquí.
-  if (process.env.FACYLF_SIN_LIMITE !== '1' && !esLocal && limitado(`${esApi ? 'api' : 'web'}:${ip}`, esApi ? 40 : 180)) {
+  if (process.env.FACYLF_SIN_LIMITE !== '1' && limitado(`${esApi ? 'api' : 'web'}:${ip}`, esApi ? 40 : 180)) {
     return new NextResponse('Demasiadas peticiones. Espera un minuto.', {
       status: 429,
       headers: { 'Retry-After': '60', 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },

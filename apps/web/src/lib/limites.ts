@@ -33,10 +33,16 @@ export function reiniciaLimites(): void {
 
 /** Dirección del cliente según la cabecera del proxy. Sólo se usa como clave en memoria. */
 export function ipDe(peticion: Request): string {
+  // Cloudflare y los proxies de confianza mandan la IP real en cabeceras que el cliente no controla.
+  const cf = peticion.headers.get('cf-connecting-ip')?.trim();
+  if (cf) return cf;
+  const real = peticion.headers.get('x-real-ip')?.trim();
+  if (real) return real;
+  // X-Forwarded-For puede traer una cadena del cliente; el proxy añade la suya al final.
   const reenviada = peticion.headers.get('x-forwarded-for');
   if (reenviada) {
-    const primera = reenviada.split(',')[0]?.trim();
-    if (primera) return primera;
+    const ultima = reenviada.split(',').map((x) => x.trim()).filter(Boolean).at(-1);
+    if (ultima) return ultima;
   }
-  return peticion.headers.get('x-real-ip')?.trim() || 'local';
+  return 'local';
 }
