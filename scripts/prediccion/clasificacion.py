@@ -176,6 +176,14 @@ def prepara_ligas(muestra, p, ahora=None, historico=True):
                     oficial = None
             corte = ahora.normalize()
         anterior = g[g.dia.lt(corte.toordinal())]
+        if oficial is not None and meta.anio == 2026:
+            jugados_por_equipo = Counter()
+            for r in anterior.itertuples(index=False):
+                jugados_por_equipo[r.local] += 1
+                jugados_por_equipo[r.visitante] += 1
+            if any(int(oficial.loc[e, 'jugados']) != jugados_por_equipo.get(e, 0) for e in equipos):
+                oficial = None
+                descartes['tabla_oficial_desfasada'] += 1
         vistos = set(anterior.local) | set(anterior.visitante)
         if vistos != set(equipos):
             descartes['plantel_no_confirmado'] += 1
