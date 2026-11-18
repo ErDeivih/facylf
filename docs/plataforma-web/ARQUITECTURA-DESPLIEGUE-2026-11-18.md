@@ -186,6 +186,8 @@ Además se levantó el stack local **web + Redis + Caddy + PostgreSQL** en el pu
 
 Caddy: `caddy validate` → `Valid configuration`. Prometheus: `promtool check config` → configuración válida y 6 reglas. Se ejecutó dentro de contenedores, copiando los ficheros, para evitar la conversión de rutas de Windows.
 
+Grafana y Prometheus se levantaron con la red `deploy_default`: Prometheus `/-/ready` y Grafana `/login` respondieron 200. La fuente PostgreSQL de Grafana se probó con `analytics.evento_web_publico` y devolvió 120 filas agregadas. cAdvisor no arrancó en Docker Desktop Windows por el montaje de `/`; se probará en Linux.
+
 ## 8 · Puesta en marcha
 
 ```bash

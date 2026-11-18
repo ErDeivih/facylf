@@ -4,11 +4,11 @@ datasources:
     uid: PostgreSQL
     type: postgres
     access: proxy
-    url: ${POSTGRES_HOST:postgres}:5432
-    database: ${POSTGRES_DB:facylf}
-    user: ${POSTGRES_USER:facylf_lector}
+    url: ${POSTGRES_HOST}:${POSTGRES_PORT}
+    database: facylf
+    user: facylf_lector
     secureJsonData:
       password: ${POSTGRES_PASSWORD}
     jsonData:
-      sslmode: ${POSTGRES_SSLMODE:disable}
+      sslmode: disable
       postgresVersion: 1800

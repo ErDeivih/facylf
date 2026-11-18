@@ -10,14 +10,14 @@
       "title": "Vistas por día",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
       "datasource": {"type": "postgres", "uid": "PostgreSQL"},
-      "targets": [{"format": "time_series", "rawSql": "select date_trunc('day', creado_en) as time, count(*) as visitas from app.evento_web where creado_en > now() - interval '30 days' group by 1 order by 1", "rawQuery": true}]
+      "targets": [{"format": "time_series", "rawSql": "select dia as time, sum(visitas) as visitas from analytics.evento_web_publico where dia > now() - interval '30 days' group by 1 order by 1", "rawQuery": true}]
     },
     {
       "type": "table",
       "title": "Rutas más vistas (30 días)",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
       "datasource": {"type": "postgres", "uid": "PostgreSQL"},
-      "targets": [{"format": "table", "rawSql": "select ruta, count(*) as visitas from app.evento_web where creado_en > now() - interval '30 days' group by 1 order by 2 desc limit 20", "rawQuery": true}]
+      "targets": [{"format": "table", "rawSql": "select ruta, sum(visitas) as visitas from analytics.evento_web_publico where dia > now() - interval '30 days' group by 1 order by 2 desc limit 20", "rawQuery": true}]
     }
   ]
 }
