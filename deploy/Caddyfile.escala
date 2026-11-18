@@ -1,0 +1,8 @@
+{$SITE_ADDRESS:localhost} {
+  encode zstd gzip
+  reverse_proxy web:3000 web2:3000 {
+    lb_policy round_robin
+    header_up X-Real-IP {remote_host}
+    header_up -CF-Connecting-IP
+  }
+}

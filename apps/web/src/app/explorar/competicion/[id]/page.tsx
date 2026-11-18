@@ -12,6 +12,7 @@ import { PROXIMA_JORNADA_DEL_GRUPO, type FilaCruceDelGrupo } from '@/consultas/e
 import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompeticion';
+import { AnuncioLocal } from '@/componentes/publicidad/AnuncioLocal';
 import { Clasificacion } from '@/componentes/competicion/Clasificacion';
 import { EsqueletoContenido } from '@/componentes/competicion/EsqueletoContenido';
 import { Goleadores } from '@/componentes/competicion/Goleadores';
@@ -325,6 +326,7 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
         ))}
       </nav>
       <Clasificacion filas={clasificacion} rachas={rachasPorEquipo} zonas={vistaParcial ? null : zone} equipos={equipos} hrefFinal={`${ruta}/proyeccion`} arrastrePendiente={!vistaParcial && hayArrastre} />
+      {grupo.categoria === 'aficionados' && <AnuncioLocal espacio="competicion-entre-jornadas" />}
       {!vistaParcial && arrastresPosibles.length > 0 && (
         <section className="rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-4 py-3">
           <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Posibles arrastres</h2>

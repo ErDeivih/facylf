@@ -1,0 +1,24 @@
+# Escala opcional: dos réplicas web detrás de Caddy. Redis es obligatorio.
+services:
+  web2:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      REDIS_URL: redis://redis:6379
+      FACYLF_CONFIANZA_PROXY: "1"
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+    expose: ["3000"]
+    mem_limit: 1536m
+    cpus: 2.0
+    depends_on:
+      redis:
+        condition: service_healthy
+  caddy:
+    volumes:
+      - ./Caddyfile.escala:/etc/caddy/Caddyfile:ro
