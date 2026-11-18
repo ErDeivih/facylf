@@ -81,6 +81,26 @@ Por temporada:
 
 La caída de 2025-26 es esperable: más partidos y más colas largas. No se oculta.
 
+
+### Por jornada: el modelo mejora cuando hay más datos
+
+La misma validación, cortada por el número de jornada, confirma la intuición: en la jornada 1 hay poca
+información y el modelo apenas supera la línea base; a partir de la jornada 6 y, sobre todo, en la 14-20,
+la ventaja es clara.
+
+| Tramo | n | ML log-loss | ML acierto | Base log-loss |
+|---|---:|---:|---:|---:|
+| J1 | 54.437 | 0,97976 | 50,10 % | 0,98292 |
+| J2-J5 | 129.275 | 0,95295 | 52,71 % | 0,97270 |
+| J6-J10 | 138.690 | 0,93664 | 54,33 % | 0,97263 |
+| J11-J15 | 114.225 | 0,93054 | 55,12 % | 0,97572 |
+| J16-J20 | 95.366 | 0,92397 | 55,66 % | 0,97535 |
+| J21+ | 135.736 | 0,92532 | 55,44 % | 0,97867 |
+
+Por eso la clasificación se recalcula **en cada jornada**: el corte de la jornada 5 no usa la información
+de la 14, y el de la 14 no se presenta como si fuera el de la 1. El sistema debe guardar la fecha de corte
+y no mezclar predicciones de momentos distintos.
+
 ## 6 · Calibración
 
 El mejor modelo se evalúa por bins de probabilidad. El error de calibración esperado (ECE) es
