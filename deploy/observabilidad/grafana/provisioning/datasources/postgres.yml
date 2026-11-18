@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: PostgreSQL
+    uid: PostgreSQL
+    type: postgres
+    access: proxy
+    url: ${POSTGRES_HOST:postgres}:5432
+    database: ${POSTGRES_DB:facylf}
+    user: ${POSTGRES_USER:facylf_lector}
+    secureJsonData:
+      password: ${POSTGRES_PASSWORD}
+    jsonData:
+      sslmode: ${POSTGRES_SSLMODE:disable}
+      postgresVersion: 1800
