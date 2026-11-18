@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { consulta } from '@/consultas/adaptadores/postgres/conexion';
 import historico from '@/datos/modelo.json';
-import evaluacion from '../../../../../../pruebas/prediccion/evaluacion-castilla-leon-2026-11-16.json';
-import global from '../../../../../../pruebas/prediccion/evaluacion.json';
-import federaciones from '../../../../../../pruebas/prediccion/referencia-federaciones-2026-11-17.json';
+import evaluacion from '@/datos/evaluacion-castilla-leon.json';
+import global from '@/datos/evaluacion-global.json';
+import federaciones from '@/datos/referencia-federaciones.json';
 
 export const metadata: Metadata = { title: 'Modelo de predicción — Fondo Popular' };
 export const dynamic = 'force-dynamic';

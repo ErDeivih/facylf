@@ -68,3 +68,17 @@ visor*.log
 # fichero de bloqueo de pnpm siga cuadrando.
 apps/web/.next
 apps/web/node_modules
+
+# Construcción de la imagen web: no viajan fotos de demo, logs, informes ni copias locales.
+tmp
+estado
+INFORMES
+pruebas/reconstruccion
+.dsh-probe.tmp
+_probe-write.txt
+descargas-*
+pruebas/*
+!pruebas/prediccion
+!pruebas/prediccion/**
+.git
+pruebas
