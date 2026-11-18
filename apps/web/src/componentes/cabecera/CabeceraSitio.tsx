@@ -209,7 +209,7 @@ export function CabeceraSitio({
             */}
             {/* `relative`: los descriptores ocultos (`sr-only`, en posición absoluta) quedan dentro de esta caja
                 con desplazamiento; sin él se salían por la derecha y la página ganaba 1 px de scroll horizontal. */}
-            <ul className="relative -m-1 flex flex-wrap items-center gap-1 p-1 lg:flex-nowrap lg:overflow-visible">
+            <ul className="relative -m-1 flex flex-nowrap items-center gap-1 overflow-x-auto p-1 lg:overflow-visible">
               {FUNCIONES.map((funcion) => {
                 const activa = activo === funcion.clave;
                 const descriptorId = `funcion-${funcion.clave}-desc`;
