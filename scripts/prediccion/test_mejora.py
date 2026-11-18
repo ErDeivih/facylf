@@ -1,13 +1,14 @@
 import tempfile
 import unittest
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from clasificacion import calendario_restante, simula
+import clasificacion
+from clasificacion import calendario_restante, prepara_ligas, simula
 from grafo_minutos import solape, tramos
 from marcadores import INDICES, rejilla
 from modelos import CONFIGS, entrena, predice
@@ -70,6 +71,42 @@ class PruebasMejora(unittest.TestCase):
         for p in d.values():
             np.testing.assert_allclose(p.sum(axis=0), 1.)
             np.testing.assert_allclose(p.sum(axis=1), 1.)
+
+
+    def test_la_clasificacion_se_corta_en_la_jornada_indicada(self):
+        equipos = [1, 2, 3, 4]
+        filas = []
+        partido_id = 0
+        for jornada in range(1, 7):
+            fecha = date(2025, 9, 1) + timedelta(days=7 * (jornada - 1))
+            parejas = [((1, 2), (3, 4)), ((1, 3), (2, 4)), ((1, 4), (2, 3)),
+                       ((2, 1), (4, 3)), ((3, 1), (4, 2)), ((4, 1), (3, 2))][jornada - 1]
+            for a, b in parejas:
+                partido_id += 1
+                filas.append(dict(partido=partido_id, fecha=fecha, grupo=99, jornada=jornada,
+                                  local=a, visitante=b, equipo_local=a, equipo_visitante=b,
+                                  club_local=a, club_visitante=b, nombre_local=str(a), nombre_visitante=str(b),
+                                  gl=1, gv=0, estado='played', anio=2025, categoria='juvenil',
+                                  modalidad='futbol11', genero='masculina', nivel=2, hora=16,
+                                  calidad='correct', tipo='liga', competicion='Juvenil', dia=fecha.toordinal()))
+        datos = pd.DataFrame(filas)
+        p = datos.copy()
+        p['jornadas'] = 6
+        p['temporada'] = '2025-26'
+        oficial = pd.DataFrame([dict(grupo=99, jornada=6, equipo=e, posicion=i + 1, puntos=10 - i)
+                                for i, e in enumerate(equipos)])
+        muestra = {
+            'partidos': datos, 'equipos': pd.DataFrame([dict(grupo=99, equipo=e, club=e, nombre_fuente=str(e), retirado=False) for e in equipos]),
+            'clasificacion': oficial, 'calendario': None,
+            'eventos': pd.DataFrame(), 'plantillas': pd.DataFrame(), 'tecnicos': pd.DataFrame(),
+            'duraciones': pd.DataFrame({'grupo': [99], 'duracion': [90]}),
+        }
+        clasificacion.CORTE_JORNADA = 1
+        uno, d1 = prepara_ligas(muestra, p)
+        clasificacion.CORTE_JORNADA = 5
+        cinco, _ = prepara_ligas(muestra, p)
+        self.assertEqual(len(uno[0][5]), 10)
+        self.assertEqual(len(cinco[0][5]), 2)
 
     def test_los_puntos_oficiales_iniciales_se_respetan(self):
         jugados = pd.DataFrame([partido(1, '2025-10-04', 1, 2, (2, 1))])
