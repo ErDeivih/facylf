@@ -82,3 +82,7 @@ pruebas/*
 !pruebas/prediccion/**
 .git
 pruebas
+
+apps/web/.next
+apps/web/.next-*
+apps/web/tmp
