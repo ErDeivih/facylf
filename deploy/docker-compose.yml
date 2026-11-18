@@ -28,6 +28,20 @@ services:
       timeout: 5s
       retries: 5
 
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.24.1-p0
+    profiles: ["pgbouncer"]
+    restart: unless-stopped
+    environment:
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-facylf_lector}
+      DB_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD}
+      DB_NAME: ${DB_NAME:-facylf}
+      POOL_MODE: transaction
+      IGNORE_STARTUP_PARAMETERS: statement_timeout
+    ports: ["127.0.0.1:6432:6432"]
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -47,12 +61,12 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
-    environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
     depends_on:
       - web
 
