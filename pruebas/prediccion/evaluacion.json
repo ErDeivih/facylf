@@ -1,5 +1,5 @@
 {
-  "generado_en": "2026-11-18T11:42:09",
+  "generado_en": "2026-11-18T11:52:18",
   "train_hasta": "2023-24",
   "validacion": [
     "2024-25",
@@ -4562,148 +4562,148 @@
   "incremental": {
     "2024-25": {
       "J1": {
-        "n_train": 375048,
+        "n_train": 354966,
         "n_valid": 46885,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.93213,
-          "brier": 0.56451,
-          "acierto": 0.5428,
+          "log_loss": 0.93504,
+          "brier": 0.56623,
+          "acierto": 0.5426,
           "n": 46885
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.93476,
-          "brier": 0.56632,
+          "log_loss": 0.93596,
+          "brier": 0.56681,
           "acierto": 0.5407,
           "n": 46885
         }
       },
       "J5": {
-        "n_train": 413291,
+        "n_train": 354992,
         "n_valid": 41466,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.91648,
-          "brier": 0.55141,
-          "acierto": 0.5569,
+          "log_loss": 0.91999,
+          "brier": 0.55421,
+          "acierto": 0.5552,
           "n": 41466
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.91921,
-          "brier": 0.55377,
-          "acierto": 0.5545,
+          "log_loss": 0.92078,
+          "brier": 0.5547,
+          "acierto": 0.5526,
           "n": 41466
         }
       },
       "J10": {
-        "n_train": 454757,
+        "n_train": 392861,
         "n_valid": 35665,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.90799,
-          "brier": 0.54337,
-          "acierto": 0.5705,
+          "log_loss": 0.91233,
+          "brier": 0.54662,
+          "acierto": 0.5674,
           "n": 35665
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.91426,
-          "brier": 0.54831,
-          "acierto": 0.5644,
+          "log_loss": 0.91601,
+          "brier": 0.54929,
+          "acierto": 0.563,
           "n": 35665
         }
       },
       "J14": {
-        "n_train": 483707,
+        "n_train": 420313,
         "n_valid": 32570,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.90415,
-          "brier": 0.54057,
-          "acierto": 0.5714,
+          "log_loss": 0.90879,
+          "brier": 0.54397,
+          "acierto": 0.5705,
           "n": 32570
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.90914,
-          "brier": 0.54439,
-          "acierto": 0.5694,
+          "log_loss": 0.91233,
+          "brier": 0.54618,
+          "acierto": 0.5674,
           "n": 32570
         }
       }
     },
     "2025-26": {
       "J1": {
-        "n_train": 603091,
+        "n_train": 568748,
         "n_valid": 111408,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.94755,
-          "brier": 0.5731,
-          "acierto": 0.5319,
+          "log_loss": 0.95096,
+          "brier": 0.57505,
+          "acierto": 0.5285,
           "n": 111408
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.95812,
-          "brier": 0.58077,
-          "acierto": 0.5237,
+          "log_loss": 0.95238,
+          "brier": 0.57568,
+          "acierto": 0.5281,
           "n": 111408
         }
       },
       "J5": {
-        "n_train": 694123,
+        "n_train": 576115,
         "n_valid": 97224,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.92733,
-          "brier": 0.55849,
-          "acierto": 0.5517,
+          "log_loss": 0.93605,
+          "brier": 0.56345,
+          "acierto": 0.546,
           "n": 97224
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.94407,
-          "brier": 0.56981,
-          "acierto": 0.5386,
+          "log_loss": 0.93778,
+          "brier": 0.56449,
+          "acierto": 0.5443,
           "n": 97224
         }
       },
       "J10": {
-        "n_train": 791347,
+        "n_train": 629811,
         "n_valid": 78560,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.92045,
-          "brier": 0.55244,
-          "acierto": 0.5568,
+          "log_loss": 0.9264,
+          "brier": 0.55564,
+          "acierto": 0.5552,
           "n": 78560
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.93793,
-          "brier": 0.564,
-          "acierto": 0.5452,
+          "log_loss": 0.93218,
+          "brier": 0.55921,
+          "acierto": 0.5481,
           "n": 78560
         }
       },
       "J14": {
-        "n_train": 855925,
+        "n_train": 609022,
         "n_valid": 66218,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.92028,
-          "brier": 0.55243,
-          "acierto": 0.5578,
+          "log_loss": 0.92903,
+          "brier": 0.55738,
+          "acierto": 0.5524,
           "n": 66218
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.93738,
-          "brier": 0.56341,
-          "acierto": 0.5466,
+          "log_loss": 0.9321,
+          "brier": 0.55906,
+          "acierto": 0.5486,
           "n": 66218
         }
       }

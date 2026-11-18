@@ -104,19 +104,20 @@ y no mezclar predicciones de momentos distintos.
 
 ### Reentrenamiento dentro de la temporada
 
-No basta con evaluar por jornada: el modelo se ha reentrenado con los partidos de la propia temporada
-hasta el corte y se ha validado con los siguientes partidos. En 2025-26:
+El modelo se reentrena con los partidos anteriores al corte (incluida la temporada en curso) y se
+compara con una base entrenada solo con temporadas completas anteriores, usando las mismas variables.
+No se usan resultados posteriores al corte. En 2025-26:
 
-| Corte | Partidos train | Partidos valid | Log-loss incremental | Log-loss global |
-|---|---:|---:|---:|---:|
-| J1 | 603.091 | 111.408 | 0,9476 | 0,9581 |
-| J5 | 694.123 | 97.224 | 0,9273 | 0,9441 |
-| J10 | 791.347 | 78.560 | 0,9204 | 0,9379 |
-| J14 | 855.925 | 66.218 | 0,9203 | 0,9374 |
+| Corte | Partidos train | Partidos valid | Log-loss incremental | Log-loss base | Acierto incremental | Acierto base |
+|---|---:|---:|---:|---:|---:|---:|
+| J1 | 568.748 | 111.408 | 0,9510 | 0,9524 | 52,8 % | 52,8 % |
+| J5 | 576.115 | 97.224 | 0,9361 | 0,9378 | 54,6 % | 54,4 % |
+| J10 | 629.811 | 78.560 | 0,9264 | 0,9322 | 55,5 % | 54,8 % |
+| J14 | 609.022 | 66.218 | 0,9290 | 0,9321 | 55,2 % | 54,9 % |
 
-El reentrenamiento gana en todos los cortes y la ventaja se mantiene al avanzar la temporada. El acierto
-también sube (53,2 % en J1 → 55,8 % en J14). Es la base para recalcular la clasificación en cada jornada:
-cada corte usa solo datos anteriores a ese corte.
+La ganancia es pequeña pero consistente en los cuatro cortes; no se presenta como una revolución. Lo
+importante es que el corte es causal: cada fila de validación es posterior al entrenamiento, y la base
+no ve la temporada en curso. El sistema puede reentrenar en cada jornada sin fuga.
 
 ## 6 · Calibración
 

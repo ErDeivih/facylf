@@ -397,9 +397,11 @@ def main():
                 if base.empty:
                     continue
                 temporada_inicio = int(str(temporada)[:4])
+                siguiente = fila_temp[fila_temp['jornada'] == corte + 1]
+                corte_fecha = siguiente['fecha'].min() if not siguiente.empty else base['fecha'].max()
                 train_inc = partidos[
                     (partidos['anio_inicio'] < temporada_inicio)
-                    | ((partidos['anio_inicio'] == temporada_inicio) & (partidos['jornada'] <= corte))
+                    | ((partidos['anio_inicio'] == temporada_inicio) & (partidos['fecha'] < corte_fecha))
                 ].copy()
                 val_inc = fila_temp[(fila_temp['jornada'] > corte) & (fila_temp['jornada'] <= corte + 5)].copy()
                 if len(train_inc) < 1000 or len(val_inc) < 30:
@@ -414,7 +416,16 @@ def main():
                 modelo_inc.fit(muestra_inc[features], y_inc)
                 y_val = np.where(val_inc.gl > val_inc.gv, 0, np.where(val_inc.gl == val_inc.gv, 1, 2))
                 p_inc = modelo_inc.predict_proba(val_inc[features])
-                p_global = ml.predict_proba(val_inc[features])
+                # Base justa: mismas variables, solo temporadas anteriores completas (sin la temporada en curso).
+                base_inc = partidos[partidos['anio_inicio'] < temporada_inicio].copy()
+                base_inc['lh'], base_inc['la'] = lambdas(base_inc)
+                muestra_base = base_inc.sample(min(120000, len(base_inc)), random_state=23)
+                y_base = np.where(muestra_base.gl > muestra_base.gv, 0, np.where(muestra_base.gl == muestra_base.gv, 1, 2))
+                modelo_base = HistGradientBoostingClassifier(max_iter=180, learning_rate=0.06, max_leaf_nodes=31,
+                                                             l2_regularization=1.0, early_stopping=True,
+                                                             validation_fraction=0.1, random_state=29)
+                modelo_base.fit(muestra_base[features], y_base)
+                p_global = modelo_base.predict_proba(val_inc[features])
                 cortes[f'J{corte}'] = {
                     'n_train': int(len(train_inc)), 'n_valid': int(len(val_inc)),
                     'incremental': metricas(y_val, p_inc, 'incremental'),
