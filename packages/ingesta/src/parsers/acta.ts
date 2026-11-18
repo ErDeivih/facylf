@@ -198,6 +198,16 @@ export function parseaActa(html: string): ActaPartido {
   )];
   const local = equipos[0] ?? null;
   const visitante = equipos[1] ?? null;
+  /*
+   * FILA DE CABECERA CON EL NOMBRE DEL EQUIPO (18/11/2026, grupo 24219109 de Castilla y León).
+   *
+   * Algunas actas meten en la tabla de alineación una fila cuyo "nombre de jugador" es en realidad el
+   * nombre del equipo. Se colaba como un jugador más y el acta acababa con 739 alineaciones donde hay 738,
+   * así que el grupo entero se quedaba sin importar. Se descarta cualquier fila cuyo nombre coincida con
+   * el de los dos equipos.
+   */
+  const normEquipo = (t: string | null): string => (t ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const nombresEquipo = new Set([local, visitante].map(normEquipo).filter((t) => t.length > 0));
   let arbitro: string | null = null;
   for (const strong of raiz.querySelectorAll('strong')) {
     // La etiqueta cambia entre territoriales: "Árbitro", "Árbitro Principal" y, en
@@ -278,6 +288,7 @@ export function parseaActa(html: string): ActaPartido {
       const dorsal = numeroDe(texto(celdas[0]));
       const nombre = [...celdas].map(texto).find((s) => esNombre(s)) ?? '';
       if (!nombre) continue;
+      if (nombresEquipo.has(normEquipo(nombre))) continue;
       const codigoJugador = codigoJugadorDe(tr.getAttribute('onclick') ?? '');
       const clave = `${codigoJugador ?? ''}|${dorsal ?? ''}|${nombre}`;
       if (vistos.has(clave)) continue;

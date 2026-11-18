@@ -9,7 +9,11 @@ function base() {
     create table partidos(temporada text, competicion text, grupo text, jornada integer, orden integer, codigo_acta text,
       goles_local integer, goles_visitante integer);
     create table eventos_acta(temporada text, competicion text, grupo text, jornada integer, acta text, orden integer,
-      tipo text, lado text, lado_beneficiado text, subtipo text);`);
+      tipo text, lado text, lado_beneficiado text, subtipo text);
+    -- La corrección del marcador mira primero la cabecera del acta (18/11/2026): la tabla tiene que
+    -- existir aunque esté vacía, que es como estaba antes de guardar el acta.
+    create table actas(codigo text, temporada text, competicion text, grupo text, jornada integer,
+      datos text, estado text);`);
   const p = db.prepare('insert into partidos values (?,?,?,?,?,?,?,?)');
   p.run('9', 'c', 'g', 1, 0, 'A1', 0, 0);       // 0-0 falso: el acta trae 3-1
   p.run('9', 'c', 'g', 1, 1, 'A2', 0, 0);       // 0-0 de verdad: el acta no tiene goles
