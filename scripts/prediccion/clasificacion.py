@@ -49,12 +49,14 @@ def calendario_restante(equipos, jornadas, jugados, pendientes):
     return list(futuros.values()) + deducidos, len(deducidos)
 
 
-def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS, pronostico=None):
+def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS, pronostico=None, puntos_iniciales=None):
     """Posterior Gamma-Poisson con un ataque y una defensa por equipo y trayectoria."""
     n = len(equipos)
     rng = np.random.default_rng(semilla)
     indice = {x: i for i, x in enumerate(equipos)}
     pj, gf, ga, pts = np.zeros((4, n), dtype=int)
+    if puntos_iniciales is not None:
+        pts = np.asarray(puntos_iniciales, dtype=int).copy()
     locales, visitantes = [], []
     for r in jugados.itertuples(index=False):
         h, a = indice[r.local], indice[r.visitante]
@@ -166,7 +168,11 @@ def prepara_ligas(muestra, p, ahora=None, historico=True):
                 continue
             corte = pd.Timestamp.fromordinal(int(jornada10.max() + 1)).tz_localize('Europe/Madrid')
         else:
-            oficial = None
+            oficial = tablas.get(grupo)
+            if oficial is not None:
+                oficial = oficial[oficial.jornada.eq(oficial.jornada.max())].set_index('equipo').reindex(equipos)
+                if oficial.puntos.isna().any():
+                    oficial = None
             corte = ahora.normalize()
         anterior = g[g.dia.lt(corte.toordinal())]
         vistos = set(anterior.local) | set(anterior.visitante)
@@ -204,7 +210,8 @@ def pronosticos(muestra, p, ahora=None, seleccion=None, modelos=None, simulacion
     for meta, plantel, equipos, corte, anterior, cruces, deducidos, oficial, _ in ligas:
         grupo = meta.grupo
         m = modelos[grupo] if modelos is not None else None
-        pos, pts, dist = simula(equipos, anterior, cruces, int(grupo), tamanos=tamanos, pronostico=m)
+        iniciales = oficial.puntos.to_numpy(dtype=float) if meta.anio == 2026 and oficial is not None else None
+        pos, pts, dist = simula(equipos, anterior, cruces, int(grupo), tamanos=tamanos, pronostico=m, puntos_iniciales=iniciales)
         fila = {'anio': int(meta.anio), 'grupo': int(grupo), 'competicion': meta.competicion, 'corte': str(corte),
                 'equipos': len(equipos), 'cruces': len(cruces), 'deducidos': deducidos,
                 'estabilidad_media': {s: float(np.abs(dist[s] - dist[simulaciones]).mean()) for s in tamanos[:-1]},
