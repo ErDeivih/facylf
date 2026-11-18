@@ -1,4 +1,5 @@
 """Monte Carlo de ligas regulares con calendario o deducción verificable."""
+import os
 from collections import Counter
 from itertools import combinations, permutations
 
@@ -8,6 +9,7 @@ import pandas as pd
 from marcadores import sortea
 
 TAMANOS = (500, 1500, 3000, 6000)
+CORTE_JORNADA = int(os.environ.get('FACYLF_CORTE_JORNADA', '10'))
 PESO_LIGHTGBM = .10
 
 
@@ -163,11 +165,11 @@ def prepara_ligas(muestra, p, ahora=None, historico=True):
             if len(set(llaves)) != len(llaves) or set(llaves) != set(esperados):
                 descartes['resultados_incompletos'] += 1
                 continue
-            jornada10 = g.loc[g.jornada.eq(10), 'dia']
-            if jornada10.empty or jornada10.max() - jornada10.min() > 10:
-                descartes['jornada10'] += 1
+            jornada_corte = g.loc[g.jornada.eq(CORTE_JORNADA), 'dia']
+            if jornada_corte.empty or jornada_corte.max() - jornada_corte.min() > 10:
+                descartes['jornada_corte'] += 1
                 continue
-            corte = pd.Timestamp.fromordinal(int(jornada10.max() + 1)).tz_localize('Europe/Madrid')
+            corte = pd.Timestamp.fromordinal(int(jornada_corte.max() + 1)).tz_localize('Europe/Madrid')
         else:
             oficial = tablas.get(grupo)
             if oficial is not None:

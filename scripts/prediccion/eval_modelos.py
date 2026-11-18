@@ -345,6 +345,18 @@ def main():
             continue
         por_temporada[temp] = {n: metricas(y_valid[m], p[m], n) for n, p in modelos}
 
+    # Por tramo de jornada: el modelo no debería medirse igual en la jornada 1 que en la 14.
+    tramos = [(1, 1), (2, 5), (6, 10), (11, 15), (16, 20), (21, 99)]
+    por_jornada = {}
+    for desde, hasta in tramos:
+        m = (valid['jornada'] >= desde).to_numpy() & (valid['jornada'] <= hasta).to_numpy()
+        if int(m.sum()) < 50:
+            continue
+        por_jornada[f'{desde}-{hasta}'] = {
+            'n': int(m.sum()),
+            **{n: metricas(y_valid[m], p[m], n) for n, p in modelos},
+        }
+
     # Por federación. La consulta de arriba no filtra federación: entrena y valida con TODAS las del
     # canónico, así que el número global no es el de ninguna en concreto. Esto dice cuál es el de cada una.
     por_federacion = {}
@@ -380,6 +392,7 @@ def main():
         'rho_dc': mejor_rho,
         'resultados': resultados,
         'por_temporada': por_temporada,
+        'por_jornada': por_jornada,
         'por_federacion': por_federacion,
         'partidos_por_federacion': partidos_por_federacion,
         'calibracion_mejor': {'modelo': mejor['modelo'], 'bins': calib},
