@@ -113,6 +113,9 @@ el grupo. No se hace polling por visita.
 - **RTO objetivo: 2 horas** en un VPS nuevo: instalar Docker, restaurar, migrar, levantar compose.
 - Ensayo obligatorio: restaurar en una base vacía y comprobar `core.match`, `app.usuario` y una consulta
   de la web; no se considera copia válida hasta que se restaura.
+- **Ensayo de esquema hecho el 18/11/2026**: `pg_dump --schema-only` de 503 KB restaurado en una base
+  limpia con `ON_ERROR_STOP`; 104 tablas en `core`, `analytics` y `app`. No es una restauración de los
+  45 GB de datos: eso exige una ventana de mantenimiento y un disco de prueba.
 - Alertar si la copia más reciente tiene más de 26 horas.
 
 ## 4.5 · PgBouncer
@@ -143,7 +146,7 @@ Redis caído, lag de réplica > 10 s, backup fallido.
 ## 6 · Anuncios locales
 
 La base ya tiene `app.espacio_anuncio` y `app.campana_anuncio`, y la página `/explorar/publicidad`
-explica los huecos. Estado actual: **cero campañas**, todo apagado; no se inventa publicidad.
+explica los huecos. Estado actual: **cero campañas**, todo apagado; no se inventa publicidad. La vista `analytics.anuncio_publico` se probó con una campaña temporal y devolvió el anuncio; después se borró y el hueco volvió a apagado.
 
 Cuando haya un patrocinador local:
 
