@@ -8,3 +8,5 @@
 5. Alertas: añade contact points en Grafana; mínimo web caída, 5xx, disco, conexiones y backup.
 
 No se publica ningún puerto de observabilidad a Internet: todos escuchan en `127.0.0.1`.
+
+Copia: `deploy/backup.sh` (cron diario, retención 14 días, métrica `facylf_backup_ultimo_segundos`).

@@ -1,0 +1,8 @@
+route:
+  receiver: por-defecto
+  group_by: [alertname]
+  repeat_interval: 4h
+receivers:
+  - name: por-defecto
+    # Sin webhook configurado, Alertmanager conserva las alertas en su UI (9093).
+    # Para correo/Slack/Telegram, añade aquí el receptor y sus credenciales.

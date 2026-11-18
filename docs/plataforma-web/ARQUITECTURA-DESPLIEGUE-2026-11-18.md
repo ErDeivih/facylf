@@ -75,7 +75,7 @@ Para que la web vea un resultado en cuanto se ingiere hay dos caminos, en este o
 ### 4.1 · Recomendado: replicación lógica
 
 - La base de casa (donde escribe el ingestor) publica las tablas de `core` y `analytics`:
-  `CREATE PUBLICATION facylf_publica FOR TABLES IN SCHEMA core, analytics;`
+  `CREATE PUBLICATION facylf_publica FOR TABLES IN SCHEMA core, analytics, ops;` — `ops.invalidacion` también debe viajar, porque es lo que dispara `revalidateTag`. No se replica `ops.lote_cargado` ni colas internas de la ingesta.
 - El VPS se suscribe: `CREATE SUBSCRIPTION facylf_vps CONNECTION ... PUBLICATION facylf_publica;`
 - El ingestor **no cambia**: sigue escribiendo en su primaria.
 - El VPS lee la réplica; las tablas `app.*` (cuentas/favoritos) viven en el VPS y no se replican, porque

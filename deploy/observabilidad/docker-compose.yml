@@ -11,6 +11,16 @@ services:
       - prom-data:/prometheus
     ports: ["127.0.0.1:9090:9090"]
     networks: [facylf]
+    mem_limit: 512m
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports: ["127.0.0.1:9093:9093"]
+    networks: [facylf]
+    mem_limit: 128m
 
   grafana:
     image: grafana/grafana:11.3.0
@@ -18,6 +28,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?falta GRAFANA_PASSWORD}
+      GF_SMTP_ENABLED: "false"
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
@@ -25,15 +36,20 @@ services:
       - grafana-data:/var/lib/grafana
     ports: ["127.0.0.1:3002:3000"]
     networks: [facylf]
+    mem_limit: 512m
     depends_on: [prometheus]
 
   node-exporter:
     image: prom/node-exporter:v1.8.2
     restart: unless-stopped
-    command: ["--path.rootfs=/host"]
+    command: ["--path.rootfs=/host", "--collector.textfile.directory=/var/lib/node_exporter/textfile"]
     pid: host
-    volumes: ["/:/host:ro,rslave"]
+    volumes:
+      - /:/host:ro,rslave
+      - ./textfile:/var/lib/node_exporter/textfile
     ports: ["127.0.0.1:9100:9100"]
+    networks: [facylf]
+    mem_limit: 128m
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:v0.16.0
@@ -42,6 +58,16 @@ services:
       DATA_SOURCE_NAME: ${POSTGRES_EXPORTER_DSN:?falta POSTGRES_EXPORTER_DSN}
     ports: ["127.0.0.1:9187:9187"]
     networks: [facylf]
+    mem_limit: 128m
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.67.0
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: ${REDIS_URL:-redis://redis:6379}
+    ports: ["127.0.0.1:9121:9121"]
+    networks: [facylf]
+    mem_limit: 128m
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -53,12 +79,15 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     ports: ["127.0.0.1:8081:8080"]
+    networks: [facylf]
+    mem_limit: 256m
 
   blackbox:
     image: prom/blackbox-exporter:v0.25.0
     restart: unless-stopped
     ports: ["127.0.0.1:9115:9115"]
     networks: [facylf]
+    mem_limit: 128m
 
 volumes:
   prom-data:

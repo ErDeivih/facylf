@@ -21,3 +21,13 @@ groups:
         for: 5m
         labels: { severity: warning }
         annotations: { summary: "Menos de 512 MB de RAM disponible" }
+      - alert: RedisCaido
+        expr: absent(redis_up)
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Redis no está exportando métricas" }
+      - alert: BackupAntiguo
+        expr: time() - facylf_backup_ultimo_segundos > 93600
+        for: 10m
+        labels: { severity: critical }
+        annotations: { summary: "La última copia tiene más de 26 horas" }
