@@ -1,5 +1,5 @@
 {
-  "generado_en": "2026-11-18T11:52:18",
+  "generado_en": "2026-11-18T12:11:06",
   "train_hasta": "2023-24",
   "validacion": [
     "2024-25",
@@ -4563,20 +4563,20 @@
     "2024-25": {
       "J1": {
         "n_train": 354966,
-        "n_valid": 46885,
+        "n_valid": 46884,
         "incremental": {
           "modelo": "incremental",
-          "log_loss": 0.93504,
+          "log_loss": 0.93505,
           "brier": 0.56623,
           "acierto": 0.5426,
-          "n": 46885
+          "n": 46884
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.93596,
-          "brier": 0.56681,
+          "log_loss": 0.93597,
+          "brier": 0.56682,
           "acierto": 0.5407,
-          "n": 46885
+          "n": 46884
         }
       },
       "J5": {
@@ -4673,20 +4673,20 @@
       },
       "J10": {
         "n_train": 629811,
-        "n_valid": 78560,
+        "n_valid": 78557,
         "incremental": {
           "modelo": "incremental",
           "log_loss": 0.9264,
           "brier": 0.55564,
           "acierto": 0.5552,
-          "n": 78560
+          "n": 78557
         },
         "global": {
           "modelo": "global",
-          "log_loss": 0.93218,
+          "log_loss": 0.93217,
           "brier": 0.55921,
           "acierto": 0.5481,
-          "n": 78560
+          "n": 78557
         }
       },
       "J14": {

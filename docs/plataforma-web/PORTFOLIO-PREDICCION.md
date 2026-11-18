@@ -115,7 +115,7 @@ No se usan resultados posteriores al corte. En 2025-26:
 | J10 | 629.811 | 78.560 | 0,9264 | 0,9322 | 55,5 % | 54,8 % |
 | J14 | 609.022 | 66.218 | 0,9290 | 0,9321 | 55,2 % | 54,9 % |
 
-La ganancia es pequeña pero consistente en los cuatro cortes; no se presenta como una revolución. Lo
+La ganancia es pequeña pero consistente en los cuatro cortes; no se presenta como una revolución. El corte es la primera fecha de la jornada siguiente, así que el tamaño del entrenamiento puede no crecer de forma estrictamente monótona por partidos aplazados; la validación exige fecha posterior al corte, no solo número de jornada. Lo
 importante es que el corte es causal: cada fila de validación es posterior al entrenamiento, y la base
 no ve la temporada en curso. El sistema puede reentrenar en cada jornada sin fuga.
 

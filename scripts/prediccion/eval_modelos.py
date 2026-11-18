@@ -403,7 +403,7 @@ def main():
                     (partidos['anio_inicio'] < temporada_inicio)
                     | ((partidos['anio_inicio'] == temporada_inicio) & (partidos['fecha'] < corte_fecha))
                 ].copy()
-                val_inc = fila_temp[(fila_temp['jornada'] > corte) & (fila_temp['jornada'] <= corte + 5)].copy()
+                val_inc = fila_temp[(fila_temp['fecha'] >= corte_fecha) & (fila_temp['jornada'] > corte) & (fila_temp['jornada'] <= corte + 5)].copy()
                 if len(train_inc) < 1000 or len(val_inc) < 30:
                     continue
                 train_inc['lh'], train_inc['la'] = lambdas(train_inc)
