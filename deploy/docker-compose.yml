@@ -48,6 +48,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
     depends_on:
       - web
 

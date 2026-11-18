@@ -4,5 +4,7 @@
   reverse_proxy web:3000 {
     # Caddy añade la IP real del cliente al final de X-Forwarded-For.
     header_up X-Real-IP {remote_host}
+    # El cliente no puede colar su propio CF-Connecting-IP si no hay Cloudflare delante.
+    header_up -CF-Connecting-IP
   }
 }

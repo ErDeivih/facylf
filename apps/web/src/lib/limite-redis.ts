@@ -25,8 +25,11 @@ export async function limiteRedis(clave: string, maximo: number, segundos: numbe
   try {
     const r = conexion(url);
     if (r.status === 'wait' || r.status === 'end') await r.connect();
-    const usos = await r.incr(clave);
-    if (usos === 1) await r.expire(clave, segundos);
+    // INCR y EXPIRE en una sola operación: si el EXPIRE fallara por separado, la clave quedaría sin caducidad.
+    const usos = Number(await r.eval(
+      "local n = redis.call('INCR', KEYS[1]); if n == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end; return n",
+      1, clave, String(segundos),
+    ));
     return usos <= maximo;
   } catch {
     return null;
