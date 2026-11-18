@@ -133,7 +133,20 @@ export class ColaOrigen {
     this.db = new DatabaseSync(ruta, { readOnly: true, timeout: 10_000 });
   }
 
-  static rutaDeFederacion(raiz: string, federacion: string): string {
+  /*
+   * ELIGE LA COLA QUE TIENE ASIGNADA LA TEMPORADA (18/11/2026).
+   *
+   * Castilla y León se ingiere con TRES navegadores que escriben en tres colas (`descargas-federacion`,
+   * `-2` y `-3`) con las temporadas repartidas. El importador leía siempre la primera, así que lo que
+   * recogían el segundo y el tercero —la 2026-27 entre otras— no llegaba nunca al canónico: la cola -1
+   * conserva una copia vieja de esas temporadas y el importador creía haberlas importado. Medido hoy: la
+   * jornada del 21/11 tenía 16 partidos nuevos con hora en la cola del tercer navegador y el canónico
+   * seguía con 80 partidos y sin ellos.
+   *
+   * Ahora, si se pide la temporada, se busca la cola que la tenga en `temporadas-asignadas.txt`. Sin
+   * temporada, o si ninguna la declara, se usa la de siempre.
+   */
+  static rutaDeFederacion(raiz: string, federacion: string, temporada?: string): string {
     /*
      * Una cola distinta de la viva, sólo si se pide expresamente para ESA federación:
      * `FACYLF_COLA_CASTILLA_LEON=_traspaso\cyl-2026-27.sqlite`. Sirve para importar en el PC una temporada que
@@ -147,6 +160,15 @@ export class ColaOrigen {
     // Castilla y León. Sin esto, `--federacion castilla-y-leon` busca `descargas-castilla-y-leon` y no existe.
     const canonica = codigoCanonicoDeFederacion(federacion);
     const carpeta = CARPETA_ESPECIAL[canonica] ?? `descargas-${canonica}`;
+    if (temporada && carpeta === 'descargas-federacion') {
+      for (const candidata of ['descargas-federacion', 'descargas-federacion-2', 'descargas-federacion-3']) {
+        const asignadas = join(raiz, candidata, 'recolector-local', 'temporadas-asignadas.txt');
+        if (!existsSync(asignadas)) continue;
+        const suyas = readFileSync(asignadas, 'utf8').split('\n').map((l) => l.trim())
+          .filter((l) => l !== '' && !l.startsWith('#'));
+        if (suyas.includes(temporada)) return join(raiz, candidata, 'recolector-local', 'cola-v2.sqlite');
+      }
+    }
     return join(raiz, carpeta, 'recolector-local', 'cola-v2.sqlite');
   }
 

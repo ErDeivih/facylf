@@ -139,7 +139,7 @@ export type Cobertura = {
 /** Importa un grupo (o todos los de una temporada) y devuelve el informe de cada lote. */
 export async function importaFederacion(pool: PoolCanonico, opciones: OpcionesLote): Promise<InformeGrupo[]> {
   const fuente = fuenteDeFederacion(opciones.raiz, opciones.federacion);
-  const cola = new ColaOrigen(ColaOrigen.rutaDeFederacion(opciones.raiz, opciones.federacion));
+  const cola = new ColaOrigen(ColaOrigen.rutaDeFederacion(opciones.raiz, opciones.federacion, opciones.temporada));
   const informes: InformeGrupo[] = [];
   try {
     const temporadas = opciones.temporada
