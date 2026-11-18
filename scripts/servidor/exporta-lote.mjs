@@ -126,6 +126,16 @@ function main() {
   if (!seco && totalFilas > 0) {
     writeFileSync(join(destino, `${id}-manifiesto.json`), JSON.stringify(manifiesto, null, 2));
     estado.lotes[id] = manifiesto;
+    /*
+     * LA MARCA AVANZA AL ESCRIBIR EL LOTE, NO AL CONFIRMARLO (18/11/2026).
+     *
+     * La idea original era avanzar sólo cuando el VPS confirmase la carga, para poder repetir un lote
+     * perdido. Pero sin VPS no confirma nadie: cada 15 minutos se volvía a exportar la base ENTERA
+     * (519.199 filas, 30 MB por lote, 523 MB acumulados en una tarde). El lote queda guardado en disco y
+     * en `estado.lotes`, así que se puede reenviar; lo que no se puede es reexportarlo cada cuarto de hora.
+     * Si algún día se quiere la semántica estricta, basta con volver a mirar `estado.lotes` antes de subir.
+     */
+    for (const [tabla, datos] of Object.entries(tablas)) estado.ultima[tabla] = datos.hasta;
     guardaEstado(rutaEstado, estado);
   }
   console.log(JSON.stringify({ id, seco, tablas: Object.keys(tablas).length, filas: totalFilas, manifiesto: seco ? null : join(destino, `${id}-manifiesto.json`) }));
