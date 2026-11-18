@@ -1250,6 +1250,16 @@ function disponibleTrasJornada(fecha) {
   // usan para aplazar: aplazarían el trabajo miles de años y esa jornada no se recogería nunca.
   // Si la fecha no es creíble se devuelve null y el trabajo queda disponible ya.
   if (instante.getTime() - Date.now() > 400 * 24 * 60 * 60_000) return null;
+  /*
+   * ── LAS JORNADAS DE ESTA SEMANA SÍ SE LEEN ANTES DE JUGARSE (18/11/2026) ─────────────────────────
+   *
+   * La federación publica los horarios y los árbitros con días de antelación: el 18/11 la jornada del
+   * 22/11 ya tenía `<span class="horario">18:15</span>` y árbitro en su página. Pero esta función la
+   * aplazaba hasta la noche del partido, así que nunca se leía y la cola se quedaba con `hora = null`,
+   * sin poder hacer previas. Ahora sólo se aplazan las que están a más de 8 días: las de esta semana se
+   * leen ya, y el repaso diario de las 06:00 las vuelve a pedir por si publican más tarde.
+   */
+  if (instante.getTime() - Date.now() < 8 * 24 * 60 * 60_000) return null;
   // La MISMA noche del partido (21:00 UTC = 23:00 en Madrid en verano, 22:00 en invierno), no a las 06:00 del
   // día siguiente (11/10/2026: lo del domingo entraba el lunes). Lo que a esa hora aún no esté publicado lo
   // vuelve a pedir `preparaRepasoJornadasRecientes` (jornadas de los últimos 4 días no comprobadas en 18 h) y,
@@ -1780,6 +1790,15 @@ function registraJornada(db, trabajo, html, ruta, hash) {
           marcador.golesLocal, marcador.golesVisitante, d?.fecha ?? fecha,
           d?.hora ?? null, d?.campo ?? null, d?.codCampo ?? null, d?.arbitro ?? null,
           new Date().toISOString());
+      /*
+       * EL MARCADOR DEL ACTA MANDA SOBRE LA JORNADA, TAMBIÉN AL RELEER (18/11/2026, revisión de Claude).
+       * El upsert de arriba escribe siempre el marcador de la página. Si se vuelve a leer la jornada
+       * después de tener el acta —y ahora las jornadas se releen a diario—, un resultado provisional del
+       * descanso pisaría el final. Aquí se vuelve a imponer el del acta, que es el definitivo.
+       */
+      if (p.codActa) {
+        try { corrigeMarcadorDesdeActa(db, { ...trabajo, acta: p.codActa }); } catch { /* sin acta guardada: nada que corregir */ }
+      }
       for (const [codigo, nombre] of [[p.codLocal, p.local], [p.codVisitante, p.visitante]]) {
         if (!codigo) continue;
         db.prepare(`insert into equipos(temporada,codigo,nombre,primera_jornada) values(?,?,?,?)

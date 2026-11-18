@@ -73,7 +73,7 @@ function principal() {
   const filtroTemporada = arg('temporada');
   const partidos = db.prepare(`
     select p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta, p.fecha, p.hora,
-           coalesce(t.estado, 'pendiente') estado_acta, coalesce(t.intentos, 0) intentos
+           coalesce(t.estado, 'pendiente') estado_acta, coalesce(t.intentos, 0) intentos, t.actualizado_en
       from partidos p
       left join trabajos t
         on t.tipo = 'acta' and t.temporada = p.temporada and t.competicion = p.competicion
@@ -93,6 +93,12 @@ function principal() {
       tieneActa: p.estado_acta === 'hecho' || p.estado_acta === 'sin_datos',
     });
     cuenta[estado] = (cuenta[estado] ?? 0) + 1;
+    // Un acta apartada tras 3 fallos se reintentaba a los 7 días; en medio no la miraba nadie y muchas
+    // se publican el lunes o el martes (revisión de Claude, 18/11/2026). Se le da otra oportunidad al día.
+    if (estado === 'apartado' && p.actualizado_en && (ahora - Date.parse(p.actualizado_en)) > 24 * 3600e3
+        && p.estado_acta === 'pendiente') {
+      aplazados.push({ temporada: p.temporada, competicion: p.competicion, grupo: p.grupo, jornada: p.jornada, acta: p.codigo_acta, fecha: p.fecha, hora: p.hora, reintentoDiario: true });
+    }
     if (estado === 'aplazado') aplazados.push({ temporada: p.temporada, competicion: p.competicion, grupo: p.grupo, jornada: p.jornada, acta: p.codigo_acta, fecha: p.fecha, hora: p.hora });
     // Sólo se adelanta lo que ya toca y sigue pendiente.
     if (estado === 'toca' && p.estado_acta === 'pendiente') tocaAdelantar.push(p);
@@ -108,6 +114,10 @@ function principal() {
     db.exec('begin');
     for (const p of tocaAdelantar) {
       adelanta.run(BANDA_ACTAS_RECIENTES, marca, marca, p.temporada, p.competicion, p.grupo, p.jornada, p.codigo_acta);
+    }
+    for (const a of aplazados) {
+      if (!a.reintentoDiario) continue;
+      adelanta.run(BANDA_ACTAS_RECIENTES, marca, marca, a.temporada, a.competicion, a.grupo, a.jornada, a.acta);
     }
     db.exec('commit');
   }
@@ -182,6 +192,40 @@ function principal() {
                         and j.fecha >= ? and j.fecha <= ?)
     `).run(marca, marca, hoy, dentroDe7);
     console.log(`JORNADAS DE LA SEMANA adelantadas: ${r.changes}`);
+  }
+
+  // ── RELEER LAS JORNADAS DE LA SEMANA (horarios y árbitros) ─────────────────────────────────────
+  // Una jornada que se leyó antes de que la federación publicara los horarios se queda con `hora` nula
+  // para siempre: su trabajo está 'hecho' o aplazado a la noche del partido, y nadie vuelve a pedir la
+  // página. Comprobado el 18/11/2026 con la jornada del 22/11: el HTML publicado trae
+  // `<span class="horario">18:15</span>` y la cola tenía `hora = null` en los 151 partidos.
+  // La fecha se toma de los PARTIDOS: hay grupos cuya fila de `jornadas` no tiene fecha propia.
+  const dias = Number(arg('dias', 8));
+  let jornadasReleidas = 0;
+  if (argumentos.includes('--releer-jornadas') && !seco) {
+    const hoy = new Date(ahora).toISOString().slice(0, 10);
+    const hasta = new Date(ahora + dias * 86400e3).toISOString().slice(0, 10);
+    const marca = new Date(ahora).toISOString();
+    const abrir = db.prepare(`
+      select distinct t.temporada, t.competicion, t.grupo, t.jornada
+        from trabajos t
+        join partidos p on p.temporada = t.temporada and p.competicion = t.competicion
+                      and p.grupo = t.grupo and p.jornada = t.jornada
+       where t.tipo = 'jornada' and p.fecha >= ? and p.fecha <= ?
+         ${filtroTemporada ? 'and t.temporada in (select codigo from temporadas where etiqueta = ?)' : ''}
+    `).all(hoy, hasta, ...(filtroTemporada ? [filtroTemporada] : []));
+    const reabre = db.prepare(`update trabajos set estado = 'pendiente', siguiente_intento = ?, actualizado_en = ?,
+        intentos = 0, ultimo_error = null, prioridad = ?
+      where tipo = 'jornada' and estado != 'en_curso' and temporada = ? and competicion = ? and grupo = ? and jornada = ?`);
+    db.exec('begin');
+    for (const j of abrir) {
+      // Prioridad alta, pero POR DEBAJO de las actas: el lunes a las 06:00 entran cientos de jornadas y un
+      // acta que cumpla las 3 h esa mañana no puede quedar detrás (revisión de Claude, 18/11/2026).
+      reabre.run(marca, marca, BANDA_JORNADAS_SIN_ACTA, j.temporada, j.competicion, j.grupo, String(j.jornada));
+      jornadasReleidas++;
+    }
+    db.exec('commit');
+    console.log(`JORNADAS DE LA SEMANA devueltas a la cola para releer horarios: ${jornadasReleidas}`);
   }
 
   // ── REPASO DEL LUNES: la jornada siguiente, con horario y si ya hay acta (árbitro) ─────────────
