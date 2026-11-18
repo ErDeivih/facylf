@@ -25,14 +25,15 @@ export function reconstruyeTemporada(slug: string, carpeta: string): TemporadaRe
   const re = new RegExp(`^${escapa}-jornada-(\\d+)\\.html$`);
 
   // índice de resultados por jornada (clave normalizada de local|visitante → marcador)
-  const resultados = new Map<number, Map<string, { gl: number; gv: number }>>();
+  const resultados = new Map<number, Map<string, { gl: number | null; gv: number | null }>>();
   for (const f of readdirSync(carpeta)) {
     const m = re.exec(f);
     if (!m) continue;
     const j = Number(m[1]!);
     const res = parseaJornada(decodifica(readFileSync(join(carpeta, f))), j);
-    const mapa = new Map<string, { gl: number; gv: number }>();
-    for (const r of res) mapa.set(`${clave(r.local)}|${clave(r.visitante)}`, { gl: r.golesLocal, gv: r.golesVisitante });
+    const mapa = new Map<string, { gl: number | null; gv: number | null }>();
+    // Un partido sin jugar llega con el marcador a null; aqui solo interesan los que tienen resultado.
+    for (const r of res) if (r.golesLocal !== null && r.golesVisitante !== null) mapa.set(`${clave(r.local)}|${clave(r.visitante)}`, { gl: r.golesLocal, gv: r.golesVisitante });
     resultados.set(j, mapa);
   }
 

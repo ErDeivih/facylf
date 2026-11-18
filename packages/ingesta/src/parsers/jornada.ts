@@ -30,8 +30,8 @@ export interface ResultadoJornada {
   jornada: number;
   local: string;
   visitante: string;
-  golesLocal: number;
-  golesVisitante: number;
+  golesLocal: number | null;
+  golesVisitante: number | null;
   fecha: string | null;
   hora: string | null;
   campo: string | null;
@@ -47,8 +47,26 @@ const limpio = (s: string | undefined): string => (s ?? '').replace(/\s+/g, ' ')
 
 /** Un contenedor de partido tiene EXACTAMENTE dos marcadores y dos enlaces de equipo. */
 function esContenedorDePartido(elemento: HTMLElement): boolean {
-  return elemento.querySelectorAll('.wid2_resultado_cerrada').length === 2 &&
-    elemento.querySelectorAll('a[href*="NFG_VisEquipos"]').length === 2;
+  /*
+   * ── UNA JORNADA SIN JUGAR NO TIENE MARCADOR, Y ESO NO ES UN PARTIDO MENOS ──────────────────────────
+   *
+   * Antes se exigían los DOS marcadores cerrados. Sirve para una jornada ya jugada, pero no para la que
+   * está por jugar: ahí los dos huecos de resultado están vacíos y la página no los marca como cerrados.
+   * Consecuencia medida el 18/11/2026: la jornada 11 del grupo 24218962 traía los horarios de los ocho
+   * partidos en `span.horario` y el analizador detallado devolvía CERO partidos; los ocho entraban por la
+   * extracción básica, que no lee horarios. Por eso la temporada en curso se quedaba sin horarios.
+   *
+   * Ahora basta con los dos enlaces de equipo, y el marcador se exige sólo cuando lo hay: si el hueco
+   * existe pero viene vacío, el partido sigue siendo un partido. Los horarios y el árbitro se leen igual.
+   */
+  const equipos = elemento.querySelectorAll('a[href*="NFG_VisEquipos"]').length === 2;
+  if (!equipos) return false;
+  if (elemento.querySelectorAll('.wid2_resultado_cerrada').length === 2) return true;
+  // Jornada sin jugar: tiene que verse al menos la fecha/hora o el hueco de resultado, para no confundir
+  // con una fila de cabecera de la tabla.
+  return elemento.querySelectorAll('span.horario').length > 0 ||
+    elemento.querySelectorAll('span.esconder').length > 0 ||
+    elemento.querySelectorAll('[class*="wid2_resultado"]').length > 0;
 }
 
 /**
@@ -117,9 +135,11 @@ export function parseaJornada(html: string, jornada: number): ResultadoJornada[]
       parametro(equipos[0]!.getAttribute('href') ?? '', 'codequipo');
     const codVisitante = parametro(equipos[1]!.getAttribute('href') ?? '', 'Codigo_Equipo') ??
       parametro(equipos[1]!.getAttribute('href') ?? '', 'codequipo');
-    const gl = numeroOfuscado(marcadores[0]!);
-    const gv = numeroOfuscado(marcadores[1]!);
-    if (!local || !visitante || gl === null || gv === null) continue;
+    // Un partido sin jugar no tiene marcador: los huecos vienen vacíos. Antes se descartaba el partido
+    // entero y con él su horario y su árbitro; ahora se emite con resultado desconocido (18/11/2026).
+    const gl = marcadores[0] ? numeroOfuscado(marcadores[0]) : null;
+    const gv = marcadores[1] ? numeroOfuscado(marcadores[1]) : null;
+    if (!local || !visitante) continue;
 
     const { fecha, hora } = fechaYHora(contenedor);
 
@@ -149,7 +169,7 @@ export function parseaJornada(html: string, jornada: number): ResultadoJornada[]
       if (m) codActa = m[1]!;
     }
 
-    const clave = `${local}|${visitante}|${gl}-${gv}`;
+    const clave = `${local}|${visitante}`;
     if (vistos.has(clave)) continue;
     vistos.add(clave);
     out.push({ jornada, local, visitante, golesLocal: gl, golesVisitante: gv, fecha, hora,
