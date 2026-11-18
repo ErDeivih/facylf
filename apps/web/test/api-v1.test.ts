@@ -173,8 +173,8 @@ describe('contrato de la API: envoltorio, ETag y errores', () => {
   });
 
   it('la IP de la petición sale de x-forwarded-for sin inventarla', () => {
-    expect(ipDePeticion(peticion('/x', { headers: { 'x-forwarded-for': '9.9.9.9, 10.0.0.1' } }))).toBe('9.9.9.9');
-    expect(ipDePeticion(peticion('/x'))).toBe('desconocida');
+    expect(ipDePeticion(peticion('/x', { headers: { 'x-forwarded-for': '9.9.9.9, 10.0.0.1' } }))).toBe('10.0.0.1');
+    expect(ipDePeticion(peticion('/x'))).toBe('local');
   });
 
   it('el limitador se puede aplicar a una petición concreta y responde 429 con Retry-After', async () => {

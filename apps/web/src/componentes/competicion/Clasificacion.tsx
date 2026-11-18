@@ -57,32 +57,6 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
             Clasificación final
           </Link>
         )}
-        <div role="group" aria-label="Vista" className="flex rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] p-[3px]">
-          <span className="flex h-9 items-center rounded-[var(--radius-md)] bg-[var(--fondo-elevado)] px-3 text-tabla font-semibold text-[var(--texto)] shadow-[var(--sombra-segmento)]">
-            Total
-          </span>
-          {/*
-            Casa y Fuera se apagan, no se fingen: `analytics` sólo guarda jugados_casa / jugados_fuera,
-            no el desglose V-E-D ni los goles por condición. El motivo va en el propio control, no sólo en
-            un `title`, para que también lo oiga un lector de pantalla.
-          */}
-          <button type="button" disabled
-            title="Casa no disponible: la base guarda partidos jugados en casa, pero no el desglose V-E-D ni los goles por condición"
-            aria-label="Casa (no disponible)"
-            className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
-            Casa
-          </button>
-          <button type="button" disabled
-            title="Fuera no disponible: la base guarda partidos jugados fuera, pero no el desglose V-E-D ni los goles por condición"
-            aria-label="Fuera (no disponible)"
-            className="flex h-9 cursor-not-allowed items-center px-3 text-tabla font-medium text-[var(--texto-suave)]">
-            Fuera
-          </button>
-        </div>
-        <p className="m-0 basis-full text-nota text-[var(--texto-suave)]">
-          El desglose casa/fuera no está disponible: hay partidos jugados por condición, pero no victorias,
-          empates, derrotas ni goles por condición.
-        </p>
       </div>
 
       {filas.length === 0
@@ -123,13 +97,13 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
                   const forma = formaDe(rachas.get(f.equipo_id));
                   return (
                     <tr key={f.equipo_id} className="text-right">
-                      <td className={`${fijas} left-0 w-9 border-t border-[var(--fondo-sutil)] p-0 text-left`}>
+                      <td className={`${fijas} left-0 w-10 border-t border-[var(--fondo-sutil)] p-0 text-left`}>
                         <div className="flex h-[var(--fila-densa)] items-center gap-2.5">
                           <span aria-hidden="true" className={`h-[var(--fila-densa)] w-1 flex-none ${claseZona(zona)}`} />
                           <span className="w-[22px] font-bold text-[var(--texto)]">{f.posicion}</span>
                         </div>
                       </td>
-                      <td className={`${fijas} left-8 w-auto min-w-[5.5rem] border-t border-[var(--fondo-sutil)] px-1 py-0 text-left md:left-9 md:w-[13.75rem] md:px-1.5 lg:w-auto`}>
+                      <td className={`${fijas} left-10 w-auto min-w-[5.5rem] border-t border-[var(--fondo-sutil)] px-1 py-0 text-left md:left-10 md:w-[13.75rem] md:px-1.5 lg:w-auto`}>
                         <div className="flex h-[var(--fila-densa)] min-w-0 items-center gap-2.5">
                           <Escudo equipoId={f.equipo_id} nombre={f.equipo} clubId={f.club_id} tieneEscudo={f.tiene_escudo} />
                           {/*
@@ -144,10 +118,10 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
                             {f.equipo}
                           </Link>
                           {/* En móvil, V-E-D y goles no caben: se despliegan al tocar la fila. */}
-                          <details className="md:hidden">
+                          <details className="relative md:hidden">
                             <summary className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center text-nota text-[var(--texto-suave)]"
                               aria-label={`Ver victorias, empates, derrotas y goles de ${f.equipo}`}>+</summary>
-                            <span className="block whitespace-nowrap text-nota text-[var(--texto-suave)]">
+                            <span className="absolute left-0 top-full z-20 block whitespace-nowrap rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-2 py-1 text-nota text-[var(--texto-suave)] shadow">
                               V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)} · Forma {forma.map((signo) => insigniaForma(signo).letra).join('')}
                             </span>
                           </details>

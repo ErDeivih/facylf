@@ -90,6 +90,12 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
         </nav>
       </header>
 
+      {proximos.length === 0 && (
+        <section aria-labelledby="proximos-portada" className="flex flex-col gap-2">
+          <h2 id="proximos-portada" className="m-0 text-bloque font-bold text-[var(--texto)]">Próximos partidos</h2>
+          <p className="m-0 text-tabla text-[var(--texto-suave)]">No hay próximos partidos publicados. Si el resto de la portada carga, es que la federación aún no ha publicado esta jornada; si todo falla, puede ser un problema de conexión.</p>
+        </section>
+      )}
       {proximos.length > 0 && (
         <section aria-labelledby="proximos-portada" className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between gap-3">
@@ -126,6 +132,12 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
         </section>
       )}
 
+      {jornada.length === 0 && (
+        <section aria-labelledby="ultimos-resultados" className="flex flex-col gap-2">
+          <h2 id="ultimos-resultados" className="m-0 text-bloque font-bold text-[var(--texto)]">Últimos resultados</h2>
+          <p className="m-0 text-tabla text-[var(--texto-suave)]">No hay resultados publicados todavía.</p>
+        </section>
+      )}
       {jornada.length > 0 && (
         <section aria-labelledby="ultimos-resultados" className="flex flex-col gap-3">
           <h2 id="ultimos-resultados" className="m-0 text-bloque font-bold text-[var(--texto)]">Últimos resultados</h2>

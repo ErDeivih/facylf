@@ -13,17 +13,23 @@ import type { LineaCronologia } from '@/lib/acta';
  * Nunca se usa sólo el color ni sólo un icono: cada símbolo lleva su texto al lado (en la línea y en la
  * leyenda), así que una impresión en blanco y negro o una persona daltónica leen lo mismo.
  */
+function minutoNum(minuto: string | null): number {
+  const m = (minuto ?? '').match(/(\d+)(?:\+(\d+))?/);
+  return m ? Number(m[1]) + Number(m[2] ?? 0) / 100 : 0;
+}
+
 export function CronologiaActa({ lineas, cierre }: {
   lineas: readonly LineaCronologia[];
   /** Marca de cierre del acta («Final»), o `null` si el partido no está cerrado. */
   cierre: string | null;
 }) {
+  const ordenadas = [...lineas].sort((a, b) => minutoNum(a.minuto) - minutoNum(b.minuto));
   return (
     <section aria-labelledby="cronologia"
       className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
       <div className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3.5">
         <h2 id="cronologia" className="m-0 text-bloque font-bold text-[var(--texto)]">Cronología</h2>
-        <span className="text-nota text-[var(--texto-suave)]">Local a la izquierda · visitante a la derecha</span>
+        <span className="hidden text-nota text-[var(--texto-suave)] sm:inline">Local a la izquierda · visitante a la derecha</span>
       </div>
       {lineas.length === 0
         ? (
@@ -33,7 +39,7 @@ export function CronologiaActa({ lineas, cierre }: {
         )
         : (
           <ol className="m-0 list-none px-0 pt-1 pb-3">
-            {lineas.map((linea) => (
+            {ordenadas.map((linea) => (
               <li key={linea.clave} className="border-t border-[var(--fondo-sutil)] first:border-t-0 sm:border-t-0">
                 {/* Escritorio: local a la izquierda, visitante a la derecha. */}
                 <div className="hidden min-h-11 grid-cols-[minmax(0,1fr)_3.25rem_minmax(0,1fr)] items-center gap-2 px-3 sm:grid">

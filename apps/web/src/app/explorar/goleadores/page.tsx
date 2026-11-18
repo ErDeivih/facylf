@@ -86,7 +86,7 @@ export default async function PantallaGoleadores({ searchParams }: {
                   <td className="hidden px-2 py-1.5 text-right tabular-nums text-[var(--texto-suave)] md:table-cell">{f.partidos}</td>
                 </tr>
               ))}
-              {filas.length === 0 && <tr><td colSpan={5} className="px-3 py-4 text-[var(--texto-suave)]">Sin goleadores con 3 partidos en esta categoría.</td></tr>}
+              {filas.length === 0 && <tr><td colSpan={5} className="px-3 py-4 text-[var(--texto-suave)]">Sin goleadores con 3 partidos en esta categoría y este filtro. Prueba «Sin clasificar» o cambia de categoría; la federación no siempre publica modalidad y género.</td></tr>}
             </tbody>
           </table>
         </div>

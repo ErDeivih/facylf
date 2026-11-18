@@ -58,9 +58,8 @@ export default function PaginaLegal() {
           contraseña) y los equipos, clubes o jugadores que decides seguir.
         </p>
         <p className={PARRAFO}>
-          Puedes descargar tus datos desde{' '}
-          En la app privada puedes consultar y descargar tus datos desde Mi cuenta. La baja de la cuenta
-          todavía no se puede hacer desde la web.
+          En la app privada puedes consultar y descargar tus datos desde Mi cuenta, cambiar la contraseña
+          y darte de baja. La baja anonimiza el perfil y borra favoritos, avisos y credenciales.
         </p>
       </section>
 

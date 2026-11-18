@@ -152,24 +152,23 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
         <div className="mt-2 grid grid-cols-2 items-start gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-2">
           {[{ nombre: f.local, id: f.local_id, club: f.local_club_id, escudo: f.local_tiene_escudo, lado: lados[0] },
             { nombre: f.visitante, id: f.visitante_id, club: f.visitante_club_id, escudo: f.visitante_tiene_escudo, lado: lados[1] }].map((equipo, i) => (
-            <div key={equipo.id} className={i === 0 ? 'flex min-w-0 flex-col items-start gap-1' : 'flex min-w-0 flex-col items-end gap-1 text-right'}>
+            <div key={equipo.id} className={i === 0 ? 'order-1 flex min-w-0 flex-col items-start gap-1' : 'order-3 flex min-w-0 flex-col items-end gap-1 text-right'}>
               <Escudo equipoId={Number(equipo.id)} nombre={equipo.nombre} clubId={equipo.club} tieneEscudo={equipo.escudo} />
               <p className="m-0 break-words text-tabla font-bold leading-tight text-[var(--texto)] sm:text-bloque">{equipo.nombre}</p>
               {equipo.lado?.fila && <span className="text-nota tabular-nums text-[var(--texto-suave)]">{equipo.lado.fila.posicion}.º · {equipo.lado.fila.puntos} {equipo.lado.fila.puntos === 1 ? 'pt' : 'pts'}</span>}
               <InsigniasRacha signos={equipo.lado?.forma ?? []} />
             </div>
           ))}
-          <span className="hidden self-center text-etiqueta font-semibold uppercase tracking-wide text-[var(--texto-suave)] sm:block">vs</span>
+          <span className="order-2 hidden self-center text-etiqueta font-semibold uppercase tracking-wide text-[var(--texto-suave)] sm:block">vs</span>
         </div>
       </header>
 
       {/* Lo primero: la predicción y el marcador más probable. */}
-      <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} matriz={f.matriz} sinExplicacion />
+      <PrediccionPartido local={f.local} visitante={f.visitante} prediccion={prediccion} jugado={false} sinExplicacion />
       <div className="grid min-w-0 gap-4 lg:grid-cols-3">
       {f.matriz && (
         <section aria-labelledby="matriz-marcadores" className={`${TARJETA} min-w-0 px-4 py-3 lg:col-span-2`}>
           <h2 id="matriz-marcadores" className="m-0 text-bloque font-bold text-[var(--texto)]">Matriz de resultados posibles</h2>
-          <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">La matriz es del modelo Poisson; la predicción 1-X-2, si aparece arriba, es del modelo ML y puede no coincidir con ella.</p>
           <p className="m-0 mt-1 text-nota text-[var(--texto-suave)]">Probabilidad de cada marcador según el Poisson del partido. Filas: goles de {f.local}; columnas: goles de {f.visitante}.</p>
           <MatrizMarcadores local={f.local} visitante={f.visitante} matriz={f.matriz} />
         </section>

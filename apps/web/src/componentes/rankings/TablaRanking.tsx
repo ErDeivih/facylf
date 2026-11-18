@@ -33,19 +33,19 @@ export function TablaRanking({ filas, tipo, contexto }: {
           <tr className="border-b border-[var(--borde)]">
             <th scope="col" className={`${TH} w-10 text-right`}>#</th>
             <th scope="col" className={TH}>Jugador</th>
-            <th scope="col" className={`${TH} hidden md:table-cell`}>Equipo y competición</th>
-            <th scope="col" className={`${TH_NUM} hidden sm:table-cell`}>PJ</th>
+            <th scope="col" className={TH}>Equipo y competición</th>
+            <th scope="col" className={TH_NUM}>PJ</th>
             {tipo === 'goles' ? (
               <>
                 <th scope="col" className={TH_NUM}>Goles</th>
-                <th scope="col" className={`${TH_NUM} hidden lg:table-cell`}>Goles/partido</th>
-                <th scope="col" className={`${TH_NUM} hidden lg:table-cell`}>Min/gol</th>
+                <th scope="col" className={TH_NUM}>Goles/partido</th>
+                <th scope="col" className={TH_NUM}>Min/gol</th>
               </>
             ) : (
               <>
                 <th scope="col" className={TH_NUM}>Amarillas</th>
-                <th scope="col" className={`${TH_NUM} hidden lg:table-cell`}>Rojas</th>
-                <th scope="col" className={`${TH_NUM} hidden lg:table-cell`}>Dobles</th>
+                <th scope="col" className={TH_NUM}>Rojas</th>
+                <th scope="col" className={TH_NUM}>Dobles</th>
               </>
             )}
           </tr>
@@ -66,7 +66,7 @@ export function TablaRanking({ filas, tipo, contexto }: {
                     {etiquetaCategoria(fila.categoria)}{fila.division ? ` · ${etiquetaDivision(fila.division)}` : ''}
                   </span>
                 </td>
-                <td className={`${TD} hidden md:table-cell`}>
+                <td className={TD}>
                   <div className="flex items-center gap-2">
                     <Escudo equipoId={fila.equipo_id} nombre={fila.equipo} clubId={fila.club_id} tieneEscudo={fila.tiene_escudo} />
                     <div className="min-w-0">
@@ -81,18 +81,18 @@ export function TablaRanking({ filas, tipo, contexto }: {
                     </div>
                   </div>
                 </td>
-                <td className={`${TD_NUM} hidden sm:table-cell`}>{numero(fila.partidos)}</td>
+                <td className={TD_NUM}>{numero(fila.partidos)}</td>
                 {tipo === 'goles' ? (
                   <>
                     <td className={`${TD_NUM} font-bold`}>{numero(fila.goles)}</td>
-                    <td className={`${TD_NUM} hidden lg:table-cell`}>{decimal(fila.goles_por_partido)}</td>
-                    <td className={`${TD_NUM} hidden lg:table-cell`}>{dato(fila.minutos_por_gol)}</td>
+                    <td className={TD_NUM}>{decimal(fila.goles_por_partido)}</td>
+                    <td className={TD_NUM}>{dato(fila.minutos_por_gol)}</td>
                   </>
                 ) : (
                   <>
                     <td className={`${TD_NUM} font-bold`}>{numero(fila.amarillas)}</td>
-                    <td className={`${TD_NUM} hidden lg:table-cell`}>{numero(fila.rojas)}</td>
-                    <td className={`${TD_NUM} hidden lg:table-cell`}>{numero(fila.dobles_amarillas)}</td>
+                    <td className={TD_NUM}>{numero(fila.rojas)}</td>
+                    <td className={TD_NUM}>{numero(fila.dobles_amarillas)}</td>
                   </>
                 )}
               </tr>

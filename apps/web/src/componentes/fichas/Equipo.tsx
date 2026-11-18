@@ -178,6 +178,8 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
       {filas.length === 0
         ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">Sin jugadores en las actas.</p>
         : (
+          <>
+          <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-nota text-[var(--texto-suave)] md:hidden">Desplaza la tabla para ver PJ, titularidades, minutos, goles y tarjetas.</p>
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Plantilla: desplázate en horizontal para ver todas las columnas"
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
@@ -251,6 +253,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
               </tbody>
             </table>
           </div>
+          </>
         )}
     </section>
   );
