@@ -19,6 +19,7 @@ import { UltimoYProximo } from '@/componentes/competicion/UltimoYProximo';
 import { Jornada } from '@/componentes/competicion/Jornada';
 import { CrucesPrevistos } from '@/componentes/partidos/CrucesPrevistos';
 import { etiquetaZona, formaHasta, temporadasPublicables, tituloDeCompeticion, zonaDe } from '@/lib/pantalla-competicion';
+import { descensosDirectos } from '@/lib/reglamento';
 import { decimal2 } from '@/lib/formato';
 import { IndicadoresGrupo } from '@/componentes/competicion/IndicadoresGrupo';
 import { fechaUltimaJugadaDePartidos, fechaUltimaJugadaDePortada } from '@/lib/jornadas';
@@ -197,14 +198,17 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   const rachasPorEquipo = new Map(
     clasificacion.map((f) => [f.equipo_id, formaHasta(partidos, f.equipo_id, f.jornada).join('')]),
   );
+  const equipos = grupo.equipos || clasificacion.length;
+  const directos = descensosDirectos({
+    federacion: grupo.federacion, categoria: grupo.categoria, division: grupo.division,
+    grupo: grupo.grupo, equipos: equipos,
+  });
   const zone = zonas[0]
     ? {
       ascensos: zonas[0].ascensos, promocion: zonas[0].promocion,
-      descensos: grupo.federacion === 'castilla-leon' && grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion'
-        ? Math.max(3, zonas[0].descensos) : zonas[0].descensos,
+      descensos: directos ?? zonas[0].descensos,
       promocion_permanencia: zonas[0].promocion_permanencia,
-      origen: grupo.federacion === 'castilla-leon' && grupo.categoria === 'aficionados' && grupo.division === 'tercera-federacion' && zonas[0].descensos < 3
-        ? 'regla' : zonas[0].origen,
+      origen: directos !== null && directos !== zonas[0].descensos ? 'reglamento' : zonas[0].origen,
       confianza: zonas[0].confianza, temporadas: zonas[0].temporadas,
     }
     : null;
@@ -229,7 +233,6 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   const ruta = `/explorar/competicion/${grupo.grupo_id}`;
   const conJornada = (n: number) => `${ruta}?jornada=${n}`;
 
-  const equipos = grupo.equipos || clasificacion.length;
   const vistaParcial = vista === 'local' || vista === 'fuera';
   const etiquetasDeZona = new Map<number,string>();
   if (zone && !vistaParcial) {

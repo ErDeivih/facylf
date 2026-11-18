@@ -9,6 +9,7 @@ import {
 import { ZONAS_DEL_GRUPO, ZONAS_HISTORICAS, type FilaZonas, type FilaZonasHistoricas } from '@/consultas/paneles';
 import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
+import { descensosDirectos } from '@/lib/reglamento';
 import { CabeceraCompeticion } from '@/componentes/competicion/CabeceraCompeticion';
 import { MigaCompeticion } from '@/componentes/competicion/MigaCompeticion';
 import { ProyeccionFinal } from '@/componentes/competicion/ProyeccionFinal';
@@ -69,12 +70,15 @@ export default async function PantallaProyeccion({ params }: { params: Promise<{
       zonas = zona && zona.origen !== 'ninguna'
         ? {
           ascensos: zona.ascensos, promocion: zona.promocion,
-          // Regla funcional confirmada por David: de Tercera Federación descienden 3, no 2.
-          descensos: portada.federacion === 'castilla-leon' && portada.categoria === 'aficionados' && portada.division === 'tercera-federacion'
-            ? Math.max(3, zona.descensos) : zona.descensos,
+          descensos: descensosDirectos({
+            federacion: portada.federacion, categoria: portada.categoria, division: portada.division,
+            grupo: portada.grupo, equipos: portada.equipos,
+          }) ?? zona.descensos,
           promocion_permanencia: zona.promocion_permanencia,
-          origen: portada.federacion === 'castilla-leon' && portada.categoria === 'aficionados' && portada.division === 'tercera-federacion' && zona.descensos < 3
-            ? 'regla' : zona.origen,
+          origen: descensosDirectos({
+            federacion: portada.federacion, categoria: portada.categoria, division: portada.division,
+            grupo: portada.grupo, equipos: portada.equipos,
+          }) !== null ? 'reglamento' : zona.origen,
           confianza: zona.confianza, temporadas: zona.temporadas,
         }
         : historica

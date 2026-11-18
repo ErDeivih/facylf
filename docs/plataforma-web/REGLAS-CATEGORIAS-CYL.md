@@ -1,8 +1,8 @@
 # Reglas de categorías y zonas · Castilla y León
 
-Decisión funcional aportada por David el 17/11/2026. **Estado: provisional hasta contrastar con los
-reglamentos de la Federación.** Lo que no esté confirmado se marca como «por verificar» y no se usa
-para inventar plazas.
+Decisión funcional aportada por David el 17/11/2026. **Estado: contraste inicial hecho con la Circular nº 1 de la RFCYLF 2025/26 el 18/11/2026.** Las reglas que siguen se alinean con la fuente oficial en [REGLAMENTO-OFICIAL-CYL-2025-26.md](REGLAMENTO-OFICIAL-CYL-2025-26.md). Lo que la circular no fija se marca como «por verificar» y no se usa para inventar plazas.
+
+> Cambios respecto a la versión provisional: Tercera descienden 3 (confirmado); Aficionados A 4 y B 3 (confirmado); Juvenil Regional A 4 y B 3 (confirmado; los 9 era una lectura agregada); Liga Nacional Juvenil 2 + arrastre; Cadete/Infantil 3; provincial 3/2/1 según equipos.
 
 ## 1 · Orden de categorías
 
