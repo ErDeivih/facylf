@@ -168,5 +168,7 @@ python scripts/prediccion/03-simulacion.mjs
 - Simulación de clasificación final con reglas deportivas.
 - Trazabilidad: cada número sale de un fichero reproducible, no de una captura.
 
+La versión publicada el 18/11/2026 para 2026/27 es `lightgbm-98d2ed3a7e15`, con 1.788 equipos proyectados en `analytics.simulacion_final`.
+
 Los datos y el código están en el repositorio; las cifras de este documento proceden de
 `pruebas/prediccion/evaluacion.json` (generado el 16/11/2026).
