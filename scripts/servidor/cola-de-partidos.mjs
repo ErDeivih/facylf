@@ -206,14 +206,26 @@ function principal() {
     const hoy = new Date(ahora).toISOString().slice(0, 10);
     const hasta = new Date(ahora + dias * 86400e3).toISOString().slice(0, 10);
     const marca = new Date(ahora).toISOString();
+    /*
+     * Una jornada aplazada al futuro no se liberaba NUNCA por esta vía, porque sólo se miraban las que ya
+     * tenían partidos descubiertos. Medido el 18/11/2026: 4.259 jornadas seguían con `siguiente_intento`
+     * hasta mayo de 2027, así que el recolector no iba a leer sus horarios hasta la noche del partido.
+     * Ahora también cuentan las que están en el calendario (`jornadas`) con su fecha en la ventana.
+     */
     const abrir = db.prepare(`
       select distinct t.temporada, t.competicion, t.grupo, t.jornada
         from trabajos t
-        join partidos p on p.temporada = t.temporada and p.competicion = t.competicion
-                      and p.grupo = t.grupo and p.jornada = t.jornada
-       where t.tipo = 'jornada' and p.fecha >= ? and p.fecha <= ?
+       where t.tipo = 'jornada'
+         and (exists (select 1 from partidos p
+                       where p.temporada = t.temporada and p.competicion = t.competicion
+                         and p.grupo = t.grupo and p.jornada = t.jornada
+                         and p.fecha >= ? and p.fecha <= ?)
+           or exists (select 1 from jornadas j
+                       where j.temporada = t.temporada and j.competicion = t.competicion
+                         and j.grupo = t.grupo and j.numero = t.jornada
+                         and j.fecha >= ? and j.fecha <= ?))
          ${filtroTemporada ? 'and t.temporada in (select codigo from temporadas where etiqueta = ?)' : ''}
-    `).all(hoy, hasta, ...(filtroTemporada ? [filtroTemporada] : []));
+    `).all(hoy, hasta, hoy, hasta, ...(filtroTemporada ? [filtroTemporada] : []));
     const reabre = db.prepare(`update trabajos set estado = 'pendiente', siguiente_intento = ?, actualizado_en = ?,
         intentos = 0, ultimo_error = null, prioridad = ?
       where tipo = 'jornada' and estado != 'en_curso' and temporada = ? and competicion = ? and grupo = ? and jornada = ?`);
