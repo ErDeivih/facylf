@@ -38,3 +38,21 @@ pnpm --filter @facylf/web start
 
 No se ha ejecutado Lighthouse ni WebPageTest en esta ronda; las cifras de arriba son Playwright, no
 Lighthouse. Se anota la diferencia para no vender una métrica como otra.
+
+
+## Consultas medidas con pg_stat_statements
+
+Las consultas de la web (rol `facylf_lector`) con más tiempo medio en la base local:
+
+| Consulta | Media | Llamadas | Lectura |
+|---|---:|---:|---|
+| Eventos de acta | 1.660 ms | 319 | La más pesada de una página pública; candidata a índice/cache por partido |
+| Convocatorias de acta | 1.242 ms | 319 | Se puede cargar junto con los eventos |
+| Catálogo de grupos | 221 ms | 1.544 | Aceptable; cacheado |
+| Grupos del selector | 4,25 ms | 44.586 | Bien |
+| Diagnóstico de salud | 12.432 ms | 39 | **No es una página pública**; mantener fuera de la navegación normal |
+| Diagnóstico de cobertura | 34.800 ms | 2 | **No público**; no debe ejecutarse en cada visita |
+
+Acción: revisar el plan de eventos de acta y convocatorias (`EXPLAIN ANALYZE`) y añadir índice o cache
+por `match_id`; no tocar las consultas de diagnóstico, que son de administración y no del recorrido del
+usuario.
