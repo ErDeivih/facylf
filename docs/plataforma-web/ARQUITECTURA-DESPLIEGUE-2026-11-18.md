@@ -130,6 +130,8 @@ funcionando. Sin PgBouncer, dos réplicas web pueden agotar `max_connections=50`
 Caddy puede repartir entre `web:3000` y `web2:3000` con `lb_policy round_robin`. Redis es obligatorio
 en ese caso: el límite por proceso no se comparte. Si no hay Redis, se queda una sola réplica.
 
+Probado el 18/11/2026 con dos réplicas `facylf-web:test`, Redis y Caddy: `/api/salud`, `/api/ready` y home 200; 190 peticiones produjeron **11 respuestas 429**, con una única clave de Redis. El stack se apagó después.
+
 ## 5 · Observabilidad
 
 Dos capas:
