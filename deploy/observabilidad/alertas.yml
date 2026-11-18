@@ -1,0 +1,23 @@
+groups:
+  - name: facylf
+    rules:
+      - alert: WebCaida
+        expr: probe_success == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations: { summary: "Fondo Popular no responde en /api/ready" }
+      - alert: DiscoBajo
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.2
+        for: 10m
+        labels: { severity: warning }
+        annotations: { summary: "Menos del 20 % de disco libre" }
+      - alert: PostgresConexiones
+        expr: pg_stat_activity_count > 40
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "PostgreSQL por encima de 40 conexiones" }
+      - alert: HostSinMemoria
+        expr: node_memory_MemAvailable_bytes < 512 * 1024 * 1024
+        for: 5m
+        labels: { severity: warning }
+        annotations: { summary: "Menos de 512 MB de RAM disponible" }

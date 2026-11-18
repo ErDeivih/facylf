@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: Fondo Popular
+    folder: Fondo Popular
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards
