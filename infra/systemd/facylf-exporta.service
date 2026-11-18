@@ -1,0 +1,9 @@
+[Unit]
+Description=facylf - genera lote incremental para el VPS
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/facylf-exporta.sh
+# No le quita CPU a los navegadores: es lo último de la máquina.
+Nice=19
+IOSchedulingClass=idle

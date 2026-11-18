@@ -1,0 +1,10 @@
+[Unit]
+Description=facylf - genera el lote incremental para el VPS (cada 15 minutos)
+Documentation=file:///srv/data/facylf/scripts/servidor/exporta-lote.mjs
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=false
+
+[Install]
+WantedBy=timers.target
