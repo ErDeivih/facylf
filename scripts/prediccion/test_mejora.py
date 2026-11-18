@@ -75,6 +75,7 @@ class PruebasMejora(unittest.TestCase):
         jugados = pd.DataFrame([partido(1, '2025-10-04', 1, 2, (2, 1))])
         _, pts, _ = simula([1, 2, 3], jugados, [(2, 3, True), (1, 3, False)], 42,
                            tamanos=(100,), puntos_iniciales=np.array([10, 0, 0]))
+        self.assertLessEqual(float(pts[0]), 13.)
         self.assertGreaterEqual(float(pts[0]), 10.)
 
     def test_el_calendario_posterior_al_corte_no_esta_disponible(self):

@@ -65,7 +65,8 @@ def simula(equipos, jugados, partidos, semilla, posterior=True, tamanos=TAMANOS,
         pj[[h, a]] += 1
         gf[[h, a]] += [int(r.gl), int(r.gv)]
         ga[[h, a]] += [int(r.gv), int(r.gl)]
-        pts[[h, a]] += [3, 0] if r.gl > r.gv else [0, 3] if r.gl < r.gv else [1, 1]
+        if puntos_iniciales is None:
+            pts[[h, a]] += [3, 0] if r.gl > r.gv else [0, 3] if r.gl < r.gv else [1, 1]
 
     if not locales:
         raise ValueError('No hay resultados anteriores al corte')
