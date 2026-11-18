@@ -29,6 +29,10 @@ describe('reglamento oficial 2025/26', () => {
     expect(descensosDirectos({ ...base, federacion: 'andalucia' })).toBeNull();
     expect(descensosDirectos({ ...base, temporada: '2024-25' })).toBeNull();
   });
+  it('la circular 2026/27 se aplica a la temporada en curso', () => {
+    expect(descensosDirectos({ ...base, temporada: '2026-27' })).toBe(3);
+    expect(descensosDirectos({ ...base, temporada: '2026-27', categoria: 'juvenil', division: 'liga-nacional', grupo: 'Grupo III' })).toBe(2);
+  });
   it('Aficionados y Juvenil tienen arrastre pendiente; Tercera también', () => {
     expect(arrastrePendiente(base)).toBe(true);
     expect(arrastrePendiente({ ...base, division: 'primera-regional', grupo: 'Grupo A' })).toBe(true);

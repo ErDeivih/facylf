@@ -1,5 +1,5 @@
 /**
- * Descensos directos del reglamento oficial de Castilla y León 2025/26.
+ * Descensos directos del reglamento oficial de Castilla y León 2025/26 y 2026/27.
  *
  * No incluye arrastres: dependen de los movimientos entre divisiones y, sin esos datos,
  * se devuelve `null` para que la interfaz diga «pendiente» en vez de inventar un número.
@@ -20,7 +20,7 @@ function letra(grupo: string): 'A' | 'B' | null {
 }
 
 export function descensosDirectos(c: ContextoReglamento): number | null {
-  if (c.federacion !== 'castilla-leon' || c.temporada !== '2025-26') return null;
+  if (c.federacion !== 'castilla-leon' || (c.temporada !== '2025-26' && c.temporada !== '2026-27')) return null;
   const { categoria, division, equipos } = c;
   if (categoria === 'aficionados' && division === 'tercera-federacion') return 3;
   if (categoria === 'aficionados' && division === 'primera-regional') {
@@ -53,7 +53,7 @@ export function grupoConPlayoff(c: ContextoReglamento): boolean {
 
 /** ¿La cifra es solo el mínimo directo y queda un arrastre por confirmar? */
 export function arrastrePendiente(c: ContextoReglamento): boolean {
-  if (c.federacion !== 'castilla-leon' || c.temporada !== '2025-26') return false;
+  if (c.federacion !== 'castilla-leon' || (c.temporada !== '2025-26' && c.temporada !== '2026-27')) return false;
   if (c.categoria === 'aficionados' && (c.division === 'tercera-federacion' || c.division === 'primera-regional')) return true;
   if (c.categoria === 'juvenil' && (c.division === 'liga-nacional' || c.division === 'primera-regional')) return true;
   return false;

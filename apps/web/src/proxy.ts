@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { CABECERA_RUTA } from '@/lib/tema';
 import { ipDe } from '@/lib/limites';
+import { limiteRedis } from '@/lib/limite-redis';
 
 /** Límite por IP y proceso: evita que un bot recorra el catálogo a base de peticiones seguidas. */
 const VENTANA_MS = 60_000;
@@ -25,15 +26,21 @@ function limitado(ip: string, maximo: number): boolean {
  * Next 16 renombró la convención `middleware.ts` a `proxy.ts` (y la función `middleware` a `proxy`);
  * este fichero usa el nombre nuevo para no quedarse con el aviso de deprecación.
  */
-export default function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const ip = ipDe(request);
   const esApi = request.nextUrl.pathname.startsWith('/api/');
   // Las páginas admiten navegación normal; el API es mucho más estrecho. Los estáticos no pasan por aquí.
-  if (process.env.FACYLF_SIN_LIMITE !== '1' && limitado(`${esApi ? 'api' : 'web'}:${ip}`, esApi ? 40 : 180)) {
-    return new NextResponse('Demasiadas peticiones. Espera un minuto.', {
-      status: 429,
-      headers: { 'Retry-After': '60', 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
-    });
+  if (process.env.FACYLF_SIN_LIMITE !== '1') {
+    const clave = `${esApi ? 'api' : 'web'}:${ip}`;
+    const maximo = esApi ? 40 : 180;
+    const redis = await limiteRedis(clave, maximo, 60);
+    const bloqueado = redis === null ? limitado(clave, maximo) : !redis;
+    if (bloqueado) {
+      return new NextResponse('Demasiadas peticiones. Espera un minuto.', {
+        status: 429,
+        headers: { 'Retry-After': '60', 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+      });
+    }
   }
   const cabeceras = new Headers(request.headers);
   cabeceras.set(CABECERA_RUTA, request.nextUrl.pathname);

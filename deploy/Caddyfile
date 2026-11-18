@@ -1,0 +1,8 @@
+# Cambia el dominio por el real; Caddy pide el certificado automáticamente.
+{$SITE_ADDRESS:localhost} {
+  encode zstd gzip
+  reverse_proxy web:3000 {
+    # Caddy añade la IP real del cliente al final de X-Forwarded-For.
+    header_up X-Real-IP {remote_host}
+  }
+}
