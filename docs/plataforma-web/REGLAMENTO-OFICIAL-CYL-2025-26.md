@@ -78,6 +78,10 @@ Sin los movimientos oficiales de la temporada, el sistema debe mostrar **«pendi
 - `analytics.reglamento_grupo` puede guardar un total que ya incluya arrastre (por ejemplo, 3 en Liga Nacional Juvenil). La web muestra la cifra **directa** de la circular y añade «pendiente de arrastre»; no se cambia la tabla histórica sin fuente.
 - La baja/el cambio de contraseña no tienen relación con esta circular.
 
+## Inferencia histórica
+
+[INFERENCIA-ARRASTRES.md](INFERENCIA-ARRASTRES.md) compara los clubes de cada división entre temporadas consecutivas. Sirve para detectar años con más salidas que plazas directas; no sustituye la plaza oficial.
+
 ## Aplicación en la web
 
 - `apps/web/src/lib/reglamento.ts` centraliza los descensos directos.
