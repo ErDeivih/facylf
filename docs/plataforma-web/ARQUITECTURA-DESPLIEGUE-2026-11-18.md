@@ -179,6 +179,8 @@ Resultado: `/api/salud` 200, `/api/ready` 200 contra PostgreSQL real, home 200 y
 
 Además se levantó el stack local **web + Redis + Caddy + PostgreSQL** en el puerto 8090: `/api/salud` y `/api/ready` 200, home 200 y **11 respuestas 429** en una ráfaga de 190 peticiones, con la clave de Redis creada. El stack se apagó después de la prueba.
 
+Caddy: `caddy validate` → `Valid configuration`. Prometheus: `promtool check config` → configuración válida y 6 reglas. Se ejecutó dentro de contenedores, copiando los ficheros, para evitar la conversión de rutas de Windows.
+
 ## 8 · Puesta en marcha
 
 ```bash
