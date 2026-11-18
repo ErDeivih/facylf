@@ -1,5 +1,14 @@
 # Despliegue de Fondo Popular
 
+## Imagen verificada
+
+La imagen se construye desde un archivo limpio, no desde el árbol de trabajo:
+
+```bash
+git archive --format=tar HEAD | tar -xf - -C tmp/contexto-docker
+docker build -f tmp/contexto-docker/apps/web/Dockerfile -t facylf-web:test tmp/contexto-docker
+```
+
 ## Opción recomendada (Coolify o VPS)
 
 1. Copia `deploy/` al servidor.

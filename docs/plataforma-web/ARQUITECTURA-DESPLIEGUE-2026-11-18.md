@@ -165,6 +165,18 @@ Antes de abrir:
    scroll horizontal.
 5. Revisar `revalidate` y tags: no cachear datos de cuenta.
 
+## 7.1 · Imagen verificada
+
+El 18/11/2026 se construyó la imagen desde un **archivo limpio de Git** (109 MB de contexto, no los 18 GB del árbol de trabajo):
+
+```bash
+git archive --format=tar HEAD | tar -xf - -C tmp/contexto-docker
+docker build -f tmp/contexto-docker/apps/web/Dockerfile -t facylf-web:test tmp/contexto-docker
+docker run --env-file ... -p 3100:3000 facylf-web:test
+```
+
+Resultado: `/api/salud` 200, `/api/ready` 200 contra PostgreSQL real, home 200 y competición 308 (redirección normal). La imagen `facylf-web:test` se construyó correctamente.
+
 ## 8 · Puesta en marcha
 
 ```bash
