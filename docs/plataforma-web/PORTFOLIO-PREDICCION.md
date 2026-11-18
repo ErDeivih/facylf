@@ -119,6 +119,7 @@ python scripts/prediccion/03-simulacion.mjs
   existe para detectarlo, no para esconderlo.
 - **Filiales**: el nombre no basta para separar primer equipo y filial; se usa club + nombre exacto.
 - **Arrastres**: dependen de movimientos oficiales; sin ellos, el sistema muestra «pendiente».
+- **Deducciones de puntos**: la simulación reconstruye los puntos desde los marcadores. Las sanciones oficiales que restan puntos no están incorporadas todavía; es una limitación conocida, no un cero.
 - **No es un sistema de apuestas**: no hay cuotas, ni value betting, ni recomendación económica.
 
 ## 10 · Qué demuestra este proyecto
