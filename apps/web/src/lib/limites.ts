@@ -12,6 +12,7 @@
 const VENTANA_MS = 10 * 60 * 1000;
 
 const golpes = new Map<string, number[]>();
+const MAX_CLAVES = 5_000;
 
 /** ¿Queda margen en esta ventana? Devuelve además cuántos segundos faltan para el siguiente hueco. */
 export function permite(clave: string, maximo: number, ventanaMs = VENTANA_MS, ahora = Date.now()): boolean {
@@ -23,6 +24,10 @@ export function permite(clave: string, maximo: number, ventanaMs = VENTANA_MS, a
   }
   previos.push(ahora);
   golpes.set(clave, previos);
+  if (golpes.size > MAX_CLAVES) {
+    const primera = golpes.keys().next().value;
+    if (primera !== undefined) golpes.delete(primera);
+  }
   return true;
 }
 
@@ -33,11 +38,13 @@ export function reiniciaLimites(): void {
 
 /** Dirección del cliente según la cabecera del proxy. Sólo se usa como clave en memoria. */
 export function ipDe(peticion: Request): string {
-  // Cloudflare y los proxies de confianza mandan la IP real en cabeceras que el cliente no controla.
-  const cf = peticion.headers.get('cf-connecting-ip')?.trim();
-  if (cf) return cf;
-  const real = peticion.headers.get('x-real-ip')?.trim();
-  if (real) return real;
+  // CF/X-Real-IP solo son fiables si la web está detrás de un proxy de confianza que las sobrescribe.
+  if (process.env.FACYLF_CONFIANZA_PROXY === '1') {
+    const cf = peticion.headers.get('cf-connecting-ip')?.trim();
+    if (cf) return cf;
+    const real = peticion.headers.get('x-real-ip')?.trim();
+    if (real) return real;
+  }
   // X-Forwarded-For puede traer una cadena del cliente; el proxy añade la suya al final.
   const reenviada = peticion.headers.get('x-forwarded-for');
   if (reenviada) {

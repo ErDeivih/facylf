@@ -10,6 +10,7 @@
  *
  * Nada de esto toca datos de sesión: la API pública no lee cookies ni consultas de cuenta.
  */
+import { ipDe } from './limites';
 
 import { createHash } from 'node:crypto';
 import { limitePorIp } from './limite-api';
@@ -189,10 +190,7 @@ export function etagCoincide(ifNoneMatch: string | null, etag: string): boolean 
 
 /** La IP del cliente según el proxy; sin cabecera no se inventa una: se agrupa como `desconocida`. */
 export function ipDePeticion(req: Request): string {
-  const reenviada = (req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim();
-  if (reenviada) return reenviada;
-  const real = (req.headers.get('x-real-ip') ?? '').trim();
-  return real !== '' ? real : 'desconocida';
+  return ipDe(req);
 }
 
 /**
