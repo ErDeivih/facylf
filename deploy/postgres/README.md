@@ -3,7 +3,7 @@
 No se toca el ingestor: sólo se publica lo que ya escribe en `core`, `analytics` y la tabla de
 invalidación de caché.
 
-1. En la primaria, comprobar `wal_level=replica` y crear un rol de replicación:
+1. En la primaria, `wal_level` debe ser **logical** (hoy está en `replica`): cambiarlo exige reiniciar PostgreSQL en una ventana de mantenimiento. Crear un rol de replicación:
    `create role facylf_replica replication login password '...';`
 2. Añadir `pg_hba.conf` para la IP del VPS (SSL obligatorio) y recargar.
 3. Ejecutar `publicacion.sql` en la primaria.
