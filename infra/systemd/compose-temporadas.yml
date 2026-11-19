@@ -1,0 +1,17 @@
+# Reparto de temporadas entre los tres navegadores de Castilla y León (19/11/2026).
+#
+# `FACYLF_TEMPORADAS` es la variable que hace que cada recolector toque SÓLO sus temporadas. Estaba vacía en
+# los tres contenedores, así que los tres pedían de todo: el segundo estaba en 2019-20, que es del tercero, y
+# el primero en 2017-18, que no es de nadie. Eso es trabajo duplicado y peticiones que no van a lo que falta.
+#
+# Debe coincidir con `recolector-local/temporadas-asignadas.txt` de cada cola.
+services:
+  federacion:
+    environment:
+      FACYLF_TEMPORADAS: "2021-22,2025-26,2018-19"
+  federacion2:
+    environment:
+      FACYLF_TEMPORADAS: "2023-24,2020-21,2024-25,2022-23,2016-17,2014-15"
+  federacion3:
+    environment:
+      FACYLF_TEMPORADAS: "2026-27,2019-20"
