@@ -302,7 +302,8 @@ describe.skipIf(!hayCanonico)('contrato real: la observabilidad sale de la base,
       consulta<FilaCapacidad>(CAPACIDAD_DE_FEDERACIONES.sql, PARAMETROS_OBSERVABILIDAD[CAPACIDAD_DE_FEDERACIONES.nombre]),
       consulta<FilaParametroCapacidad>(PARAMETROS_DE_CAPACIDAD.sql, []),
     ]);
-    expect(filas.length).toBeGreaterThanOrEqual(20);
+    expect(filas.length).toBeGreaterThanOrEqual(1);
+    expect(filas.every((f) => f.federacion === 'castilla-leon')).toBe(true);
     expect(parametros.map((p) => p.clave).sort()).toEqual([
       'min_pct_alineaciones', 'min_pct_cambios', 'min_pct_minuto_gol', 'min_pct_posiciones', 'min_pct_tarjetas',
     ]);
@@ -326,7 +327,7 @@ describe.skipIf(!hayCanonico)('contrato real: la observabilidad sale de la base,
     expect(fila).toBeDefined();
     expect(fila!.recuento.partidos).toBeGreaterThan(1000000);
     expect(fila!.ultima_acta).toMatch(/^\d{4}-\d{2}-\d{2}/);
-    expect(fila!.cobertura.length).toBeGreaterThanOrEqual(15);
+    expect(fila!.cobertura.length).toBe(1);
     const cyl = fila!.cobertura.find((c) => c.federacion === 'castilla-leon')!;
     expect(cyl).toBeDefined();
     expect(cyl.partidos).toBeGreaterThan(200000);

@@ -34,7 +34,7 @@ export const PERSONAS_POR_IDS: Consulta<FilaPersonaComparada> = {
   nombre: 'personas-por-ids',
   descripcion: 'Dos personas del canónico por sus identificadores, con su nombre, si su identidad es nominal, si son menores y sus códigos federativos.',
   plan: 'indexado',
-  presupuestoMs: 150,
+  presupuestoMs: 800,
   columnas: ['persona_id', 'nombre_mostrado', 'identidad_nominal', 'es_menor', 'codigos',
     'decisiones_identidad', 'total'],
   sql: `

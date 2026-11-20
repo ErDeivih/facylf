@@ -419,22 +419,14 @@ describe.skipIf(!hayCanonico)('historial contra el canónico real', () => {
     expect(minutosPorPartido).toBeLessThan(100);
   });
 
-  it('una persona sin apariciones devuelve una fila con la lista vacía; un id inexistente no devuelve fila', async () => {
-    const sinApariciones = await historialReal(PERSONA_SIN_APARICIONES);
-    expect(sinApariciones).toBeDefined();
-    expect(sinApariciones!.apariciones).toEqual([]);
-    expect(agrupaHistorial(sinApariciones!.apariciones)).toEqual([]);
-
+  it('una persona sin apariciones en CyL no devuelve fila; un id inexistente tampoco', async () => {
+    expect(await historialReal(PERSONA_SIN_APARICIONES)).toBeUndefined();
     expect(await historialReal(999999999)).toBeUndefined();
   });
 
-  it('una persona de otra federación no enseña ninguna aparición por el rol de lectura', async () => {
-    // 1181455 tiene todas sus apariciones en Cantabria: la persona existe en el canónico, pero la
-    // publicación es sólo de CyL y su historial publicado queda vacío.
-    const fila = await historialReal(PERSONA_DE_OTRA_FEDERACION);
-    expect(fila).toBeDefined();
-    expect(fila!.persona_id).toBe(PERSONA_DE_OTRA_FEDERACION);
-    expect(fila!.apariciones).toEqual([]);
-    expect(agrupaHistorial(fila!.apariciones)).toEqual([]);
+  it('una persona de otra federación no se publica: el historial no devuelve fila', async () => {
+    // 1181455 tiene todas sus apariciones en Cantabria. La fase C publica sólo CyL, así que no hay
+    // fila pública que enseñar.
+    expect(await historialReal(PERSONA_DE_OTRA_FEDERACION)).toBeUndefined();
   });
 });

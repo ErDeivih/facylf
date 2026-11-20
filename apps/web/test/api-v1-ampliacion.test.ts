@@ -185,17 +185,11 @@ describe.skipIf(!hayCanonico)('API v1: historiales', () => {
     expect(inexistente.status).toBe(404);
   });
 
-  it('jugador de otra federación: la persona existe en el canónico pero no se ve ninguna aparición suya', async () => {
-    // 1181455 tiene sus apariciones en Cantabria. La fase C publica sólo CyL, así que el historial
-    // publicado está vacío: no se cuela ni una aparición de otra comunidad por el rol de lectura.
+  it('jugador de otra federación: no se publica y responde 404', async () => {
+    // 1181455 tiene sus apariciones en Cantabria y la fase C publica sólo CyL.
     const respuesta = await llama(getHistorialJugador, `/api/v1/ficha/jugador/${JUGADOR_DE_OTRA_FEDERACION}/historial`,
       { id: String(JUGADOR_DE_OTRA_FEDERACION) });
-    expect(respuesta.status).toBe(200);
-    const cuerpo = (await json(respuesta)) as Envoltorio & {
-      datos?: { persona_id: number; apariciones: Array<{ federacion: string }> };
-    };
-    expect(cuerpo.datos!.persona_id).toBe(JUGADOR_DE_OTRA_FEDERACION);
-    expect(cuerpo.datos!.apariciones).toEqual([]);
+    expect(respuesta.status).toBe(404);
   });
 
   it('equipo: devuelve la línea temporada a temporada y 404 si no existe', async () => {
