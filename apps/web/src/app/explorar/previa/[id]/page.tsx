@@ -235,17 +235,35 @@ export default async function PantallaPrevia({ params }: { params: Promise<{ id:
               </p>
             </header>
             {plantilla.jugadores.length > 0 && (
-              <ul className="m-0 list-none p-0">
-                {plantilla.jugadores.map((j) => (
-                  <li key={j.nombre} className="flex items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2">
-                    <span className="flex min-w-0 items-center gap-2"><FotoJugador personaId={j.persona_id} nombre={j.nombre} permitida={conFotos} /><span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span></span>
-                    <span className="flex-none text-nota tabular-nums text-[var(--texto-suave)]">
-                      {j.minutos == null ? 'minutos sin publicar' : `${j.minutos} min`}
-                      {j.goles > 0 ? ` · ${j.goles} ${j.goles === 1 ? 'gol' : 'goles'}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className="m-0 list-none p-0">
+                  {plantilla.jugadores.slice(0, 8).map((j) => (
+                    <li key={j.nombre} className="flex items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] px-4 py-2">
+                      <span className="flex min-w-0 items-center gap-2"><FotoJugador personaId={j.persona_id} nombre={j.nombre} permitida={conFotos} /><span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span></span>
+                      <span className="flex-none text-nota tabular-nums text-[var(--texto-suave)]">
+                        {j.minutos == null ? '' : `${j.minutos} min`}
+                        {j.goles > 0 ? ` · ${j.goles} ${j.goles === 1 ? 'gol' : 'goles'}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {plantilla.jugadores.length > 8 && (
+                  <details className="border-t border-[var(--fondo-sutil)] px-4 py-2">
+                    <summary className="cursor-pointer text-nota font-semibold text-[var(--accion)]">Ver los {plantilla.jugadores.length - 8} restantes</summary>
+                    <ul className="m-0 mt-1 list-none p-0">
+                      {plantilla.jugadores.slice(8).map((j) => (
+                        <li key={j.nombre} className="flex items-center justify-between gap-3 border-t border-[var(--fondo-sutil)] py-2">
+                          <span className="flex min-w-0 items-center gap-2"><FotoJugador personaId={j.persona_id} nombre={j.nombre} permitida={conFotos} /><span className="min-w-0 break-words text-tabla text-[var(--texto)]">{j.nombre}</span></span>
+                          <span className="flex-none text-nota tabular-nums text-[var(--texto-suave)]">
+                            {j.minutos == null ? '' : `${j.minutos} min`}
+                            {j.goles > 0 ? ` · ${j.goles} ${j.goles === 1 ? 'gol' : 'goles'}` : ''}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </>
             )}
           </section>
         ))}
