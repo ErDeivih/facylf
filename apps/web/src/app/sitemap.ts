@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001';
-  const fijas = ['', '/explorar/competiciones', '/explorar/proximas', '/explorar/estadisticas',
+  const fijas = ['', '/explorar', '/explorar/competiciones', '/explorar/proximas', '/explorar/estadisticas',
     '/explorar/rankings', '/explorar/goleadores', '/explorar/modelo', '/explorar/legal'];
   const rutas: MetadataRoute.Sitemap = fijas.map((ruta) => ({
     url: `${base}${ruta}`, changeFrequency: 'daily', priority: ruta === '' ? 1 : 0.7,

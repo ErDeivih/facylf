@@ -4,7 +4,7 @@ import Selector from '@/app/explorar/competiciones/page';
 import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
 
 const CATEGORIAS = new Set([
-  'aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin',
+  'aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin', 'veteranos',
 ]);
 
 export const dynamic = 'force-dynamic';

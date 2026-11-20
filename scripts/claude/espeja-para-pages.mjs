@@ -16,6 +16,7 @@ const [origen = 'http://127.0.0.1:3001', salida = 'tmp/site-pages', base = '/fon
 const RUTAS = [
   '/',
   '/explorar/equipo/8871',
+  '/explorar',
   '/explorar/competiciones',
   '/explorar/competiciones/categoria/aficionados',
   '/explorar/competiciones/categoria/juvenil',
@@ -24,6 +25,7 @@ const RUTAS = [
   '/explorar/competiciones/categoria/alevin',
   '/explorar/competiciones/categoria/benjamin',
   '/explorar/competiciones/categoria/prebenjamin',
+  '/explorar/competiciones/categoria/veteranos',
   '/explorar/competiciones/provincia/avila',
   '/explorar/competiciones/provincia/burgos',
   '/explorar/competiciones/provincia/leon',

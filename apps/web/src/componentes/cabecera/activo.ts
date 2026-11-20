@@ -19,7 +19,7 @@ export type SeccionActiva = 'explorar' | 'rankings' | 'ojeo' | 'comparar' | null
 const RUTAS_DE_EXPLORAR = ['/explorar', '/competiciones'] as const;
 
 /** Rutas de la sección Rankings. */
-const RUTAS_DE_RANKINGS = ['/explorar/estadisticas', '/explorar/rankings'] as const;
+const RUTAS_DE_RANKINGS = ['/explorar/estadisticas', '/explorar/rankings', '/explorar/goleadores'] as const;
 
 /** Rutas de la sección Ojeo. */
 const RUTAS_DE_OJEO = ['/explorar/ojeo'] as const;

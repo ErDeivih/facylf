@@ -16,6 +16,7 @@ const CATEGORIAS = [
   ['alevin', 'Alevín'],
   ['benjamin', 'Benjamín'],
   ['prebenjamin', 'Prebenjamín'],
+  ['veteranos', 'Veteranos'],
 ] as const;
 
 /** Goleadores de una categoría concreta, nunca mezclando alevines con Tercera Federación. */
@@ -54,13 +55,13 @@ export default async function PantallaGoleadores({ searchParams }: {
       </nav>
       <nav aria-label="Modalidad" className="flex flex-wrap gap-1.5">
         {[['futbol', 'Fútbol'], ['sala', 'Fútbol sala']].map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores/${clave}/${genero}` as Route}
+          <Link key={clave} href={`/explorar/goleadores/${clave}/${genero}/${categoria}` as Route}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === modalidad ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
         ))}
       </nav>
       <nav aria-label="Género" className="flex flex-wrap gap-1.5">
         {[['masculina', 'Masculino'], ['femenina', 'Femenino'], ['mixta', 'Mixto'], ['desconocido', 'Sin clasificar']].map(([clave, texto]) => (
-          <Link key={clave} href={`/explorar/goleadores/${modalidad}/${clave}` as Route}
+          <Link key={clave} href={`/explorar/goleadores/${modalidad}/${clave}/${categoria}` as Route}
             className={`inline-flex min-h-11 items-center rounded-[var(--radius-control)] border px-3 text-tabla font-semibold ${clave === genero ? 'border-[var(--accion)] text-[var(--accion)]' : 'border-[var(--borde)] text-[var(--texto-suave)]'}`}>{texto}</Link>
         ))}
       </nav>

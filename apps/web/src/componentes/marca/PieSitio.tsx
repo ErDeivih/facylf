@@ -12,6 +12,7 @@ const GRUPOS: readonly { titulo: string; enlaces: readonly { texto: string; href
   {
     titulo: 'Competición',
     enlaces: [
+      { texto: 'Explorar', href: '/explorar' },
       { texto: 'Competiciones', href: '/explorar/competiciones' },
       { texto: 'Próximos partidos', href: '/explorar/proximas' },
       { texto: 'Calendario', href: '/explorar/calendario' },

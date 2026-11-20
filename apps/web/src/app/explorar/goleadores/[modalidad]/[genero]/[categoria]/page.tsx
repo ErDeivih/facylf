@@ -15,6 +15,6 @@ export default async function PantallaGoleadoresCategoria({ params }: {
   const { modalidad, genero, categoria } = await params;
   if (!['futbol', 'sala'].includes(modalidad)
     || !['masculina', 'femenina', 'mixta', 'desconocido'].includes(genero)
-    || !['aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin'].includes(categoria)) notFound();
+    || !['aficionados', 'juvenil', 'cadete', 'infantil', 'alevin', 'benjamin', 'prebenjamin', 'veteranos'].includes(categoria)) notFound();
   return Goleadores({ searchParams: Promise.resolve({ modalidad, genero, categoria }) });
 }

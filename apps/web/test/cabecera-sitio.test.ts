@@ -105,12 +105,12 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
 
   it('cada función dice para qué sirve y las cuatro navegan', () => {
     const nav = navFunciones(pinta());
-    expect(nav).toMatch(/<a[^>]*href="\/explorar\/competiciones"/);
+    expect(nav).toMatch(/<a[^>]*href="\/explorar"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/goleadores"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/ojeo"/);
     expect(nav).toMatch(/<a[^>]*href="\/explorar\/comparar"/);
     for (const [etiqueta, descriptor] of [
-      ['Competiciones', 'Ligas y grupos'],
+      ['Explorar', 'Ligas, equipos y datos'],
       ['Goleadores', 'Goles y tarjetas'],
       ['Jugadores', 'Buscar por perfil'],
       ['Comparar', 'Jugador frente a jugador'],
@@ -130,7 +130,7 @@ describe('cabecera del sitio · buscador y funciones explicadas', () => {
 
   it('sólo la sección activa lleva aria-current, y la decide la ruta', () => {
     expect(pinta(null)).not.toContain('aria-current');
-    expect(navFunciones(pinta('explorar'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Competiciones/);
+    expect(navFunciones(pinta('explorar'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Explorar/);
     expect(navFunciones(pinta('rankings'))).toMatch(/<a[^>]*aria-current="page"[^>]*>[\s\S]*?Goleadores/);
   });
 

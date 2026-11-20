@@ -43,9 +43,9 @@ type Funcion = {
 const FUNCIONES: readonly Funcion[] = [
   {
     clave: 'explorar',
-    etiqueta: 'Competiciones',
-    descriptor: 'Ligas y grupos',
-    href: '/explorar/competiciones',
+    etiqueta: 'Explorar',
+    descriptor: 'Ligas, equipos y datos',
+    href: '/explorar',
     icono: <IconoExplorar />,
   },
   {
