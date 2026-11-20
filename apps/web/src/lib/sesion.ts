@@ -59,8 +59,8 @@ export async function sesionActual(): Promise<Sesion | null> {
 }
 
 /** Crea la sesión en la base y escribe la cookie. Sólo desde un route handler o una action. */
-export async function iniciaSesion(userId: string): Promise<void> {
-  const token = await creaSesionPara(userId);
+export async function iniciaSesion(userId: string, passwordHash?: string): Promise<void> {
+  const token = await creaSesionPara(userId, passwordHash);
   (await cookies()).set(SESION_COOKIE, token, opcionesCookieSesion());
 }
 

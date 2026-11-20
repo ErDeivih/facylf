@@ -62,7 +62,7 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     if (estado === 'caducada') return atras(peticion, 'caducada', destino);
 
     await limpiaSesiones();
-    await iniciaSesion(credencial.user_id);
+    await iniciaSesion(credencial.user_id, credencial.password_hash);
     return NextResponse.redirect(new URL(destino ?? '/mi-panel', peticion.url), 303);
   } catch (error) {
     // Sin traza al usuario. El detalle se queda en el registro del servidor.

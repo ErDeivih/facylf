@@ -59,10 +59,20 @@ export async function altaCuenta(datos: {
   return filas[0]?.estado ?? 'pendiente';
 }
 
-/** Crea una sesión y devuelve el token que va al navegador (en la base queda su SHA-256). */
-export async function creaSesionPara(userId: string): Promise<string> {
+/**
+ * Crea una sesión y devuelve el token que va al navegador (en la base queda su SHA-256).
+ *
+ * Si se pasa el hash de la contraseña verificada, la base comprueba bajo bloqueo que la credencial
+ * no ha cambiado entre la verificación y la creación; así una entrada concurrente no sobrevive a un
+ * cambio de contraseña.
+ */
+export async function creaSesionPara(userId: string, passwordHash?: string): Promise<string> {
   const token = tokenDeSesion();
-  await consulta('select app.crea_sesion($1, $2)', [userId, sha256Hex(token)], { rol: 'app' });
+  if (passwordHash) {
+    await consulta('select app.crea_sesion_si_credencial($1, $2, $3)', [userId, passwordHash, sha256Hex(token)], { rol: 'app' });
+  } else {
+    await consulta('select app.crea_sesion($1, $2)', [userId, sha256Hex(token)], { rol: 'app' });
+  }
   return token;
 }
 
