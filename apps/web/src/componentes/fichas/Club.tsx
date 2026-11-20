@@ -93,7 +93,7 @@ export function EquiposDeLaTemporada({ filas, temporada }: {
                       {equipo.posicion === null ? '—' : `${equipo.posicion}º`}
                     </span>
                     <span className="text-nota text-[var(--texto-suave)]">
-                      {equipo.puntos === null ? 'Sin puntos' : `${formatoNumero(equipo.puntos)} pts`}
+                      {equipo.puntos === null ? 'No publicado' : `${formatoNumero(equipo.puntos)} pts`}
                     </span>
                   </span>
                 </Link>
@@ -110,7 +110,7 @@ export function EvolucionDelClub({ evolucion }: { evolucion: Evolucion }) {
     <section aria-labelledby="evolucion-club" className={`${TARJETA} overflow-hidden`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3.5">
         <h2 id="evolucion-club" className="m-0 text-bloque font-bold text-[var(--texto)]">Evolución de cada equipo</h2>
-        <span className="text-nota text-[var(--texto-suave)]">Puesto final de cada temporada</span>
+        <span className="text-nota text-[var(--texto-suave)]">Puesto por temporada; la más reciente puede estar en curso</span>
       </div>
       {evolucion.temporadas.length === 0
         ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">Sin temporadas publicadas.</p>
@@ -122,7 +122,7 @@ export function EvolucionDelClub({ evolucion }: { evolucion: Evolucion }) {
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
             <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 560 }}>
               <caption className="sr-only">
-                Puesto final de cada equipo del club en las últimas temporadas, con la flecha de si sube o baja respecto a la anterior.
+                Puesto de cada equipo del club por temporada; la columna más reciente puede estar en curso. La flecha indica si sube o baja respecto a la anterior.
               </caption>
               <thead>
                 <tr className="text-etiqueta text-[var(--texto-suave)]">

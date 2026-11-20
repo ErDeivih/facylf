@@ -120,6 +120,8 @@ export function ResumenDelEquipo({ equipo, resumen }: { equipo: FilaEquipo; resu
 }
 
 export function GolesPorTramo({ tramos }: { tramos: readonly TramoCompleto[] | null }) {
+  const totalFavor = tramos?.reduce((suma, t) => suma + t.favor, 0) ?? 0;
+  const totalContra = tramos?.reduce((suma, t) => suma + t.contra, 0) ?? 0;
   const maximo = tramos === null ? 1 : Math.max(1, ...tramos.map((t) => Math.max(t.favor, t.contra)));
   return (
     <section aria-labelledby="goles-tramo" className={`${TARJETA} flex flex-col gap-3 p-4`}>
@@ -156,7 +158,7 @@ export function GolesPorTramo({ tramos }: { tramos: readonly TramoCompleto[] | n
           </ul>
         )}
       <p className="m-0 text-nota leading-5 text-[var(--texto-suave)]">
-        Sólo los goles con minuto publicado en el acta. Los de propia puerta cuentan para el rival.
+        {tramos === null ? 'No hay actas con el minuto de los goles.' : `Representados ${totalFavor} goles a favor y ${totalContra} en contra con minuto. El resto no tiene minuto y no entra en las barras. Los de propia puerta cuentan para el rival.`}
       </p>
     </section>
   );
@@ -189,7 +191,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
               </caption>
               <thead>
                 <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
-                  <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] w-[150px] min-w-[150px] max-w-[150px] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Jugador</th>
+                  <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] w-[170px] min-w-[170px] max-w-[170px] md:w-[260px] md:min-w-[260px] md:max-w-[260px] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Jugador</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">PJ</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Tit.</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Minutos</th>
@@ -205,7 +207,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                     : porcentajeDeMinutos(minimos, partidosElegibles);
                   return (
                     <tr key={fila.persona_id} className="text-right">
-                      <td className="sticky left-0 z-[var(--capa-pegajoso)] w-[150px] min-w-[150px] max-w-[150px] border-t border-[var(--fondo-sutil)] bg-[var(--fondo-elevado)] py-1.5 pl-4 pr-1.5 text-left">
+                      <td className="sticky left-0 z-[var(--capa-pegajoso)] w-[170px] min-w-[170px] max-w-[170px] md:w-[260px] md:min-w-[260px] md:max-w-[260px] border-t border-[var(--fondo-sutil)] bg-[var(--fondo-elevado)] py-1.5 pl-4 pr-1.5 text-left">
                         <Link href={`/explorar/jugador/${fila.persona_id}` as Route}
                           className="flex min-h-8 items-center gap-2.5 text-[var(--texto)] hover:text-[var(--accion)] hover:underline">
                           <span aria-hidden="true" title={fila.dorsales ?? undefined}
@@ -214,7 +216,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                                 para todos, así que se enseña el primero y el resto queda en el `title`. */}
                             {fila.dorsales ? fila.dorsales.split('·')[0]!.trim() : ''}
                           </span>
-                          <span className="truncate font-semibold" title={fila.nombre_mostrado}>{fila.nombre_mostrado}</span>
+                          <span className="font-semibold leading-tight" title={fila.nombre_mostrado}>{fila.nombre_mostrado}</span>
                           <span className="text-nota text-[var(--texto-suave)]">
                             {fila.portero ? 'POR' : 'JUG'}
                           </span>

@@ -197,7 +197,7 @@ export function TablaTrayectoria({ filas }: { filas: readonly FilaTemporadaDePer
           </>
         )}
       <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-nota leading-5 text-[var(--texto-suave)]">
-        Una persona puede tener dos filas en la misma temporada: son dos equipos distintos, con su propia competición.
+        Cada fila es una participación en una competición. Un mismo equipo puede aparecer más de una vez en una temporada si jugó liga y playoff.
       </p>
     </section>
   );
