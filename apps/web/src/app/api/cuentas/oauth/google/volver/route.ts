@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { consulta } from '@/consultas/adaptadores/postgres/conexion';
 import { urlVolverSegura } from '@/lib/cuentas';
-import { iniciaSesion } from '@/lib/sesion';
+import { sha256Hex } from '@/lib/contrasenas';
+import { iniciaSesion, sesionActual, SESION_COOKIE } from '@/lib/sesion';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +18,7 @@ export const runtime = 'nodejs';
 const COOKIE_ESTADO = 'facylf_oauth_estado';
 const COOKIE_VERIFICADOR = 'facylf_oauth_verificador';
 const COOKIE_VOLVER = 'facylf_oauth_volver';
+const COOKIE_REAUTH = 'facylf_oauth_reauth';
 
 function baseUrl(peticion: Request): string {
   return (process.env.OAUTH_BASE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? new URL(peticion.url).origin).replace(/\/$/, '');
@@ -41,6 +44,7 @@ export async function GET(peticion: Request): Promise<NextResponse> {
 
   const verificador = obtener(COOKIE_VERIFICADOR);
   const volver = urlVolverSegura(obtener(COOKIE_VOLVER));
+  const reauth = obtener(COOKIE_REAUTH) === '1';
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   if (!verificador || !clientId || !clientSecret) return atras(peticion, 'oauth-no-configurado');
@@ -75,6 +79,29 @@ export async function GET(peticion: Request): Promise<NextResponse> {
       return atras(peticion, 'oauth-correo');
     }
 
+    // Reautenticación para una operación sensible: no crea ni enlaza cuentas. Exige que la identidad
+    // de Google pertenezca a la sesión actual y marca esa sesión durante quince minutos.
+    if (reauth) {
+      const sesion = await sesionActual();
+      const almacen = await cookies();
+      const token = almacen.get(SESION_COOKIE)?.value;
+      if (!sesion || !token) return atras(peticion, 'sesion');
+      const identidad = await consulta<{ user_id: string }>(
+        'select user_id from app.oauth_identidad where proveedor = $1 and sujeto = $2 and user_id = $3',
+        ['google', perfil.sub, sesion.userId], { rol: 'app' },
+      );
+      if (!identidad[0]) return atras(peticion, 'oauth-cuenta');
+      const marcada = await consulta<{ ok: boolean }>(
+        'select app.marca_reauth_oauth($1, $2) as ok', [sha256Hex(token), sesion.userId], { rol: 'app' },
+      );
+      if (!marcada[0]?.ok) return atras(peticion, 'oauth-error');
+      const respuesta = NextResponse.redirect(new URL('/mi-cuenta?reauth=ok', peticion.url));
+      for (const nombre of [COOKIE_ESTADO, COOKIE_VERIFICADOR, COOKIE_VOLVER, COOKIE_REAUTH]) {
+        respuesta.cookies.set(nombre, '', { path: '/api/cuentas/oauth', maxAge: 0 });
+      }
+      return respuesta;
+    }
+
     const filas = await consulta<{ user_id: string }>(
       'select app.alta_cuenta_oauth($1, $2, $3, $4, $5) as user_id',
       [randomUUID(), 'google', perfil.sub, perfil.email, typeof perfil.name === 'string' ? perfil.name : null],
@@ -92,7 +119,7 @@ export async function GET(peticion: Request): Promise<NextResponse> {
 
     await iniciaSesion(userId);
     const respuesta = NextResponse.redirect(new URL(volver ?? '/mi-panel', peticion.url), 303);
-    for (const nombre of [COOKIE_ESTADO, COOKIE_VERIFICADOR, COOKIE_VOLVER]) {
+    for (const nombre of [COOKIE_ESTADO, COOKIE_VERIFICADOR, COOKIE_VOLVER, COOKIE_REAUTH]) {
       respuesta.cookies.set(nombre, '', { path: '/api/cuentas/oauth', maxAge: 0 });
     }
     return respuesta;

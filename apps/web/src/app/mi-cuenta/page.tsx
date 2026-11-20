@@ -40,5 +40,5 @@ export default async function PantallaMiCuenta({ searchParams }: {
   if (!fila) return <MiCuentaError />;
 
   return <MiCuenta perfil={normalizaPerfil(fila)} correo={null}
-    aviso={['preferencias','preferencias-error','origen','contrasena','contrasena-actual','contrasena-error','baja-error','baja-confirmacion','baja-credencial','baja-intentos','perfil','perfil-error'].includes(aviso ?? '') ? aviso as 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' : null} />;
+    aviso={['preferencias','preferencias-error','origen','contrasena','contrasena-actual','contrasena-error','baja-error','baja-confirmacion','baja-credencial','baja-intentos','baja-reauth','perfil','perfil-error'].includes(aviso ?? '') ? aviso as 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' : null} />;
 }

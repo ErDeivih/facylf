@@ -25,7 +25,7 @@ const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 export function MiCuenta({ perfil, correo = null, aviso = null }: {
   perfil: PerfilCuenta;
   correo?: string | null;
-  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'baja-confirmacion' | 'baja-credencial' | 'baja-intentos' | 'perfil' | 'perfil-error' | null;
+  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'baja-confirmacion' | 'baja-credencial' | 'baja-intentos' | 'baja-reauth' | 'perfil' | 'perfil-error' | null;
 }) {
   const estado = estadoDeCuenta(perfil);
   const correoVisible = correo === null ? null : enmascaraCorreo(correo);
@@ -56,6 +56,7 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
         {aviso === 'baja-confirmacion' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Escribe BAJA para confirmar la baja.</p>}
         {aviso === 'baja-credencial' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La contraseña no es correcta. La baja no se ha realizado.</p>}
         {aviso === 'baja-intentos' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Demasiados intentos. Espera unos minutos antes de volver a intentarlo.</p>}
+        {aviso === 'baja-reauth' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Para dar de baja una cuenta de Google, vuelve a identificarte con Google en los últimos quince minutos. <a href="/api/cuentas/oauth/google/iniciar?reauth=1" className="font-semibold text-[var(--accion)] underline underline-offset-2">Reautenticar con Google</a></p>}
         {aviso === 'baja-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido dar de baja la cuenta. Inténtalo de nuevo.</p>}
         {aviso === 'perfil' && <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Perfil guardado.</p>}
         {aviso === 'perfil-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido guardar el perfil.</p>}

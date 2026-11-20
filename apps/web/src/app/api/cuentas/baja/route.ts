@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { consulta } from '@/consultas/adaptadores/postgres/conexion';
-import { verificaContrasena } from '@/lib/contrasenas';
-import { sesionActual, terminaSesion } from '@/lib/sesion';
+import { sha256Hex, verificaContrasena } from '@/lib/contrasenas';
+import { sesionActual, terminaSesion, SESION_COOKIE } from '@/lib/sesion';
 import { mismoOrigen } from '@/lib/seguridad';
 import { ipDe, permite } from '@/lib/limites';
 
@@ -40,6 +41,27 @@ export async function POST(peticion: Request): Promise<NextResponse> {
       const contrasena = String(datos.get('contrasena') ?? '');
       if (contrasena.length === 0 || !(await verificaContrasena(contrasena, filas[0].password_hash))) {
         return NextResponse.redirect(new URL('/mi-cuenta?aviso=baja-credencial', peticion.url), 303);
+      }
+    }
+
+    // Cuenta OAuth sin contraseña local: no basta la sesión. Hace falta una reautenticación con
+    // Google hecha en los últimos quince minutos y marcada en esta misma sesión.
+    if (!filas[0]?.password_hash) {
+      const oauth = await consulta<{ existe: boolean }>(
+        'select exists(select 1 from app.oauth_identidad where user_id = $1) as existe',
+        [sesion.userId], { rol: 'app' },
+      );
+      if (oauth[0]?.existe) {
+        const token = (await cookies()).get(SESION_COOKIE)?.value;
+        const reciente = token
+          ? await consulta<{ ok: boolean }>(
+            "select coalesce((select reautenticada_en > now() - interval '15 minutes' from app.sesion where token_sha = $1 and user_id = $2), false) as ok",
+            [sha256Hex(token), sesion.userId], { rol: 'app' },
+          )
+          : [];
+        if (!reciente[0]?.ok) {
+          return NextResponse.redirect(new URL('/mi-cuenta?aviso=baja-reauth', peticion.url), 303);
+        }
       }
     }
 

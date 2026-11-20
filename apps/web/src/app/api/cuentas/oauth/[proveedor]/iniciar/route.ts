@@ -13,6 +13,7 @@ export const runtime = 'nodejs';
 const COOKIE_ESTADO = 'facylf_oauth_estado';
 const COOKIE_VERIFICADOR = 'facylf_oauth_verificador';
 const COOKIE_VOLVER = 'facylf_oauth_volver';
+const COOKIE_REAUTH = 'facylf_oauth_reauth';
 const VIDA_SEGUNDOS = 600;
 
 function baseUrl(peticion: Request): string {
@@ -43,6 +44,7 @@ export async function GET(peticion: Request, { params }: { params: Promise<{ pro
   const reto = createHash('sha256').update(verificador).digest('base64url');
   const redireccion = `${baseUrl(peticion)}/api/cuentas/oauth/google/volver`;
   const volver = new URL(peticion.url).searchParams.get('volver') ?? '';
+  const reauth = new URL(peticion.url).searchParams.get('reauth') === '1';
 
   const destino = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   destino.searchParams.set('client_id', clientId);
@@ -58,5 +60,6 @@ export async function GET(peticion: Request, { params }: { params: Promise<{ pro
   respuesta.cookies.set(COOKIE_ESTADO, estado, opcionesCookie());
   respuesta.cookies.set(COOKIE_VERIFICADOR, verificador, opcionesCookie());
   respuesta.cookies.set(COOKIE_VOLVER, volver, opcionesCookie());
+  respuesta.cookies.set(COOKIE_REAUTH, reauth ? '1' : '0', opcionesCookie());
   return respuesta;
 }
