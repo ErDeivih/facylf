@@ -322,6 +322,7 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           </p>
         </div>
       </details>
+      <div className="flex min-w-0 flex-[2_1_620px] flex-col gap-4">
       <nav aria-label="Vista de la clasificación" className="flex flex-wrap gap-1.5">
         {[['total','Total'],['local','Casa'],['fuera','Fuera']].map(([clave, texto]) => (
           <Link key={clave} href={`${ruta}${clave === 'total' ? '' : `/${clave}`}` as Route}
@@ -363,6 +364,8 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           </ul>
         </section>
       )}
+        <Goleadores filas={goleadores} />
+      </div>
       <aside className="flex min-w-0 flex-[1_1_320px] flex-col gap-4">
         {proximaJornada.length > 0 && (
           <CrucesPrevistos titulo={`Próxima jornada · ${proximaJornada[0].jornada}`} cruces={proximaJornada} />
@@ -375,7 +378,6 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
           hrefActa={(partido) => (tieneActa(partido.calidad_acta) ? rutaDeActa(partido.match_id) : null)}
           etiquetas={etiquetasDeZona}
         />
-        <Goleadores filas={goleadores} />
       </aside>
     </div>
   );
