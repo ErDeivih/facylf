@@ -91,34 +91,30 @@ export default async function Buscar({ searchParams }: {
 
   const columnas: ColumnaTabla<FilaBusqueda>[] = [
     { clave: 'tipo', titulo: 'Tipo', render: (f) => (f.tipo === 'club' ? 'Club' : 'Jugador') },
-    { clave: 'nombre', titulo: 'Nombre' },
-    { clave: 'federacion_nombre', titulo: 'Federación', render: (f) => texto(f.federacion_nombre) },
-    { clave: 'contexto', titulo: 'Contexto', render: (f) => texto(f.contexto) },
     {
-      clave: null, titulo: 'Identidad',
-      render: (f) => (f.tipo === 'jugador' && f.identidad_nominal
-        ? <span className="text-[var(--revision)]" title="identidad nominal: asignada sin código federativo">nominal</span>
-        : '—'),
+      clave: 'nombre', titulo: 'Nombre',
+      render: (f) => (
+        <>
+          {f.nombre}
+          {f.tipo === 'jugador' && f.identidad_nominal && (
+            <span className="ml-1 text-nota text-[var(--revision)]" title="identidad nominal: asignada sin código federativo">nominal</span>
+          )}
+        </>
+      ),
     },
+    { clave: 'contexto', titulo: 'Contexto', render: (f) => f.tipo === 'club' ? '—' : texto(f.contexto) },
   ];
 
   return <>
-    <h2 className="font-display text-3xl uppercase">Buscar</h2>
-    <p className="mt-1 text-xs text-[var(--texto-suave)]">
-      {conDatos.length} federaciones con datos · clubes y jugadores del canónico
+    <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">Buscar</h1>
+    <p className="mt-1 text-tabla text-[var(--texto-suave)]">
+      Castilla y León · clubes y jugadores con nombre publicado
     </p>
 
-    <form action="/buscar" className="mt-5 grid gap-3 border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-[1fr_12rem_10rem_auto]">
+    <form action="/buscar" className="mt-5 grid gap-3 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4 sm:grid-cols-[1fr_10rem_auto]">
       <label>
         <span className={`${ETIQUETA_FILTRO}`}>Nombre</span>
         <input name="q" defaultValue={q} className={`${CONTROL_FILTRO}`} placeholder="Jugador o club…" />
-      </label>
-      <label>
-        <span className={`${ETIQUETA_FILTRO}`}>Federación</span>
-        <select name="fed" defaultValue={fed} className={`${CONTROL_FILTRO}`}>
-          <option value="">Todas las federaciones</option>
-          {conDatos.map((f) => <option key={f.codigo} value={f.codigo}>{f.nombre}</option>)}
-        </select>
       </label>
       <label>
         <span className={`${ETIQUETA_FILTRO}`}>Temporada</span>
@@ -173,9 +169,9 @@ export default async function Buscar({ searchParams }: {
           <TablaDatos
             filas={filas}
             columnas={columnas}
-            caption={`Resultados de la búsqueda por «${q}» en el canónico, con su tipo, su federación y su contexto.`}
+            caption={`Resultados de la búsqueda por «${q}», con su tipo y su contexto.`}
             clave={(f) => `${f.tipo}-${f.entidad_id}`}
-            enlaceFila={(f) => (f.tipo === 'club' ? `/club/${f.entidad_id}` : `/jugador/${f.entidad_id}`)}
+            enlaceFila={(f) => (f.tipo === 'club' ? `/explorar/club/${f.entidad_id}` : `/explorar/jugador/${f.entidad_id}`)}
             columnaPrincipal={1}
             vacio={<Vacio
               titulo="Sin resultados"
