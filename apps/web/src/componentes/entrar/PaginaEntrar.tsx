@@ -18,7 +18,7 @@ import { FormularioEntrar } from './FormularioEntrar';
 const TARJETA =
   'flex w-full flex-col gap-3.5 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-6';
 
-export function PaginaEntrar({ aviso, volver }: { aviso: string | null; volver: string | null }) {
+export function PaginaEntrar({ aviso, volver, oauthDisponible = false }: { aviso: string | null; volver: string | null; oauthDisponible?: boolean }) {
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col gap-6">
       <p className="m-0 text-center text-cuerpo text-[var(--texto-suave)]">
@@ -32,6 +32,17 @@ export function PaginaEntrar({ aviso, volver }: { aviso: string | null; volver: 
         <h1 id="entrar-titulo" className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
           Entrar
         </h1>
+        {oauthDisponible && (
+          <>
+            <a href={`/api/cuentas/oauth/google/iniciar${volver ? `?volver=${encodeURIComponent(volver)}` : ''}`}
+              className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-sm font-bold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
+              Continuar con Google
+            </a>
+            <p className="m-0 flex items-center gap-3 text-nota text-[var(--texto-suave)]">
+              <span aria-hidden="true" className="h-px flex-1 bg-[var(--borde)]" />o entra con tu correo<span aria-hidden="true" className="h-px flex-1 bg-[var(--borde)]" />
+            </p>
+          </>
+        )}
         <FormularioEntrar volver={volver} />
 
         <p className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">

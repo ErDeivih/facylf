@@ -29,5 +29,6 @@ export default async function Entrar({ searchParams }: {
   const sesion = await sesionActual();
   if (sesion) redirect((volver ?? '/mi-panel') as Route);
 
-  return <PaginaEntrar aviso={textoAviso(codigo)} volver={volver} />;
+  const oauthDisponible = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  return <PaginaEntrar aviso={textoAviso(codigo)} volver={volver} oauthDisponible={oauthDisponible} />;
 }
