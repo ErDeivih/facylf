@@ -151,7 +151,7 @@ function Temporada({ temporada, abierta }: { temporada: TemporadaDelClub; abiert
   const { resumen } = temporada;
   const mejor = resumen.mejorPuesto === null ? null : `${resumen.mejorPuesto.posicion}.º`;
   return (
-    <details open={abierta} className={`${TARJETA} overflow-hidden`}>
+    <details id={`temporada-${temporada.temporada}`} open={abierta} className={`${TARJETA} overflow-hidden scroll-mt-24`}>
       <summary className="flex cursor-pointer flex-wrap items-center gap-x-2.5 gap-y-1 px-4 py-3 hover:bg-[var(--fondo-sutil)]">
         <span className="text-bloque font-extrabold tabular-nums text-[var(--texto)]">{temporada.temporada}</span>
         {temporada.enJuego && <Etiqueta tono="enJuego">En juego</Etiqueta>}
@@ -192,11 +192,21 @@ export function TemporadasDelClub({ temporadas }: { temporadas: readonly Tempora
           Sin equipos publicados: no hay ninguna temporada con equipo de este club.
         </p>
       ) : (
+        <>
+        <nav aria-label="Ir a una temporada" className="flex flex-wrap gap-1.5">
+          {temporadas.map((temporada) => (
+            <a key={temporada.temporada} href={`#temporada-${temporada.temporada}`}
+              className="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-[var(--borde)] px-2.5 text-nota font-semibold text-[var(--texto)] hover:border-[var(--accion)] hover:text-[var(--accion)]">
+              {temporada.temporada}
+            </a>
+          ))}
+        </nav>
         <div className="flex flex-col gap-3">
           {temporadas.map((temporada, indice) => (
-            <Temporada key={temporada.temporada} temporada={temporada} abierta={indice < 2} />
+            <Temporada key={temporada.temporada} temporada={temporada} abierta={indice === 0} />
           ))}
         </div>
+        </>
       )}
     </section>
   );
