@@ -15,7 +15,7 @@ import { EstadosDeCargaYError, EstadosDelBuscador, MotivosDeCompeticion } from '
  * Los estados de cuenta (solicitud pendiente, acceso suspendido, paquete caducado) no se enseñan aquí:
  * son de la pantalla de cuenta.
  */
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: `Estados vacíos — ${NOMBRE_PRODUCTO}` };
 
 const SIN_EJEMPLOS: FilaEstados = {
@@ -24,19 +24,21 @@ const SIN_EJEMPLOS: FilaEstados = {
 
 export default async function PaginaEstados() {
   let ejemplos: FilaEstados = SIN_EJEMPLOS;
+  let noDisponible = false;
   try {
     const [fila] = await consulta<FilaEstados>(EJEMPLOS_DE_ESTADOS.sql, []);
     if (fila?.datos) ejemplos = fila;
   } catch (error) {
     // Los ejemplos son enlaces reales; si no se pueden leer, la pantalla sigue explicando los estados.
     if (!(error instanceof CanonicoNoDisponible)) throw error;
+    noDisponible = true;
   }
 
   return (
     <div className="flex flex-col gap-[18px]">
       <CabeceraPantalla
         titulo="Ninguna sección vacía y muda"
-        entradilla="Cuando una sección no tiene datos, en su sitio va una tarjeta que dice qué pasa y qué hacer. Los ejemplos son grupos reales."
+        entradilla={noDisponible ? 'No se han podido cargar los ejemplos reales ahora mismo. La página sigue explicando cómo se comporta la aplicación.' : 'Cuando una sección no tiene datos, en su sitio va una tarjeta que dice qué pasa y qué hacer. Los ejemplos son grupos reales.'}
       />
       <MotivosDeCompeticion ejemplos={ejemplos} />
       <EstadosDelBuscador />

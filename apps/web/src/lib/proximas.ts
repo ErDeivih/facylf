@@ -167,5 +167,5 @@ export function diaYMes(fecha: string): string {
 export function linea1X2(p: Pick<FilaProximoPartido, 'pred_local' | 'pred_empate' | 'pred_visitante'>): string | null {
   if (p.pred_local == null || p.pred_empate == null || p.pred_visitante == null) return null;
   const pct = (v: number) => `${Number(v).toFixed(1).replace('.', ',')} %`;
-  return `1 ${pct(p.pred_local)} · X ${pct(p.pred_empate)} · 2 ${pct(p.pred_visitante)}`;
+  return `Local ${pct(p.pred_local)} · Empate ${pct(p.pred_empate)} · Visitante ${pct(p.pred_visitante)}`;
 }

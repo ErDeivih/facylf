@@ -195,7 +195,7 @@ export function CapacidadDeFederaciones({ filas, parametros, temporada }: {
     { titulo: 'Tarjetas', tipo: 'numero', render: (f) => textoDePorcentaje(f.pct_tarjetas) },
     { titulo: 'Gol con minuto', tipo: 'numero', render: (f) => textoDePorcentaje(f.pct_minuto_gol) },
     {
-      titulo: 'No se puede enseñar',
+      titulo: 'Limitaciones',
       render: (f) => {
         const carencias = carenciasDeFederacion(capacidadesDeFederacion(f, umbrales));
         return carencias.length === 0

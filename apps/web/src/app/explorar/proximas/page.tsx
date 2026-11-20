@@ -116,9 +116,9 @@ export default async function PantallaProximas({ searchParams }: {
 
       {sin.length > 0 && (
         <details className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
-          <summary className="flex min-h-11 cursor-pointer items-center px-4 text-bloque font-bold text-[var(--texto)]">
+          <summary className="flex min-h-11 cursor-pointer items-center px-4 text-bloque font-bold text-[var(--texto)] [&::-webkit-details-marker]:hidden">
             {hayCalendario ? `Sin partidos en ${filtros.dias} días` : 'Sin calendario futuro cargado'}
-            <span className="ml-2 text-tabla font-normal text-[var(--texto-suave)]">({sin.length} competiciones)</span>
+            <span className="ml-2 text-tabla font-normal text-[var(--texto-suave)]">({sin.length} competiciones)</span><span aria-hidden="true" className="ml-auto text-cuerpo">▾</span>
           </summary>
           <ul className="m-0 list-none border-t border-[var(--fondo-sutil)] p-0">
             {sin.map((c) => (
@@ -178,11 +178,12 @@ function Filtros({ filtros }: { filtros: FiltrosProximas }) {
 function Competicion({ competicion, abierta }: { competicion: CompeticionConProximos; abierta: boolean }) {
   return (
     <details open={abierta}
-      className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
-      <summary className="flex min-h-11 cursor-pointer flex-col justify-center gap-0.5 px-4 py-3">
+      className="group overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]"
+      >
+      <summary className="flex min-h-11 cursor-pointer flex-col justify-center gap-0.5 px-4 py-3 [&::-webkit-details-marker]:hidden">
         <span className="flex items-baseline justify-between gap-3">
           <span className="min-w-0 break-words text-bloque font-bold text-[var(--texto)]">{competicion.edicion}</span>
-          <span className="flex-none text-tabla tabular-nums text-[var(--texto-suave)]">{competicion.partidos} {competicion.partidos === 1 ? 'partido' : 'partidos'}</span>
+          <span className="flex flex-none items-center gap-2 text-tabla tabular-nums text-[var(--texto-suave)]">{competicion.partidos} {competicion.partidos === 1 ? 'partido' : 'partidos'}<span aria-hidden="true" className="text-cuerpo transition-transform group-open:rotate-180">▾</span></span>
         </span>
         <span className="text-nota tabular-nums text-[var(--texto-suave)]">
           {competicion.fechas[0] ? `Próximo ${diaCorto(competicion.fechas[0].fecha)} · ` : ''}{frescura(competicion.ultimoResultado, competicion.atrasados)}

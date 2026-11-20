@@ -96,14 +96,14 @@ export function EstadosDeCargaYError() {
 
         <div className="flex flex-col gap-2 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-4">
           <h3 className="m-0 text-bloque font-bold text-[var(--texto)]">Error</h3>
-          <div role="alert" className="border border-dashed border-[var(--borde-fuerte)] p-3">
+          <div className="border border-dashed border-[var(--borde-fuerte)] p-3">
             <p className="m-0 text-tabla font-semibold text-[var(--texto)]">Ahora mismo no se pueden cargar estos datos.</p>
             <p className="m-0 mt-1 text-tabla text-[var(--texto-suave)]">
               Se dice y se ofrece reintentar; no se enseñan cifras a medias ni ceros que parezcan datos.
             </p>
           </div>
           <a href="/explorar/estadisticas" className="text-tabla font-semibold text-[var(--accion)] hover:underline">
-            Ver la pantalla que lo enseña
+            Así se ve en Estadísticas cuando falla
           </a>
         </div>
 

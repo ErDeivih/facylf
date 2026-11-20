@@ -29,7 +29,7 @@ import {
  * partidos) y el 75252 (Temporada 2026-27 de fútbol sala, calendario publicado SIN resultados).
  *
  * Lo que se defiende:
- *  · un partido sin marcador se pinta «Sin res.», nunca 0-0; sin fecha publicada no se coloca en un día;
+ *  · un partido sin marcador se pinta «Sin resultado», nunca 0-0; sin fecha publicada no se coloca en un día;
  *  · el global no carga dos millones de partidos: pagina con un límite explícito y no promete totales;
  *  · los filtros de la URL no rompen la página: un valor inválido se ignora;
  *  · la interfaz no explica cómo está hecha (§8 de la doctrina) ni enseña detalles técnicos;
@@ -599,9 +599,9 @@ describe('la lista global se pinta por fechas, con su contexto y sin inventar ma
     expect(html).toContain('Campo Municipal de Burgos');
   });
 
-  it('un partido sin resultado se pinta «Sin res.», nunca 0-0, y sin hora no se inventa una', () => {
+  it('un partido sin resultado se pinta «Sin resultado», nunca 0-0, y sin hora no se inventa una', () => {
     const html = render();
-    expect(html).toContain('Sin res.');
+    expect(html).toContain('Sin resultado');
     expect(html).toContain('Sin resultado publicado');
     expect(html).not.toContain('0 - 0');
     expect(html).not.toContain('00:00');
@@ -672,7 +672,7 @@ describe('el calendario del grupo se pinta por jornadas', () => {
 
   it('un partido sin marcador no se pinta como 0-0 y el acta sólo sale si existe', () => {
     const html = render();
-    expect(html).toContain('Sin res.');
+    expect(html).toContain('Sin resultado');
     expect(html).toContain('Sin resultado publicado');
     expect(html).not.toContain('0 - 0');
     expect(html).toContain('href="/explorar/acta/1"');

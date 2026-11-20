@@ -46,7 +46,7 @@ describe('próximos partidos', () => {
   it('escribe la fecha y el 1-X-2 en corto', () => {
     expect(diaCorto('2026-11-21')).toBe('sáb 21 nov');
     expect(diaYMes('2026-11-08')).toBe('8 nov');
-    expect(linea1X2(partido({}))).toBe('1 49,8 % · X 11,7 % · 2 38,6 %');
+    expect(linea1X2(partido({}))).toBe('Local 49,8 % · Empate 11,7 % · Visitante 38,6 %');
     expect(linea1X2(partido({ pred_empate: null }))).toBeNull();
   });
 });

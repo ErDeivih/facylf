@@ -35,6 +35,8 @@ export function PartidoDeCalendario({ partido, contexto = false, hrefCompeticion
   const ganaLocal = marcador.jugado && (partido.goles_local ?? 0) > (partido.goles_visitante ?? 0);
   const ganaVisitante = marcador.jugado && (partido.goles_visitante ?? 0) > (partido.goles_local ?? 0);
   const fecha = partido.fecha;
+  const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
+  const porJugar = fecha !== null && fecha > hoy;
 
   const piezas: Array<{ clave: string; nodo: ReactNode }> = [];
   if (fecha) piezas.push({ clave: 'fecha', nodo: <span>{fechaCorta(fecha)}</span> });
@@ -67,7 +69,7 @@ export function PartidoDeCalendario({ partido, contexto = false, hrefCompeticion
 
   return (
     <li data-partido={partido.partido_id} className="border-t border-[var(--fondo-sutil)] px-3.5 py-2.5">
-      <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 text-tabla">
+      <div className="grid grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)] items-center gap-2 text-tabla">
         <span className="flex min-w-0 items-center justify-end gap-2 text-right">
           <span className="sr-only">Local: </span>
           <span className={`min-w-0 break-words ${ganaLocal ? 'font-bold' : 'font-medium'} text-[var(--texto)]`}>
@@ -81,12 +83,12 @@ export function PartidoDeCalendario({ partido, contexto = false, hrefCompeticion
           />
         </span>
         <span
-          title={marcador.jugado ? marcador.accesible : 'Sin resultado publicado'}
+          title={marcador.jugado ? marcador.accesible : porJugar ? 'Partido pendiente' : 'Sin resultado publicado'}
           className={marcador.jugado
             ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)]'
             : 'rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center text-nota font-semibold text-[var(--texto-suave)]'}>
-          {marcador.jugado ? marcador.texto : 'Sin res.'}
-          <span className="sr-only">, {marcador.jugado ? marcador.accesible : 'sin resultado publicado'}</span>
+          {marcador.jugado ? marcador.texto : porJugar ? 'Por jugar' : 'Sin resultado'}
+          <span className="sr-only">, {marcador.jugado ? marcador.accesible : porJugar ? 'partido pendiente' : 'sin resultado publicado'}</span>
         </span>
         <span className="flex min-w-0 items-center gap-2">
           <Escudo
