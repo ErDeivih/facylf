@@ -115,6 +115,8 @@ export function EvolucionDelClub({ evolucion }: { evolucion: Evolucion }) {
       {evolucion.temporadas.length === 0
         ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">Sin temporadas publicadas.</p>
         : (
+          <>
+          <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-nota text-[var(--texto-suave)] md:hidden">Desplaza para ver todas las temporadas.</p>
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Evolución del club: desplázate en horizontal para ver todas las temporadas"
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
@@ -165,6 +167,7 @@ export function EvolucionDelClub({ evolucion }: { evolucion: Evolucion }) {
               </tbody>
             </table>
           </div>
+          </>
         )}
       <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-nota leading-5 text-[var(--texto-suave)]">
         Una casilla vacía es una temporada en la que ese equipo no aparece en el archivo.
