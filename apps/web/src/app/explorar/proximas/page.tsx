@@ -110,16 +110,17 @@ export default async function PantallaProximas({ searchParams }: {
         )
       ) : (
         <div className="flex flex-col gap-3">
-          {con.map((competicion, i) => <Competicion key={competicion.edicionId} competicion={competicion} abierta={i < 3} />)}
+          {con.map((competicion) => <Competicion key={competicion.edicionId} competicion={competicion} abierta={false} />)}
         </div>
       )}
 
       {sin.length > 0 && (
-        <section aria-labelledby="sin-proximos" className="flex flex-col gap-2">
-          <h2 id="sin-proximos" className="m-0 text-bloque font-bold text-[var(--texto)]">
+        <details className="overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]">
+          <summary className="flex min-h-11 cursor-pointer items-center px-4 text-bloque font-bold text-[var(--texto)]">
             {hayCalendario ? `Sin partidos en ${filtros.dias} días` : 'Sin calendario futuro cargado'}
-          </h2>
-          <ul className="m-0 list-none overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-0">
+            <span className="ml-2 text-tabla font-normal text-[var(--texto-suave)]">({sin.length} competiciones)</span>
+          </summary>
+          <ul className="m-0 list-none border-t border-[var(--fondo-sutil)] p-0">
             {sin.map((c) => (
               <li key={c.edicion_id} className="border-t border-[var(--fondo-sutil)] first:border-t-0">
                 <Link href={`/explorar/competicion/${c.grupo_id}` as Route}
@@ -130,7 +131,7 @@ export default async function PantallaProximas({ searchParams }: {
               </li>
             ))}
           </ul>
-        </section>
+        </details>
       )}
     </div>
   );
