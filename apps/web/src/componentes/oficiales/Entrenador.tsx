@@ -33,7 +33,7 @@ export function ResumenDeEntrenador({ fila }: { fila: FilaEntrenador }) {
   const racha = rachaDeResultados([...fila.ultimos].reverse().map((p) => p.resultado));
   return (
     <>
-      <Cifras cifras={cifras} />
+      <Cifras cifras={cifras} columnas={3} />
       <section aria-labelledby="racha-entrenador" className={TARJETA}>
         <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
           <h2 id="racha-entrenador" className="m-0 text-bloque font-bold text-[var(--texto)]">Racha</h2>
