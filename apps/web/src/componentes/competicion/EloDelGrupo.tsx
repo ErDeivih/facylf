@@ -61,7 +61,11 @@ export function EloDelGrupo({ partidos }: { partidos: readonly FilaPartidoCanoni
         <h2 id="elo" className="m-0 text-bloque font-bold text-[var(--texto)]">Ranking Elo</h2>
         <p className="m-0 text-etiqueta text-[var(--texto-suave)]">Progresión jornada a jornada · {jugados.length} partidos</p>
       </div>
-      <div className="h-44 w-full">
+      <div className="flex gap-2">
+        <div className="flex h-44 flex-col justify-between text-etiqueta tabular-nums text-[var(--texto-suave)]">
+          <span>{Math.round(max)}</span><span>{Math.round((max + min) / 2)}</span><span>{Math.round(min)}</span>
+        </div>
+        <div className="h-44 min-w-0 flex-1">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full" role="img" aria-label={`Progresión Elo de ${todos.length} equipos`}>
           {[25, 50, 75].map((v) => <line key={v} x1="0" y1={v} x2="100" y2={v} stroke="currentColor" strokeOpacity="0.08" vectorEffect="non-scaling-stroke" />)}
           {todos.map((s) => <polyline key={s.id} points={linea(s)} fill="none" stroke="currentColor" strokeOpacity="0.13" strokeWidth="1" vectorEffect="non-scaling-stroke" />)}
@@ -69,6 +73,7 @@ export function EloDelGrupo({ partidos }: { partidos: readonly FilaPartidoCanoni
             <polyline key={s.id} points={linea(s)} fill="none" stroke={COLORES[i]} strokeWidth="2" vectorEffect="non-scaling-stroke" />
           ))}
         </svg>
+        </div>
       </div>
       <div className="flex justify-between text-etiqueta tabular-nums text-[var(--texto-suave)]"><span>J1</span><span>J{ultimaJornada}</span></div>
       <ol className="m-0 grid list-none grid-cols-1 gap-1 p-0 sm:grid-cols-2">
@@ -79,6 +84,16 @@ export function EloDelGrupo({ partidos }: { partidos: readonly FilaPartidoCanoni
           </li>
         ))}
       </ol>
+      <details className="mt-1">
+        <summary className="cursor-pointer text-nota font-semibold text-[var(--accion)]">Ver los {ranking.length} equipos y su Elo</summary>
+        <div className="mt-2 max-h-64 overflow-y-auto">
+          <table className="w-full text-nota tabular-nums">
+            <caption className="sr-only">Ranking Elo completo del grupo</caption>
+            <thead><tr className="text-left text-[var(--texto-suave)]"><th scope="col" className="py-1">#</th><th scope="col">Equipo</th><th scope="col" className="text-right">Elo</th></tr></thead>
+            <tbody>{ranking.map((s, i) => <tr key={s.id} className="border-t border-[var(--fondo-sutil)]"><td className="py-1 text-[var(--texto-suave)]">{i + 1}</td><td className="py-1 text-[var(--texto)]">{s.nombre}</td><td className="py-1 text-right font-semibold text-[var(--texto)]">{Math.round(s.elo)}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </details>
     </section>
   );
 }

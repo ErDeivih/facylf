@@ -52,7 +52,7 @@ export function ListaGoleadores({ filas, golesDelAmbito, titulo = 'Goleadores', 
                 <div className="flex flex-none flex-col items-end">
                   <span className="text-dato font-extrabold tabular-nums text-[var(--texto)]">{fila.goles}</span>
                   {mostrarAcumulado && fila.acumulado !== null && (
-                    <span className="text-nota tabular-nums text-[var(--texto-suave)]">{fila.acumulado} %</span>
+                    <span className="text-nota tabular-nums text-[var(--texto-suave)]">{fila.acumulado} % acum.</span>
                   )}
                   {!mostrarAcumulado && (
                     <span className="text-nota tabular-nums text-[var(--texto-suave)]">{fila.partidos} PJ</span>
