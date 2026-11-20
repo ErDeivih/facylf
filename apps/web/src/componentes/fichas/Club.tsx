@@ -30,14 +30,14 @@ export function ResumenDelClub({ equipos }: { club: FilaClub; equipos: readonly 
       nota: 'Temporadas con algún equipo publicado',
     },
     {
-      etiqueta: 'Equipos',
+      etiqueta: 'Participaciones',
       valor: formatoNumero(resumen.equipos),
       nota: 'Inscripciones en todas sus categorías',
     },
     {
-      etiqueta: 'Mejor posición',
+      etiqueta: 'Mejor posición registrada',
       valor: resumen.mejorPosicion === null ? 'Sin datos' : `${resumen.mejorPosicion}º`,
-      nota: 'Su mejor puesto en una clasificación final',
+      nota: 'Su mejor puesto en una tabla publicada',
     },
     {
       etiqueta: 'Última temporada',

@@ -249,6 +249,9 @@ function transicionesDe(tramos: readonly TramoDeHistorial[]): TransicionDeHistor
       desdeClubId: anterior.clubId,
       hastaClubId: siguiente.clubId,
     };
+    // Mismo equipo en otra competición (liga y playoff): no es un cambio de equipo. Las dos
+    // participaciones se enseñan por separado, pero no se afirma una transición que no existe.
+    if (anterior.equipoId === siguiente.equipoId) continue;
     if (anterior.desde === null || anterior.hasta === null || siguiente.desde === null) {
       transiciones.push({ ...base, tipo: 'sin-fechas', fecha: null });
       continue;
