@@ -139,6 +139,12 @@ export default async function PantallaCompeticion({ params, searchParams }: {
         fechaUltimaJugada={fechaUltimaJugada}
       />
 
+      {grupo.categoria === 'desconocida' && (
+        <p className="m-0 rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla text-[var(--texto)]">
+          La fuente no publica una categoría para este grupo. No se le asigna ninguna: se muestra como «desconocida» para no inventar la competición.
+        </p>
+      )}
+
       <Suspense fallback={<EsqueletoContenido filas={Math.max(1, grupo.equipos)} />}>
         <Contenido grupo={grupo} jornadaPedida={jornadaPedida} partidos={partidos} vista={vista} hermanos={hermanos} />
       </Suspense>
