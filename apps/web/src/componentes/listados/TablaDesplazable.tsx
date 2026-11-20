@@ -10,7 +10,9 @@ import type { ReactNode } from 'react';
  */
 export function TablaDesplazable({ etiqueta, children }: { etiqueta: string; children: ReactNode }) {
   return (
-    <div
+    <>
+      <p className="m-0 px-4 pt-2 text-nota text-[var(--texto-suave)] md:hidden">Desliza en horizontal para ver todas las columnas.</p>
+      <div
       role="region"
       aria-label={etiqueta}
       tabIndex={0}
@@ -18,6 +20,7 @@ export function TablaDesplazable({ etiqueta, children }: { etiqueta: string; chi
       className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--foco)]"
     >
       {children}
-    </div>
+      </div>
+    </>
   );
 }
