@@ -79,6 +79,14 @@ export const HISTORIAL_DE_JUGADOR: Consulta<FilaHistorialJugador> = {
              p.identidad_nominal
         from core.person p
        where p.id = $1
+         and exists (
+           select 1 from core.appearance a
+             join core.team_entry te on te.id = a.team_entry_id
+             join core.phase_group g on g.id = te.phase_group_id
+             join core.competition_edition e on e.id = g.competition_edition_id
+             join core.federation f on f.id = e.federation_id
+            where a.person_id = p.id and (${SQL_FEDERACION_NO_EXCLUIDA})
+         )
     ),
     -- Goles y tarjetas de la persona en cada partido y equipo. Se agrega una vez para todas sus
     -- apariciones: nunca una subconsulta por partido.

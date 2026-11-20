@@ -40,7 +40,7 @@ export const CALIDAD_GLOBAL: Consulta<FilaCalidadGlobal> = {
         join core.competition_edition e on e.id = g.competition_edition_id
         join core.season s on s.id = e.season_id
         join core.federation f on f.id = e.federation_id
-       where f.nombre ilike '%castilla%' and s.etiqueta = $1
+       where f.codigo = 'castilla-leon' and s.etiqueta = $1
          and m.goles_local is not null and m.goles_visitante is not null
       union all
       select m.phase_group_id, m.away_team_entry_id, m.goles_visitante, m.goles_local
@@ -49,7 +49,7 @@ export const CALIDAD_GLOBAL: Consulta<FilaCalidadGlobal> = {
         join core.competition_edition e on e.id = g.competition_edition_id
         join core.season s on s.id = e.season_id
         join core.federation f on f.id = e.federation_id
-       where f.nombre ilike '%castilla%' and s.etiqueta = $1
+       where f.codigo = 'castilla-leon' and s.etiqueta = $1
          and m.goles_local is not null and m.goles_visitante is not null
     ),
     calc as (
@@ -87,7 +87,7 @@ export const CALIDAD_GLOBAL: Consulta<FilaCalidadGlobal> = {
         join core.competition_edition e on e.id = g.competition_edition_id
         join core.season s on s.id = e.season_id
         join core.federation f on f.id = e.federation_id
-       where f.nombre ilike '%castilla%' and s.etiqueta = $1
+       where f.codigo = 'castilla-leon' and s.etiqueta = $1
     ),
     con_estado as (
       select *,
@@ -136,7 +136,7 @@ export const EQUIPOS_DE_LA_TEMPORADA: Consulta<FilaEquiposDeGrupo> = {
       join core.competition_edition ce on ce.id = g.competition_edition_id
       join core.season s on s.id = ce.season_id
       join core.federation f on f.id = ce.federation_id
-     where f.nombre ilike '%castilla%' and s.etiqueta = $1
+     where f.codigo = 'castilla-leon' and s.etiqueta = $1
      group by e.gid
      limit 400`,
 };

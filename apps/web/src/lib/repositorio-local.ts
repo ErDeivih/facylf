@@ -73,7 +73,7 @@ export function esFederacionCodigo(valor: string): valor is FederacionCodigo {
 }
 
 export function federacionDesde(valor: string | null | undefined): FederacionCodigo {
-  return valor && esFederacionCodigo(valor) ? valor : FEDERACION_POR_DEFECTO;
+  return valor && esFederacionCodigo(valor) && esFederacionVisible(valor) ? valor : FEDERACION_POR_DEFECTO;
 }
 
 export function datosFederacion(codigo: string) {
@@ -188,7 +188,7 @@ function separaFederacion(valor: string): { federacion: FederacionCodigo; valor:
   const indice = valor.indexOf('--');
   if (indice > 0) {
     const candidata = valor.slice(0, indice);
-    if (esFederacionCodigo(candidata)) return { federacion: candidata, valor: valor.slice(indice + 2) };
+    if (esFederacionCodigo(candidata) && esFederacionVisible(candidata)) return { federacion: candidata, valor: valor.slice(indice + 2) };
   }
   return { federacion: FEDERACION_POR_DEFECTO, valor };
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import type { Route } from 'next';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import {
@@ -66,8 +67,10 @@ pnpm importar --federacion <federación> --temporada <temporada> --grupo <grupo>
 }
 
 export default async function Canonico() {
+  // Diagnóstico interno: no se publica en la web de Castilla y León (mostraría totales nacionales).
+  notFound();
   const motivo = motivoSinCanonico();
-  if (motivo) return <SinCanonico motivo={motivo} />;
+  if (motivo) return <SinCanonico motivo={motivo as string} />;
 
   let resumen: Resumen | null = null;
   let federaciones: FilaFederacionTabla[] = [];
@@ -79,8 +82,8 @@ export default async function Canonico() {
     federaciones = await consulta<FilaFederacionTabla>(COBERTURA_POR_FEDERACION.sql, PARAMETROS_POR_DEFECTO[COBERTURA_POR_FEDERACION.nombre]);
     grupos = await consulta<FilaGrupoTabla>(COBERTURA_POR_GRUPO.sql, PARAMETROS_POR_DEFECTO[COBERTURA_POR_GRUPO.nombre]);
   } catch (error) {
-    if (error instanceof CanonicoNoDisponible) return <SinCanonico motivo={error.message} />;
-    throw error;
+    if (error instanceof CanonicoNoDisponible) return <SinCanonico motivo={(error as Error).message} />;
+    throw error as Error;
   }
 
   const vacio = (resumen?.grupos ?? 0) === 0;

@@ -1,4 +1,5 @@
 import type { Consulta } from './contratos';
+import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 
 /**
  * Observabilidad: lo que las pantallas de «Datos» y «Salud» leen del canónico con el rol público.
@@ -60,7 +61,8 @@ export const CHEQUEOS_DE_LA_PLATAFORMA: Consulta<FilaChequeo> = {
            valor::float8,
            umbral::float8,
            detalle
-      from ops.chequeos()`,
+      from ops.chequeos()
+     where (nombre not like 'federacion%' or nombre like '%castilla-leon%')`,
 };
 
 /* ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -166,6 +168,7 @@ export const CAPACIDAD_DE_FEDERACIONES: Consulta<FilaCapacidad> = {
            pct_arbitro::float8,
            pct_posicion::float8
       from analytics.federacion_capacidad
+     where federacion = 'castilla-leon'
      order by orden desc, federacion`,
 };
 
@@ -265,7 +268,7 @@ export const FRESCURA_Y_COBERTURA: Consulta<FilaFrescura> = {
                        join core.phase_group g         on g.id = cc.phase_group_id
                        join core.competition_edition e on e.id = g.competition_edition_id
                        join core.federation f         on f.id = e.federation_id
-                      where f.codigo not like 'pruebas%'
+                      where f.codigo not like 'pruebas%' and (${SQL_FEDERACION_NO_EXCLUIDA})
                       group by 1, 2) x), '[]'::jsonb)                     as cobertura`,
 };
 

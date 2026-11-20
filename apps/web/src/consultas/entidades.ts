@@ -332,7 +332,7 @@ export const EQUIPO_POR_ID: Consulta<FilaEquipo> = {
             order by ss.matchday_id desc
             limit 1) rec on true
       left join ops.coverage_checkpoint c on c.phase_group_id = g.id
-     where te.id = $1
+     where te.id = $1 and (${SQL_FEDERACION_NO_EXCLUIDA})
      limit 1`,
 };
 
@@ -541,6 +541,14 @@ export const PERSONA_POR_ID: Consulta<FilaPersona> = {
            1::int                               as total
       from core.person p
      where p.id = $1
+       and exists (
+         select 1 from core.appearance a
+           join core.team_entry te on te.id = a.team_entry_id
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where a.person_id = p.id and (${SQL_FEDERACION_NO_EXCLUIDA})
+       )
      limit 1`,
 };
 

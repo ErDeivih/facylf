@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { fotoPermitida, modoDeFotos } from '@/lib/fotos';
+import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,14 @@ export async function GET(_peticion: Request, { params }: { params: Promise<{ id
          from core.person_asset a
          join core.person p on p.id = a.person_id
         where a.person_id = $1 and a.tipo = 'foto' and a.vigente
+          and exists (
+            select 1 from core.appearance ap
+              join core.team_entry te on te.id = ap.team_entry_id
+              join core.phase_group g on g.id = te.phase_group_id
+              join core.competition_edition e on e.id = g.competition_edition_id
+              join core.federation f on f.id = e.federation_id
+             where ap.person_id = p.id and (${SQL_FEDERACION_NO_EXCLUIDA})
+          )
         order by a.observado_en desc
         limit 1`,
       [personId]);

@@ -97,6 +97,7 @@ export const PARTIDOS_DEL_CALENDARIO: Consulta<FilaCalendarioGlobal> = {
         join core.phase_group g on g.competition_edition_id = e.id
         left join core.federacion_perfil fp on fp.codigo = f.codigo
        where ($1::text is null or f.codigo = $1)
+         and (${SQL_FEDERACION_NO_EXCLUIDA})
          and ($2::text is null or s.etiqueta = $2)
          -- La búsqueda de equipo o competición resuelve el GRUPO: un partido entra si su grupo tiene un
          -- equipo o un nombre que coincide. Se filtra una vez por grupo (team_entry tiene índice por

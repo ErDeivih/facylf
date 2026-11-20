@@ -1,4 +1,5 @@
 import type { Consulta } from './contratos';
+import { SQL_FEDERACION_NO_EXCLUIDA } from '@/lib/federaciones-excluidas';
 import type { FilaTemporadaDePersona } from './entidades';
 
 /**
@@ -49,6 +50,14 @@ export const PERSONAS_POR_IDS: Consulta<FilaPersonaComparada> = {
            (count(*) over ())::int              as total
       from core.person p
      where p.id = any($1::bigint[])
+       and exists (
+         select 1 from core.appearance a
+           join core.team_entry te on te.id = a.team_entry_id
+           join core.phase_group g on g.id = te.phase_group_id
+           join core.competition_edition e on e.id = g.competition_edition_id
+           join core.federation f on f.id = e.federation_id
+          where a.person_id = p.id and (${SQL_FEDERACION_NO_EXCLUIDA})
+       )
      order by p.nombre_mostrado
      limit 10`,
 };
@@ -122,6 +131,7 @@ export const TRAYECTORIAS_DE_PERSONAS: Consulta<FilaTrayectoriaComparada> = {
       join core.season s on s.id = e.season_id
       left join analytics.player_team_season_summary res
              on res.person_id = pe.person_id and res.team_entry_id = te.id
+     where (${SQL_FEDERACION_NO_EXCLUIDA})
      order by pe.person_id, s.orden desc, e.nombre_publicado, te.id
      limit $2`,
 };
