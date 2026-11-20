@@ -81,12 +81,12 @@ export function PartidoDeCalendario({ partido, contexto = false, hrefCompeticion
           />
         </span>
         <span
-          title={marcador.accesible}
+          title={marcador.jugado ? marcador.accesible : 'Sin resultado publicado'}
           className={marcador.jugado
             ? 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-fuerte)] py-1 text-center font-bold text-[var(--texto-fuerte)]'
-            : 'tabular-nums rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center font-semibold text-[var(--texto-suave)]'}>
-          {marcador.texto}
-          <span className="sr-only">, {marcador.accesible}</span>
+            : 'rounded-[var(--radius-md)] bg-[var(--fondo-sutil)] py-1 text-center text-nota font-semibold text-[var(--texto-suave)]'}>
+          {marcador.jugado ? marcador.texto : 'Sin res.'}
+          <span className="sr-only">, {marcador.jugado ? marcador.accesible : 'sin resultado publicado'}</span>
         </span>
         <span className="flex min-w-0 items-center gap-2">
           <Escudo

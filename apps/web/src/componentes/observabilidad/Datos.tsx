@@ -199,7 +199,7 @@ export function CapacidadDeFederaciones({ filas, parametros, temporada }: {
       render: (f) => {
         const carencias = carenciasDeFederacion(capacidadesDeFederacion(f, umbrales));
         return carencias.length === 0
-          ? <span className="text-nota text-[var(--texto-suave)]">completo</span>
+          ? <span className="text-nota text-[var(--texto-suave)]">Sin restricciones</span>
           : (
             <span className="flex flex-wrap gap-1">
               {carencias.map((carencia) => (

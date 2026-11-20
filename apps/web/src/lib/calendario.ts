@@ -276,7 +276,7 @@ export function equiposDelCalendario(
  * Agrupa los partidos por fecha conservando el orden que trae la consulta (fecha descendente) y deja
  * los que no tienen fecha publicada para el final, en su propio grupo.
  */
-export function agrupaPorFecha<T extends { fecha: string | null }>(partidos: readonly T[]): GrupoDeFecha<T>[] {
+export function agrupaPorFecha<T extends { fecha: string | null; hora?: string | null }>(partidos: readonly T[]): GrupoDeFecha<T>[] {
   const porFecha = new Map<string, T[]>();
   const sinFecha: T[] = [];
   for (const partido of partidos) {
@@ -291,7 +291,7 @@ export function agrupaPorFecha<T extends { fecha: string | null }>(partidos: rea
   }
   const grupos: GrupoDeFecha<T>[] = [...porFecha.entries()]
     .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
-    .map(([fecha, lista]) => ({ fecha, partidos: lista }));
+    .map(([fecha, lista]) => ({ fecha, partidos: [...lista].sort((a, b) => (a.hora ?? '99:99').localeCompare(b.hora ?? '99:99')) }));
   if (sinFecha.length > 0) grupos.push({ fecha: null, partidos: sinFecha });
   return grupos;
 }

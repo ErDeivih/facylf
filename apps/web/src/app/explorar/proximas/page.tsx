@@ -73,7 +73,7 @@ export default async function PantallaProximas({ searchParams }: {
         <p className="m-0 text-nota text-[var(--texto-suave)]">
           {partidos.length === 0
             ? `Temporada ${TEMPORADA_EN_CURSO}`
-            : `${partidos.length} ${partidos.length === 1 ? 'partido' : 'partidos'} en ${con.length} ${con.length === 1 ? 'competición' : 'competiciones'} · ${TEMPORADA_EN_CURSO}`}
+            : `${partidos.length} ${partidos.length === 1 ? 'partido' : 'partidos'} en ${con.length} ${con.length === 1 ? 'competición' : 'competiciones'} · próximos ${filtros.dias} días · ${TEMPORADA_EN_CURSO}`}
         </p>
       </header>
 
@@ -182,10 +182,10 @@ function Competicion({ competicion, abierta }: { competicion: CompeticionConProx
       <summary className="flex min-h-11 cursor-pointer flex-col justify-center gap-0.5 px-4 py-3">
         <span className="flex items-baseline justify-between gap-3">
           <span className="min-w-0 break-words text-bloque font-bold text-[var(--texto)]">{competicion.edicion}</span>
-          <span className="flex-none text-tabla tabular-nums text-[var(--texto-suave)]">{competicion.partidos}</span>
+          <span className="flex-none text-tabla tabular-nums text-[var(--texto-suave)]">{competicion.partidos} {competicion.partidos === 1 ? 'partido' : 'partidos'}</span>
         </span>
         <span className="text-nota tabular-nums text-[var(--texto-suave)]">
-          {frescura(competicion.ultimoResultado, competicion.atrasados)}
+          {competicion.fechas[0] ? `Próximo ${diaCorto(competicion.fechas[0].fecha)} · ` : ''}{frescura(competicion.ultimoResultado, competicion.atrasados)}
         </span>
       </summary>
       {competicion.fechas.map((dia) => (
