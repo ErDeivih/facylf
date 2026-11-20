@@ -1,0 +1,75 @@
+# El importador masivo: de las colas SQLite al canónico, por tandas y con prioridad baja.
+#
+# Usa LA MISMA IMAGEN que los recolectores (lleva Node, pnpm, tsx y el programa) y **las colas se montan una a
+# una**, no el repositorio entero:
+#
+#   · montar el repositorio en `/app` taparía el `node_modules` y los `dist` que vienen DENTRO de la imagen
+#     (el programa dejaría de arrancar: medido el 21/09/2026 al probar el monitor con el mismo patrón), y
+#   · el importador resuelve su raíz desde su propio fichero (`packages/canonico/src/cli.ts`), así que tiene que
+#     estar en `/app` **el código de la imagen** y, al lado, las colas montadas.
+#
+# Va en `facylf.slice` (dentro del tope de 10 GB del proyecto) con poca CPU: la recolección manda y la
+# importación aprovecha lo que sobra. Hace tandas de 3 horas y espera media, para no competir de forma continua.
+#
+# Arranque (desde la raíz del repositorio):
+#   docker compose --project-name facylf --env-file docker/.env -f docker/importador.yml up -d
+#
+# El estado del lanzador (`/app/estado/importacion.json`) se comparte con el monitor, que lo enseña.
+services:
+  importador:
+    image: facylf-recolectores:local
+    container_name: facylf-importador
+    restart: unless-stopped
+    cgroup_parent: facylf.slice
+    mem_limit: 2g
+    # Poca CPU y con poco peso en el reparto: la recolección es lo primero.
+    cpus: "${FACYLF_CPUS_IMPORTADOR:-1.0}"
+    cpu_shares: 256
+    environment:
+      DATABASE_URL_PUBLICADOR: "${DATABASE_URL_PUBLICADOR:?falta DATABASE_URL_PUBLICADOR en docker/.env (rol facylf_publicador)}"
+      FACYLF_RAIZ: /app
+      FACYLF_ESTADO_DIR: /app/estado
+      FACYLF_NTFY: "${FACYLF_NTFY:-http://host.docker.internal:8085/facylf}"
+      TZ: Europe/Madrid
+    volumes:
+      # El estado (lo comparte con el monitor y sobrevive a los reinicios).
+      - ../estado:/app/estado
+      # Las colas que se hayan movido al SSD (piloto del 23/09/2026) tienen un ENLACE en su ruta de siempre. El
+      # árbol del SSD se monta en la MISMA ruta absoluta que en el host, para que el enlace resuelva y el
+      # importador siga leyendo esas colas como si nada.
+      - /srv/ssd/facylf:/srv/ssd/facylf
+      # Y las colas, una por federación. Sólo estos datos entran aquí: el importador no ve nada más.
+      - ../descargas-andalucia:/app/descargas-andalucia
+      - ../descargas-aragon:/app/descargas-aragon
+      - ../descargas-asturias:/app/descargas-asturias
+      - ../descargas-baleares:/app/descargas-baleares
+      - ../descargas-canarias:/app/descargas-canarias
+      - ../descargas-cantabria:/app/descargas-cantabria
+      - ../descargas-castilla-la-mancha:/app/descargas-castilla-la-mancha
+      - ../descargas-cataluna:/app/descargas-cataluna
+      - ../descargas-ceuta:/app/descargas-ceuta
+      - ../descargas-euskadi:/app/descargas-euskadi
+      - ../descargas-extremadura:/app/descargas-extremadura
+      - ../descargas-federacion:/app/descargas-federacion
+      # El importador necesita ver el código (para dispara-recalculo) y las tres colas de CyL.
+      - ../scripts:/app/scripts:ro
+      - ../descargas-federacion-2:/app/descargas-federacion-2
+      - ../descargas-federacion-3:/app/descargas-federacion-3
+      - ../descargas-galicia:/app/descargas-galicia
+      - ../descargas-madrid:/app/descargas-madrid
+      - ../descargas-melilla:/app/descargas-melilla
+      - ../descargas-murcia:/app/descargas-murcia
+      - ../descargas-navarra:/app/descargas-navarra
+      - ../descargas-rioja:/app/descargas-rioja
+      - ../descargas-valencia:/app/descargas-valencia
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    entrypoint: ["/usr/bin/tini", "--"]
+    command:
+      - bash
+      - -lc
+      - |
+        while true; do
+          ionice -c3 nice -n 19 node /app/scripts/importar-masivo.mjs --minutos 180 --federaciones federacion,federacion-2,federacion-3 || true
+          sleep 1800
+        done
