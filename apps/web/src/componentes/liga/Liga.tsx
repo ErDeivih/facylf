@@ -67,7 +67,7 @@ export function CifrasDeLiga({ resumen }: { resumen: ResumenDePartidos }) {
       etiqueta: 'Actas correctas',
       valor: porcentaje(resumen.actas_correctas, resumen.actas) === null
         ? '—' : `${porcentaje(resumen.actas_correctas, resumen.actas)} %`,
-      nota: `${numero(resumen.actas)} partidos con acta`,
+      nota: `${numero(resumen.actas_correctas)} correctas de ${numero(resumen.actas)} con acta · ${numero(resumen.actas)}/${numero(resumen.con_resultado)} con resultado`,
     },
   ];
   return <Cifras cifras={cifras} />;
@@ -166,7 +166,7 @@ export function ResultadosRecientes({ jornada, partidos, base }: {
 }
 
 /** Cuándo se marcan los goles, con la tabla equivalente. */
-export function GolesPorTramoDeLiga({ tramos }: { tramos: ReadonlyArray<{ orden: number; etiqueta: string; goles: number }> }) {
+export function GolesPorTramoDeLiga({ tramos, totalGoles }: { tramos: ReadonlyArray<{ orden: number; etiqueta: string; goles: number }>; totalGoles: number }) {
   const total = tramos.reduce((suma, tramo) => suma + tramo.goles, 0);
   if (total === 0) {
     return <SinDatosDeLiga id="goles-vacio" titulo="Cuándo se marcan los goles">Sin goles publicados en las actas de esta liga.</SinDatosDeLiga>;
@@ -181,7 +181,7 @@ export function GolesPorTramoDeLiga({ tramos }: { tramos: ReadonlyArray<{ orden:
     <GraficoBarras
       id="goles-por-tramo-liga"
       titulo="Cuándo se marcan los goles"
-      subtitulo={`${conclusionDeTramos(tramos)} · Goles por tramo de quince minutos, contados desde las actas`}
+      subtitulo={`${conclusionDeTramos(tramos)} · ${total} de ${totalGoles} goles con minuto publicado`}
       resumen={`Goles por tramo: ${tramos.map((tramo) => `${tramo.etiqueta}, ${tramo.goles} goles`).join('; ')}`}
       datos={tramos.map((tramo) => ({
         etiqueta: tramo.etiqueta,
@@ -312,7 +312,7 @@ export function CanteraDelGrupo({ filas }: { filas: readonly FilaEquipoDeLiga[] 
       </ul>
       <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-nota leading-5 text-[var(--texto-suave)]">
         Porcentaje sobre los minutos publicados del equipo.
-        {sinCantera > 0 ? ` ${numero(sinCantera)} equipos no han alineado a futbolistas de categorías inferiores.` : ''}
+        {sinCantera > 0 ? ` En ${numero(sinCantera)} equipos no constan alineaciones de futbolistas de categorías inferiores en los datos disponibles.` : ''}
         {sinMinutos > 0 ? ` ${numero(sinMinutos)} equipos no tienen minutos publicados.` : ''}
       </p>
     </section>

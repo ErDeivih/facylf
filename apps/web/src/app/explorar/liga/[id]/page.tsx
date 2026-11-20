@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible, consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import {
-  CLASIFICACION_DE_LA_PANTALLA, GRUPO_POR_ID,
+  CLASIFICACION_CALCULADA, GRUPO_POR_ID,
   type FilaClasificacionPantalla, type FilaPortadaGrupo,
 } from '@/consultas/competiciones';
 import { DISCIPLINA_Y_CANTERA_DEL_GRUPO, type FilaEquipoDeLiga } from '@/consultas/liga';
@@ -81,7 +81,7 @@ export default async function PaginaLiga({ params }: { params: Promise<{ id: str
       { sql: PARTIDOS_DE_GRUPO.sql, parametros: [grupo.federacion, grupo.grupo_codigo, 1000] },
       { sql: EVENTOS_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
       { sql: DISCIPLINA_Y_CANTERA_DEL_GRUPO.sql, parametros: [grupo.grupo_id] },
-      { sql: CLASIFICACION_DE_LA_PANTALLA.sql, parametros: [grupo.grupo_id] },
+      { sql: CLASIFICACION_CALCULADA.sql, parametros: [grupo.grupo_id] },
     ]);
     partidos = p as unknown as FilaPartidoCanonico[];
     eventos = (e as unknown as FilaEventosDelGrupo[])[0]?.datos ?? eventos;
@@ -107,7 +107,7 @@ export default async function PaginaLiga({ params }: { params: Promise<{ id: str
         <ResultadosDeLiga resumen={resumen} />
         <ResultadosRecientes jornada={recientes.jornada} partidos={recientes.partidos} base={base} />
       </div>
-      <GolesPorTramoDeLiga tramos={tramos} />
+      <GolesPorTramoDeLiga tramos={tramos} totalGoles={resumen.goles} />
       <CanteraDelGrupo filas={equipos} />
       <div className="grid items-start gap-[18px] lg:grid-cols-2">
         <ClasificacionResumida filas={clasificacion} base={base} />
