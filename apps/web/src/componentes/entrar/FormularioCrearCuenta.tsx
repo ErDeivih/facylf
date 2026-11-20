@@ -64,7 +64,7 @@ export function FormularioCrearCuenta({ volver }: { volver: string | null }) {
         />
         <span>
           Acepto el uso privado de mis datos. La federación tiene consentimiento para publicar los
-          nombres de los menores; las fotos no se publican.
+          nombres de los menores; las fotos dependen del modo de publicación.
         </span>
       </label>
 

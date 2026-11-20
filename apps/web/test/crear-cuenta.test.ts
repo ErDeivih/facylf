@@ -73,10 +73,10 @@ describe('/crear-cuenta · alta abierta', () => {
     expect(entrada).toMatch(/<button[^>]*type="submit"[^>]*>[\s\S]*?Crear cuenta[\s\S]*?<\/button>/);
   });
 
-  it('el consentimiento dice la decisión vigente: nombres publicados y fotos no', () => {
+  it('el consentimiento dice la decisión vigente: nombres publicados y fotos según el modo', () => {
     const entrada = html();
     expect(entrada).toContain('La federación tiene consentimiento para publicar los nombres de los menores');
-    expect(entrada).toContain('las fotos no se publican');
+    expect(entrada).toContain('las fotos dependen del modo de publicación');
     expect(entrada.toLowerCase()).not.toContain('no se muestran sin permiso');
   });
 
