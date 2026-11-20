@@ -47,13 +47,16 @@ export type MedidaDeCobertura = {
 export function medidasDeCobertura(ficha: FilaFichaFederacion | null): MedidaDeCobertura[] {
   const pct = (clave: keyof FilaFichaFederacion) =>
     ficha === null ? null : numeroDePorcentaje(ficha[clave] as number | string | null);
+  // Un 0 % de posiciones no es una cobertura medida: el canónico no publica el puesto habitual de
+  // jugador, así que se enseña «sin medir» en vez de un cero que parecería un dato.
+  const posicion = pct('pct_posicion');
   return [
     { clave: 'resultado', etiqueta: 'Partidos con resultado', porcentaje: pct('pct_resultado'), detalle: 'del total publicado en la temporada' },
     { clave: 'alineacion', etiqueta: 'Con alineaciones', porcentaje: pct('pct_alineacion'), detalle: 'con los jugadores de cada equipo' },
     { clave: 'cambios', etiqueta: 'Con cambios', porcentaje: pct('pct_cambios'), detalle: 'necesarios para calcular minutos' },
     { clave: 'tarjetas', etiqueta: 'Con tarjetas', porcentaje: pct('pct_tarjetas'), detalle: 'disciplina de la temporada' },
     { clave: 'minuto-gol', etiqueta: 'Minuto del gol', porcentaje: pct('pct_minuto_gol'), detalle: 'cronología y tramos del partido' },
-    { clave: 'posicion', etiqueta: 'Con posición', porcentaje: pct('pct_posicion'), detalle: 'puesto habitual del jugador' },
+    { clave: 'posicion', etiqueta: 'Con posición', porcentaje: posicion === 0 ? null : posicion, detalle: posicion === 0 ? 'el puesto habitual no se publica' : 'puesto habitual del jugador' },
   ];
 }
 
