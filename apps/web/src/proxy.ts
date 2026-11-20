@@ -7,6 +7,24 @@ import { limiteRedis } from '@/lib/limite-redis';
 const VENTANA_MS = 60_000;
 const golpes = new Map<string, number[]>();
 
+/** Rutas de la web anterior que ya no se publican: se redirigen antes de tocar SQLite. */
+const LEGADO: Record<string, string> = {
+  '/equipos': '/explorar/competiciones',
+  '/jugadores': '/explorar/ojeo',
+  '/tecnicos': '/explorar/estadisticas',
+  '/arbitros-campos': '/explorar/estadisticas',
+  '/partidos': '/explorar/proximas',
+  '/estadisticas': '/explorar/estadisticas',
+  '/federaciones': '/explorar/competiciones',
+  '/competiciones': '/explorar/competiciones',
+};
+
+function destinoLegado(ruta: string): string | null {
+  if (LEGADO[ruta]) return LEGADO[ruta]!;
+  if (/^\/(equipo|club|competicion|jugador)\//.test(ruta)) return '/explorar';
+  return null;
+}
+
 function limitado(ip: string, maximo: number): boolean {
   const ahora = Date.now();
   const previos = (golpes.get(ip) ?? []).filter((t) => t > ahora - VENTANA_MS);
@@ -27,6 +45,8 @@ function limitado(ip: string, maximo: number): boolean {
  * este fichero usa el nombre nuevo para no quedarse con el aviso de deprecación.
  */
 export default async function proxy(request: NextRequest) {
+  const legado = destinoLegado(request.nextUrl.pathname);
+  if (legado !== null) return NextResponse.redirect(new URL(legado, request.url), 308);
   const ip = ipDe(request);
   const esApi = request.nextUrl.pathname.startsWith('/api/');
   // Las páginas admiten navegación normal; el API es mucho más estrecho. Los estáticos no pasan por aquí.

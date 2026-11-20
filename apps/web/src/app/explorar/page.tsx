@@ -24,7 +24,7 @@ const BLOQUES = [
     titulo: 'Equipos y jugadores',
     descripcion: 'Fichas, plantillas, trayectorias y comparativas.',
     enlaces: [
-      ['Equipos', '/equipos'],
+      ['Equipos', '/explorar/competiciones'],
       ['Jugadores', '/explorar/ojeo'],
       ['Comparar jugadores', '/explorar/comparar'],
       ['Ojeo por perfil', '/explorar/ojeo'],
@@ -37,7 +37,7 @@ const BLOQUES = [
       ['Goleadores', '/explorar/goleadores'],
       ['Rankings', '/explorar/rankings'],
       ['Estadísticas', '/explorar/estadisticas'],
-      ['Técnicos', '/tecnicos'],
+      ['Técnicos', '/explorar/estadisticas'],
     ],
   },
   {
