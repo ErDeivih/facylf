@@ -160,7 +160,7 @@ export default async function PantallaCalidad({ searchParams }: { searchParams: 
         <TarjetaCifra
           etiqueta="Incidencias"
           valor={String(ko)}
-          nota={koSql === ko ? 'cuadra con la columna' : `la columna dice ${koSql}`}
+          nota={ko === 0 ? 'sin descuadres' : koSql === ko ? 'coincide con la tabla' : `la columna dice ${koSql}`}
           dato="total-ko"
           tono={ko > 0 ? 'ko' : 'ok'}
         />
@@ -252,7 +252,7 @@ export default async function PantallaCalidad({ searchParams }: { searchParams: 
             <Table
               aria-label={`Calidad de ${ordenadas.length} grupos de la temporada ${temporada}`}
               aria-describedby="calidad-explicacion"
-              classNameContenedor="max-h-[70dvh] overflow-y-auto"
+              classNameContenedor="overflow-x-auto"
               etiquetaDesplazamiento="Calidad por grupo: desplázate en horizontal para ver todas las reglas"
             >
               <TableHeader>
