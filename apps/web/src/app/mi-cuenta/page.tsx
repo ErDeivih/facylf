@@ -39,6 +39,17 @@ export default async function PantallaMiCuenta({ searchParams }: {
   }
   if (!fila) return <MiCuentaError />;
 
-  return <MiCuenta perfil={normalizaPerfil(fila)} correo={null}
+  let correo: string | null = null;
+  try {
+    const filasCorreo = await ejecutaConsulta<{ correo: string | null }>(
+      { sql: 'select app.correo_de_usuario($1) as correo', presupuestoMs: 5000, rol: 'app' },
+      [sesion.userId],
+    );
+    correo = filasCorreo[0]?.correo ?? null;
+  } catch {
+    // La cuenta puede no tener credencial local (OAuth): se muestra «no se muestra», no un error.
+  }
+
+  return <MiCuenta perfil={normalizaPerfil(fila)} correo={correo}
     aviso={['preferencias','preferencias-error','origen','contrasena','contrasena-actual','contrasena-error','baja-error','baja-confirmacion','baja-credencial','baja-intentos','baja-reauth','perfil','perfil-error'].includes(aviso ?? '') ? aviso as 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' : null} />;
 }
