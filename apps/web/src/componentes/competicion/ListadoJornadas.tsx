@@ -43,7 +43,7 @@ export function ListadoJornadas({ jornadas, hrefJornada, hrefActa }: {
           </p>
         )
         : (
-          <div className="grid gap-[18px] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-[18px] sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
             {jornadas.map((jornada) => (
               <JornadaEnTabla key={jornada.numero} jornada={jornada}
                 hrefJornada={hrefJornada(jornada.numero)} hrefActa={hrefActa} />
@@ -191,7 +191,7 @@ export function EsqueletoJornadas({ filas = 4 }: { filas?: number }) {
     <div role="status" aria-live="polite" className="flex flex-col gap-3">
       <span className="sr-only">Cargando las jornadas…</span>
       <div className="h-5 w-28 rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)]" />
-      <div className="grid gap-[18px] sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-[18px] sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
         {Array.from({ length: Math.max(1, filas) }, (_, i) => (
           <div key={i} data-esqueleto="jornada"
             className="flex min-h-40 flex-col gap-2 overflow-hidden rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-3">

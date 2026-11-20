@@ -379,12 +379,12 @@ export function etiquetaDeTramo(orden: number): string {
 }
 
 /**
- * Los seis tramos de quince minutos, siempre, más el grupo «sin minuto» sólo si hay goles sin minuto.
+ * Los seis tramos de quince minutos y el 90+, siempre, más «sin minuto» sólo si hay goles sin minuto.
  * Un tramo con 0 goles es un cero real (había partidos y no se marcó en ese tramo), no un hueco.
  */
 export function tramosCompletos(tramos: readonly TramoDeGoles[]): Array<{ orden: number; etiqueta: string; goles: number }> {
   const porOrden = new Map(tramos.map((tramo) => [tramo.orden, tramo.goles]));
-  const filas = Array.from({ length: 6 }, (_, orden) => ({
+  const filas = Array.from({ length: 7 }, (_, orden) => ({
     orden, etiqueta: etiquetaDeTramo(orden), goles: porOrden.get(orden) ?? 0,
   }));
   const sinMinuto = porOrden.get(99) ?? 0;

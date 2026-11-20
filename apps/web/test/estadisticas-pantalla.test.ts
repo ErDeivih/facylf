@@ -271,11 +271,11 @@ describe('porcentajes y textos que no se inventan', () => {
 
   it('los tramos son siempre seis y el «sin minuto» sólo si existe', () => {
     const seis = tramosCompletos([{ orden: 0, goles: 3 }, { orden: 6, goles: 1 }]);
-    expect(seis.map((tramo) => tramo.etiqueta)).toEqual(["0-15'", "15-30'", "30-45'", "45-60'", "60-75'", "75-90'"]);
+    expect(seis.map((tramo) => tramo.etiqueta)).toEqual(["0-15'", "15-30'", "30-45'", "45-60'", "60-75'", "75-90'", "90+'"]);
     expect(seis[0]!.goles).toBe(3);
     expect(seis[1]!.goles).toBe(0);
     expect(tramosCompletos([{ orden: 99, goles: 2 }]).at(-1)!.etiqueta).toBe('Sin minuto');
-    expect(tramosCompletos([])).toHaveLength(6);
+    expect(tramosCompletos([])).toHaveLength(7);
     expect(etiquetaDeTramo(6)).toBe("90+'");
   });
 

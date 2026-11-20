@@ -203,7 +203,14 @@ async function Contenido({ grupo, jornadaPedida, partidos, vista, hermanos }: {
   // consulta `rachas-del-grupo` cuenta todos los resultados jugados y en una tabla publicada hasta la
   // jornada 2 mezclaba dos coberturas (PJ=2 con cuatro insignias; hallazgo I2 del QA).
   const rachasPorEquipo = new Map(
-    clasificacion.map((f) => [f.equipo_id, formaHasta(partidos, f.equipo_id, f.jornada).join('')]),
+    clasificacion.map((f) => {
+      const deLaVista = vista === 'local'
+        ? partidos.filter((p) => p.local_id === f.equipo_id)
+        : vista === 'fuera'
+          ? partidos.filter((p) => p.visitante_id === f.equipo_id)
+          : partidos;
+      return [f.equipo_id, formaHasta(deLaVista, f.equipo_id, f.jornada).join('')];
+    }),
   );
   const equipos = grupo.equipos || clasificacion.length;
   const directos = descensosDirectos({

@@ -27,13 +27,8 @@ export type TramoDeLiga = { orden: number; etiqueta: string; goles: number };
  * reparte en el último cuarto mentiría sobre cuándo se marcan.
  */
 export function tramosDeLiga(tramos: readonly TramoDeGoles[]): TramoDeLiga[] {
-  const completos = tramosCompletos(tramos).filter((tramo) => tramo.orden < 99);
-  const anadido = tramos.find((tramo) => tramo.orden === 6)?.goles ?? 0;
-  const sinMinuto = tramosCompletos(tramos).find((tramo) => tramo.orden === 99);
-  const filas: TramoDeLiga[] = [...completos];
-  if (anadido > 0) filas.push({ orden: 6, etiqueta: etiquetaDeTramo(6), goles: anadido });
-  if (sinMinuto !== undefined) filas.push({ orden: 99, etiqueta: sinMinuto.etiqueta, goles: sinMinuto.goles });
-  return filas;
+  // `tramosCompletos` ya incluye 0-15…75-90 y 90+; añadirlo otra vez duplicaba los goles del tiempo añadido.
+  return tramosCompletos(tramos);
 }
 
 /** Los partidos de la última jornada jugada: lo que se entiende por «resultados recientes». */
