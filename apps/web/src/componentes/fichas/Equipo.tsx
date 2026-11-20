@@ -179,17 +179,17 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
         ? <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-3.5 text-tabla text-[var(--texto-suave)]">Sin jugadores en las actas.</p>
         : (
           <>
-          <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-nota text-[var(--texto-suave)] md:hidden">Desplaza la tabla para ver PJ, titularidades, minutos, goles y tarjetas.</p>
+          <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2 text-nota text-[var(--texto-suave)] md:hidden">Desplaza la tabla para ver minutos, goles y tarjetas.</p>
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Plantilla: desplázate en horizontal para ver todas las columnas"
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
-            <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 620 }}>
+            <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 560 }}>
               <caption className="sr-only">
                 Jugadores que aparecen en las actas del equipo, con partidos, titularidades, minutos, goles y tarjetas.
               </caption>
               <thead>
                 <tr className="text-right text-etiqueta text-[var(--texto-suave)]">
-                  <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Jugador</th>
+                  <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] w-[150px] min-w-[150px] max-w-[150px] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Jugador</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">PJ</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Tit.</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Minutos</th>
@@ -205,7 +205,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                     : porcentajeDeMinutos(minimos, partidosElegibles);
                   return (
                     <tr key={fila.persona_id} className="text-right">
-                      <td className="sticky left-0 z-[var(--capa-pegajoso)] border-t border-[var(--fondo-sutil)] bg-[var(--fondo-elevado)] py-1.5 pl-4 pr-1.5 text-left">
+                      <td className="sticky left-0 z-[var(--capa-pegajoso)] w-[150px] min-w-[150px] max-w-[150px] border-t border-[var(--fondo-sutil)] bg-[var(--fondo-elevado)] py-1.5 pl-4 pr-1.5 text-left">
                         <Link href={`/explorar/jugador/${fila.persona_id}` as Route}
                           className="flex min-h-8 items-center gap-2.5 text-[var(--texto)] hover:text-[var(--accion)] hover:underline">
                           <span aria-hidden="true" title={fila.dorsales ?? undefined}
@@ -214,7 +214,7 @@ export function PlantillaDelEquipo({ filas, partidosElegibles }: {
                                 para todos, así que se enseña el primero y el resto queda en el `title`. */}
                             {fila.dorsales ? fila.dorsales.split('·')[0]!.trim() : ''}
                           </span>
-                          <span className="font-semibold">{fila.nombre_mostrado}</span>
+                          <span className="truncate font-semibold" title={fila.nombre_mostrado}>{fila.nombre_mostrado}</span>
                           <span className="text-nota text-[var(--texto-suave)]">
                             {fila.portero ? 'POR' : 'JUG'}
                           </span>
