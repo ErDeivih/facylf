@@ -237,8 +237,6 @@ export function marcadorDePartido(p: {
       jugado: true,
     };
   }
-  const hora = (p.hora ?? '').trim();
-  if (hora !== '') return { texto: hora, accesible: `${hora}. Sin resultado publicado`, jugado: false };
   return { texto: '—', accesible: 'Sin resultado publicado', jugado: false };
 }
 

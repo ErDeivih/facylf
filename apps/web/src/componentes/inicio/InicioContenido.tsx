@@ -93,7 +93,7 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
       {proximos.length === 0 && (
         <section aria-labelledby="proximos-portada" className="flex flex-col gap-2">
           <h2 id="proximos-portada" className="m-0 text-bloque font-bold text-[var(--texto)]">Próximos partidos</h2>
-          <p className="m-0 text-tabla text-[var(--texto-suave)]">No hay próximos partidos publicados. Si el resto de la portada carga, es que la federación aún no ha publicado esta jornada; si todo falla, puede ser un problema de conexión.</p>
+          <p className="m-0 text-tabla text-[var(--texto-suave)]">La federación aún no ha publicado los próximos partidos.</p>
         </section>
       )}
       {proximos.length > 0 && (
@@ -219,7 +219,7 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
           )
           : (
             <ul className="m-0 mt-3 grid list-none gap-2 p-0 sm:grid-cols-2 xl:grid-cols-3">
-              {competiciones.map((competicion) => (
+              {competiciones.slice(0, 6).map((competicion) => (
                 <li key={competicion.grupoId}>
                   <Link href={rutaDeCompeticion(competicion.grupoId) as Route}
                     className="flex h-full min-h-11 flex-col gap-0.5 rounded-[var(--radius-lg)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2.5 hover:border-[var(--borde-fuerte)] focus-visible:[outline-offset:2px]">

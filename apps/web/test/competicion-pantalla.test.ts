@@ -429,7 +429,7 @@ describe.skipIf(!hayCanonico)('la hora de un partido sólo se enseña si la fede
     expect(marcadorDePartido({ goles_local: 2, goles_visitante: 1, hora: null }))
       .toEqual({ texto: '2 - 1', accesible: 'Resultado 2 a 1', jugado: true });
     expect(marcadorDePartido({ goles_local: null, goles_visitante: null, hora: '16:30' }))
-      .toEqual({ texto: '16:30', accesible: '16:30. Sin resultado publicado', jugado: false });
+      .toEqual({ texto: '—', accesible: 'Sin resultado publicado', jugado: false });
     expect(marcadorDePartido({ goles_local: null, goles_visitante: null, hora: null }))
       .toEqual({ texto: '—', accesible: 'Sin resultado publicado', jugado: false });
     // Un marcador incompleto tampoco se completa a cero.

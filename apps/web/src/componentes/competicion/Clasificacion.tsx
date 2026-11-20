@@ -19,7 +19,7 @@ import {
  * `data-tabla-scroll` y las dos primeras columnas —puesto y equipo— quedan fijas a la izquierda, que es
  * la identidad de la fila.
  */
-export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrastrePendiente = false }: {
+export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrastrePendiente = false, aviso }: {
   /** Ruta de la clasificación final estimada del grupo. Si llega, se enlaza junto al título de la tabla. */
   hrefFinal?: string;
   filas: readonly FilaClasificacionPantalla[];
@@ -28,6 +28,8 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
   equipos: number;
   /** El número es el mínimo directo y el arrastre aún no está cerrado. */
   arrastrePendiente?: boolean;
+  /** Motivo por el que la tabla oficial no coincide con los resultados publicados. */
+  aviso?: string | null;
 }) {
   const origen = filas[0]?.origen ?? null;
   // Si la tabla oficial no publica goles (CyL los guarda a cero), se enseñan los reconstruidos.
@@ -59,6 +61,11 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
         )}
       </div>
 
+      {aviso && (
+        <p className="m-0 border-t border-[var(--fondo-sutil)] bg-[var(--fondo-sutil)] px-4 py-2 text-nota font-semibold text-[var(--texto)]">
+          Por conciliar: {aviso}
+        </p>
+      )}
       {filas.length === 0
         ? (
           <p className="px-4 pb-4 text-cuerpo text-[var(--texto-suave)]">
@@ -121,8 +128,8 @@ export function Clasificacion({ filas, rachas, zonas, equipos, hrefFinal, arrast
                           <details className="relative md:hidden">
                             <summary className="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center text-nota text-[var(--texto-suave)]"
                               aria-label={`Ver victorias, empates, derrotas y goles de ${f.equipo}`}>+</summary>
-                            <span className="absolute left-0 top-full z-20 block whitespace-nowrap rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-2 py-1 text-nota text-[var(--texto-suave)] shadow">
-                              V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)} · Forma {forma.map((signo) => insigniaForma(signo).letra).join('')}
+                            <span className="mt-1 block max-w-[calc(100vw-2rem)] whitespace-normal rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-2 py-1 text-nota text-[var(--texto-suave)] shadow">
+                              V-E-D {f.ganados}-{f.empatados}-{f.perdidos} · Goles {golesDeLaFila(f, usaReconstruccion)} {forma.length > 0 ? ` · Forma ${forma.map((signo) => insigniaForma(signo).letra).join('')}` : ''}
                             </span>
                           </details>
                         </div>

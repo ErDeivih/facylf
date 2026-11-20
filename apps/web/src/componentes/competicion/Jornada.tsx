@@ -4,6 +4,7 @@ import type { FilaPartidoCanonico } from '@/consultas/partidos';
 import { Escudo } from '@/componentes/Escudo';
 import { nombresDelPartido } from '@/lib/nombres-equipo';
 import { marcadorDePartido } from '@/lib/pantalla-competicion';
+import { fechaCorta } from '@/lib/vocabulario-pantalla';
 import { porcentajeCorto } from '@/lib/prediccion';
 
 /**
@@ -108,7 +109,7 @@ export function Jornada({ numero, partidos, hrefAnterior, hrefSiguiente, hrefAct
                           1 {porcentajeCorto(p.pred_local)} · X {porcentajeCorto(p.pred_empate)} · 2 {porcentajeCorto(p.pred_visitante)}
                         </span>
                       )}
-                      {hora !== '' && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{hora}</span>}
+                      {((p.fecha ?? p.fecha_prevista) !== null || hora !== '') && <span className="tabular-nums text-etiqueta text-[var(--texto-suave)]">{[p.fecha ?? p.fecha_prevista ? fechaCorta(p.fecha ?? p.fecha_prevista!) : null, hora !== '' ? hora : null].filter(Boolean).join(' · ')}</span>}
                       {campo !== '' && (
                         <span className="flex max-w-full items-baseline justify-end gap-1 text-etiqueta leading-tight text-[var(--texto-suave)]"
                           title={`Campo: ${campo}`}>
