@@ -54,7 +54,14 @@ const PEDIDAS = arg('federaciones', '').split(',').filter(Boolean);
 const TEMPORADAS = arg('temporadas', '').split(',').filter(Boolean);
 
 /** Federación de la cola → nombre que espera el importador (sólo uno cambia; ver `origen/cola.ts`). */
-const nombreParaImportador = (federacion) => (federacion === 'federacion' ? 'castilla-leon' : federacion);
+/*
+ * Todas las carpetas de Castilla y León (federacion, federacion-2 y federacion-3) son la MISMA federación
+ * para el importador: son tres colas del mismo reparto por temporadas. Antes solo se traducía `federacion`,
+ * así que lo que bajaban el segundo y el tercer navegador no llegaba nunca a la base: 2019-20, 2021-22 y
+ * 2023-24 se quedaban clavadas (medido el 20/11/2026) mientras la base no crecía.
+ */
+const nombreParaImportador = (federacion) =>
+  (/^federacion(-[0-9]+)?$/.test(federacion) ? 'castilla-leon' : federacion);
 
 function lee(ruta, porDefecto) {
   try { return JSON.parse(readFileSync(ruta, 'utf8')); } catch { return porDefecto; }
