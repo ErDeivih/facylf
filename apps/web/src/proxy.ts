@@ -49,6 +49,15 @@ export default async function proxy(request: NextRequest) {
   if (legado !== null) return NextResponse.redirect(new URL(legado, request.url), 308);
   const ip = ipDe(request);
   const esApi = request.nextUrl.pathname.startsWith('/api/');
+  // Un formulario de cuentas no necesita más de 1 MB. El límite evita que un cuerpo enorme se
+  // convierta en memoria del proceso antes de que el route handler pueda validarlo.
+  const longitud = Number(request.headers.get('content-length') ?? '0');
+  if (esApi && request.method !== 'GET' && Number.isFinite(longitud) && longitud > 1_000_000) {
+    return new NextResponse('Cuerpo demasiado grande.', {
+      status: 413,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
+  }
   // Las páginas admiten navegación normal; el API es mucho más estrecho. Los estáticos no pasan por aquí.
   if (process.env.FACYLF_SIN_LIMITE !== '1') {
     const clave = `${esApi ? 'api' : 'web'}:${ip}`;
