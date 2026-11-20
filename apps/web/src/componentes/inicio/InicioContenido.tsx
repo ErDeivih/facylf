@@ -193,8 +193,8 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
             </Link>
           ))}
         </nav>
-        <details className="mt-3 rounded-[var(--radius-md)] border border-[var(--borde)] bg-[var(--fondo-sutil)] px-3 py-2">
-          <summary className="inline-flex min-h-11 cursor-pointer items-center text-tabla font-semibold text-[var(--texto)]">Orden de categorías</summary>
+        <details className="mt-2 px-1">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-tabla font-semibold text-[var(--texto)]">Cómo se ordenan las categorías</summary>
           <div className="grid gap-2 pb-2 text-nota leading-5 text-[var(--texto-suave)] sm:grid-cols-2">
             <p className="m-0"><b className="text-[var(--texto)]">Aficionados:</b> Tercera Federación → Regional → Provincial Primera → Segunda → Tercera.</p>
             <p className="m-0"><b className="text-[var(--texto)]">Juvenil:</b> Liga Nacional → Regional A/B → Provincial Primera → Segunda → Tercera.</p>

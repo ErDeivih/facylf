@@ -69,7 +69,7 @@ const FUNCIONES: readonly Funcion[] = [
 ];
 
 const CLASE_SECCION =
-  'inline-flex min-h-11 flex-col items-start justify-center gap-0.5 whitespace-nowrap rounded-[var(--radius-lg)] px-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]';
+  'inline-flex min-h-11 flex-col items-start justify-center gap-0.5 whitespace-nowrap rounded-[var(--radius-lg)] px-1.5 text-[13px] font-semibold sm:px-3 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--foco)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--fondo-fuerte)]';
 
 /** La segunda línea: visible a partir de 1280 px; por debajo, accesible pero sin ocupar ancho. */
 const CLASE_DESCRIPTOR = 'text-etiqueta font-medium sr-only xl:not-sr-only';

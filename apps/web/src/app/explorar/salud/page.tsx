@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { CanonicoNoDisponible } from '@/consultas/adaptadores/postgres/conexion';
 import { type FilaFrescura } from '@/consultas/observabilidad';
 import { chequeosEnVivo, frescuraYCobertura } from '@/consultas/observabilidad-cache';
@@ -57,6 +58,8 @@ async function EstadoVivo({ ultimaActa }: { ultimaActa: string | null }) {
 }
 
 export default async function PaginaSalud() {
+  // La salud operativa agrega cifras nacionales; no se publica en la web de Castilla y León.
+  notFound();
   let cobertura: FilaFrescura['cobertura'] = [];
   let ultimaActa: string | null = null;
   let hayCanonico = true;

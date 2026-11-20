@@ -247,7 +247,13 @@ export const FRESCURA_Y_COBERTURA: Consulta<FilaFrescura> = {
               'calculado_en', r.calculado_en::text)
              from ops.recuento_canonico r
             limit 1)                                                      as recuento,
-           (select max(ingested_at)::text from core.match_report)          as ultima_acta,
+           (select max(r.ingested_at)::text
+              from core.match_report r
+              join core.match m on m.id = r.match_id
+              join core.phase_group g on g.id = m.phase_group_id
+              join core.competition_edition e on e.id = g.competition_edition_id
+              join core.federation f on f.id = e.federation_id
+             where (${SQL_FEDERACION_NO_EXCLUIDA}))                    as ultima_acta,
            coalesce((
              select jsonb_agg(jsonb_build_object(
                       'federacion', x.codigo,

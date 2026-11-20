@@ -1,5 +1,6 @@
 import { CanonicoNoDisponible, consulta, motivoSinCanonico } from '@/consultas/adaptadores/postgres/conexion';
 import { escudoNoEncontrado, respuestaDeEscudo } from '@/lib/escudos-http';
+import { esFederacionVisible } from '@/lib/federaciones-excluidas';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ const CODIGO_DE_FEDERACION = /^[a-z0-9-]{2,40}$/;
 
 export async function GET(_peticion: Request, { params }: { params: Promise<{ codigo: string }> }) {
   const { codigo } = await params;
-  if (!CODIGO_DE_FEDERACION.test(codigo)) return escudoNoEncontrado();
+  if (!CODIGO_DE_FEDERACION.test(codigo) || !esFederacionVisible(codigo)) return escudoNoEncontrado();
 
   const motivo = motivoSinCanonico();
   if (motivo) return Response.json({ motivo }, { status: 503, headers: { 'Cache-Control': 'no-store' } });

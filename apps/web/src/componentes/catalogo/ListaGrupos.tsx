@@ -55,7 +55,6 @@ export function ListaGrupos({ filas }: { filas: readonly FilaGrupoSelector[] }) 
                 <div className="min-w-0">
                   <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                     <Badge>{fila.temporada}</Badge>
-                    <Badge>{fila.federacion_corta ?? fila.federacion_nombre}</Badge>
                   </div>
                   <p className="m-0 text-cuerpo font-semibold text-[var(--texto)]">
                     {fila.edicion} · {fila.grupo}

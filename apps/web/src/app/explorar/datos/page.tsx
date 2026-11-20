@@ -91,9 +91,6 @@ export default async function PaginaDatos() {
         entradilla="Qué datos hay, cuáles faltan y qué hace la plataforma con cada hueco."
         meta={temporada ? `Temporada de referencia ${temporada}` : 'Sin temporada de referencia medida'}
       />
-      <Suspense fallback={<EsqueletoEstadisticas filas={6} />}>
-        <ComprobacionesDeDatos ultimaActa={ultimaActa} />
-      </Suspense>
       <CoberturaDeCastillaYLeon filas={cobertura} />
       <CapacidadDeFederaciones filas={capacidad} parametros={parametros} temporada={temporada} />
     </div>
