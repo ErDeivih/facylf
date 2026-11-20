@@ -10,7 +10,7 @@
 import type { FilaPartidoCanonico } from '@/consultas/partidos';
 
 /** Cuántos partidos caben en una página del calendario global. */
-export const TAMANO_PAGINA_CALENDARIO = 60;
+export const TAMANO_PAGINA_CALENDARIO = 25;
 
 /**
  * Lo mínimo que necesita una fila de partido del calendario. El calendario global lo cumple con su

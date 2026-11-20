@@ -24,7 +24,7 @@ import type { FiltrosCalendarioGlobal as FiltrosGlobales } from '@/lib/calendari
  * publicada): sin temporada el conjunto de partidos crece demasiado y el plan de la consulta deja de
  * estar acotado.
  *
- * La lista se pagina de 60 en 60 y **no se promete un total**: se traen 61 filas (una más que la
+ * La lista se pagina de 25 en 25 y **no se promete un total**: se traen 61 filas (una más que la
  * página) para saber si hay más y no se cuenta el conjunto entero, que es lo que la regla de rapidez
  * prohíbe. Si el filtro no devuelve nada, se dice; no se pinta una lista vacía.
  */
