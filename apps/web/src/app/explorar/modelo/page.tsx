@@ -16,10 +16,10 @@ function Tabla({ titulo, filas }: { titulo: string; filas: [string, Medida][] })
   return <section className={panel}>
     <h2 className="m-0 text-bloque font-bold">{titulo}</h2>
     <table className="mt-2 w-full text-tabla">
-      <thead><tr><th scope="col" className="text-left">Ámbito</th><th scope="col">Partidos</th><th scope="col">Log-loss</th><th scope="col">Brier</th><th scope="col">Acierto</th><th scope="col">ECE</th></tr></thead>
+      <thead><tr><th scope="col" className="text-left">Ámbito</th><th scope="col">Partidos</th><th scope="col">Log-loss</th><th scope="col" className="hidden sm:table-cell">Brier</th><th scope="col">Acierto</th><th scope="col" className="hidden sm:table-cell">ECE</th></tr></thead>
       <tbody>{filas.map(([nombre, m]) => <tr key={nombre} className="border-t border-[var(--fondo-sutil)] text-right tabular-nums">
         <th scope="row" className="py-1 text-left font-normal">{nombre}</th><td>{m.n.toLocaleString('es-ES')}</td>
-        <td>{decimal(m.log_loss)}</td><td>{decimal(m.brier)}</td><td>{porcentaje(m.acierto)}</td><td>{m.ece === undefined ? '—' : porcentaje(m.ece)}</td>
+        <td>{decimal(m.log_loss)}</td><td className="hidden sm:table-cell">{decimal(m.brier)}</td><td>{porcentaje(m.acierto)}</td><td className="hidden sm:table-cell">{m.ece === undefined ? '—' : porcentaje(m.ece)}</td>
       </tr>)}</tbody>
     </table>
   </section>;
@@ -41,11 +41,11 @@ async function RegistroDeAciertos() {
       {estado[1][0]?.version && <p className="text-tabla">Última versión emitida: {estado[1][0].version}.</p>}
       {estado[0].length === 0 ? <p className="text-tabla">Pendiente de los primeros resultados.</p> :
         <table className="w-full text-tabla tabular-nums">
-          <thead><tr><th scope="col">Versión y jornada</th><th scope="col">Partidos</th><th scope="col">Signo</th><th scope="col">Log-loss</th><th scope="col">Brier</th><th scope="col">Marcador exacto</th></tr></thead>
+          <thead><tr><th scope="col">Versión y jornada</th><th scope="col">Partidos</th><th scope="col">Acierto 1X2</th><th scope="col">Log-loss</th><th scope="col">Brier</th><th scope="col">Marcador exacto</th></tr></thead>
           <tbody>{estado[0].map((r) => <tr key={`${r.modelo}-${r.jornada}`} className="border-t border-[var(--fondo-sutil)] text-right">
             <th scope="row" className="py-1 text-left font-normal">{r.modelo} · {r.jornada === null ? 'Acumulado' : `Jornada ${r.jornada}`}</th>
             <td>{r.n}</td><td>{porcentaje(r.acierto)}</td><td>{decimal(r.log_loss)}</td><td>{decimal(r.brier)}</td>
-            <td>{r.acierto_marcador === null ? '—' : `${porcentaje(r.acierto_marcador)} de ${r.con_marcador}`}</td>
+            <td>{r.acierto_marcador === null ? '—' : `${porcentaje(r.acierto_marcador)} (${r.con_marcador} con marcador)`}</td>
           </tr>)}</tbody>
         </table>}
     </>}
@@ -58,10 +58,11 @@ export default function PantallaModelo() {
     <header>
       <h1 className="m-0 text-titulo font-bold">Cómo se calcula la predicción</h1>
       <p className="mt-1 text-tabla">Castilla y León · LightGBM · prueba temporal 2024-25 y 2025-26.</p>
+      <p className="text-tabla">Log-loss y Brier: cuanto más bajos, mejor. Acierto: porcentaje de 1X2 acertados. ECE: diferencia entre lo previsto y lo ocurrido.</p>
       <p className="text-tabla">Forma con decaimiento, rendimiento frente al tercio alto, descanso, remontadas y cohesión. Cada partido usa resultados y actas de días anteriores.</p>
     </header>
     <Tabla titulo="Evaluación oficial · Castilla y León" filas={[
-      ['LightGBM · Castilla y León', total], ['HGB de referencia · Castilla y León', evaluacion.prueba.hgb_base_causal],
+      ['LightGBM · Castilla y León', total], ['Modelo de referencia más simple · Castilla y León', evaluacion.prueba.hgb_base_causal],
     ]} />
     <Tabla titulo="Por temporada" filas={Object.entries(temporadas).map(([a, m]) => [temporada(a), m])} />
     <Tabla titulo="Por categoría" filas={Object.entries(categorias)} />

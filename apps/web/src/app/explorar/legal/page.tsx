@@ -43,17 +43,17 @@ export default function PaginaLegal() {
         <h2 id="legal-personas" className={TITULO}>Jugadores, técnicos y árbitros</h2>
         <p className={PARRAFO}>
           Se muestra el nombre tal como figura en las actas de la federación, también el de los menores.
-          No se muestra la fecha de nacimiento completa, ni documento, dirección o datos de contacto. En el buscador de talento puede aparecer el año de nacimiento como referencia deportiva.
+          No se muestra la fecha de nacimiento completa, ni documento, dirección o datos de contacto. Responsable y contacto: pendiente de publicar. En el buscador de talento puede aparecer el año de nacimiento como referencia deportiva.
         </p>
         <p className={PARRAFO}>
-          Las fotos de ficha, también las de menores, se muestran con la autorización de tratamiento de la federación. En la demo pública se sirven como ficheros estáticos.
+          Las fotos de ficha, también las de menores, se muestran con la autorización de tratamiento de la federación. En la demo pública son ficheros públicos: cualquiera con el enlace puede verlas y descargarlas.
         </p>
       </section>
 
       <section aria-labelledby="legal-cuenta" className={TARJETA}>
         <h2 id="legal-cuenta" className={TITULO}>Tu cuenta</h2>
         <p className={PARRAFO}>
-          La demo pública es una foto estática: no permite crear cuenta ni iniciar sesión. En la app
+          La demo pública es una copia fija de los datos: no permite crear cuenta ni iniciar sesión. En la app
           privada la cuenta es opcional y guarda tu nombre, correo, una huella de la contraseña (nunca la
           contraseña) y los equipos, clubes o jugadores que decides seguir.
         </p>

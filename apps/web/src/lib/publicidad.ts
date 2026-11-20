@@ -50,7 +50,7 @@ export const HUECOS_PUBLICITARIOS: readonly HuecoPublicitario[] = [
   {
     codigo: 'competicion-lateral',
     nombre: 'Lateral · competición',
-    paginas: 'Competición, sólo escritorio',
+    paginas: 'Competición de adultos, sólo escritorio',
     formato: 'media_pagina_300x600',
     formatoTexto: '300 × 600',
     posicion: 'lateral',
@@ -59,7 +59,7 @@ export const HUECOS_PUBLICITARIOS: readonly HuecoPublicitario[] = [
   {
     codigo: 'competicion-entre-jornadas',
     nombre: 'Entre bloques · competición',
-    paginas: 'Competición',
+    paginas: 'Competición de adultos',
     formato: 'rectangulo_300x250',
     formatoTexto: '300 × 250',
     posicion: 'entre-secciones',
@@ -77,7 +77,7 @@ export const HUECOS_PUBLICITARIOS: readonly HuecoPublicitario[] = [
   {
     codigo: 'equipo-entre-secciones',
     nombre: 'Entre secciones · equipo',
-    paginas: 'Ficha de equipo',
+    paginas: 'Ficha de equipo de adultos',
     formato: 'rectangulo_300x250',
     formatoTexto: '300 × 250',
     posicion: 'entre-secciones',
@@ -85,8 +85,8 @@ export const HUECOS_PUBLICITARIOS: readonly HuecoPublicitario[] = [
   },
   {
     codigo: 'rankings-entre-filas',
-    nombre: 'Entre filas · rankings',
-    paginas: 'Rankings',
+    nombre: 'Encima del ranking',
+    paginas: 'Rankings de adultos',
     formato: 'nativo',
     formatoTexto: 'Nativo, fuera de la tabla',
     posicion: 'entre-secciones',
@@ -116,7 +116,6 @@ export const ESTADO_DE_PUBLICIDAD = {
 /** Dónde NO va nada. Se enseña porque es la regla que más importa al visitante. */
 export const REGLAS_DE_PUBLICIDAD: readonly string[] = [
   'Nunca hay publicidad en páginas con datos de menores, en el acceso, en el registro, en la cuenta ni en la administración.',
-  'Los planes Ojeador y Analista no ven publicidad.',
   'Sin consentimiento no se serviría publicidad personalizada: como mucho, anuncios no personalizados.',
   'Nada de publicidad dentro de una tabla, un formulario o un listado de partidos.',
   'Cada hueco reserva su alto antes de cargar, para que la página no salte.',
@@ -131,7 +130,7 @@ export const REQUISITOS_PARA_ANUNCIOS: readonly string[] = [
   'Consentimiento de cookies certificado, con «Aceptar» y «Rechazar» en la primera capa.',
   'Política de privacidad y de cookies que nombre a los terceros que intervengan.',
   'Fichero ads.txt en la raíz del dominio.',
-  'Revisión jurídica de los datos de menores antes de que nada sea público.',
+  'Revisión jurídica de los datos de menores antes de servir publicidad cerca de ellos.',
   'Medición sin cookies y sin seguimiento de personas.',
 ];
 
