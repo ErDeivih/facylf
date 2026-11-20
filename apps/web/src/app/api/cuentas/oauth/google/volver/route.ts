@@ -83,6 +83,13 @@ export async function GET(peticion: Request): Promise<NextResponse> {
     const userId = filas[0]?.user_id;
     if (!userId) return atras(peticion, 'oauth-error');
 
+    const estado = await consulta<{ estado: string }>(
+      'select estado from app.usuario where user_id = $1', [userId], { rol: 'app' },
+    );
+    if (estado[0]?.estado !== 'activo') {
+      return NextResponse.redirect(new URL('/entrar?aviso=registro-pendiente', peticion.url));
+    }
+
     await iniciaSesion(userId);
     const respuesta = NextResponse.redirect(new URL(volver ?? '/mi-panel', peticion.url), 303);
     for (const nombre of [COOKIE_ESTADO, COOKIE_VERIFICADOR, COOKIE_VOLVER]) {

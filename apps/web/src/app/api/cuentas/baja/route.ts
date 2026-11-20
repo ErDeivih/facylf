@@ -31,12 +31,12 @@ export async function POST(peticion: Request): Promise<NextResponse> {
   }
 
   try {
-    const filas = await consulta<{ password_hash: string }>(
-      'select password_hash from app.credencial where user_id = $1',
+    const filas = await consulta<{ password_hash: string | null }>(
+      'select app.hash_credencial($1) as password_hash',
       [sesion.userId],
       { rol: 'app' },
     );
-    if (filas[0]) {
+    if (filas[0]?.password_hash) {
       const contrasena = String(datos.get('contrasena') ?? '');
       if (contrasena.length === 0 || !(await verificaContrasena(contrasena, filas[0].password_hash))) {
         return NextResponse.redirect(new URL('/mi-cuenta?aviso=baja-credencial', peticion.url), 303);
