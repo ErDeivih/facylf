@@ -127,7 +127,9 @@ export function TablaResponsiva<F>({ filas, columnas, caption, clave }: {
 }) {
   const fija = 'sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)]';
   return (
-    <div tabIndex={0} role="region" aria-label={caption}
+    <>
+      <p className="m-0 px-2 pb-1 text-nota text-[var(--texto-suave)] md:hidden">Desliza en horizontal para ver todas las columnas.</p>
+      <div tabIndex={0} role="region" aria-label={caption}
       className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
       <table className="w-full min-w-[620px] border-separate border-spacing-0 text-tabla">
         <caption className="sr-only">{caption}</caption>
@@ -162,6 +164,7 @@ export function TablaResponsiva<F>({ filas, columnas, caption, clave }: {
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

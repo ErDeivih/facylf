@@ -222,10 +222,10 @@ describe('los filtros del calendario salen de la URL y no rompen la página', ()
   it('lee los filtros válidos del calendario global', () => {
     expect(leeFiltrosCalendarioGlobal({
       fed: 'castilla-leon', temp: '2026-27', j: '4',
-      desde: '2026-09-01', hasta: '2026-09-30', q: '  Burgos  ', p: '120',
+      desde: '2026-09-01', hasta: '2026-09-30', q: '  Burgos  ', p: '125',
     })).toEqual({
       federacion: 'castilla-leon', temporada: '2026-27', jornada: 4,
-      desde: '2026-09-01', hasta: '2026-09-30', texto: 'Burgos', desplazamiento: 120,
+      desde: '2026-09-01', hasta: '2026-09-30', texto: 'Burgos', desplazamiento: 125,
     });
   });
 
@@ -239,7 +239,7 @@ describe('los filtros del calendario salen de la URL y no rompen la página', ()
   });
 
   it('la paginación se normaliza al tamaño de página y no admite negativos', () => {
-    expect(leeFiltrosCalendarioGlobal({ p: '130' }).desplazamiento).toBe(120);
+    expect(leeFiltrosCalendarioGlobal({ p: '130' }).desplazamiento).toBe(125);
     expect(leeFiltrosCalendarioGlobal({ p: '-60' }).desplazamiento).toBe(0);
     expect(leeFiltrosCalendarioGlobal({ p: '99999999' }).desplazamiento).toBe(0);
   });
@@ -270,7 +270,7 @@ describe('las URLs del calendario conservan los filtros y no escriben los valore
   it('los filtros se conservan y se codifican', () => {
     const url = urlDeCalendarioGlobal(leeFiltrosCalendarioGlobal({
       fed: 'castilla-leon', temp: '2026-27', j: '4', desde: '2026-09-01', hasta: '2026-09-30',
-      q: 'Burgos', p: '60',
+      q: 'Burgos', p: '50',
     }));
     const u = new URL(url, 'http://local');
     expect(u.pathname).toBe('/explorar/calendario');
@@ -280,7 +280,7 @@ describe('las URLs del calendario conservan los filtros y no escriben los valore
     expect(u.searchParams.get('desde')).toBe('2026-09-01');
     expect(u.searchParams.get('hasta')).toBe('2026-09-30');
     expect(u.searchParams.get('q')).toBe('Burgos');
-    expect(u.searchParams.get('p')).toBe('60');
+    expect(u.searchParams.get('p')).toBe('50');
   });
 
   it('cambiar un filtro no pierde los demás', () => {
