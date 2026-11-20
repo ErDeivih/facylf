@@ -25,7 +25,7 @@ const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 export function MiCuenta({ perfil, correo = null, aviso = null }: {
   perfil: PerfilCuenta;
   correo?: string | null;
-  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' | null;
+  aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'baja-confirmacion' | 'baja-credencial' | 'baja-intentos' | 'perfil' | 'perfil-error' | null;
 }) {
   const estado = estadoDeCuenta(perfil);
   const correoVisible = correo === null ? null : enmascaraCorreo(correo);
@@ -53,6 +53,9 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
         {aviso === 'contrasena' && <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Contraseña cambiada.</p>}
         {aviso === 'contrasena-actual' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La contraseña actual no es correcta.</p>}
         {aviso === 'contrasena-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido cambiar. Inténtalo de nuevo.</p>}
+        {aviso === 'baja-confirmacion' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Escribe BAJA para confirmar la baja.</p>}
+        {aviso === 'baja-credencial' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">La contraseña no es correcta. La baja no se ha realizado.</p>}
+        {aviso === 'baja-intentos' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Demasiados intentos. Espera unos minutos antes de volver a intentarlo.</p>}
         {aviso === 'baja-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido dar de baja la cuenta. Inténtalo de nuevo.</p>}
         {aviso === 'perfil' && <p role="status" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--accion-suave)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">Perfil guardado.</p>}
         {aviso === 'perfil-error' && <p role="alert" className="m-0 mt-2 rounded-[var(--radius-control)] bg-[var(--fondo-sutil)] px-3 py-2 text-tabla font-semibold text-[var(--texto)]">No se ha podido guardar el perfil.</p>}
@@ -202,7 +205,13 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
               Puedes descargar una copia de los datos de tu cuenta en formato JSON.
             </p>
             <a href="/api/cuentas/exportar" download className={BOTON}>Descargar mis datos</a>
-            <form action="/api/cuentas/baja" method="post" className="m-0">
+            <form action="/api/cuentas/baja" method="post" className="m-0 flex flex-col gap-2">
+              <label className={ETIQUETA}>Contraseña actual (si la cuenta tiene)
+                <input name="contrasena" type="password" autoComplete="current-password" maxLength={200} className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
+              <label className={ETIQUETA}>Escribe BAJA para confirmar
+                <input name="confirmacion" type="text" autoComplete="off" required pattern="[Bb][Aa][Jj][Aa]" className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+              </label>
               <button type="submit" className={BOTON}>Darme de baja</button>
             </form>
             <p className="m-0 text-nota text-[var(--texto-suave)]">La baja borra favoritos, avisos y preferencias, y anonimiza el perfil. No se puede deshacer.</p>
