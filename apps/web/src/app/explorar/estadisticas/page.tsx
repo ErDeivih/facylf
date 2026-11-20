@@ -76,11 +76,11 @@ export default async function PantallaEstadisticas({ searchParams }: {
       </nav>
       <h1 className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">Estadísticas</h1>
       <FiltrosEstadisticas filtros={filtros} opciones={opciones} federacion={federacion} temporada={temporada} categoria={categoria} />
-      <nav aria-label="Categoría" className="flex flex-wrap gap-2">
+      <nav aria-label="Categoría" className="grid grid-cols-4 gap-2 sm:flex sm:flex-wrap">
         {CATEGORIAS_DE_ESTADISTICAS.map((c) => (
           <Link key={c} href={urlDeEstadisticasConCategoria(filtros, c) as Route}
             aria-current={c === categoria ? 'true' : undefined}
-            className={`inline-flex min-h-11 items-center rounded-[var(--radius-md)] border px-3 text-tabla font-semibold ${c === categoria
+            className={`inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] border px-2 text-[13px] font-semibold sm:px-3 sm:text-tabla ${c === categoria
               ? 'border-[var(--accion)] bg-[var(--accion)] text-[var(--texto-inverso)]'
               : 'border-[var(--borde)] bg-[var(--fondo-elevado)] text-[var(--texto)] hover:border-[var(--accion)]'}`}>
             {etiquetaCategoria(c)}

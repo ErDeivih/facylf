@@ -9,7 +9,7 @@ export type Cifra = { etiqueta: string; valor: string; nota?: string };
  */
 export function Cifras({ cifras }: { cifras: readonly Cifra[] }) {
   return (
-    <section aria-label="Cifras" className={`${TARJETA} grid gap-2 px-4 py-3.5 sm:grid-cols-2 lg:grid-cols-4`}>
+    <section aria-label="Cifras" className={`${TARJETA} grid grid-cols-2 gap-2 px-4 py-3.5 lg:grid-cols-4`}>
       {cifras.map((cifra) => (
         <div key={cifra.etiqueta} className="rounded-[var(--radius-lg)] bg-[var(--fondo-sutil)] px-3 py-2.5">
           <p className="m-0 text-etiqueta text-[var(--texto-suave)]">{cifra.etiqueta}</p>
