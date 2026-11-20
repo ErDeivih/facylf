@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import type { FilaCampo, FilaHorarioDeCampo, FilaLocalDeCampo, FilaPartidoDeCampo } from '@/consultas/campos';
 import { diaCorto } from '@/lib/proximas';
+import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
 
 const TARJETA = 'rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)]';
 const DIAS = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'] as const;
@@ -80,7 +81,7 @@ export function LocalesDelCampo({ locales }: { locales: readonly FilaLocalDeCamp
               className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
               <span className="break-words text-tabla font-semibold text-[var(--texto)]">{l.equipo}</span>
               <span className="text-nota tabular-nums text-[var(--texto-suave)]">
-                {l.partidos} {l.partidos === 1 ? 'partido' : 'partidos'} · {l.ganados} V · {l.empatados} E · {l.perdidos} D
+                {etiquetaCategoria(l.categoria)} · {l.partidos} {l.partidos === 1 ? 'partido' : 'partidos'} · {l.ganados} V · {l.empatados} E · {l.perdidos} D
               </span>
             </Link>
           </li>

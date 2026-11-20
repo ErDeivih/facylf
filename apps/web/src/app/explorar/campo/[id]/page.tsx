@@ -63,7 +63,7 @@ export default async function PaginaCampo({ params }: { params: Promise<{ id: st
   return (
     <div className="flex flex-col gap-4">
       <Migas tramos={[
-        { texto: 'Competiciones', href: '/explorar/competiciones' },
+        { texto: 'Explorar', href: '/explorar' },
         { texto: campo.nombre },
       ]} />
       <ResumenDelCampo campo={campo} />
