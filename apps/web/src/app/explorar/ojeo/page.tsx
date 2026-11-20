@@ -142,9 +142,11 @@ async function Contenido({ filtros }: { filtros: FiltrosOjeoTipo }) {
   }
 
   const total = Number(filas[0]?.total ?? 0);
+  // La pantalla no es un listado infinito: 20 perfiles y los filtros para afinar.
+  const visibles = filas.slice(0, 20);
   const resumen = total > 1_000
-    ? `Mostrando ${filas.length} de más de 1.000 perfiles`
-    : (filas.length < total ? `Mostrando ${filas.length} de ${numero(total)} perfiles` : `${numero(total)} perfiles`);
+    ? `Mostrando ${visibles.length} de más de 1.000 perfiles`
+    : (visibles.length < total ? `Mostrando ${visibles.length} de ${numero(total)} perfiles` : `${numero(total)} perfiles`);
 
   return (
     <section className={TARJETA} aria-label="Perfiles de jugadores">
@@ -152,7 +154,7 @@ async function Contenido({ filtros }: { filtros: FiltrosOjeoTipo }) {
         <h2 className="m-0 text-bloque font-bold text-[var(--texto)]">Perfiles</h2>
         <p className="m-0 text-nota text-[var(--texto-suave)]">{resumen}</p>
       </div>
-      <TablaOjeo filas={filas} />
+      <TablaOjeo filas={visibles} />
     </section>
   );
 }
