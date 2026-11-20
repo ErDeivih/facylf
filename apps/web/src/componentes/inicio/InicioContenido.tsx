@@ -83,10 +83,10 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
             Resultados, clasificaciones y pronósticos, de Tercera Federación al fútbol base.
           </p>
         </div>
-        <nav aria-label="Accesos" className="flex flex-wrap gap-2">
-          <Link href={'/explorar/proximas' as Route} className={BOTON_PRIMARIO}>Próximos partidos</Link>
-          <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route} className={BOTON_SECUNDARIO}>Competiciones</Link>
-          <Link href={'/explorar/rankings' as Route} className={BOTON_SECUNDARIO}>Goleadores</Link>
+        <nav aria-label="Accesos" className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+          <Link href={'/explorar/proximas' as Route} className={`${BOTON_PRIMARIO} px-2 text-[13px] sm:px-4 sm:text-tabla`}>Próximos partidos</Link>
+          <Link href={urlDelSelector(FEDERACION_DE_LA_PORTADA, temporada) as Route} className={`${BOTON_SECUNDARIO} px-2 text-[13px] sm:px-4 sm:text-tabla`}>Competiciones</Link>
+          <Link href={'/explorar/rankings' as Route} className={`${BOTON_SECUNDARIO} px-2 text-[13px] sm:px-4 sm:text-tabla`}>Goleadores</Link>
         </nav>
       </header>
 
