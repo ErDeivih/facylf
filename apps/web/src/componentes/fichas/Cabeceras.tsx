@@ -131,9 +131,10 @@ export function CabeceraClub({ club, tieneEscudo }: { club: FilaClub; tieneEscud
           {[lugar, club.federacion_nombre].filter(Boolean).join(' · ')}
         </p>
         {club.aliases && (
-          <p className="m-0 text-nota text-[var(--texto-suave)]">
-            También publicado como: {club.aliases}
-          </p>
+          <details className="text-nota text-[var(--texto-suave)]">
+            <summary className="cursor-pointer font-semibold text-[var(--texto)]">Ver otros nombres</summary>
+            <p className="m-0 mt-1">{club.aliases}</p>
+          </details>
         )}
       </div>
       <div className="ml-auto">

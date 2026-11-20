@@ -228,7 +228,7 @@ export function UltimosPartidosJugador({ filas }: { filas: readonly FilaPartidoD
           <div data-tabla-scroll tabIndex={0} role="region"
             aria-label="Últimos partidos: desplázate en horizontal para ver todas las columnas"
             className="relative overflow-x-auto focus-visible:[outline-offset:-2px]">
-            <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 640 }}>
+            <table className="w-full border-separate border-spacing-0 text-tabla" style={{ minWidth: 520 }}>
               <caption className="sr-only">
                 Últimos partidos del jugador con jornada, equipo, rival, marcador, si fue titular, sus goles y sus tarjetas.
               </caption>
@@ -237,8 +237,8 @@ export function UltimosPartidosJugador({ filas }: { filas: readonly FilaPartidoD
                   <th scope="col" className="sticky left-0 z-[var(--capa-pegajoso)] bg-[var(--fondo-elevado)] py-2 pl-4 pr-1.5 text-left font-semibold">Fecha</th>
                   <th scope="col" className="px-1.5 py-2 text-left font-semibold">Equipo y rival</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Marcador</th>
-                  <th scope="col" className="px-1.5 py-2 text-left font-semibold">Jornada</th>
-                  <th scope="col" className="px-1.5 py-2 text-left font-semibold">Convocatoria</th>
+                  <th scope="col" className="hidden px-1.5 py-2 text-left font-semibold md:table-cell">Jornada</th>
+                  <th scope="col" className="hidden px-1.5 py-2 text-left font-semibold md:table-cell">Convocatoria</th>
                   <th scope="col" className="px-1.5 py-2 font-semibold">Goles</th>
                   <th scope="col" className="py-2 pl-1.5 pr-4 font-semibold">Tarjetas</th>
                 </tr>
@@ -261,7 +261,7 @@ export function UltimosPartidosJugador({ filas }: { filas: readonly FilaPartidoD
                       <td className="border-t border-[var(--fondo-sutil)] px-1.5 py-1.5 font-bold tabular-nums text-[var(--texto)]">
                         {marcador(fila.goles_propios, fila.goles_rival)}
                       </td>
-                      <td className="border-t border-[var(--fondo-sutil)] px-1.5 py-1.5 text-left">
+                      <td className="hidden border-t border-[var(--fondo-sutil)] px-1.5 py-1.5 text-left md:table-cell">
                         {fila.jornada_numero === null
                           ? <span className="text-[var(--texto-suave)]">Sin jornada</span>
                           : (

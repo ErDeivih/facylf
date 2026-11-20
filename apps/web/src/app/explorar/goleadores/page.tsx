@@ -77,7 +77,7 @@ export default async function PantallaGoleadores({ searchParams }: {
               <th scope="col" className="hidden px-2 py-2 text-right font-semibold md:table-cell">Partidos</th>
             </tr></thead>
             <tbody>
-              {filas.slice(0, 50).map((f) => (
+              {filas.slice(0, 25).map((f) => (
                 <tr key={`${f.persona_id}-${f.equipo_id}`} className="border-t border-[var(--fondo-sutil)]">
                   <td className="px-2 py-1.5 tabular-nums text-[var(--texto-suave)]">{f.posicion}</td>
                   <td className="px-2 py-1.5 text-[var(--texto)]">
@@ -94,7 +94,7 @@ export default async function PantallaGoleadores({ searchParams }: {
         </div>
         {filas.length > 50 && (
           <p className="m-0 border-t border-[var(--fondo-sutil)] px-4 py-2.5 text-nota text-[var(--texto-suave)]">
-            Mostrando los 50 primeros de {filas.length}. Cambia de categoría, modalidad o género para afinar la lista.
+            Mostrando los 25 primeros de {filas.length}. Cambia de categoría, modalidad o género para afinar la lista.
           </p>
         )}
       </section>
