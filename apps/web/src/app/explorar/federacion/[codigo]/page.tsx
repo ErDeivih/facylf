@@ -10,10 +10,10 @@ import {
 } from '@/consultas/federaciones';
 import { AvisoSinArchivo, Migas } from '@/componentes/fichas/piezas';
 import {
-  AvisosDeLaFederacion, CabeceraFederacion, ComparativaDeFederaciones, CompeticionesDeLaFederacion, QueDatosPublica,
+  AvisosDeLaFederacion, CabeceraFederacion, CompeticionesDeLaFederacion, QueDatosPublica,
 } from '@/componentes/federacion/Federacion';
 import {
-  avisosDeCobertura, codigoDeFederacion, combinaAvisos, federacionesComparables, medidasDeCobertura,
+  avisosDeCobertura, codigoDeFederacion, combinaAvisos, medidasDeCobertura,
   tituloDeFederacion,
 } from '@/lib/federacion-ficha';
 
@@ -71,7 +71,6 @@ export default async function PaginaFederacion({ params }: { params: Promise<{ c
   const ficha = fichas.find((fila) => fila.codigo === codigo) ?? null;
   const medidas = medidasDeCobertura(ficha);
   const avisos = combinaAvisos(avisosDeCobertura(ficha), avisosCatalogo);
-  const comparables = federacionesComparables(fichas, codigo, 12);
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -84,7 +83,6 @@ export default async function PaginaFederacion({ params }: { params: Promise<{ c
       <QueDatosPublica medidas={medidas} />
       <AvisosDeLaFederacion avisos={avisos} />
       <CompeticionesDeLaFederacion ediciones={ediciones} federacion={codigo} />
-      <ComparativaDeFederaciones fichas={comparables} actual={codigo} />
     </div>
   );
 }

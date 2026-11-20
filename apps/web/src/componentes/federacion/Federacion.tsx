@@ -157,7 +157,7 @@ export function CompeticionesDeLaFederacion({ ediciones, federacion }: {
               const contenido = (
                 <>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate font-semibold text-[var(--texto)]" title={edicion.edicion}>{edicion.edicion}</span>
+                    <span className="line-clamp-2 font-semibold text-[var(--texto)]" title={edicion.edicion}>{edicion.edicion}</span>
                     <span className="text-nota text-[var(--texto-suave)]">
                       {[etiquetasDeEdicion(edicion), `${edicion.grupos} grupo${edicion.grupos === 1 ? '' : 's'}`]
                         .filter(Boolean).join(' · ')}
