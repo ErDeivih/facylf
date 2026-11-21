@@ -54,7 +54,8 @@ export async function GET(peticion: Request, { params }: { params: Promise<{ pro
   destino.searchParams.set('state', estado);
   destino.searchParams.set('code_challenge', reto);
   destino.searchParams.set('code_challenge_method', 'S256');
-  destino.searchParams.set('prompt', 'select_account');
+  destino.searchParams.set('prompt', reauth ? 'login' : 'select_account');
+  if (reauth) destino.searchParams.set('max_age', '0');
 
   const respuesta = NextResponse.redirect(destino);
   respuesta.cookies.set(COOKIE_ESTADO, estado, opcionesCookie());

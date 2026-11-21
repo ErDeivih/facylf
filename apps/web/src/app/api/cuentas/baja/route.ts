@@ -55,7 +55,7 @@ export async function POST(peticion: Request): Promise<NextResponse> {
         const token = (await cookies()).get(SESION_COOKIE)?.value;
         const reciente = token
           ? await consulta<{ ok: boolean }>(
-            "select coalesce((select reautenticada_en > now() - interval '15 minutes' from app.sesion where token_sha = $1 and user_id = $2), false) as ok",
+            'select app.reautenticacion_oauth_reciente($1, $2) as ok',
             [sha256Hex(token), sesion.userId], { rol: 'app' },
           )
           : [];

@@ -65,4 +65,14 @@ describe('alta de cuenta · respuesta neutra', () => {
     expect(respuesta.headers.get('set-cookie')).toBeNull();
   });
 
+
+  it('en aprobación, un correo existente comparte el aviso pendiente', async () => {
+    mocks.modoRegistro.mockResolvedValue('aprobacion');
+    mocks.altaCuenta.mockRejectedValue(new Error('CORREO_YA_REGISTRADO'));
+    const respuesta = await POST(peticion());
+    expect(respuesta.status).toBe(303);
+    expect(respuesta.headers.get('location')).toBe('http://localhost/crear-cuenta?aviso=registro-neutral-pendiente');
+    expect(respuesta.headers.get('set-cookie')).toBeNull();
+  });
+
 });

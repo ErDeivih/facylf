@@ -60,8 +60,13 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     if (aviso === 'no-disponible') {
       console.error('cuentas/crear: no se pudo crear la cuenta', error instanceof Error ? error.message : error);
     }
-    // Un correo ya registrado recibe la misma respuesta neutra que un alta correcta.
-    return atras(peticion, aviso === 'registro' ? 'registro-neutral' : aviso, destino);
+    // Un correo ya registrado recibe la misma respuesta neutra que un alta correcta, también en modo
+    // aprobación: el aviso depende del modo global, no de si la cuenta existía.
+    if (aviso === 'registro') {
+      const modo = await modoRegistro().catch(() => null);
+      return atras(peticion, modo === 'aprobacion' ? 'registro-neutral-pendiente' : 'registro-neutral', destino);
+    }
+    return atras(peticion, aviso, destino);
   }
 }
 

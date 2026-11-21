@@ -70,4 +70,14 @@ describe('OAuth con Google · retorno', () => {
       globalThis.fetch = original;
     }
   });
+
+  it('la reautenticación pide login explícito y max_age=0', async () => {
+    process.env.GOOGLE_CLIENT_ID = 'cliente-de-prueba';
+    process.env.GOOGLE_CLIENT_SECRET = 'secreto-de-prueba';
+    const respuesta = await iniciar(new Request('http://localhost/api/cuentas/oauth/google/iniciar?reauth=1'), params());
+    const destino = new URL(respuesta.headers.get('location') ?? '');
+    expect(destino.searchParams.get('prompt')).toBe('login');
+    expect(destino.searchParams.get('max_age')).toBe('0');
+  });
+
 });
