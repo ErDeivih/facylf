@@ -50,6 +50,18 @@ export default async function PantallaMiCuenta({ searchParams }: {
     // La cuenta puede no tener credencial local (OAuth): se muestra «no se muestra», no un error.
   }
 
-  return <MiCuenta perfil={normalizaPerfil(fila)} correo={correo}
+  let tieneContrasena = false;
+  try {
+    const filasHash = await ejecutaConsulta<{ hash_credencial: string | null }>(
+      { sql: 'select app.hash_credencial($1) as hash_credencial', presupuestoMs: 5000, rol: 'app' },
+      [sesion.userId],
+    );
+    tieneContrasena = Boolean(filasHash[0]?.hash_credencial);
+  } catch {
+    // Sin dato se cae al formulario; el route handler vuelve a comprobar la contraseña.
+    tieneContrasena = true;
+  }
+
+  return <MiCuenta perfil={normalizaPerfil(fila)} correo={correo} tieneContrasena={tieneContrasena}
     aviso={['preferencias','preferencias-error','origen','contrasena','contrasena-actual','contrasena-error','baja-error','baja-confirmacion','baja-credencial','baja-intentos','baja-reauth','perfil','perfil-error'].includes(aviso ?? '') ? aviso as 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'perfil' | 'perfil-error' : null} />;
 }

@@ -171,6 +171,13 @@ describe('la pantalla de Mi cuenta', () => {
     expect(html).toContain('Guardar preferencias');
   });
 
+  it('una cuenta de Google no muestra un cambio de contraseña que no puede usar', () => {
+    const html = render({ tieneContrasena: false });
+    expect(html).not.toContain('action="/api/cuentas/contrasena"');
+    expect(html).toContain('entra con Google');
+    expect(html).toContain('No aplica: entras con Google');
+  });
+
   it('la seguridad dice lo que no existe y deja cerrar la sesión de verdad', () => {
     const html = render();
     expect(html).toContain('Verificación en dos pasos');

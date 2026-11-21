@@ -22,9 +22,10 @@ const ENLACE_MENU = 'flex min-h-11 items-center rounded-[var(--radius-control)] 
 const BOTON = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo-elevado)] px-4 text-tabla font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]';
 const ETIQUETA = 'text-etiqueta text-[var(--texto-suave)]';
 
-export function MiCuenta({ perfil, correo = null, aviso = null }: {
+export function MiCuenta({ perfil, correo = null, aviso = null, tieneContrasena = true }: {
   perfil: PerfilCuenta;
   correo?: string | null;
+  tieneContrasena?: boolean;
   aviso?: 'preferencias' | 'preferencias-error' | 'origen' | 'contrasena' | 'contrasena-actual' | 'contrasena-error' | 'baja-error' | 'baja-confirmacion' | 'baja-credencial' | 'baja-intentos' | 'baja-reauth' | 'perfil' | 'perfil-error' | null;
 }) {
   const estado = estadoDeCuenta(perfil);
@@ -176,9 +177,10 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
             <dl className="m-0 grid gap-x-4 gap-y-2 sm:grid-cols-2">
               <Fila etiqueta="Verificación en dos pasos" valor="No disponible" />
               <Fila etiqueta="Verificación del correo" valor="No implementada" />
-              <Fila etiqueta="Cambio de contraseña" valor="Disponible" />
+              <Fila etiqueta="Cambio de contraseña" valor={tieneContrasena ? 'Disponible' : 'No aplica: entras con Google'} />
               <Fila etiqueta="Sesiones" valor="Sesión abierta en este navegador" />
             </dl>
+            {tieneContrasena ? (
             <form action="/api/cuentas/contrasena" method="post" className="flex flex-col gap-2 border-t border-[var(--fondo-sutil)] pt-3">
               <p className="m-0 text-tabla font-semibold text-[var(--texto)]">Cambiar contraseña</p>
               <label className="text-nota text-[var(--texto-suave)]">Contraseña actual
@@ -192,6 +194,11 @@ export function MiCuenta({ perfil, correo = null, aviso = null }: {
               </label>
               <button type="submit" className={BOTON}>Cambiar contraseña</button>
             </form>
+            ) : (
+              <p className="m-0 border-t border-[var(--fondo-sutil)] pt-3 text-tabla text-[var(--texto-suave)]">
+                Esta cuenta entra con Google y no tiene contraseña local. Para cambiar la forma de acceso, habla con quien administra la plataforma.
+              </p>
+            )}
             <form action="/api/cuentas/salir" method="post" className="m-0">
               <button type="submit" className={BOTON}>Cerrar sesión</button>
             </form>
