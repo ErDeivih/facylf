@@ -1,0 +1,18 @@
+{
+  "consulta": "partidos-de-grupo-por-id",
+  "presupuestoMs": 800,
+  "plan": "indexado",
+  "forma": {
+    "nodos": [
+      "Index Only Scan",
+      "Index Scan",
+      "Limit",
+      "Materialize",
+      "Nested Loop",
+      "Result",
+      "Sort"
+    ],
+    "seqScans": [],
+    "filas": 90
+  }
+}

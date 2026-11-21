@@ -145,6 +145,23 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
      limit $3`,
 };
 
+/**
+ * Los mismos partidos, pero seleccionados por el id canónico del grupo.
+ *
+ * `PARTIDOS_DE_GRUPO` conserva la firma histórica (federación + código externo + límite) porque la usan
+ * muchas pantallas. La API de estadísticas necesita el id: el código externo sólo es único dentro de
+ * una edición y, si se reutiliza, el resumen podría mezclar temporadas. Esta variante elimina esa
+ * posibilidad sin cambiar la consulta grande ni duplicarla a mano.
+ */
+export const PARTIDOS_DE_GRUPO_POR_ID: Consulta<FilaPartidoCanonico> = {
+  ...PARTIDOS_DE_GRUPO,
+  nombre: 'partidos-de-grupo-por-id',
+  descripcion: 'Partidos de un grupo seleccionado por su id canónico, con la misma forma que partidos-de-grupo.',
+  sql: PARTIDOS_DE_GRUPO.sql
+    .replace('where f.codigo = $1 and g.codigo_externo = $2', 'where g.id = $1')
+    .replace('limit $3', 'limit $2'),
+};
+
 /** Temporada en curso para las vistas que miran hacia delante. Único sitio donde se nombra. */
 export const TEMPORADA_EN_CURSO = '2026-27';
 
@@ -809,10 +826,11 @@ export const ACTA_DEL_PARTIDO: Consulta<FilaActaCanonica> = {
      limit 1`,
 };
 
-export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
+export const CONSULTAS_PARTIDOS = [PARTIDOS_DE_GRUPO, PARTIDOS_DE_GRUPO_POR_ID, PROXIMOS_PARTIDOS, PROXIMOS_POR_COMPETICION, GOLES_DE_PARTIDOS, GRUPO_DEL_CANONICO, CLASIFICACION_DEL_GRUPO, ACTA_DEL_PARTIDO] as const;
 
 export const PARAMETROS_PARTIDOS: Record<string, readonly unknown[]> = {
   'partidos-de-grupo': ['castilla-leon', '11379752', 400],
+  'partidos-de-grupo-por-id': [44, 400],
   'proximos-partidos': ['2026-27', 14, null],
   'proximos-por-competicion': ['2026-27', 14, null],
   'goles-de-partidos': ['castilla-leon', '11379752', 2000],

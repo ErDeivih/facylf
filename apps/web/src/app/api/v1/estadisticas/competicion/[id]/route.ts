@@ -5,7 +5,7 @@ import { idDeApi, respuestaDeFallo } from '@/lib/api-datos';
 import { cacheado, ETIQUETAS } from '@/lib/cache';
 import { consulta, consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import { GRUPO_POR_ID, type FilaPortadaGrupo } from '@/consultas/competiciones';
-import { PARTIDOS_DE_GRUPO, type FilaPartidoCanonico } from '@/consultas/partidos';
+import { PARTIDOS_DE_GRUPO_POR_ID, type FilaPartidoCanonico } from '@/consultas/partidos';
 import {
   EVENTOS_DEL_GRUPO, GOLEADORES_DE_ESTADISTICAS,
   type EventosDelGrupo, type FilaEventosDelGrupo, type FilaGoleadorEstadisticas, type ResumenDePartidos,
@@ -58,7 +58,7 @@ export async function GET(req: Request, contexto: ContextoRuta): Promise<Respons
         const [portada] = await consulta<FilaPortadaGrupo>(GRUPO_POR_ID.sql, [id]);
         if (!portada) return null;
         const [partidosFilas, eventosFilas, goleadoresFilas] = await consultaEnUnaFoto([
-          { sql: PARTIDOS_DE_GRUPO.sql, parametros: [portada.federacion, portada.grupo_codigo, 1000] },
+          { sql: PARTIDOS_DE_GRUPO_POR_ID.sql, parametros: [portada.grupo_id, 1000] },
           { sql: EVENTOS_DEL_GRUPO.sql, parametros: [portada.grupo_id] },
           {
             sql: GOLEADORES_DE_ESTADISTICAS.sql,
