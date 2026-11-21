@@ -7,7 +7,20 @@ import { mismoOrigen } from '@/lib/seguridad';
 /** Registro de una vista de página. Sin cookies, sin IP y sin identificar a nadie. */
 export async function POST(peticion: Request): Promise<NextResponse> {
   // Analítica sin CSRF: una web ajena no debe poder inflar las vistas de nuestras rutas.
-  if (!mismoOrigen(peticion)) return new NextResponse(null, { status: 403 });
+  // `sendBeacon` no manda `Origin`; en ese caso se acepta `Sec-Fetch-Site: same-origin` o un
+  // `Referer` del mismo host.
+  const sitio = peticion.headers.get('sec-fetch-site');
+  const deMismoSitio = sitio === 'same-origin'
+    || (sitio === null && (() => {
+      const referer = peticion.headers.get('referer');
+      if (!referer) return false;
+      try {
+        return new URL(referer).host === peticion.headers.get('host');
+      } catch {
+        return false;
+      }
+    })());
+  if (!mismoOrigen(peticion) && !deMismoSitio) return new NextResponse(null, { status: 403 });
   const ip = ipDe(peticion);
   if (!permite(`metricas:${ip}`, 60, 10 * 60 * 1000) || !(await limiteCompartido(`metricas:${ip}`, 120, 600))) return new NextResponse(null, { status: 429 });
   let cuerpo: { ruta?: unknown; referrer?: unknown } = {};
