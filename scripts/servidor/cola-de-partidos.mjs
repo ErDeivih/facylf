@@ -240,6 +240,42 @@ function principal() {
     console.log(`JORNADAS DE LA SEMANA devueltas a la cola para releer horarios: ${jornadasReleidas}`);
   }
 
+  /*
+   * ── RELECTURA SOLO DE LO QUE YA TOCA (21/11/2026, idea de Claude) ─────────────────────────────────────
+   *
+   * Releer todas las jornadas de hoy cada media hora son ~50 peticiones por ciclo. La mayoría no han
+   * cambiado: sus partidos aún no se han jugado. Este modo relee **solo** las jornadas que tienen algún
+   * partido cuya hora de inicio más dos horas ya pasó y que sigue **sin código de acta**. En cuanto una
+   * jornada tiene todos sus códigos, deja de pedirse.
+   */
+  if (argumentos.includes('--releer-actas') && !seco) {
+    const marca = new Date(ahora).toISOString();
+    const limite = new Date(ahora - 2 * 3600e3).toISOString().slice(0, 19).replace('T', ' ');
+    const abrir = db.prepare(`
+      select distinct t.temporada, t.competicion, t.grupo, t.jornada
+        from trabajos t
+       where t.tipo = 'jornada'
+         and exists (select 1 from partidos p
+                      where p.temporada = t.temporada and p.competicion = t.competicion
+                        and p.grupo = t.grupo and p.jornada = t.jornada
+                        and p.codigo_acta is null
+                        and p.fecha is not null
+                        and datetime(p.fecha || 'T' || coalesce(nullif(p.hora, ''), '00:00')) <= ?)
+         ${filtroTemporada ? 'and t.temporada in (select codigo from temporadas where etiqueta = ?)' : ''}
+    `).all(limite, ...(filtroTemporada ? [filtroTemporada] : []));
+    const reabre = db.prepare(`update trabajos set estado = 'pendiente', siguiente_intento = ?, actualizado_en = ?,
+        intentos = 0, ultimo_error = null, prioridad = ?
+      where tipo = 'jornada' and estado != 'en_curso' and temporada = ? and competicion = ? and grupo = ? and jornada = ?`);
+    let n = 0;
+    db.exec('begin');
+    for (const j of abrir) {
+      reabre.run(marca, marca, BANDA_JORNADAS_SIN_ACTA, j.temporada, j.competicion, j.grupo, String(j.jornada));
+      n += 1;
+    }
+    db.exec('commit');
+    console.log(`JORNADAS CON PARTIDOS YA JUGADOS SIN ACTA devueltas a la cola: ${n}`);
+  }
+
   // ── REPASO DEL LUNES: la jornada siguiente, con horario y si ya hay acta (árbitro) ─────────────
   if (argumentos.includes('--proxima')) {
     const hoy = new Date(ahora).toISOString().slice(0, 10);
