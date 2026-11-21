@@ -49,6 +49,9 @@ export default async function proxy(request: NextRequest) {
   if (legado !== null) return NextResponse.redirect(new URL(legado, request.url), 308);
   const ip = ipDe(request);
   const esApi = request.nextUrl.pathname.startsWith('/api/');
+  // `/api/v1` tiene su propio límite (300/min) y devuelve errores JSON versionados; el proxy no debe
+  // cortarlo antes con un 429 de texto plano.
+  const esApiV1 = request.nextUrl.pathname.startsWith('/api/v1');
   // Un formulario de cuentas no necesita más de 1 MB. El límite evita que un cuerpo enorme se
   // convierta en memoria del proceso antes de que el route handler pueda validarlo.
   const longitud = Number(request.headers.get('content-length') ?? '0');
@@ -59,7 +62,7 @@ export default async function proxy(request: NextRequest) {
     });
   }
   // Las páginas admiten navegación normal; el API es mucho más estrecho. Los estáticos no pasan por aquí.
-  if (process.env.FACYLF_SIN_LIMITE !== '1') {
+  if (process.env.FACYLF_SIN_LIMITE !== '1' && !esApiV1) {
     const clave = `${esApi ? 'api' : 'web'}:${ip}`;
     const maximo = esApi ? 40 : 180;
     const redis = await limiteRedis(clave, maximo, 60);

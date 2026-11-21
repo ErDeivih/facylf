@@ -45,11 +45,14 @@ export function ipDe(peticion: Request): string {
     const real = peticion.headers.get('x-real-ip')?.trim();
     if (real) return real;
   }
-  // X-Forwarded-For puede traer una cadena del cliente; el proxy añade la suya al final.
-  const reenviada = peticion.headers.get('x-forwarded-for');
-  if (reenviada) {
-    const ultima = reenviada.split(',').map((x) => x.trim()).filter(Boolean).at(-1);
-    if (ultima) return ultima;
+  // `X-Forwarded-For` sólo es fiable si el proxy de confianza la sobrescribe. Sin esa configuración
+  // se agrupa todo como «local»; aceptar una cabecera del cliente permitiría reiniciar la cuota.
+  if (process.env.FACYLF_CONFIANZA_PROXY === '1') {
+    const reenviada = peticion.headers.get('x-forwarded-for');
+    if (reenviada) {
+      const ultima = reenviada.split(',').map((x) => x.trim()).filter(Boolean).at(-1);
+      if (ultima) return ultima;
+    }
   }
   return 'local';
 }

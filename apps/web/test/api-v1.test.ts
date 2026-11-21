@@ -87,6 +87,9 @@ describe('contrato de la API: envoltorio, ETag y errores', () => {
     expect(idDeApi('-1')).toBeNull();
     expect(idDeApi('4.5')).toBeNull();
     expect(idDeApi('abc')).toBeNull();
+    expect(idDeApi('0x10')).toBeNull();
+    expect(idDeApi('1e3')).toBeNull();
+    expect(idDeApi('9007199254740993')).toBeNull();
     expect(idDeApi(undefined)).toBeNull();
   });
 
@@ -173,14 +176,19 @@ describe('contrato de la API: envoltorio, ETag y errores', () => {
   });
 
   it('la IP de la petición sale de x-forwarded-for sin inventarla', () => {
+    process.env.FACYLF_CONFIANZA_PROXY = '1';
     expect(ipDePeticion(peticion('/x', { headers: { 'x-forwarded-for': '9.9.9.9, 10.0.0.1' } }))).toBe('10.0.0.1');
+    delete process.env.FACYLF_CONFIANZA_PROXY;
+    expect(ipDePeticion(peticion('/x', { headers: { 'x-forwarded-for': '9.9.9.9' } }))).toBe('local');
     expect(ipDePeticion(peticion('/x'))).toBe('local');
   });
 
   it('el limitador se puede aplicar a una petición concreta y responde 429 con Retry-After', async () => {
     reiniciaLimitesApi();
+    process.env.FACYLF_CONFIANZA_PROXY = '1';
     for (let i = 0; i < LIMITE_POR_MINUTO; i++) limitePorIp('8.8.8.8');
     const bloqueo = conLimiteDePeticiones(peticion('/api/v1/acta/1', { headers: { 'x-forwarded-for': '8.8.8.8' } }));
+    delete process.env.FACYLF_CONFIANZA_PROXY;
     expect(bloqueo).not.toBeNull();
     expect(bloqueo!.status).toBe(429);
     expect(bloqueo!.headers.get('retry-after')).toBeTruthy();

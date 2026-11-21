@@ -36,8 +36,10 @@ export type LecturaFiltros =
 
 /** Un id de ruta de la API: entero positivo o `null`. */
 export function idDeApi(crudo: string | undefined): number | null {
+  // Sólo dígitos decimales: `Number` aceptaría `0x10`, `1e3` o perdería precisión en un bigint.
+  if (crudo === undefined || !/^[1-9][0-9]{0,15}$/.test(crudo)) return null;
   const n = Number(crudo);
-  return Number.isInteger(n) && n > 0 ? n : null;
+  return Number.isSafeInteger(n) ? n : null;
 }
 
 /** Un parámetro de la URL, recortado; ausente o vacío es «sin filtro». */
@@ -127,7 +129,10 @@ export function leeFiltrosCalendarioApi(parametros: URLSearchParams): LecturaFil
  */
 export function respuestaDeFallo(error: unknown): Response {
   if (error instanceof CanonicoNoDisponible) {
-    const respuesta = errorApi(503, 'canonico_no_disponible', error.message);
+    // El mensaje del adaptador puede contener nombres de tablas o detalles de PostgreSQL: se registra
+    // en el servidor y al cliente se le da un texto fijo.
+    console.error('[api-v1] canónico no disponible:', error.message);
+    const respuesta = errorApi(503, 'canonico_no_disponible', 'El servicio de datos no está disponible en este momento.');
     respuesta.headers.set('Retry-After', '30');
     return respuesta;
   }
