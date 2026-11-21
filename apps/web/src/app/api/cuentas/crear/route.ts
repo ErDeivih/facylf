@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { altaCuenta } from '@/lib/cuentas-db';
+import { altaCuenta, modoRegistro } from '@/lib/cuentas-db';
 import { hashContrasena } from '@/lib/contrasenas';
 import {
   avisoDeErrorRegistro, contrasenaValida, correoValido, nombreValido,
@@ -52,8 +52,9 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     await altaCuenta({ userId, correo, passwordHash, codigo: null, nombre });
 
     // La respuesta es la misma exista o no el correo: no se crea sesión automáticamente y no se
-    // distingue desde fuera si la cuenta era nueva. El alta no inicia sesión; se entra después.
-    return atras(peticion, 'registro-neutral', destino);
+    // distingue desde fuera si la cuenta era nueva. El modo de registro sí se puede explicar.
+    const modo = await modoRegistro().catch(() => null);
+    return atras(peticion, modo === 'aprobacion' ? 'registro-neutral-pendiente' : 'registro-neutral', destino);
   } catch (error) {
     const aviso = avisoDeErrorRegistro(error);
     if (aviso === 'no-disponible') {

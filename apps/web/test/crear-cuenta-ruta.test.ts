@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   altaCuenta: vi.fn(),
+  modoRegistro: vi.fn(),
   hashContrasena: vi.fn(),
   limiteCompartido: vi.fn(),
 }));
 
-vi.mock('@/lib/cuentas-db', () => ({ altaCuenta: mocks.altaCuenta }));
+vi.mock('@/lib/cuentas-db', () => ({ altaCuenta: mocks.altaCuenta, modoRegistro: mocks.modoRegistro }));
 vi.mock('@/lib/contrasenas', () => ({ hashContrasena: mocks.hashContrasena }));
 vi.mock('@/lib/limites-db', () => ({ limiteCompartido: mocks.limiteCompartido }));
 
@@ -34,6 +35,7 @@ function peticion(): Request {
 describe('alta de cuenta · respuesta neutra', () => {
   beforeEach(() => {
     mocks.altaCuenta.mockReset();
+    mocks.modoRegistro.mockReset().mockResolvedValue('abierto');
     mocks.hashContrasena.mockReset().mockResolvedValue('scrypt$32768$8$1$sal$hash');
     mocks.limiteCompartido.mockReset().mockResolvedValue(true);
   });
@@ -53,4 +55,14 @@ describe('alta de cuenta · respuesta neutra', () => {
     expect(respuesta.headers.get('location')).toBe('http://localhost/crear-cuenta?aviso=registro-neutral');
     expect(respuesta.headers.get('set-cookie')).toBeNull();
   });
+
+  it('en modo aprobación avisa sin revelar si el correo existía', async () => {
+    mocks.modoRegistro.mockResolvedValue('aprobacion');
+    mocks.altaCuenta.mockResolvedValue('pendiente');
+    const respuesta = await POST(peticion());
+    expect(respuesta.status).toBe(303);
+    expect(respuesta.headers.get('location')).toBe('http://localhost/crear-cuenta?aviso=registro-neutral-pendiente');
+    expect(respuesta.headers.get('set-cookie')).toBeNull();
+  });
+
 });

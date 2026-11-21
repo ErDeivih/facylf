@@ -116,6 +116,7 @@ export const TEXTOS_AVISO: Readonly<Record<string, string>> = {
   'acepto': 'Tienes que aceptar el uso de los datos para crear la cuenta.',
   'registro-cerrado': 'El registro no está abierto ahora mismo.',
   'registro': 'No se ha podido crear la cuenta. Si ya tienes una, entra con tu correo.',
+  'registro-neutral-pendiente': 'Solicitud procesada. Si el correo no tenía cuenta, quedará pendiente de aprobación; si ya tenías una, entra con ella.',
   'registro-neutral': 'Solicitud procesada. Si el correo no tenía cuenta, entra con tu contraseña cuando corresponda; si ya tenías una, entra con ella.',
   'registro-pendiente': 'Cuenta creada. Queda pendiente de aprobación; podrás entrar cuando la aprueben.',
   'saliste': 'Has cerrado la sesión.',
