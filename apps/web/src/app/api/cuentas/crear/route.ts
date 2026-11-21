@@ -6,7 +6,6 @@ import {
   avisoDeErrorRegistro, contrasenaValida, correoValido, nombreValido,
   normalizaCorreo, urlVolverSegura,
 } from '@/lib/cuentas';
-import { iniciaSesion } from '@/lib/sesion';
 import { ipDe, permite } from '@/lib/limites';
 import { limiteCompartido } from '@/lib/limites-db';
 import { mismoOrigen } from '@/lib/seguridad';
@@ -52,18 +51,18 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     // Sin código de invitación: la cuenta se crea con el modo vigente de `app.ajuste`.
     const estado = await altaCuenta({ userId, correo, passwordHash, codigo: null, nombre });
 
-    if (estado === 'activo') {
-      await anotaEntrada(correo, true);
-      await iniciaSesion(userId);
-      return NextResponse.redirect(new URL(destino ?? '/mi-panel', peticion.url), 303);
-    }
-    return atras(peticion, 'registro-pendiente', destino);
+    await anotaEntrada(correo, true);
+    // La respuesta es la misma exista o no el correo: no se crea sesión automáticamente y no se
+    // distingue desde fuera si la cuenta era nueva. El alta no inicia sesión; se entra después.
+    void estado;
+    return atras(peticion, 'registro-neutral', destino);
   } catch (error) {
     const aviso = avisoDeErrorRegistro(error);
     if (aviso === 'no-disponible') {
       console.error('cuentas/crear: no se pudo crear la cuenta', error instanceof Error ? error.message : error);
     }
-    return atras(peticion, aviso, destino);
+    // Un correo ya registrado recibe la misma respuesta neutra que un alta correcta.
+    return atras(peticion, aviso === 'registro' ? 'registro-neutral' : aviso, destino);
   }
 }
 
