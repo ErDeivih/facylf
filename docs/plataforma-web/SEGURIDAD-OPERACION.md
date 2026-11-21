@@ -74,6 +74,11 @@ Lista de control mínima basada en OWASP ASVS 5:
 - rate limit diferenciado para login, búsqueda y exportación;
 - uploads futuros con tipo/tamaño verificados y almacenamiento fuera de la raíz web.
 
+> Deuda conocida (21/11/2026): la CSP actual permite `'unsafe-inline'` en scripts porque Next lo
+> necesita con la cabecera fija. No protege frente a una inyección de script en línea; sí bloquea
+> scripts y conexiones externas. El siguiente paso es generar un `nonce` por petición en `proxy.ts`
+> y pasar a `'nonce-…' 'strict-dynamic'`, comprobando que la hidratación sigue funcionando.
+
 CSP es defensa adicional y no sustituye el escape y diseño seguro. Referencias:
 [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) y
 [CSP Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html).
