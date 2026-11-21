@@ -27,6 +27,12 @@ export default async function Recuperaciones() {
           <li key={f.id} className="rounded-[var(--radius-control)] border border-[var(--borde)] bg-[var(--fondo-elevado)] px-3 py-2 text-tabla">
             <code className="break-all text-etiqueta text-[var(--texto-suave)]">{f.correo_sha}</code>
             <span className="ml-2 text-nota text-[var(--texto-suave)]">{f.creado_en.slice(0, 16).replace('T', ' ')}</span>
+            <form action="/admin/recuperaciones/atender" method="post" className="mt-2">
+              <input type="hidden" name="id" value={f.id} />
+              <button type="submit" className="inline-flex min-h-9 items-center rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] px-3 text-nota font-semibold text-[var(--texto)] hover:bg-[var(--fondo-sutil)]">
+                Marcar atendida
+              </button>
+            </form>
           </li>
         ))}
         {filas.length === 0 && <li className="text-tabla text-[var(--texto-suave)]">No hay solicitudes pendientes.</li>}
