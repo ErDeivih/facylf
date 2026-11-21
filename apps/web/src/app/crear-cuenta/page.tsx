@@ -30,5 +30,5 @@ export default async function CrearCuenta({ searchParams }: {
   const sesion = await sesionActual();
   if (sesion) redirect((volver ?? '/mi-panel') as Route);
 
-  return <PaginaCrearCuenta aviso={textoAviso(codigo)} volver={volver} />;
+  return <PaginaCrearCuenta aviso={textoAviso(codigo)} avisoCodigo={codigo ?? null} volver={volver} />;
 }

@@ -15,7 +15,8 @@ import { FormularioCrearCuenta } from './FormularioCrearCuenta';
 const TARJETA =
   'flex w-full flex-col gap-3.5 rounded-[var(--radius-tarjeta)] border border-[var(--borde)] bg-[var(--fondo-elevado)] p-6';
 
-export function PaginaCrearCuenta({ aviso, volver }: { aviso: string | null; volver: string | null }) {
+export function PaginaCrearCuenta({ aviso, volver, avisoCodigo = null }: { aviso: string | null; volver: string | null; avisoCodigo?: string | null }) {
+  const completado = avisoCodigo === 'registro-neutral' || avisoCodigo === 'registro-neutral-pendiente';
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col gap-6">
       <p className="m-0 text-center text-cuerpo text-[var(--texto-suave)]">
@@ -29,7 +30,14 @@ export function PaginaCrearCuenta({ aviso, volver }: { aviso: string | null; vol
         <h1 id="crear-cuenta-titulo" className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
           Crear cuenta
         </h1>
-        <FormularioCrearCuenta volver={volver} />
+        {completado ? (
+          <Link href={rutaConVolver('/entrar', volver) as Route}
+            className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-fuerte)]">
+            Entrar con mi cuenta
+          </Link>
+        ) : (
+          <FormularioCrearCuenta volver={volver} />
+        )}
 
         <p className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">
           ¿Ya tienes cuenta?{' '}

@@ -23,8 +23,8 @@ vi.mock('next/link', async () => {
   };
 });
 
-function html(aviso: string | null = null, volver: string | null = null): string {
-  return renderToStaticMarkup(createElement(PaginaCrearCuenta, { aviso, volver }));
+function html(aviso: string | null = null, volver: string | null = null, avisoCodigo: string | null = null): string {
+  return renderToStaticMarkup(createElement(PaginaCrearCuenta, { aviso, volver, avisoCodigo }));
 }
 
 function etiquetaDe(entrada: string, id: string): string {
@@ -98,6 +98,12 @@ describe('/crear-cuenta · alta abierta', () => {
     for (const prohibido of ['token', 'endpoint', 'api', 'servidor', 'bienvenid']) {
       expect(texto, `no debería decir «${prohibido}»`).not.toContain(prohibido);
     }
+  });
+
+  it('tras el alta neutra no repite el formulario y ofrece entrar', () => {
+    const entrada = html('Solicitud procesada.', '/mi-panel', 'registro-neutral');
+    expect(entrada).not.toContain('action="/api/cuentas/crear"');
+    expect(entrada).toContain('Entrar con mi cuenta');
   });
 
   it('las piezas se pueden renderizar por separado', () => {
