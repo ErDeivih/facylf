@@ -279,6 +279,38 @@ function principal() {
     console.log(`JORNADAS CON PARTIDOS YA JUGADOS SIN ACTA devueltas a la cola: ${n}`);
   }
 
+  /*
+   * ── RELECTURA SOLO DE LO QUE NO TIENE HORARIO (21/11/2026, a petición de David) ──────────────────────
+   *
+   * El repaso diario de las 06:00 devolvía a la cola **todas** las jornadas de la ventana, aunque ya
+   * tuvieran su hora y su árbitro: los horarios no cambian, así que era trabajo repetido todos los días.
+   * Este modo devuelve solo las jornadas que tienen algún partido **sin hora** (o sin árbitro), y deja en
+   * paz las que ya están completas. Si una lectura falló, la jornada sigue sin horario y se reintenta.
+   */
+  if (argumentos.includes('--releer-sin-hora') && !seco) {
+    const marca = new Date(ahora).toISOString();
+    const desde = new Date(ahora - 86400e3).toISOString().slice(0, 10);
+    const hasta = new Date(ahora + Number(arg('dias', 8)) * 86400e3).toISOString().slice(0, 10);
+    const abrir = db.prepare(`
+      select distinct p.temporada, p.competicion, p.grupo, p.jornada
+        from partidos p
+       where p.fecha >= ? and p.fecha <= ?
+         and (p.hora is null or p.hora = '')
+         ${filtroTemporada ? 'and p.temporada in (select codigo from temporadas where etiqueta = ?)' : ''}
+    `).all(desde, hasta, ...(filtroTemporada ? [filtroTemporada] : []));
+    const reabre = db.prepare(`update trabajos set estado = 'pendiente', siguiente_intento = ?, actualizado_en = ?,
+        intentos = 0, ultimo_error = null, prioridad = ?
+      where tipo = 'jornada' and estado != 'en_curso' and temporada = ? and competicion = ? and grupo = ? and jornada = ?`);
+    let n = 0;
+    db.exec('begin');
+    for (const j of abrir) {
+      reabre.run(marca, marca, BANDA_JORNADAS_SIN_ACTA, j.temporada, j.competicion, j.grupo, String(j.jornada));
+      n += 1;
+    }
+    db.exec('commit');
+    console.log(`JORNADAS SIN HORARIO devueltas a la cola: ${n}`);
+  }
+
   // ── REPASO DEL LUNES: la jornada siguiente, con horario y si ya hay acta (árbitro) ─────────────
   if (argumentos.includes('--proxima')) {
     const hoy = new Date(ahora).toISOString().slice(0, 10);
