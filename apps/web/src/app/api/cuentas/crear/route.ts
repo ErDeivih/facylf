@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { altaCuenta, anotaEntrada } from '@/lib/cuentas-db';
+import { altaCuenta } from '@/lib/cuentas-db';
 import { hashContrasena } from '@/lib/contrasenas';
 import {
   avisoDeErrorRegistro, contrasenaValida, correoValido, nombreValido,
@@ -49,12 +49,10 @@ export async function POST(peticion: Request): Promise<NextResponse> {
     const userId = randomUUID();
     const passwordHash = await hashContrasena(contrasena);
     // Sin código de invitación: la cuenta se crea con el modo vigente de `app.ajuste`.
-    const estado = await altaCuenta({ userId, correo, passwordHash, codigo: null, nombre });
+    await altaCuenta({ userId, correo, passwordHash, codigo: null, nombre });
 
-    await anotaEntrada(correo, true);
     // La respuesta es la misma exista o no el correo: no se crea sesión automáticamente y no se
     // distingue desde fuera si la cuenta era nueva. El alta no inicia sesión; se entra después.
-    void estado;
     return atras(peticion, 'registro-neutral', destino);
   } catch (error) {
     const aviso = avisoDeErrorRegistro(error);
