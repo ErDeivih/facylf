@@ -250,7 +250,10 @@ function principal() {
    */
   if (argumentos.includes('--releer-actas') && !seco) {
     const marca = new Date(ahora).toISOString();
-    const limite = new Date(ahora - 2 * 3600e3).toISOString().slice(0, 19).replace('T', ' ');
+    // TRES HORAS, no dos (21/11/2026, dato de David): el acta con todos los datos empieza a estar
+    // disponible en la web unas 3 horas despues del comienzo. Antes de eso la pagina de la jornada solo
+    // puede traer un resultado PROVISIONAL (el del descanso), que no sirve.
+    const limite = new Date(ahora - 3 * 3600e3).toISOString().slice(0, 19).replace('T', ' ');
     const abrir = db.prepare(`
       select distinct t.temporada, t.competicion, t.grupo, t.jornada
         from trabajos t
