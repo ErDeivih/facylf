@@ -38,7 +38,8 @@ export async function GET(_peticion: Request, { params }: { params: Promise<{ co
     return respuestaDeEscudo(fila);
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
-      return Response.json({ motivo: error.message }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+      console.error('[escudo] fallo:', error instanceof Error ? error.message : error);
+      return Response.json({ motivo: 'No se ha podido cargar el escudo.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
     }
     throw error;
   }

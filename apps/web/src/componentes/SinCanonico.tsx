@@ -27,7 +27,7 @@ export function SinCanonico({ titulo, motivo, volver = true }: {
       <h2 className="m-0 text-titulo font-semibold text-[var(--texto)]">{titulo}</h2>
       <div className="border-l-4 border-[var(--amarilla)] bg-[var(--fondo-elevado)] p-4 text-tabla text-[var(--texto)]">
         <b className="block">Ahora mismo esta página no puede leer el canónico.</b>
-        <p className="mt-1 text-[var(--texto-suave)]">{motivo}</p>
+        <p className="mt-1 text-[var(--texto-suave)]">No se ha podido conectar con el servicio de datos. Vuelve a intentarlo en un momento.</p>
         <p className="mt-3 text-[var(--texto-suave)]">
           Para levantarlo en local:{' '}
           <code className="rounded-[var(--radius-sm)] bg-[var(--fondo-sutil)] px-1 font-numero">pnpm db:arrancar</code>,{' '}
@@ -40,7 +40,7 @@ export function SinCanonico({ titulo, motivo, volver = true }: {
         </p>
         {volver && (
           <Link className="mt-3 inline-block text-nota font-semibold text-[var(--accion)] hover:underline"
-            href={'/canonico' as Route}>← Estado del canónico</Link>
+            href={'/explorar/datos' as Route}>← Cobertura y calidad</Link>
         )}
       </div>
     </div>

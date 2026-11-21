@@ -46,7 +46,6 @@ const BLOQUES = [
     enlaces: [
       ['Modelo de predicción', '/explorar/modelo'],
       ['Cobertura y calidad', '/explorar/datos'],
-      ['Salud del canónico', '/explorar/salud'],
       ['Publicidad', '/explorar/publicidad'],
     ],
   },

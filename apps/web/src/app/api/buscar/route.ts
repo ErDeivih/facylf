@@ -50,7 +50,10 @@ export async function GET(request: Request) {
   try {
     filas = await consulta<FilaBusqueda>(BUSQUEDA_POR_NOMBRE.sql, [q, federacion, null, null, SUGERENCIAS]);
   } catch (error) {
-    if (error instanceof CanonicoNoDisponible) return NextResponse.json({ motivo: error.message }, { status: 503 });
+    if (error instanceof CanonicoNoDisponible) {
+      console.error('[buscar] canónico no disponible:', error.message);
+      return NextResponse.json({ motivo: 'El servicio de datos no está disponible en este momento.' }, { status: 503 });
+    }
     throw error;
   }
 
