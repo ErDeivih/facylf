@@ -28,12 +28,18 @@ export function PaginaCrearCuenta({ aviso, volver, avisoCodigo = null }: { aviso
 
       <section aria-labelledby="crear-cuenta-titulo" className={TARJETA}>
         <h1 id="crear-cuenta-titulo" className="m-0 text-titulo font-extrabold tracking-[-0.02em] text-[var(--texto)]">
-          Crear cuenta
+          {completado ? 'Solicitud recibida' : 'Crear cuenta'}
         </h1>
+        {completado && (
+          <p className="m-0 text-tabla leading-6 text-[var(--texto-suave)]">
+            Si el correo no tenía cuenta, podrás entrar con la contraseña que acabas de indicar. Si ya
+            tenía una, utiliza tu contraseña habitual.
+          </p>
+        )}
         {completado ? (
           <Link href={rutaConVolver('/entrar', volver) as Route}
             className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-[var(--accion)] px-4 text-tabla font-semibold text-[var(--texto-fuerte)]">
-            Entrar con mi cuenta
+            Ir a iniciar sesión
           </Link>
         ) : (
           <FormularioCrearCuenta volver={volver} />

@@ -116,6 +116,7 @@ export function MiCuenta({ perfil, correo = null, aviso = null, tieneContrasena 
           <section id="avisos" aria-labelledby="avisos-titulo" className={`${TARJETA} flex flex-col gap-3`}>
             <h2 id="avisos-titulo" className="m-0 text-bloque font-bold text-[var(--texto)]">Avisos</h2>
             <p className="m-0 text-tabla text-[var(--texto-suave)]">
+              <strong className="font-semibold text-[var(--texto)]">Preferencias guardadas; el envío todavía no está disponible.</strong>{' '}
               Los avisos automáticos todavía no se envían. Puedes dejar guardadas tus preferencias para
               cuando estén disponibles.
             </p>
@@ -214,9 +215,13 @@ export function MiCuenta({ perfil, correo = null, aviso = null, tieneContrasena 
             </p>
             <a href="/api/cuentas/exportar" download className={BOTON}>Descargar mis datos</a>
             <form action="/api/cuentas/baja" method="post" className="m-0 flex flex-col gap-2">
-              <label className={ETIQUETA}>Contraseña actual (si la cuenta tiene)
-                <input name="contrasena" type="password" autoComplete="current-password" maxLength={200} className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
-              </label>
+              {tieneContrasena ? (
+                <label className={ETIQUETA}>Contraseña actual
+                  <input name="contrasena" type="password" autoComplete="current-password" maxLength={200} className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
+                </label>
+              ) : (
+                <p className="m-0 text-nota text-[var(--texto-suave)]">Esta cuenta entra con Google: no hay contraseña local que confirmar.</p>
+              )}
               <label className={ETIQUETA}>Escribe BAJA para confirmar
                 <input name="confirmacion" type="text" autoComplete="off" required pattern="[Bb][Aa][Jj][Aa]" className="mt-1 h-11 w-full rounded-[var(--radius-control)] border border-[var(--borde-fuerte)] bg-[var(--fondo)] px-2.5 text-tabla text-[var(--texto)]" />
               </label>

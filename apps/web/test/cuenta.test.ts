@@ -176,6 +176,7 @@ describe('la pantalla de Mi cuenta', () => {
     expect(html).not.toContain('action="/api/cuentas/contrasena"');
     expect(html).toContain('entra con Google');
     expect(html).toContain('No aplica: entras con Google');
+    expect(html).not.toContain('Contraseña actual');
   });
 
   it('la seguridad dice lo que no existe y deja cerrar la sesión de verdad', () => {

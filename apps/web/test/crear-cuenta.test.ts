@@ -103,7 +103,8 @@ describe('/crear-cuenta · alta abierta', () => {
   it('tras el alta neutra no repite el formulario y ofrece entrar', () => {
     const entrada = html('Solicitud procesada.', '/mi-panel', 'registro-neutral');
     expect(entrada).not.toContain('action="/api/cuentas/crear"');
-    expect(entrada).toContain('Entrar con mi cuenta');
+    expect(entrada).toContain('Ir a iniciar sesión');
+    expect(entrada).toContain('Solicitud recibida');
   });
 
   it('las piezas se pueden renderizar por separado', () => {
