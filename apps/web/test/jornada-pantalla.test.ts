@@ -482,7 +482,7 @@ describe('la miga de la competición', () => {
         { texto: 'Jornada 4' },
       ],
     }));
-    expect(html).toContain('href="/federaciones?federacion=castilla-leon"');
+    expect(html).toContain('href="/explorar/federacion/castilla-leon"');
     expect(html).toContain('href="/explorar/competicion/3769"');
     expect(html).toContain('href="/explorar/competicion/3769/jornadas"');
     expect(html).toContain('aria-current="page"');

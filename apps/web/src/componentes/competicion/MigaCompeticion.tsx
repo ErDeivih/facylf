@@ -19,7 +19,7 @@ export function MigaCompeticion({ grupo, tramos }: {
 }) {
   return (
     <nav aria-label="Ruta" className="flex flex-wrap gap-2 text-tabla text-[var(--texto-suave)]">
-      <Link className="hover:underline" href={`/federaciones?federacion=${grupo.federacion}` as Route}>
+      <Link className="hover:underline" href={`/explorar/federacion/${grupo.federacion}` as Route}>
         {grupo.federacion_corta ?? grupo.federacion_nombre}
       </Link>
       <span aria-hidden="true">›</span>

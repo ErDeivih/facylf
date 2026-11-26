@@ -8,7 +8,7 @@ import {
 } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import {
-  CATEGORIAS_FILTRABLES, VENTANAS, agrupaProximos, conCrucesPrevistos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, urlDeProximas,
+  CATEGORIAS_FILTRABLES, VENTANAS, agrupaProximos, conCrucesPrevistos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, rutaPreviaProxima, urlDeProximas,
   type CompeticionConProximos, type FiltrosProximas,
 } from '@/lib/proximas';
 import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
@@ -202,7 +202,7 @@ function Competicion({ competicion, abierta }: { competicion: CompeticionConProx
               const prediccion = linea1X2(p);
               return (
                 <li key={p.match_id ?? `c-${p.grupo_id}-${p.jornada}-${p.orden}`} className="border-t border-[var(--fondo-sutil)] first:border-t-0">
-                  <Link href={(p.match_id !== null ? `/explorar/previa/${p.match_id}` : `/explorar/competicion/${p.grupo_id}`) as Route}
+                  <Link href={rutaPreviaProxima(p) as Route}
                     className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
                     <span className="break-words text-nota tabular-nums text-[var(--texto-suave)]">
                       {competicion.grupos.length > 1 ? `${p.grupo} · ` : ''}Jornada {p.jornada}

@@ -6,7 +6,7 @@ import { CLASIFICACION_CALCULADA, GRUPO_POR_ID, type FilaClasificacionPantalla, 
 import { ZONAS_DEL_GRUPO, type FilaZonas } from '@/consultas/paneles';
 import { consultaEnUnaFoto } from '@/consultas/adaptadores/postgres/conexion';
 import { etiquetaZona, zonaDe } from '@/lib/pantalla-competicion';
-import { PARTIDOS_DE_GRUPO } from '@/consultas/partidos';
+import { PARTIDOS_DE_GRUPO_POR_ID } from '@/consultas/partidos';
 import { SinCanonico } from '@/componentes/SinCanonico';
 import { CabeceraJornada } from '@/componentes/competicion/CabeceraJornada';
 import { MigaCompeticion } from '@/componentes/competicion/MigaCompeticion';
@@ -87,8 +87,8 @@ export default async function PantallaJornada({ params }: {
 
   let partidos: PartidoDeJornada[] = [];
   try {
-    partidos = await consulta<PartidoDeJornada>(PARTIDOS_DE_GRUPO.sql,
-      [portada.federacion, portada.grupo_codigo, 1000]);
+    partidos = await consulta<PartidoDeJornada>(PARTIDOS_DE_GRUPO_POR_ID.sql,
+      [portada.grupo_id, 1000]);
   } catch (error) {
     if (error instanceof CanonicoNoDisponible) {
       return <SinCanonico titulo="Jornada" motivo={error.message} />;
@@ -135,6 +135,7 @@ export default async function PantallaJornada({ params }: {
         hrefClasificacion={`/explorar/competicion/${portada.grupo_id}`}
       />
       <PartidosDeJornada
+        mosaico
         jornada={detalle.jornada}
         partidos={detalle.partidos}
         // Sólo los partidos con acta publicada enlazan: `unavailable` es «la fuente no la ofrece» y un

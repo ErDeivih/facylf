@@ -3,7 +3,7 @@ import { formateaPorcentaje } from '@/lib/prediccion';
 import type { Route } from 'next';
 import type { FilaAcceso } from '@/consultas/usuario';
 import { rutaDeAcceso } from '@/lib/cuentas';
-import { diaCorto, linea1X2, type CompeticionConProximos } from '@/lib/proximas';
+import { diaCorto, linea1X2, rutaPreviaProxima, type CompeticionConProximos } from '@/lib/proximas';
 import { etiquetaCategoria } from '@/lib/vocabulario-pantalla';
 import { normalizaProvincia } from '@/lib/provincias-cyl';
 import {
@@ -114,7 +114,7 @@ export function InicioContenido({ competiciones, proximos = [], jornada = [], se
                     const prediccion = linea1X2(p);
                     return (
                       <li key={p.match_id ?? `c-${p.grupo_id}-${p.jornada}-${p.orden}`} className="border-t border-[var(--fondo-sutil)]">
-                        <Link href={(p.match_id !== null ? `/explorar/previa/${p.match_id}` : `/explorar/competicion/${p.grupo_id}`) as Route}
+                        <Link href={rutaPreviaProxima(p) as Route}
                           className="flex min-h-11 flex-col justify-center gap-0.5 px-4 py-2 hover:bg-[var(--fondo-sutil)]">
                           <span className="text-nota tabular-nums text-[var(--texto-suave)]">{diaCorto(p.fecha)} · Jornada {p.jornada}</span>
                           <span className="break-words text-tabla font-semibold text-[var(--texto)]">

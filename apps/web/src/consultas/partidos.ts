@@ -66,6 +66,8 @@ export type FilaPartidoCanonico = {
   pred_visitante?: number | null;
   campo: string | null;
   arbitro: string | null;
+  campo_id?: number | null;
+  arbitro_id?: number | null;
   calidad_acta: string | null;
   estado: string | null;
 };
@@ -78,7 +80,7 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
   columnas: ['match_id', 'jornada', 'orden', 'fecha', 'fecha_prevista', 'hora', 'local_id', 'visitante_id', 'local', 'visitante',
     'local_codigo', 'visitante_codigo', 'local_club_id', 'visitante_club_id', 'local_tiene_escudo',
     'visitante_tiene_escudo', 'local_nombre_corto', 'visitante_nombre_corto', 'goles_local', 'goles_visitante',
-    'pred_local', 'pred_empate', 'pred_visitante', 'campo', 'arbitro', 'calidad_acta', 'estado'],
+    'pred_local', 'pred_empate', 'pred_visitante', 'campo', 'arbitro', 'campo_id', 'arbitro_id', 'calidad_acta', 'estado'],
   sql: `
     select m.id                      as match_id,
            d.numero                  as jornada,
@@ -121,6 +123,8 @@ export const PARTIDOS_DE_GRUPO: Consulta<FilaPartidoCanonico> = {
            coalesce(ml.prob_visitante, pp.prob_visitante) as pred_visitante,
            v.nombre                  as campo,
            po.nombre_mostrado        as arbitro,
+           v.id::int                 as campo_id,
+           po.id::int                as arbitro_id,
            r.quality                 as calidad_acta,
            m.official_status         as estado
       from core.match m
@@ -166,8 +170,10 @@ export const PARTIDOS_DE_GRUPO_POR_ID: Consulta<FilaPartidoCanonico> = {
 export const TEMPORADA_EN_CURSO = '2026-27';
 
 export type FilaProximoPartido = {
-  /** `null` en un cruce del calendario previsto que todavía no es partido (no tiene previa). */
+  /** Un cruce del calendario puede tener previa antes de recibir un ID de partido. */
   match_id: number | null;
+  local_id: number;
+  visitante_id: number;
   grupo_id: number;
   grupo: string;
   edicion: string;
@@ -198,11 +204,13 @@ export const PROXIMOS_PARTIDOS: Consulta<FilaProximoPartido> = {
   descripcion: 'Partidos sin jugar con fecha de hoy en adelante, dentro de una ventana, con su predicción 1-X-2.',
   plan: 'indexado',
   presupuestoMs: 1200,
-  columnas: ['match_id', 'grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
+  columnas: ['match_id', 'local_id', 'visitante_id', 'grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
     'local', 'visitante', 'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador'],
   sql: `
     select m.id                      as match_id,
            g.id                      as grupo_id,
+           el.id::int                as local_id,
+           ev.id::int                as visitante_id,
            g.nombre                  as grupo,
            e.nombre_publicado        as edicion,
            e.id                      as edicion_id,
@@ -262,7 +270,7 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
   plan: 'indexado',
   presupuestoMs: 1200,
   columnas: ['grupo_id', 'grupo', 'edicion', 'edicion_id', 'categoria', 'jornada', 'orden', 'fecha',
-    'local', 'visitante', 'goles_esperados_local', 'goles_esperados_visitante',
+    'local', 'visitante', 'local_id', 'visitante_id', 'goles_esperados_local', 'goles_esperados_visitante',
     'pred_local', 'pred_empate', 'pred_visitante', 'pred_marcador'],
   sql: `
     select g.id                as grupo_id,
@@ -273,6 +281,8 @@ export const PROXIMOS_DEL_CALENDARIO: Consulta<FilaCrucePrevisto> = {
            c.jornada           as jornada,
            c.orden             as orden,
            to_char(c.fecha_prevista, 'YYYY-MM-DD') as fecha,
+           el.id::int          as local_id,
+           ev.id::int          as visitante_id,
            el.nombre_en_fuente as local,
            ev.nombre_en_fuente as visitante,
            (l.media_local     * coalesce(fl.ataque, 1) * coalesce(fv.defensa, 1))::float8 as goles_esperados_local,

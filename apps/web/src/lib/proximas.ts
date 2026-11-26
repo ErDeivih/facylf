@@ -8,6 +8,10 @@ import type { FilaCrucePrevisto, FilaProximoPartido, FilaProximosPorCompeticion 
 import { expectativa1X2 } from './poisson';
 
 export const VENTANAS = [7, 14, 30] as const;
+export function rutaPreviaProxima(p: FilaProximoPartido): string {
+  if (p.match_id !== null) return `/explorar/previa/${p.match_id}`;
+  return `/explorar/previa/cruce/${p.grupo_id}-${p.jornada}-${p.local_id}-${p.visitante_id}`;
+}
 export type Ventana = (typeof VENTANAS)[number];
 export const VENTANA_POR_DEFECTO: Ventana = 7;
 
@@ -52,6 +56,7 @@ export function conCrucesPrevistos(
     const e = c.pred_local == null ? expectativa1X2(c.goles_esperados_local, c.goles_esperados_visitante) : null;
     return {
       match_id: null, grupo_id: c.grupo_id, grupo: c.grupo, edicion: c.edicion, edicion_id: c.edicion_id,
+      local_id: c.local_id, visitante_id: c.visitante_id,
       categoria: c.categoria, jornada: c.jornada, orden: c.orden, fecha: c.fecha,
       local: c.local, visitante: c.visitante,
       pred_local: c.pred_local ?? e?.local ?? null, pred_empate: c.pred_empate ?? e?.empate ?? null,

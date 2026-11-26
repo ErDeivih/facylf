@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { agrupaProximos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, urlDeProximas } from '../src/lib/proximas';
+import { agrupaProximos, diaCorto, diaYMes, leeFiltrosProximas, linea1X2, rutaPreviaProxima, urlDeProximas } from '../src/lib/proximas';
 import type { FilaProximoPartido, FilaProximosPorCompeticion } from '../src/consultas/partidos';
 
 const partido = (x: Partial<FilaProximoPartido>): FilaProximoPartido => ({
-  match_id: 1, grupo_id: 10, grupo: 'Grupo A', edicion: 'Primera Regional', edicion_id: 100, categoria: 'aficionados',
+  match_id: 1, grupo_id: 10, local_id: 101, visitante_id: 102, grupo: 'Grupo A', edicion: 'Primera Regional', edicion_id: 100, categoria: 'aficionados',
   jornada: 11, orden: 1, fecha: '2026-11-21', local: 'A', visitante: 'B',
   pred_local: 49.8, pred_empate: 11.7, pred_visitante: 38.6, pred_marcador: '2-1', ...x,
 });
@@ -13,6 +13,12 @@ const resumen = (x: Partial<FilaProximosPorCompeticion>): FilaProximosPorCompeti
 });
 
 describe('próximos partidos', () => {
+  it('un aplazamiento o reordenación conserva la previa del cruce', () => {
+    const cruce = partido({ match_id: null });
+    expect(rutaPreviaProxima(cruce)).toBe('/explorar/previa/cruce/10-11-101-102');
+    expect(rutaPreviaProxima({ ...cruce, fecha: '2027-01-14', orden: 8 })).toBe(rutaPreviaProxima(cruce));
+    expect(rutaPreviaProxima(partido({}))).toBe('/explorar/previa/1');
+  });
   it('los filtros que no encajan vuelven al valor por defecto', () => {
     expect(leeFiltrosProximas({ dias: '14', categoria: 'juvenil' })).toEqual({ dias: 14, categoria: 'juvenil' });
     expect(leeFiltrosProximas({ dias: '999', categoria: "x'; drop" })).toEqual({ dias: 7, categoria: null });
